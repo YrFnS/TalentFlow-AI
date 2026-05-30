@@ -145,11 +145,15 @@ export async function executeWorkflowStep(
           // Use a built-in template - substitute with trigger data
           const tpl = BUILTIN_EMAIL_TEMPLATES[templateKey as keyof typeof BUILTIN_EMAIL_TEMPLATES];
           if (typeof tpl === 'function') {
-            finalBody = tpl(
+            const tplFn = tpl as (...args: string[]) => string;
+            const args = [
               (data.candidateName as string) || 'Candidate',
               (data.jobTitle as string) || 'Position',
-              (data.companyName as string) || 'Company'
-            ) as string;
+              (data.companyName as string) || 'Company',
+              (data.interviewDate as string) || '',
+              (data.interviewTime as string) || '',
+            ];
+            finalBody = tplFn(...args.slice(0, tplFn.length));
           }
         }
 
@@ -221,7 +225,7 @@ export async function executeWorkflowStep(
         const questions = (screeningConfig.questions as Array<{ question: string; type: string }>) || [];
 
         if (jobId && questions.length > 0) {
-          const created = [];
+          const created: string[] = [];
           for (let i = 0; i < questions.length; i++) {
             const q = questions[i];
             const sq = await db.screeningQuestion.create({
@@ -260,12 +264,12 @@ export async function executeWorkflowStep(
           if (application?.candidate?.resumeText && application.job) {
             try {
               const ZAI = (await import('z-ai-web-dev-sdk')).default;
-              const sdk = ZAI.create();
+              const sdk = await ZAI.create();
               const jobRequirements = application.job.requirements
-                ? JSON.parse(application.job.requirees || '[]')
-                : [];
+              ? JSON.parse(application.job.requirements || '[]')
+              : [];
 
-              const aiResponse = await sdk.chat.completions.create({
+              const aiResponse = await (sdk as any).chat?.completions?.create?.({
                 model: 'default',
                 messages: [
                   {
@@ -313,8 +317,8 @@ export async function executeWorkflowStep(
 
         try {
           const ZAI = (await import('z-ai-web-dev-sdk')).default;
-          const sdk = ZAI.create();
-          const aiResponse = await sdk.chat.completions.create({
+          const sdk = await ZAI.create();
+          const aiResponse = await (sdk as any).chat?.completions?.create?.({
             model: 'default',
             messages: [
               {

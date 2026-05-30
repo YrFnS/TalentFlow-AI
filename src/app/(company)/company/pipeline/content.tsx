@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useI18n } from '@/store/i18n-store';

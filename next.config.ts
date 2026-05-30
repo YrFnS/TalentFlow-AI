@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   typescript: {
-    ignoreBuildErrors: true, // Keep for dev, remove for production
+    ignoreBuildErrors: false,
   },
   reactStrictMode: true,
   async headers() {

@@ -20,7 +20,7 @@ export interface AuthLogEntry {
   email?: string;
   ipAddress?: string;
   userAgent?: string;
-  details?: string;
+  details?: string | Record<string, unknown>;
 }
 
 /**
@@ -45,7 +45,7 @@ export async function logAuthEvent(entry: AuthLogEntry): Promise<void> {
     }
 
     if (entry.details) {
-      detailsObj.details = entry.details;
+      detailsObj.details = typeof entry.details === 'string' ? entry.details : JSON.stringify(entry.details);
     }
 
     await db.auditLog.create({

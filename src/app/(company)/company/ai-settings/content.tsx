@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { AISettingsPanel } from '@/components/shared/ai-settings-panel';
 

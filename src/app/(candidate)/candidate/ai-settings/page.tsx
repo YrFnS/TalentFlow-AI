@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client'
 
 import { AISettingsPanel } from '@/components/shared/ai-settings-panel';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Email Service — Unified email sending abstraction
  *

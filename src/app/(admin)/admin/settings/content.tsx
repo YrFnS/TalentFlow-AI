@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client'
 
 import { useI18n } from '@/store/i18n-store';

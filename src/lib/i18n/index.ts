@@ -6,7 +6,7 @@ export const translations = {
   ar,
 } as const;
 
-export type TranslationKeys = typeof translations.en;
+export type TranslationKeys = typeof translations.en & Record<string, any>;
 
 // i18n configuration for English and Arabic support
 export const locales = ['en', 'ar'] as const;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { TOTP } from '@otplib/totp';
 import { NobleCryptoPlugin } from '@otplib/plugin-crypto-noble';

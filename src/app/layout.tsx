@@ -20,9 +20,6 @@ export const metadata: Metadata = {
   title: "TalentFlow AI - AI-Powered HR & ATS Platform",
   description: "The next-generation HR & ATS platform powered by AI. Streamline your hiring process, find the best candidates, and make data-driven decisions.",
   keywords: ["HR", "ATS", "AI", "Hiring", "Recruitment", "TalentFlow", "OpenRouter"],
-  icons: {
-    icon: "/logo.svg",
-  },
 };
 
 export default async function RootLayout({

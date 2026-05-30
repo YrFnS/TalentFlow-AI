@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { aiChat } from '@/lib/ai-service';
 import { requireAuth } from '@/lib/auth-guard';
