@@ -1,0 +1,1785 @@
+// HR & ATS Platform - Comprehensive Database Schema
+// Supports: App Admin, Company HR, Candidate roles
+// AI-powered with OpenRouter integration
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTICATION (NextAuth.js v4 compatible)
+// ============================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String  @id @default(cuid())
+  sessionToken String  @unique @map("session_token")
+  userId       String  @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================
+// CORE USER MODEL
+// ============================================
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
+  COMPANY_ADMIN
+  HR_MANAGER
+  RECRUITER
+  REVIEWER
+  CANDIDATE
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password      String?
+  image         String?
+  role          UserRole @default(CANDIDATE)
+  locale        String   @default("en")
+  emailVerified DateTime? @map("email_verified")
+  isActive      Boolean  @default(true) @map("is_active")
+  twoFactorEnabled Boolean @default(false) @map("two_factor_enabled")
+  twoFactorSecret  String?  @map("two_factor_secret")  // Encrypted TOTP secret
+  backupCodes      String?  @map("backup_codes")        // JSON array of hashed backup codes
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  candidateProfile  CandidateProfile?
+  companyMemberships CompanyMember[]
+  aiProviders       AIProvider[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  createdJobs       Job[]         @relation("JobCreator")
+  interviewInterviewer InterviewAssignment[] @relation("Interviewer")
+  assessmentResults AssessmentResult[]
+
+  // Phase 3 relations
+  comments        Comment[]
+  commentReactions CommentReaction[]
+  postedInternalJobs InternalJobPosting[] @relation("InternalJobPoster")
+
+  @@map("users")
+}
+
+// ============================================
+// COMPANY & TEAM
+// ============================================
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logo        String?
+  description String?
+  website     String?
+  industry    String?
+  companySize String?  @map("company_size")
+  location    String?
+  verified    Boolean  @default(false)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Career Page (Feature 4)
+  careerPageSlug  String?  @unique @map("career_page_slug")
+  careerPageConfig String? @map("career_page_config") // JSON: colors, hero, sections
+
+  // Relations
+  members     CompanyMember[]
+  jobs        Job[]
+  stages      PipelineStage[]
+  interviewKits InterviewKit[]
+  emailTemplates EmailTemplate[]
+  jobTemplates   JobTemplate[]
+  bulkEmailCampaigns BulkEmailCampaign[]
+  subscription   Subscription?
+  biasAudits     BiasAudit[]
+  fairHiringConfig FairHiringConfig?
+  hiringWorkflows HiringWorkflow[]
+  skillAssessments SkillAssessment[]
+  sourcingCampaigns SourcingCampaign[]
+  chatbotConfig    ChatbotConfig?
+
+  // Phase 3 relations
+  scorecardTemplates ScorecardTemplate[]
+  applicationSources ApplicationSource[]
+  integrationConfig  IntegrationConfig?
+
+  // Stripe (Feature #10)
+  stripeCustomerId String? @map("stripe_customer_id")
+
+  @@map("companies")
+}
+
+model CompanyMember {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  companyId String   @map("company_id")
+  role      UserRole
+  title     String?
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
+  @@map("company_members")
+}
+
+// ============================================
+// CANDIDATE PROFILE
+// ============================================
+
+model CandidateProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  phone           String?
+  location        String?
+  bio             String?
+  resumeUrl       String?  @map("resume_url")
+  resumeText      String?  @map("resume_text")
+  skills          String?  // JSON array stored as string
+  experienceYears Int?     @map("experience_years")
+  currentTitle    String?  @map("current_title")
+  linkedin        String?
+  portfolio       String?
+  availability    String?  @default("open")
+  expectedSalary  String?  @map("expected_salary")
+  isPublic        Boolean  @default(true) @map("is_public")
+  publicSlug      String?  @unique @map("public_slug")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+  experiences  Experience[]
+  educations   Education[]
+  certifications Certification[]
+  savedJobs    SavedJob[]
+  eeoSurveys   EEOSurvey[]
+  videoInterviewResponses VideoInterviewResponse[]
+  candidateSkills CandidateSkill[]
+
+  // GDPR (Feature 8)
+  gdprConsentAt   DateTime? @map("gdpr_consent_at")
+  gdprDataRequest Boolean  @default(false) @map("gdpr_data_request")
+
+  @@map("candidate_profiles")
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  profileId   String   @map("profile_id")
+  company     String
+  title       String
+  description String?
+  startDate   String   @map("start_date")
+  endDate     String?  @map("end_date")
+  current     Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  profile CandidateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("experiences")
+}
+
+model Education {
+  id          String   @id @default(cuid())
+  profileId   String   @map("profile_id")
+  institution String
+  degree      String
+  field       String?
+  startDate   String   @map("start_date")
+  endDate     String?  @map("end_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  profile CandidateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("educations")
+}
+
+model Certification {
+  id        String   @id @default(cuid())
+  profileId String   @map("profile_id")
+  name      String
+  issuer    String?
+  date      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  profile CandidateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("certifications")
+}
+
+model SavedJob {
+  id          String   @id @default(cuid())
+  candidateId String   @map("candidate_id")
+  jobId       String   @map("job_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job       Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, jobId])
+  @@map("saved_jobs")
+}
+
+// ============================================
+// JOBS & ATS
+// ============================================
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  PAUSED
+  CLOSED
+  ARCHIVED
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  REMOTE
+  HYBRID
+}
+
+model Job {
+  id              String    @id @default(cuid())
+  companyId       String    @map("company_id")
+  createdById     String    @map("created_by_id")
+  title           String
+  slug            String    @unique
+  description     String
+  requirements    String?   // JSON array stored as string
+  responsibilities String?  // JSON array stored as string
+  benefits        String?   // JSON array stored as string
+  jobType         JobType   @default(FULL_TIME) @map("job_type")
+  status          JobStatus @default(DRAFT)
+  salaryMin       Int?      @map("salary_min")
+  salaryMax       Int?      @map("salary_max")
+  salaryCurrency  String    @default("USD") @map("salary_currency")
+  location        String?
+  isRemote        Boolean   @default(false) @map("is_remote")
+  experienceMin   Int?      @map("experience_min")
+  experienceMax   Int?      @map("experience_max")
+  skills          String?   // JSON array stored as string
+  openings        Int       @default(1)
+  deadline        DateTime?
+  publishedAt     DateTime? @map("published_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Feature #17: Custom Hiring Workflows per Job
+  customPipelineEnabled Boolean  @default(false) @map("custom_pipeline_enabled")
+  customStageIds       String?  @map("custom_stage_ids") // JSON: array of PipelineStage IDs for this job
+
+  company     Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdBy   User          @relation("JobCreator", fields: [createdById], references: [id])
+  applications Application[]
+  savedBy     SavedJob[]
+  boardPostings JobBoardPosting[]
+  internalPosting InternalJobPosting?
+  workflowConfig  JobWorkflowConfig?
+
+  @@map("jobs")
+}
+
+// ============================================
+// PIPELINE & APPLICATIONS
+// ============================================
+
+model PipelineStage {
+  id        String   @id @default(cuid())
+  companyId String   @map("company_id")
+  name      String
+  order     Int
+  color     String?  @default("#6366f1")
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  company          Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applicationStages ApplicationStage[]
+  currentStageApplications Application[] @relation("CurrentStage")
+
+  @@map("pipeline_stages")
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFERED
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+model Application {
+  id          String          @id @default(cuid())
+  jobId       String          @map("job_id")
+  candidateId String          @map("candidate_id")
+  status      ApplicationStatus @default(APPLIED)
+  currentStageId String?      @map("current_stage_id")
+  coverLetter String?         @map("cover_letter")
+  matchScore  Float?          @map("match_score")
+  aiAnalysis  String?         @map("ai_analysis")
+  source      String?         @default("direct")
+  notes       String?
+  appliedAt   DateTime        @default(now()) @map("applied_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  // EEO Data (Feature 2) - voluntary demographic data
+  eeoGender     String?         @map("eeo_gender")
+  eeoEthnicity  String?         @map("eeo_ethnicity")
+  eeoVeteran    String?         @map("eeo_veteran")
+  eeoDisability String?         @map("eeo_disability")
+  eeoDeclined   Boolean         @default(false) @map("eeo_declined")
+
+  // Feature #16: Source Tracking & Attribution
+  sourceId      String?  @map("source_id") // Link to ApplicationSource
+  utmSource     String?  @map("utm_source")
+  utmMedium     String?  @map("utm_medium")
+  utmCampaign   String?  @map("utm_campaign")
+  utmContent    String?  @map("utm_content")
+
+  job             Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate       CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  currentStage    PipelineStage?   @relation("CurrentStage", fields: [currentStageId], references: [id])
+  applicationStages ApplicationStage[]
+  interviews      Interview[]
+  offers          Offer[]
+
+  @@unique([jobId, candidateId])
+  @@map("applications")
+}
+
+model ApplicationStage {
+  id            String   @id @default(cuid())
+  applicationId String   @map("application_id")
+  stageId       String   @map("stage_id")
+  enteredAt     DateTime @default(now()) @map("entered_at")
+  exitedAt      DateTime? @map("exited_at")
+  notes         String?
+
+  application Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  stage       PipelineStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+
+  @@map("application_stages")
+}
+
+// ============================================
+// INTERVIEWS
+// ============================================
+
+enum InterviewType {
+  PHONE
+  VIDEO
+  ON_SITE
+  ASYNC_VIDEO
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Interview {
+  id              String          @id @default(cuid())
+  applicationId   String          @map("application_id")
+  type            InterviewType   @default(VIDEO)
+  status          InterviewStatus @default(SCHEDULED)
+  scheduledAt     DateTime?       @map("scheduled_at")
+  durationMinutes Int             @default(30) @map("duration_minutes")
+  location        String?
+  meetingLink     String?         @map("meeting_link")
+  feedback        String?
+  rating          Int?
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  application  Application          @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  assignments  InterviewAssignment[]
+
+  @@map("interviews")
+}
+
+model InterviewAssignment {
+  id          String   @id @default(cuid())
+  interviewId String   @map("interview_id")
+  interviewerId String @map("interviewer_id")
+  scorecard   String?  // JSON stored as string
+  notes       String?
+  rating      Int?
+
+  interview  Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  interviewer User     @relation("Interviewer", fields: [interviewerId], references: [id], onDelete: Cascade)
+
+  @@map("interview_assignments")
+}
+
+model InterviewKit {
+  id          String   @id @default(cuid())
+  companyId   String   @map("company_id")
+  name        String
+  description String?
+  questions   String   // JSON array stored as string
+  criteria    String?  // JSON stored as string
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("interview_kits")
+}
+
+// ============================================
+// ASSESSMENTS
+// ============================================
+
+model Assessment {
+  id              String   @id @default(cuid())
+  companyId       String   @map("company_id")
+  title           String
+  description     String?
+  questions       String   // JSON array stored as string
+  timeLimitMinutes Int?    @map("time_limit_minutes")
+  passingScore    Int?     @map("passing_score")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  results AssessmentResult[]
+
+  @@map("assessments")
+}
+
+model AssessmentResult {
+  id           String   @id @default(cuid())
+  assessmentId String   @map("assessment_id")
+  candidateId  String   @map("candidate_id")
+  answers      String   // JSON stored as string
+  score        Float?
+  feedback     String?
+  completedAt  DateTime @default(now()) @map("completed_at")
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  candidate  User       @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("assessment_results")
+}
+
+// ============================================
+// AI CONFIGURATION (OpenRouter)
+// ============================================
+
+model AIProvider {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  name      String   // e.g., "OpenRouter", "OpenAI", etc.
+  apiKey    String   @map("api_key")
+  baseUrl   String?  @map("base_url")
+  isActive  Boolean  @default(true) @map("is_active")
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  models AIModel[]
+
+  @@map("ai_providers")
+}
+
+model AIModel {
+  id         String   @id @default(cuid())
+  providerId String   @map("provider_id")
+  modelId    String   @map("model_id")   // e.g., "openai/gpt-4o", "anthropic/claude-3.5-sonnet"
+  modelName  String   @map("model_name")  // Display name
+  isActive   Boolean  @default(true) @map("is_active")
+  isDefault  Boolean  @default(false) @map("is_default")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  provider AIProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("ai_models")
+}
+
+model AIUsageLog {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  modelId    String   @map("model_id")
+  feature    String   // e.g., "resume_analysis", "match_scoring", "cover_letter"
+  inputTokens  Int    @default(0) @map("input_tokens")
+  outputTokens Int    @default(0) @map("output_tokens")
+  duration   Int      @default(0) // ms
+  success    Boolean  @default(true)
+  error      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("ai_usage_logs")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  message   String
+  type      String   @default("info") // info, success, warning, error
+  link      String?
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ============================================
+// AUDIT LOG
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?  @map("user_id")
+  action      String
+  resource    String
+  resourceId  String?  @map("resource_id")
+  details     String?  // JSON stored as string
+  ipAddress   String?  @map("ip_address")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// ============================================
+// OFFER MANAGEMENT
+// ============================================
+
+enum OfferStatus {
+  DRAFT
+  PENDING
+  SENT
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+  EXPIRED
+}
+
+model Offer {
+  id              String      @id @default(cuid())
+  applicationId   String      @map("application_id")
+  salary          Int?
+  salaryCurrency  String      @default("USD") @map("salary_currency")
+  equity          String?
+  startDate       String?     @map("start_date")
+  benefits        String?     // JSON stored as string
+  conditions      String?     // JSON stored as string
+  letterText      String?     @map("letter_text")
+  status          OfferStatus @default(DRAFT)
+  responseDeadline DateTime?  @map("response_deadline")
+  respondedAt     DateTime?   @map("responded_at")
+  notes           String?
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  // Feature #12: E-Signatures
+  signingToken       String?   @unique @map("signing_token")
+  signingTokenExpiry DateTime? @map("signing_token_expiry")
+  candidateSignedAt  DateTime? @map("candidate_signed_at")
+  candidateSignature String?   @map("candidate_signature") // Base64 signature image or typed name
+  companySignedAt    DateTime? @map("company_signed_at")
+  companySignerId    String?   @map("company_signer_id") // Who signed on behalf of company
+  signingStatus      String    @default("PENDING") @map("signing_status") // PENDING, SENT, CANDIDATE_SIGNED, COMPLETED, EXPIRED, DECLINED
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("offers")
+}
+
+// ============================================
+// EMAIL TEMPLATES
+// ============================================
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  companyId   String   @map("company_id")
+  name        String
+  subject     String
+  body        String   // HTML with {{variable}} placeholders
+  category    String   @default("general") // interview, rejection, offer, general, follow_up
+  variables   String?  // JSON array of available variable names
+  isDefault   Boolean  @default(false) @map("is_default")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("email_templates")
+}
+
+// ============================================
+// CALENDAR & SCHEDULING
+// ============================================
+
+enum CalendarEventType {
+  INTERVIEW
+  MEETING
+  CALL
+  DEADLINE
+  REMINDER
+  OTHER
+}
+
+model CalendarEvent {
+  id              String            @id @default(cuid())
+  companyId       String?           @map("company_id")
+  userId          String?           @map("user_id")
+  title           String
+  description     String?
+  type            CalendarEventType @default(OTHER)
+  startDate       DateTime          @map("start_date")
+  endDate         DateTime?         @map("end_date")
+  allDay          Boolean           @default(false) @map("all_day")
+  location        String?
+  meetingLink     String?           @map("meeting_link")
+  reminderMinutes Int?              @map("reminder_minutes")
+  color           String?           @default("#0d9488")
+  applicationId   String?           @map("application_id")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@map("calendar_events")
+}
+
+// ============================================
+// JOB TEMPLATES
+// ============================================
+
+model JobTemplate {
+  id              String   @id @default(cuid())
+  companyId       String   @map("company_id")
+  name            String
+  title           String
+  description     String
+  requirements    String?  // JSON array stored as string
+  responsibilities String? // JSON array stored as string
+  benefits        String?  // JSON array stored as string
+  jobType         JobType  @default(FULL_TIME) @map("job_type")
+  salaryMin       Int?     @map("salary_min")
+  salaryMax       Int?     @map("salary_max")
+  location        String?
+  isRemote        Boolean  @default(false) @map("is_remote")
+  skills          String?  // JSON array stored as string
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("job_templates")
+}
+
+// ============================================
+// ACTIVITY LOG (per-candidate timeline)
+// ============================================
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  INTERVIEW
+  NOTE
+  STATUS_CHANGE
+  OFFER
+  ASSESSMENT
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  candidateId String       @map("candidate_id")
+  userId      String       @map("user_id")
+  type        ActivityType
+  title       String
+  description String?
+  applicationId String?    @map("application_id")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  @@map("activities")
+}
+
+// ============================================
+// EEO / DEI DATA (Feature 2)
+// ============================================
+
+enum EEOGender {
+  MALE
+  FEMALE
+  NON_BINARY
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum EEOEthnicity {
+  HISPANIC_OR_LATINO
+  WHITE
+  BLACK_OR_AFRICAN_AMERICAN
+  ASIAN
+  NATIVE_HAWAIIAN_OR_PACIFIC_ISLANDER
+  AMERICAN_INDIAN_OR_ALASKA_NATIVE
+  TWO_OR_MORE_RACES
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+model EEOSurvey {
+  id              String   @id @default(cuid())
+  candidateId     String   @map("candidate_id")
+  applicationId   String?  @map("application_id")
+  gender          String?
+  ethnicity       String?
+  veteranStatus   String?  @map("veteran_status")  // yes, no, prefer_not_to_say
+  disabilityStatus String? @map("disability_status") // yes, no, prefer_not_to_say
+  declinedToSelfIdentify Boolean @default(false) @map("declined_to_self_identify")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("eeo_surveys")
+}
+
+// ============================================
+// BULK EMAIL / MASS MESSAGING (Feature 7)
+// ============================================
+
+enum BulkEmailStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  FAILED
+}
+
+model BulkEmailCampaign {
+  id          String         @id @default(cuid())
+  companyId   String         @map("company_id")
+  company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name        String
+  subject     String
+  body        String         // HTML body with {{variable}} placeholders
+  templateId  String?        @map("template_id")
+  status      BulkEmailStatus @default(DRAFT)
+  recipientCount Int         @default(0) @map("recipient_count")
+  sentCount   Int            @default(0) @map("sent_count")
+  openedCount Int            @default(0) @map("opened_count")
+  clickedCount Int           @default(0) @map("clicked_count")
+  bouncedCount Int           @default(0) @map("bounced_count")
+  scheduledAt DateTime?      @map("scheduled_at")
+  sentAt      DateTime?      @map("sent_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  recipients  BulkEmailRecipient[]
+
+  @@map("bulk_email_campaigns")
+}
+
+model BulkEmailRecipient {
+  id          String   @id @default(cuid())
+  campaignId  String   @map("campaign_id")
+  candidateId String   @map("candidate_id")
+  status      String   @default("pending") // pending, sent, opened, clicked, bounced, failed
+  sentAt      DateTime? @map("sent_at")
+  openedAt    DateTime? @map("opened_at")
+
+  campaign BulkEmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("bulk_email_recipients")
+}
+
+// ============================================
+// SUBSCRIPTION / BILLING (Feature 10)
+// ============================================
+
+enum PlanType {
+  FREE
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+  EXPIRED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Plan {
+  id              String   @id @default(cuid())
+  name            String
+  type            PlanType @default(STARTER)
+  price           Float
+  currency        String   @default("USD")
+  billingCycle    String   @default("monthly") // monthly, yearly
+  features        String   // JSON array of feature strings
+  limits          String?  // JSON: { jobs: 10, applications: 100, aiCredits: 50 }
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  subscriptions Subscription[]
+
+  // Stripe (Feature #10)
+  stripePriceId String? @map("stripe_price_id")
+
+  @@map("plans")
+}
+
+model Subscription {
+  id          String            @id @default(cuid())
+  companyId   String            @unique @map("company_id")
+  planId      String            @map("plan_id")
+  status      SubscriptionStatus @default(ACTIVE)
+  startDate   DateTime          @map("start_date")
+  endDate     DateTime?         @map("end_date")
+  trialEndsAt DateTime?         @map("trial_ends_at")
+  cancelledAt DateTime?         @map("cancelled_at")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  plan    Plan    @relation(fields: [planId], references: [id])
+  invoices Invoice[]
+
+  // Stripe (Feature #10)
+  stripeSubscriptionId String? @map("stripe_subscription_id")
+  stripePriceId        String? @map("stripe_price_id")
+  currentPeriodStart   DateTime? @map("current_period_start")
+  currentPeriodEnd     DateTime? @map("current_period_end")
+
+  @@map("subscriptions")
+}
+
+model Invoice {
+  id             String       @id @default(cuid())
+  subscriptionId String       @map("subscription_id")
+  amount         Float
+  currency       String       @default("USD")
+  status         InvoiceStatus @default(PENDING)
+  invoiceNumber  String       @unique @map("invoice_number")
+  paidAt         DateTime?    @map("paid_at")
+  dueDate        DateTime?    @map("due_date")
+  pdfUrl         String?      @map("pdf_url")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  // Stripe (Feature #10)
+  stripeInvoiceId  String? @map("stripe_invoice_id")
+  hostedInvoiceUrl String? @map("hosted_invoice_url")
+  invoicePdf       String? @map("invoice_pdf")
+
+  @@map("invoices")
+}
+
+// ============================================
+// ASYNC VIDEO INTERVIEWS (Feature 11)
+// ============================================
+
+enum VideoInterviewStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+model VideoInterview {
+  id              String              @id @default(cuid())
+  applicationId   String              @map("application_id")
+  title           String
+  description     String?
+  questions       String              // JSON array of question objects
+  responseDeadline DateTime?          @map("response_deadline")
+  maxRetakes      Int                 @default(1) @map("max_retakes")
+  timePerQuestion Int?                @map("time_per_question") // seconds
+  status          VideoInterviewStatus @default(PENDING)
+  completedAt     DateTime?           @map("completed_at")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  responses VideoInterviewResponse[]
+
+  @@map("video_interviews")
+}
+
+model VideoInterviewResponse {
+  id              String   @id @default(cuid())
+  videoInterviewId String  @map("video_interview_id")
+  candidateId     String   @map("candidate_id")
+  questionIndex   Int      @map("question_index")
+  videoUrl        String?  @map("video_url")
+  duration        Int?     // seconds
+  transcript      String?
+  aiScore         Float?   @map("ai_score")
+  aiFeedback      String?  @map("ai_feedback")
+  retakes         Int      @default(0)
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  videoInterview VideoInterview @relation(fields: [videoInterviewId], references: [id], onDelete: Cascade)
+  candidate      CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("video_interview_responses")
+}
+
+// ============================================
+// GDPR DATA REQUESTS (Feature 8)
+// ============================================
+
+enum GDPRRequestType {
+  DATA_EXPORT
+  DATA_DELETION
+  DATA_CORRECTION
+}
+
+enum GDPRRequestStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
+model GDPRRequest {
+  id          String            @id @default(cuid())
+  userId      String            @map("user_id")
+  type        GDPRRequestType
+  status      GDPRRequestStatus @default(PENDING)
+  details     String?
+  downloadUrl String?           @map("download_url")
+  downloadExpiry DateTime?      @map("download_expiry")
+  completedAt DateTime?         @map("completed_at")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  @@map("gdpr_requests")
+}
+
+// ============================================
+// ONBOARDING (Post-hire automation)
+// ============================================
+
+enum OnboardingTaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  OVERDUE
+}
+
+model OnboardingPlan {
+  id          String   @id @default(cuid())
+  companyId   String   @map("company_id")
+  name        String
+  description String?
+  tasks       String   // JSON array of task definitions
+  duration    Int      @default(14) // days
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("onboarding_plans")
+}
+
+model OnboardingAssignment {
+  id         String             @id @default(cuid())
+  planId     String             @map("plan_id")
+  userId     String             @map("user_id")
+  companyId  String             @map("company_id")
+  status     OnboardingTaskStatus @default(PENDING)
+  progress   Int                @default(0) // percentage
+  startedAt  DateTime?          @map("started_at")
+  completedAt DateTime?         @map("completed_at")
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
+
+  @@map("onboarding_assignments")
+}
+
+model OnboardingTask {
+  id          String             @id @default(cuid())
+  assignmentId String            @map("assignment_id")
+  title       String
+  description String?
+  category    String             @default("general") // document, training, setup, introduction, general
+  isRequired  Boolean            @default(true) @map("is_required")
+  dueDay      Int                @default(1) // day number from start
+  status      OnboardingTaskStatus @default(PENDING)
+  completedAt DateTime?          @map("completed_at")
+  order       Int                @default(0)
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  @@map("onboarding_tasks")
+}
+
+// ============================================
+// SCREENING / KNOCKOUT QUESTIONS
+// ============================================
+
+enum ScreeningQuestionType {
+  YES_NO
+  MULTIPLE_CHOICE
+  TEXT
+  NUMBER
+  DATE
+}
+
+model ScreeningQuestion {
+  id           String                @id @default(cuid())
+  jobId        String                @map("job_id")
+  question     String
+  questionType ScreeningQuestionType  @default(YES_NO)
+  options      String?               // JSON array for multiple choice
+  isRequired   Boolean               @default(true) @map("is_required")
+  isKnockout   Boolean               @default(false) @map("is_knockout")
+  knockoutAnswer String?             @map("knockout_answer") // answer that disqualifies
+  order        Int                   @default(0)
+  createdAt    DateTime              @default(now()) @map("created_at")
+
+  responses    ScreeningResponse[]
+
+  @@map("screening_questions")
+}
+
+model ScreeningResponse {
+  id           String   @id @default(cuid())
+  questionId   String   @map("question_id")
+  applicationId String  @map("application_id")
+  answer       String
+  isKnockout   Boolean  @default(false) @map("is_knockout")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  question     ScreeningQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("screening_responses")
+}
+
+// ============================================
+// TALENT POOL / CRM
+// ============================================
+
+enum TalentPoolCategory {
+  SILVER
+  GOLD
+  PLATINUM
+  GENERAL
+}
+
+model TalentPool {
+  id          String              @id @default(cuid())
+  companyId   String              @map("company_id")
+  name        String
+  description String?
+  category    TalentPoolCategory  @default(GENERAL)
+  isDefault   Boolean             @default(false) @map("is_default")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  members TalentPoolMember[]
+
+  @@map("talent_pools")
+}
+
+model TalentPoolMember {
+  id            String   @id @default(cuid())
+  poolId        String   @map("pool_id")
+  candidateId   String   @map("candidate_id")
+  addedById     String   @map("added_by_id")
+  notes         String?
+  tags          String?  // JSON array of tags
+  lastContacted DateTime? @map("last_contacted")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  pool TalentPool @relation(fields: [poolId], references: [id], onDelete: Cascade)
+
+  @@unique([poolId, candidateId])
+  @@map("talent_pool_members")
+}
+
+// ============================================
+// REFERENCE CHECKS
+// ============================================
+
+enum ReferenceCheckStatus {
+  PENDING
+  SENT
+  COMPLETED
+  EXPIRED
+  DECLINED
+}
+
+model ReferenceCheck {
+  id              String               @id @default(cuid())
+  applicationId   String               @map("application_id")
+  candidateName   String               @map("candidate_name")
+  referenceName   String               @map("reference_name")
+  referenceEmail  String               @map("reference_email")
+  referencePhone  String?              @map("reference_phone")
+  referenceTitle  String?              @map("reference_title")
+  relationship    String?              // manager, colleague, direct report, etc.
+  company         String?
+  questions       String               // JSON array of question objects
+  responses       String?              // JSON array of response objects
+  rating          Int?
+  status          ReferenceCheckStatus @default(PENDING)
+  sentAt          DateTime?            @map("sent_at")
+  completedAt     DateTime?            @map("completed_at")
+  token           String               @unique // unique token for reference to access form
+  expiresAt       DateTime?            @map("expires_at")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+
+  @@map("reference_checks")
+}
+
+// ============================================
+// AI CHATBOT CONVERSATIONS
+// ============================================
+
+model ChatConversation {
+  id          String   @id @default(cuid())
+  userId      String?  @map("user_id")
+  sessionId   String   @map("session_id")
+  messages    String   // JSON array of message objects
+  context     String?  // JSON: current page, job context, etc.
+  source      String   @default("landing") // landing, candidate, careers
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("chat_conversations")
+}
+
+// ============================================
+// FEATURE #1: AI BIAS DETECTION & FAIR HIRING
+// ============================================
+
+model BiasAudit {
+  id              String   @id @default(cuid())
+  companyId       String   @map("company_id")
+  auditType       String   @default("SCREENING") // SCREENING, MATCH_SCORING, RISK_ANALYSIS, OVERALL
+  dateRange       String   // JSON: { from, to }
+  totalCandidates Int      @default(0) @map("total_candidates")
+  metrics         String   // JSON: demographic groups, selection rates
+  adverseImpact   String   // JSON: fourFifthsRule, disparateImpact, details
+  recommendations String   // JSON: array of recommendation strings
+  status          String   @default("PENDING") // PENDING, COMPLETED, FLAGGED
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("bias_audits")
+}
+
+model FairHiringConfig {
+  id                   String   @id @default(cuid())
+  companyId            String   @unique @map("company_id")
+  biasDetectionEnabled Boolean  @default(true) @map("bias_detection_enabled")
+  protectedAttributes  String   @default("[\"gender\",\"ethnicity\",\"veteranStatus\",\"disabilityStatus\"]") // JSON
+  autoFlagThreshold    Float    @default(0.8) @map("auto_flag_threshold") // 4/5ths rule
+  excludeFromScoring   String   @default("[\"gender\",\"ethnicity\",\"age\"]") // JSON
+  auditFrequency       String   @default("MONTHLY") @map("audit_frequency") // WEEKLY, MONTHLY, QUARTERLY
+  lastAuditAt          DateTime? @map("last_audit_at")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("fair_hiring_configs")
+}
+
+// ============================================
+// FEATURE #2: AGENTIC AI RECRUITING WORKFLOWS
+// ============================================
+
+enum WorkflowTrigger {
+  APPLICATION_RECEIVED
+  STAGE_CHANGED
+  INTERVIEW_COMPLETED
+  OFFER_ACCEPTED
+  OFFER_DECLINED
+  CANDIDATE_NO_RESPONSE
+  SCHEDULED_TIME
+  MANUAL_TRIGGER
+}
+
+enum WorkflowActionType {
+  SEND_EMAIL
+  MOVE_STAGE
+  SCHEDULE_INTERVIEW
+  SEND_SCREENING
+  AI_SCREEN_RESUME
+  AI_GENERATE_QUESTIONS
+  ADD_TAG
+  ASSIGN_RECRUITER
+  SEND_NOTIFICATION
+  WEBHOOK
+  WAIT
+  CONDITION_CHECK
+}
+
+enum WorkflowStatus {
+  ACTIVE
+  PAUSED
+  DRAFT
+  ARCHIVED
+}
+
+model HiringWorkflow {
+  id            String            @id @default(cuid())
+  companyId     String            @map("company_id")
+  name          String
+  description   String?
+  trigger       WorkflowTrigger
+  triggerConfig String?           @map("trigger_config") // JSON
+  steps         String            // JSON: [{ order, action, config, delay }]
+  status        WorkflowStatus    @default(DRAFT)
+  isDefault     Boolean           @default(false) @map("is_default")
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  company    Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  executions WorkflowExecution[]
+
+  @@map("hiring_workflows")
+}
+
+model WorkflowExecution {
+  id            String   @id @default(cuid())
+  workflowId    String   @map("workflow_id")
+  applicationId String?  @map("application_id")
+  candidateId   String?  @map("candidate_id")
+  status        String   @default("RUNNING") // RUNNING, COMPLETED, FAILED, PAUSED
+  currentStep   Int      @default(0) @map("current_step")
+  stepResults   String   // JSON: array of step execution results
+  triggeredBy   String   @map("triggered_by") // userId or "SYSTEM"
+  error         String?
+  startedAt     DateTime @default(now()) @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  workflow HiringWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@map("workflow_executions")
+}
+
+// ============================================
+// FEATURE #3: SKILLS-BASED HIRING ENGINE
+// ============================================
+
+model SkillsTaxonomy {
+  id            String   @id @default(cuid())
+  name          String
+  category      String   // TECHNICAL, SOFT_SKILL, DOMAIN, TOOL, CERTIFICATION
+  subcategory   String?
+  description   String?
+  aliases       String?  // JSON: ["JS", "ECMAScript"]
+  relatedSkills String?  // JSON: ["TypeScript", "React"]
+  demandLevel   String?  // HIGH, MEDIUM, LOW
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("skills_taxonomy")
+}
+
+model SkillAssessment {
+  id               String   @id @default(cuid())
+  companyId        String   @map("company_id")
+  title            String
+  description      String?
+  skillIds         String   @map("skill_ids") // JSON: array of skill taxonomy IDs
+  questions        String   // JSON: [{ question, type, options, correctAnswer, skillId, difficulty }]
+  timeLimitMinutes Int?     @map("time_limit_minutes")
+  passingScore     Float    @default(70.0) @map("passing_score")
+  type             String   @default("CUSTOM") // CUSTOM, CODING, SITUATIONAL, BEHAVIORAL
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  company Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  results SkillAssessmentResult[]
+
+  @@map("skill_assessments")
+}
+
+model SkillAssessmentResult {
+  id           String   @id @default(cuid())
+  assessmentId String   @map("assessment_id")
+  candidateId  String   @map("candidate_id")
+  answers      String   // JSON
+  score        Float?
+  skillScores  String?  @map("skill_scores") // JSON: { skillId: { score, level } }
+  overallLevel String?  @map("overall_level") // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
+  aiFeedback   String?  @map("ai_feedback") // JSON: AI-generated feedback per skill
+  completedAt  DateTime @default(now()) @map("completed_at")
+
+  assessment SkillAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@map("skill_assessment_results")
+}
+
+model CandidateSkill {
+  id             String   @id @default(cuid())
+  candidateId    String   @map("candidate_id")
+  skillId        String   @map("skill_id") // SkillsTaxonomy ID
+  level          String   // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
+  verified       Boolean  @default(false)
+  verifiedAt     DateTime? @map("verified_at")
+  yearsExperience Int?    @map("years_experience")
+  source         String   @default("SELF_REPORTED") // SELF_REPORTED, ASSESSMENT, AI_EXTRACTED, REFERENCE
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, skillId])
+  @@map("candidate_skills")
+}
+
+// ============================================
+// FEATURE #4: JOB BOARD MULTI-POSTING
+// ============================================
+
+enum JobBoardStatus {
+  PENDING
+  POSTED
+  FAILED
+  EXPIRED
+  REMOVED
+}
+
+model JobBoard {
+  id         String  @id @default(cuid())
+  name       String  // "LinkedIn", "Indeed", "Glassdoor"
+  logo       String?
+  apiBaseUrl String? @map("api_base_url")
+  isActive   Boolean @default(true) @map("is_active")
+  config     String? // JSON: { authType, fields, mapping }
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  postings JobBoardPosting[]
+
+  @@map("job_boards")
+}
+
+model JobBoardPosting {
+  id           String         @id @default(cuid())
+  jobId        String         @map("job_id")
+  boardId      String         @map("board_id")
+  status       JobBoardStatus @default(PENDING)
+  externalId   String?        @map("external_id")
+  externalUrl  String?        @map("external_url")
+  postedAt     DateTime?      @map("posted_at")
+  expiresAt    DateTime?      @map("expires_at")
+  views        Int            @default(0)
+  clicks       Int            @default(0)
+  applications Int            @default(0)
+  error        String?
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  job   Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  board JobBoard @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, boardId])
+  @@map("job_board_postings")
+}
+
+// ============================================
+// FEATURE #5: EMAIL DELIVERY
+// ============================================
+
+model EmailLog {
+  id         String   @id @default(cuid())
+  companyId  String?  @map("company_id")
+  userId     String?  @map("user_id")
+  to         String
+  from       String   @default("noreply@talentflow.ai")
+  subject    String
+  body       String   // HTML
+  templateId String?  @map("template_id")
+  status     String   @default("PENDING") // PENDING, SENT, FAILED, BOUNCED
+  provider   String?  // RESEND, SMTP, CONSOLE
+  providerId String?  @map("provider_id")
+  openedAt   DateTime? @map("opened_at")
+  clickedAt  DateTime? @map("clicked_at")
+  error      String?
+  sentAt     DateTime? @map("sent_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("email_logs")
+}
+
+// ============================================
+// FEATURE #6: TALENT REDISCOVERY / AI-POWERED CRM
+// ============================================
+
+model SourcingCampaign {
+  id               String   @id @default(cuid())
+  companyId        String   @map("company_id")
+  name             String
+  jobId            String?  @map("job_id") // Optional: link to specific job
+  criteria         String   // JSON: { skills, experience, location, ... }
+  status           String   @default("ACTIVE") // ACTIVE, PAUSED, COMPLETED
+  matchedCandidates String  @map("matched_candidates") // JSON: [{ candidateId, matchScore, matchReasons }]
+  contactedCount   Int      @default(0) @map("contacted_count")
+  respondedCount   Int      @default(0) @map("responded_count")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("sourcing_campaigns")
+}
+
+model CandidateEngagement {
+  id          String   @id @default(cuid())
+  candidateId String   @map("candidate_id")
+  companyId   String   @map("company_id")
+  type        String   // EMAIL_SENT, EMAIL_OPENED, EMAIL_CLICKED, INTERVIEW_SCHEDULED, APPLIED, VIEWED_PROFILE
+  campaignId  String?  @map("campaign_id")
+  details     String?  // JSON
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("candidate_engagements")
+}
+
+// ============================================
+// FEATURE #7: SELF-SCHEDULING INTERVIEWS
+// ============================================
+
+model InterviewScheduleSlot {
+  id            String   @id @default(cuid())
+  interviewerId String   @map("interviewer_id")
+  startTime     DateTime @map("start_time")
+  endTime       DateTime @map("end_time")
+  isBooked      Boolean  @default(false) @map("is_booked")
+  applicationId String?  @map("application_id")
+  interviewId   String?  @map("interview_id")
+  recurrence    String?  // JSON: { days, startTime, endTime, duration }
+  bookingToken  String?  @unique @map("booking_token")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("interview_schedule_slots")
+}
+
+model InterviewerAvailability {
+  id            String   @id @default(cuid())
+  interviewerId String   @map("interviewer_id")
+  companyId     String   @map("company_id")
+  dayOfWeek     Int      // 0=Sunday, 6=Saturday
+  startTime     String   // "09:00"
+  endTime       String   // "17:00"
+  slotDuration  Int      @default(60) @map("slot_duration") // minutes
+  bufferBetween Int      @default(15) @map("buffer_between") // minutes between slots
+  isActive      Boolean  @default(true) @map("is_active")
+  timezone      String   @default("UTC")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("interviewer_availability")
+}
+
+// ============================================
+// FEATURE #8: MOBILE-OPTIMIZED APPLY FLOW
+// ============================================
+
+model QuickApplyConfig {
+  id               String  @id @default(cuid())
+  jobId            String  @unique @map("job_id")
+  enableOneClick   Boolean @default(false) @map("enable_one_click")
+  enableQuickApply Boolean @default(true) @map("enable_quick_apply")
+  minFields        String  @default("[\"name\",\"email\",\"resume\"]") @map("min_fields") // JSON
+  enableTextApply  Boolean @default(false) @map("enable_text_apply")
+  textApplyCode    String? @unique @map("text_apply_code")
+  qrCodeUrl        String? @map("qr_code_url")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("quick_apply_configs")
+}
+
+model TextApplySession {
+  id          String   @id @default(cuid())
+  jobId       String   @map("job_id")
+  phoneNumber String   @map("phone_number")
+  status      String   @default("STARTED") // STARTED, LINK_SENT, APPLIED, EXPIRED
+  applyLink   String   @map("apply_link")
+  createdAt   DateTime @default(now()) @map("created_at")
+  expiresAt   DateTime @map("expires_at")
+
+  @@map("text_apply_sessions")
+}
+
+// ============================================
+// FEATURE #9: IN-APP RECRUITING CHATBOT
+// ============================================
+
+model ChatbotConfig {
+  id                 String  @id @default(cuid())
+  companyId          String  @unique @map("company_id")
+  welcomeMessage     String  @default("Hi! I'm your AI recruiting assistant. How can I help?") @map("welcome_message")
+  personality        String  @default("professional") // professional, friendly, casual
+  enabledFeatures    String  @default("[\"job_search\",\"application_status\",\"faq\",\"interview_prep\"]") @map("enabled_features") // JSON
+  knowledgeBase      String? @map("knowledge_base") // JSON: company FAQ, policies, benefits
+  isActive           Boolean @default(true) @map("is_active")
+  leadCaptureEnabled Boolean @default(true) @map("lead_capture_enabled")
+  leadCaptureFields  String  @default("[\"name\",\"email\",\"phone\"]") @map("lead_capture_fields") // JSON
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("chatbot_configs")
+}
+
+// ============================================
+// FEATURE #10: STRIPE PAYMENT INTEGRATION
+// ============================================
+
+// Stripe fields added to existing Subscription, Invoice, Company, Plan models
+// via separate ALTER statements below. New model for webhook events:
+
+model StripeWebhookEvent {
+  id             String   @id @default(cuid())
+  stripeEventId  String   @unique @map("stripe_event_id")
+  type           String   // checkout.session.completed, invoice.paid, etc.
+  data           String   // JSON: full event data
+  processed      Boolean  @default(false) @map("processed")
+  processedAt    DateTime? @map("processed_at")
+  error          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("stripe_webhook_events")
+}
+
+// ============================================
+// FEATURE #11: STRUCTURED INTERVIEW SCORECARDS
+// ============================================
+
+model ScorecardTemplate {
+  id          String   @id @default(cuid())
+  companyId   String   @map("company_id")
+  name        String   // e.g., "Engineering Interview Scorecard"
+  criteria    String   // JSON: [{ name, description, weight, ratingLevels }]
+  totalWeight Int      @default(100) @map("total_weight")
+  isDefault   Boolean  @default(false) @map("is_default")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("scorecard_templates")
+}
+
+// ============================================
+// FEATURE #13: INTERNAL MOBILITY / INTERNAL JOB BOARD
+// ============================================
+
+model InternalJobPosting {
+  id              String   @id @default(cuid())
+  jobId           String   @unique @map("job_id")
+  companyId       String   @map("company_id")
+  postedById      String   @map("posted_by_id")
+  isInternalOnly  Boolean  @default(true) @map("is_internal_only")
+  minTenureMonths Int      @default(6) @map("min_tenure_months")
+  notifyEmployees Boolean  @default(true) @map("notify_employees")
+  internalNotes   String?  @map("internal_notes")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  job       Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  postedBy  User @relation("InternalJobPoster", fields: [postedById], references: [id])
+  applications InternalApplication[]
+
+  @@map("internal_job_postings")
+}
+
+model InternalApplication {
+  id              String   @id @default(cuid())
+  jobId           String   @map("job_id")
+  candidateId     String   @map("candidate_id") // The employee (has CandidateProfile)
+  currentRoleId   String?  @map("current_role_id")
+  managerNotified Boolean  @default(false) @map("manager_notified")
+  managerApproved Boolean?  @map("manager_approved")
+  status          String   @default("PENDING") @map("status") // PENDING, MANAGER_APPROVED, INTERVIEW, OFFERED, HIRED, REJECTED
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  internalJobPosting InternalJobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("internal_applications")
+}
+
+// ============================================
+// FEATURE #15: REAL-TIME COLLABORATION (COMMENTS/MENTIONS)
+// ============================================
+
+model Comment {
+  id          String    @id @default(cuid())
+  entityType  String    // "APPLICATION", "CANDIDATE", "JOB", "INTERVIEW"
+  entityId    String    @map("entity_id") // ID of the entity
+  authorId    String    @map("author_id")
+  parentId    String?   @map("parent_id") // For threaded replies
+  content     String
+  mentions    String?   // JSON: array of mentioned userIds
+  isPinned    Boolean   @default(false) @map("is_pinned")
+  isResolved  Boolean   @default(false) @map("is_resolved")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  author  User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent  Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
+  reactions CommentReaction[]
+
+  @@map("comments")
+}
+
+model CommentReaction {
+  id        String  @id @default(cuid())
+  commentId String  @map("comment_id")
+  userId    String  @map("user_id")
+  emoji     String  // "thumbs_up", "heart", "celebration", etc.
+  createdAt DateTime @default(now()) @map("created_at")
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId, emoji])
+  @@map("comment_reactions")
+}
+
+// ============================================
+// FEATURE #16: SOURCE TRACKING & ATTRIBUTION
+// ============================================
+
+model ApplicationSource {
+  id          String   @id @default(cuid())
+  companyId   String   @map("company_id")
+  name        String   // "LinkedIn", "Referral", "Career Page", "Indeed"
+  type        String   // "JOB_BOARD", "REFERRAL", "SOCIAL", "CAREER_PAGE", "AGENCY", "DIRECT", "OTHER"
+  isDefault   Boolean  @default(false) @map("is_default")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("application_sources")
+}
+
+// ============================================
+// FEATURE #17: CUSTOM HIRING WORKFLOWS PER JOB
+// ============================================
+
+model JobWorkflowConfig {
+  id               String   @id @default(cuid())
+  jobId            String   @unique @map("job_id")
+  stageIds         String   @map("stage_ids") // JSON: ordered array of stage IDs
+  autoAdvanceRules String?  @map("auto_advance_rules") // JSON: [{ fromStage, toStage, condition }]
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("job_workflow_configs")
+}
+
+// ============================================
+// FEATURE #18: SLACK/TEAMS INTEGRATION
+// ============================================
+
+model IntegrationConfig {
+  id              String   @id @default(cuid())
+  companyId       String   @unique @map("company_id")
+  slackEnabled    Boolean  @default(false) @map("slack_enabled")
+  slackWebhookUrl String?  @map("slack_webhook_url")
+  slackChannel    String?  @map("slack_channel")
+  teamsEnabled    Boolean  @default(false) @map("teams_enabled")
+  teamsWebhookUrl String?  @map("teams_webhook_url")
+  teamsChannel    String?  @map("teams_channel")
+  events          String   @default("[\"application.created\",\"interview.scheduled\",\"offer.sent\"]") // JSON: events to notify on
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("integration_configs")
+}

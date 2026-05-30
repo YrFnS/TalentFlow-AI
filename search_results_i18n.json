@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://medium.com/wtxhq/next-js-i18n-support-and-rtl-layouts-87144ad727c9",
+    "name": "Next.js, i18n support, and RTL layouts | by Francisco Barros - Medium",
+    "snippet": "In this article, we explore the journey the company did so far to support internationalized experiences (translations, directed layouts).",
+    "host_name": "medium.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://nextjs.org/docs/pages/guides/internationalization",
+    "name": "Guides: Internationalization | Next.js",
+    "snippet": "Next.js has built-in support for internationalized ( i18n ) routing since v10.0.0. You can provide a list of locales, the default locale, and domain-specific ...",
+    "host_name": "nextjs.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/nextjs/comments/1jv3t1y/internationalization_with_nextjs_15",
+    "name": "Internationalization with Next.js 15? : r/nextjs - Reddit",
+    "snippet": "Best practices for i18n in Next.js. Next-i18next support for app router. Next.js translations and language support. Top features of Next.js 13.",
+    "host_name": "www.reddit.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://crowdin.com/blog/next-js-internationalization",
+    "name": "Guide to Next.js Internationalization (i18n) with next-intl - Crowdin",
+    "snippet": "Step 1: First look at the app · Step 2: Multilingual or multi-regional? · Step 3: Planning the URL structure · Step 4: Setting up next-intl · Step 5 ...",
+    "host_name": "crowdin.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://phrase.com/blog/posts/next-js-app-router-localization-next-intl",
+    "name": "Next.js 13/14 App Router Localization with next-intl - Phrase",
+    "snippet": "The next-intl library by Jan Amann simplifies Next.js 13/14 App Router i18n, offering robust i18n solutions, including translation management, localized ...",
+    "host_name": "phrase.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://localizely.com/blog/nextjs-i18n-tutorial",
+    "name": "Next.js internationalization (i18n) tutorial - Localizely",
+    "snippet": "In this post, we are going to show you how to internationalize (i18n) your Next.js website using one of the most popular localization libraries, React Intl.",
+    "host_name": "localizely.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=FsoBnIs7kxE",
+    "name": "Next.js Internationalization i18n without locale Routing | next-intl",
+    "snippet": "Buy me a coffee: https://buymeacoffee.com/umairjameel Support multiple language in your next.js project without adding locale routes using ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/77821713/how-to-implement-default-language-without-url-prefix-in-next-js-14-for-static-ex",
+    "name": "How to implement Default Language without URL Prefix in Next.js",
+    "snippet": "My site requires internationalization (i18n) support for multiple languages. I have set up a folder structure for language support, which ...",
+    "host_name": "stackoverflow.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://nextjs.org/docs/app/guides/internationalization",
+    "name": "Guides: Internationalization - Next.js",
+    "snippet": "Next.js enables you to configure the routing and rendering of content to support multiple languages. Making your site adaptive to different locales.",
+    "host_name": "nextjs.org",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://dev.to/samdreamsmaker/internationalization-in-nextjs-16-lessons-from-supporting-10-languages-15nb",
+    "name": "Internationalization in Next.js 16: Lessons From Supporting 10",
+    "snippet": "RTL Support. Arabic and Hebrew read right-to-left. This affects: Text direction (obviously); Layout direction (sidebars swap sides); Icon ...",
+    "host_name": "dev.to",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

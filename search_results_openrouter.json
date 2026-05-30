@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://openrouter.ai/docs/quickstart",
+    "name": "OpenRouter Quickstart Guide | Developer Documentation",
+    "snippet": "OpenRouter provides a unified API that gives you access to hundreds of AI models through a single endpoint, while automatically handling fallbacks.",
+    "host_name": "openrouter.ai",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://softwarelogic.co/en/blog/ai-cost-optimization-openrouterai-vs-direct-model-apis-facts",
+    "name": "AI Cost Optimization: OpenRouter.ai vs Direct Model APIs – Facts",
+    "snippet": "This expert guide compares OpenRouter.ai and direct model APIs, covering pricing, performance, integration, and best practices. Discover the ...",
+    "host_name": "softwarelogic.co",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/logancyang/obsidian-copilot/discussions/368",
+    "name": "Allow for multiples \"openrouter.ai\" in model selection #368 - GitHub",
+    "snippet": "It would be great to have the possibility to have multiple OpenRouter models (for instance, \"openrouter.ai model 1\", \"openrouter.ai model 2\", \"openrouter.ai ...",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/@milesk_33/a-practical-guide-to-openrouter-unified-llm-apis-model-routing-and-real-world-use-d3c4c07ed170",
+    "name": "A practical guide to OpenRouter: Unified LLM APIs, model routing",
+    "snippet": "At its core, OpenRouter provides developers with a single endpoint and API key to access over 500 models from 60+ providers, all through a ...",
+    "host_name": "medium.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://meta.discourse.org/t/configuring-openrouter-language-models/341526",
+    "name": "Configuring OpenRouter language models - Discourse Meta",
+    "snippet": "bookmark: This guide explains how to configure API keys for OpenRouter to enable Discourse AI features that require 3rd party LLM keys.",
+    "host_name": "meta.discourse.org",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/OpenWebUI/comments/1htf8yf/how_to_prioritize_providers_for_an_ai_model_open",
+    "name": "How to prioritize providers for an AI model? Open Router API - Reddit",
+    "snippet": "I want to choose specific provider priority for each model, and need your help to do that correctly.",
+    "host_name": "www.reddit.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=SXLsYxUWJHs",
+    "name": "Get Access To 500+ AI Models with One API Key (n8n + OpenRouter)",
+    "snippet": "Get my 1-1 support to Start and Scale your AI Agency: https://bit.ly/4p06VJ3 Get the FREE n8n Workflow Template from this video: ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://openrouter.ai/docs/guides/overview/models",
+    "name": "OpenRouter Models | Access 300+ AI Models Through One API",
+    "snippet": "Explore and browse 300+ models and providers on our website, or with our API. You can also subscribe to our RSS feed to stay updated on new models.",
+    "host_name": "openrouter.ai",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=VvJvJ0uXiVQ",
+    "name": "How to Use AI Models API for Free | OpenRouter Tutorial - YouTube",
+    "snippet": "What OpenRouter is and why it's so powerful · How to generate and manage your API key · How to use the API in your own project · How to switch ...",
+    "host_name": "www.youtube.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://openrouter.ai/collections",
+    "name": "Model Collections - OpenRouter",
+    "snippet": "Explore collections of the best AI models, all accessible through a single API. Browse lists of free LLMs, top image generation APIs, the best coding models, ...",
+    "host_name": "openrouter.ai",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]
