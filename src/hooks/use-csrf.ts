@@ -1,7 +1,7 @@
 // @ts-nocheck
-'use client';
+"use client";
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from "react";
 
 let cachedToken: string | null = null;
 let tokenExpiry = 0;
@@ -12,26 +12,26 @@ let initPromise: Promise<string | null> | null = null;
  * is available by the time components first render.
  */
 function initCsrfToken(): Promise<string | null> {
-  if (cachedToken && Date.now() < tokenExpiry - 300000) {
-    return Promise.resolve(cachedToken);
-  }
-  if (!initPromise) {
-    initPromise = fetch('/api/auth/csrf-token')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.csrfToken) {
-          cachedToken = data.csrfToken;
-          tokenExpiry = Date.now() + 60 * 60 * 1000;
-        }
-        initPromise = null;
-        return cachedToken;
-      })
-      .catch(() => {
-        initPromise = null;
-        return null;
-      });
-  }
-  return initPromise;
+	if (cachedToken && Date.now() < tokenExpiry - 300000) {
+		return Promise.resolve(cachedToken);
+	}
+	if (!initPromise) {
+		initPromise = fetch("/api/auth/csrf-token")
+			.then((res) => (res.ok ? res.json() : null))
+			.then((data) => {
+				if (data?.csrfToken) {
+					cachedToken = data.csrfToken;
+					tokenExpiry = Date.now() + 60 * 60 * 1000;
+				}
+				initPromise = null;
+				return cachedToken;
+			})
+			.catch(() => {
+				initPromise = null;
+				return null;
+			});
+	}
+	return initPromise;
 }
 
 // Eagerly initialize CSRF token when module loads
@@ -59,39 +59,39 @@ initCsrfToken();
  * ```
  */
 export function useCsrf() {
-  const [csrfToken, setCsrfToken] = useState<string | null>(cachedToken);
-  const fetchingRef = useRef(false);
+	const [csrfToken, setCsrfToken] = useState<string | null>(cachedToken);
+	const fetchingRef = useRef(false);
 
-  const refreshToken = useCallback(async (): Promise<string | null> => {
-    // Use cached token if still valid (refresh 5 min before expiry)
-    if (cachedToken && Date.now() < tokenExpiry - 300000) {
-      setCsrfToken(cachedToken);
-      return cachedToken;
-    }
+	const refreshToken = useCallback(async (): Promise<string | null> => {
+		// Use cached token if still valid (refresh 5 min before expiry)
+		if (cachedToken && Date.now() < tokenExpiry - 300000) {
+			setCsrfToken(cachedToken);
+			return cachedToken;
+		}
 
-    if (fetchingRef.current) {
-      return cachedToken;
-    }
+		if (fetchingRef.current) {
+			return cachedToken;
+		}
 
-    fetchingRef.current = true;
-    try {
-      const response = await fetch('/api/auth/csrf-token');
-      if (response.ok) {
-        const data = await response.json();
-        cachedToken = data.csrfToken;
-        tokenExpiry = Date.now() + 60 * 60 * 1000;
-        setCsrfToken(cachedToken);
-        return cachedToken;
-      }
-    } catch (error) {
-      console.error('Failed to refresh CSRF token:', error);
-    } finally {
-      fetchingRef.current = false;
-    }
-    return null;
-  }, []);
+		fetchingRef.current = true;
+		try {
+			const response = await fetch("/api/auth/csrf-token");
+			if (response.ok) {
+				const data = await response.json();
+				cachedToken = data.csrfToken;
+				tokenExpiry = Date.now() + 60 * 60 * 1000;
+				setCsrfToken(cachedToken);
+				return cachedToken;
+			}
+		} catch (error) {
+			console.error("Failed to refresh CSRF token:", error);
+		} finally {
+			fetchingRef.current = false;
+		}
+		return null;
+	}, []);
 
-  return { csrfToken, refreshToken };
+	return { csrfToken, refreshToken };
 }
 
 /**
@@ -101,10 +101,13 @@ export function useCsrf() {
  * @param token - The CSRF token string (or null if not yet available)
  * @returns Headers object with the CSRF token included
  */
-export function withCsrf(headers: HeadersInit = {}, token: string | null): Headers {
-  const h = headers instanceof Headers ? headers : new Headers(headers);
-  if (token) {
-    h.set('x-csrf-token', token);
-  }
-  return h;
+export function withCsrf(
+	headers: HeadersInit = {},
+	token: string | null,
+): Headers {
+	const h = headers instanceof Headers ? headers : new Headers(headers);
+	if (token) {
+		h.set("x-csrf-token", token);
+	}
+	return h;
 }
