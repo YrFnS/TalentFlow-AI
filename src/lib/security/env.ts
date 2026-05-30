@@ -13,6 +13,15 @@ function validateEnv(): void {
       'LINKEDIN_CLIENT_ID',
       'LINKEDIN_CLIENT_SECRET',
       'ENCRYPTION_KEY',
+      'NEXTAUTH_URL',
+      'NEXT_PUBLIC_APP_URL',
+      'RESEND_API_KEY',
+      'STRIPE_SECRET_KEY',
+      'STRIPE_WEBHOOK_SECRET',
+      'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
+      'EMAIL_PROVIDER',
+      'SLACK_WEBHOOK_URL',
+      'TEAMS_WEBHOOK_URL',
     ],
     defaults: {},
   };
@@ -27,7 +36,6 @@ function validateEnv(): void {
     console.warn(`Missing environment variables: ${missing.join(', ')}. Using development defaults.`);
   }
 
-  // Warn about optional variables that aren't set
   const missingOptional = config.optional.filter(key => !process.env[key]);
   if (missingOptional.length > 0 && process.env.NODE_ENV === 'production') {
     console.warn(
@@ -36,5 +44,4 @@ function validateEnv(): void {
   }
 }
 
-// Call at module load time
 validateEnv();

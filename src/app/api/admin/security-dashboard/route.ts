@@ -237,7 +237,7 @@ export async function GET(request: NextRequest) {
     const allowedOrigins = [
       process.env.NEXTAUTH_URL,
       process.env.NEXT_PUBLIC_APP_URL,
-      ...(process.env.NODE_ENV === 'development' ? ['http://localhost:3000'] : []),
+      ...(process.env.NODE_ENV === 'development' ? [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'] : []),
     ].filter(Boolean);
 
     const corsConfig = {

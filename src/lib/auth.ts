@@ -51,12 +51,12 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || 'placeholder-google-client-id',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'placeholder-google-client-secret',
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     LinkedInProvider({
-      clientId: process.env.LINKEDIN_CLIENT_ID || 'placeholder-linkedin-client-id',
-      clientSecret: process.env.LINKEDIN_CLIENT_SECRET || 'placeholder-linkedin-client-secret',
+      clientId: process.env.LINKEDIN_CLIENT_ID,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
     }),
     CredentialsProvider({
       name: 'credentials',

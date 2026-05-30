@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 const defaultConfig = {
   slack: {
     enabled: true,
-    webhookUrl: 'https://hooks.slack.com/services/T00/B00/xxx',
+    webhookUrl: process.env.SLACK_WEBHOOK_URL || '',
     defaultChannel: '#hiring',
     connected: true,
     events: {

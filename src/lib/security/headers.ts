@@ -79,7 +79,7 @@ export function getCORSHeaders(): Record<string, string> {
     process.env.NEXTAUTH_URL,
     process.env.NEXT_PUBLIC_APP_URL,
     // Only allow localhost in development
-    ...(process.env.NODE_ENV === 'development' ? ['http://localhost:3000'] : []),
+    ...(process.env.NODE_ENV === 'development' ? [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'] : []),
   ].filter(Boolean);
 
   // Default to first configured origin, fallback to same-origin policy
@@ -104,7 +104,7 @@ export function getCORSHeadersForRequest(requestOrigin: string | null): Record<s
     process.env.NEXTAUTH_URL,
     process.env.NEXT_PUBLIC_APP_URL,
     // Only allow localhost in development
-    ...(process.env.NODE_ENV === 'development' ? ['http://localhost:3000'] : []),
+    ...(process.env.NODE_ENV === 'development' ? [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'] : []),
   ].filter(Boolean);
 
   // If the request origin is in our allowed list, reflect it back

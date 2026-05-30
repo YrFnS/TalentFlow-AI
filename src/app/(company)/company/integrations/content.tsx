@@ -53,14 +53,14 @@ interface ActivityLogEntry {
 
 const defaultSlack: IntegrationConfig = {
   enabled: true,
-  webhookUrl: 'https://hooks.slack.com/services/T00/B00/xxx',
+  webhookUrl: process.env.SLACK_WEBHOOK_URL || '',
   defaultChannel: '#hiring',
   connected: true,
 };
 
 const defaultTeams: IntegrationConfig = {
   enabled: false,
-  webhookUrl: '',
+  webhookUrl: process.env.TEAMS_WEBHOOK_URL || '',
   defaultChannel: '',
   connected: false,
 };
