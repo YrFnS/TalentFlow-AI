@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Get taxonomy for all relevant skills
     const allTaxonomy = await db.skillsTaxonomy.findMany();
-    const taxonomyMap = new Map(allTaxonomy.map((t: { id: string; name: string; category: string }) => [t.id, t]));
+    const taxonomyMap = new Map<string, { id: string; name: string; category: string }>(allTaxonomy.map((t: { id: string; name: string; category: string }) => [t.id, t]));
 
     const candidateSkillInfo = candidateProfile.candidateSkills.map((cs: { skillId: string; level: string; yearsExperience: number | null }) => {
       const tax = taxonomyMap.get(cs.skillId);

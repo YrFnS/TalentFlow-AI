@@ -32,7 +32,7 @@ export async function GET(
     const taxonomy = skillIds.length > 0
       ? await db.skillsTaxonomy.findMany({ where: { id: { in: skillIds } } })
       : [];
-    const taxonomyMap = new Map(taxonomy.map((t: { id: string; name: string; category: string }) => [t.id, t]));
+    const taxonomyMap = new Map<string, { id: string; name: string; category: string }>(taxonomy.map((t: { id: string; name: string; category: string }) => [t.id, t]));
 
     const skills = candidateProfile.candidateSkills.map((cs: { id: string; skillId: string; level: string; verified: boolean; yearsExperience: number | null; source: string; createdAt: Date }) => ({
       id: cs.id,
@@ -154,7 +154,7 @@ export async function PATCH(
     const taxonomy = skillIds.length > 0
       ? await db.skillsTaxonomy.findMany({ where: { id: { in: skillIds } } })
       : [];
-    const taxonomyMap = new Map(taxonomy.map((t: { id: string; name: string; category: string }) => [t.id, t]));
+    const taxonomyMap = new Map<string, { id: string; name: string; category: string }>(taxonomy.map((t: { id: string; name: string; category: string }) => [t.id, t]));
 
     const skills = updatedSkills.map((cs: { id: string; skillId: string; level: string; verified: boolean; yearsExperience: number | null; source: string; createdAt: Date }) => ({
       id: cs.id,
