@@ -113,7 +113,7 @@ export default function ExperienceCard({
               <Label>{t.candidate.currentTitle}</Label>
               <Input
                 value={expForm.title || ''}
-                onChange={(e) => setExpForm({ ...expForm, title: e.target.value })}
+                onChange={(e) => setExpForm({ ...expForm, title: (e.target as unknown as { value: string }).value })}
                 placeholder="e.g. Senior Developer"
               />
             </div>
@@ -121,7 +121,7 @@ export default function ExperienceCard({
               <Label>{t.candidate.company}</Label>
               <Input
                 value={expForm.company || ''}
-                onChange={(e) => setExpForm({ ...expForm, company: e.target.value })}
+                onChange={(e) => setExpForm({ ...expForm, company: (e.target as unknown as { value: string }).value })}
                 placeholder="e.g. TechCorp"
               />
             </div>
@@ -130,7 +130,7 @@ export default function ExperienceCard({
                 <Label>{t.candidate.startDate}</Label>
                 <Input
                   value={expForm.startDate || ''}
-                  onChange={(e) => setExpForm({ ...expForm, startDate: e.target.value })}
+                  onChange={(e) => setExpForm({ ...expForm, startDate: (e.target as unknown as { value: string }).value })}
                   placeholder="YYYY-MM"
                 />
               </div>
@@ -138,7 +138,7 @@ export default function ExperienceCard({
                 <Label>{t.candidate.endDate}</Label>
                 <Input
                   value={expForm.current ? '' : expForm.endDate || ''}
-                  onChange={(e) => setExpForm({ ...expForm, endDate: e.target.value })}
+                  onChange={(e) => setExpForm({ ...expForm, endDate: (e.target as unknown as { value: string }).value })}
                   placeholder="YYYY-MM"
                   disabled={expForm.current}
                 />
@@ -155,7 +155,7 @@ export default function ExperienceCard({
               <Label>{t.candidate.description}</Label>
               <Textarea
                 value={expForm.description || ''}
-                onChange={(e) => setExpForm({ ...expForm, description: e.target.value })}
+                onChange={(e) => setExpForm({ ...expForm, description: (e.target as unknown as { value: string }).value })}
                 rows={3}
                 placeholder="Describe your role and achievements..."
               />

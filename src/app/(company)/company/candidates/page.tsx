@@ -7,18 +7,14 @@ import { cn } from '@/lib/utils';
 import {
   Search,
   UserSearch,
-  Filter,
-  Sparkles,
   Mail,
   MapPin,
   Briefcase,
-  ChevronDown,
   CheckCircle2,
   XCircle,
   MoreHorizontal,
   User,
   FileText,
-  Star,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -136,20 +132,11 @@ export default function CandidatesPage() {
     setSelectedIds(new Set());
   };
 
-  const getScoreColor = (score: number | null) => {
-    if (!score) return '';
-    if (score >= 85) return 'text-emerald-600 dark:text-emerald-400';
-    if (score >= 70) return 'text-teal-600 dark:text-teal-400';
-    if (score >= 50) return 'text-amber-600 dark:text-amber-400';
-    return 'text-red-600 dark:text-red-400';
-  };
-
   const getScoreBg = (score: number | null) => {
     if (!score) return '';
-    if (score >= 85) return 'bg-emerald-50 dark:bg-emerald-950/30';
-    if (score >= 70) return 'bg-teal-50 dark:bg-teal-950/30';
-    if (score >= 50) return 'bg-amber-50 dark:bg-amber-950/30';
-    return 'bg-red-50 dark:bg-red-950/30';
+    if (score >= 70) return 'bg-blue-50 text-blue-700';
+    if (score >= 50) return 'bg-slate-100 text-slate-600';
+    return 'bg-slate-50 text-slate-500';
   };
 
   const parseSkills = (skills: string | null): string[] => {
@@ -162,9 +149,7 @@ export default function CandidatesPage() {
   };
 
   const getMatchScore = (candidate: CandidateProfile): number | null => {
-    // Generate a pseudo-random but consistent score based on candidate data
     if (candidate.applications.length > 0) {
-      // Use a deterministic score based on candidate id hash
       const hash = candidate.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       return 65 + (hash % 30);
     }
@@ -178,9 +163,9 @@ export default function CandidatesPage() {
   };
 
   const availabilityColors: Record<string, string> = {
-    open: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    employed: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-    not_looking: 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400',
+    open: 'bg-green-50 text-green-700 border-green-200',
+    employed: 'bg-slate-50 text-slate-600 border-slate-200',
+    not_looking: 'bg-gray-50 text-gray-600 border-gray-200',
   };
 
   return (
@@ -188,20 +173,20 @@ export default function CandidatesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.candidates.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t.candidates.title}</h1>
+          <p className="text-slate-600 text-sm mt-1">
             {candidates.length} candidates in your talent pool
           </p>
         </div>
         <div className="flex items-center gap-2">
           {selectedIds.size > 0 && (
             <>
-              <span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
+              <span className="text-sm text-slate-600">{selectedIds.size} selected</span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleBulkAction('shortlist')}
-                className="text-emerald-600 border-emerald-300 dark:border-emerald-700"
+                className="text-green-700 border-green-300"
               >
                 <CheckCircle2 className="w-3.5 h-3.5 me-1.5" />
                 {t.candidates.shortlist}
@@ -210,7 +195,7 @@ export default function CandidatesPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleBulkAction('reject')}
-                className="text-destructive border-red-300 dark:border-red-800"
+                className="text-destructive border-red-300"
               >
                 <XCircle className="w-3.5 h-3.5 me-1.5" />
                 {t.candidates.reject}
@@ -223,16 +208,16 @@ export default function CandidatesPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Search candidates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-9"
+            className="ps-9 h-9 border-slate-200"
           />
         </div>
         <Select value={filterAvailability} onValueChange={setFilterAvailability}>
-          <SelectTrigger className="w-[160px] h-9">
+          <SelectTrigger className="w-[160px] h-9 border-slate-200">
             <SelectValue placeholder="Availability" />
           </SelectTrigger>
           <SelectContent>
@@ -245,24 +230,24 @@ export default function CandidatesPage() {
       </div>
 
       {/* Candidates Table */}
-      <Card>
+      <Card className="border-slate-200">
         {loading ? (
           <div className="p-6 space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="flex items-center gap-4 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-muted" />
+                <div className="w-10 h-10 rounded-full bg-slate-200" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded w-1/4" />
-                  <div className="h-3 bg-muted rounded w-1/3" />
+                  <div className="h-4 bg-slate-200 rounded w-1/4" />
+                  <div className="h-3 bg-slate-200 rounded w-1/3" />
                 </div>
               </div>
             ))}
           </div>
         ) : filteredCandidates.length === 0 ? (
           <CardContent className="py-12 text-center">
-            <UserSearch className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-medium">No candidates found</h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <UserSearch className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900">No candidates found</h3>
+            <p className="text-sm text-slate-600 mt-1">
               {searchQuery ? 'Try adjusting your search terms' : 'Candidates will appear here when they apply to your jobs'}
             </p>
           </CardContent>
@@ -292,7 +277,7 @@ export default function CandidatesPage() {
                 return (
                   <TableRow
                     key={candidate.id}
-                    className="cursor-pointer hover:bg-accent/30"
+                    className="cursor-pointer hover:bg-slate-50"
                     onClick={() => {
                       setSelectedCandidate(candidate);
                       setSheetOpen(true);
@@ -307,41 +292,40 @@ export default function CandidatesPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-9 h-9">
-                          <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs">
+                          <AvatarFallback className="bg-slate-100 text-slate-600 text-xs">
                             {candidate.user.name.split(' ').map((n) => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-sm font-medium">{candidate.user.name}</p>
-                          <p className="text-xs text-muted-foreground">{candidate.currentTitle || candidate.user.email}</p>
+                          <p className="text-sm font-medium text-slate-900">{candidate.user.name}</p>
+                          <p className="text-xs text-slate-500">{candidate.currentTitle || candidate.user.email}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       {matchScore ? (
-                        <div className={cn('flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold w-fit', getScoreBg(matchScore), getScoreColor(matchScore))}>
-                          <Sparkles className="w-3 h-3" />
+                        <span className={cn('inline-flex items-center px-2 py-1 rounded text-xs font-medium w-fit', getScoreBg(matchScore))}>
                           {matchScore}%
-                        </div>
+                        </span>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-xs text-slate-400">—</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1 max-w-[200px]">
                         {skills.slice(0, 3).map((skill) => (
-                          <Badge key={skill} variant="secondary" className="text-[10px] px-1.5 py-0">
+                          <Badge key={skill} variant="secondary" className="text-[10px] px-1.5 py-0 bg-slate-100 text-slate-600">
                             {skill}
                           </Badge>
                         ))}
                         {skills.length > 3 && (
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-slate-100 text-slate-600">
                             +{skills.length - 3}
                           </Badge>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs">
+                    <TableCell className="text-xs text-slate-600">
                       {candidate.experienceYears ? `${candidate.experienceYears} yrs` : '—'}
                     </TableCell>
                     <TableCell>
@@ -352,7 +336,7 @@ export default function CandidatesPage() {
                         {availabilityLabels[candidate.availability || 'open'] || candidate.availability}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-xs">{candidate.applications.length}</TableCell>
+                    <TableCell className="text-xs text-slate-600">{candidate.applications.length}</TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -371,7 +355,7 @@ export default function CandidatesPage() {
                             <FileText className="w-4 h-4 me-2" />View Resume
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-emerald-600">
+                          <DropdownMenuItem className="text-green-700">
                             <CheckCircle2 className="w-4 h-4 me-2" />{t.candidates.shortlist}
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive">
@@ -390,41 +374,41 @@ export default function CandidatesPage() {
 
       {/* Candidate Profile Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="w-[420px] sm:max-w-[420px] p-0">
+        <SheetContent className="w-[420px] sm:max-w-[420px] p-0 border-slate-200">
           {selectedCandidate && (
             <div className="flex flex-col h-full">
-              <SheetHeader className="p-6 pb-4 border-b">
+              <SheetHeader className="p-6 pb-4 border-b border-slate-200">
                 <SheetTitle className="flex items-center gap-3">
                   <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                    <AvatarFallback className="bg-slate-100 text-slate-600">
                       {selectedCandidate.user.name.split(' ').map((n) => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="text-start">
-                    <p className="font-semibold">{selectedCandidate.user.name}</p>
-                    <p className="text-sm text-muted-foreground">{selectedCandidate.currentTitle || 'No title'}</p>
+                    <p className="font-semibold text-slate-900">{selectedCandidate.user.name}</p>
+                    <p className="text-sm text-slate-600">{selectedCandidate.currentTitle || 'No title'}</p>
                   </div>
                 </SheetTitle>
               </SheetHeader>
 
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Contact Info */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.contactInfo}</h4>
+                  <h4 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">{t.candidates.contactInfo}</h4>
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="w-4 h-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-sm text-slate-700">
+                      <Mail className="w-4 h-4 text-slate-400" />
                       <span>{selectedCandidate.user.email}</span>
                     </div>
                     {selectedCandidate.phone && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground">📞</span>
+                      <div className="flex items-center gap-2 text-sm text-slate-700">
+                        <span className="text-slate-400">📞</span>
                         <span>{selectedCandidate.phone}</span>
                       </div>
                     )}
                     {selectedCandidate.location && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex items-center gap-2 text-sm text-slate-700">
+                        <MapPin className="w-4 h-4 text-slate-400" />
                         <span>{selectedCandidate.location}</span>
                       </div>
                     )}
@@ -433,17 +417,14 @@ export default function CandidatesPage() {
 
                 <Separator />
 
-                {/* AI Match Score */}
+                {/* Match Score */}
                 {getMatchScore(selectedCandidate) && (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-teal-500" />
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.aiMatchScore}</h4>
-                    </div>
-                    <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/30">
+                    <h4 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">{t.candidates.aiMatchScore}</h4>
+                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{getMatchScore(selectedCandidate)}%</span>
-                        <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">High Match</Badge>
+                        <span className="text-2xl font-bold text-slate-900">{getMatchScore(selectedCandidate)}%</span>
+                        <Badge variant="outline" className="text-xs border-blue-200 text-blue-700 bg-blue-50">High Match</Badge>
                       </div>
                       <Progress value={getMatchScore(selectedCandidate)!} className="h-1.5" />
                     </div>
@@ -454,10 +435,10 @@ export default function CandidatesPage() {
 
                 {/* Skills */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.skills}</h4>
+                  <h4 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">{t.candidates.skills}</h4>
                   <div className="flex flex-wrap gap-2">
                     {parseSkills(selectedCandidate.skills).map((skill) => (
-                      <Badge key={skill} variant="secondary" className="text-xs">
+                      <Badge key={skill} variant="secondary" className="text-xs bg-slate-100 text-slate-600">
                         {skill}
                       </Badge>
                     ))}
@@ -468,8 +449,8 @@ export default function CandidatesPage() {
 
                 {/* Experience */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.experience}</h4>
-                  <p className="text-sm">
+                  <h4 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">{t.candidates.experience}</h4>
+                  <p className="text-sm text-slate-600">
                     {selectedCandidate.experienceYears
                       ? `${selectedCandidate.experienceYears} years of professional experience`
                       : 'Experience not specified'}
@@ -480,18 +461,18 @@ export default function CandidatesPage() {
 
                 {/* Application History */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.applicationHistory}</h4>
+                  <h4 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">{t.candidates.applicationHistory}</h4>
                   {selectedCandidate.applications.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No applications yet</p>
+                    <p className="text-sm text-slate-500">No applications yet</p>
                   ) : (
                     <div className="space-y-2">
                       {selectedCandidate.applications.map((app) => (
-                        <div key={app.id} className="flex items-center justify-between p-2 rounded-lg border border-border/50">
+                        <div key={app.id} className="flex items-center justify-between p-2 rounded-lg border border-slate-200">
                           <div className="flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm">{app.job.title}</span>
+                            <Briefcase className="w-4 h-4 text-slate-400" />
+                            <span className="text-sm text-slate-700">{app.job.title}</span>
                           </div>
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200 text-slate-600">
                             {app.status}
                           </Badge>
                         </div>
@@ -505,19 +486,19 @@ export default function CandidatesPage() {
                 {/* Bio */}
                 {selectedCandidate.bio && (
                   <div className="space-y-2">
-                    <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">About</h4>
-                    <p className="text-sm text-muted-foreground">{selectedCandidate.bio}</p>
+                    <h4 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">About</h4>
+                    <p className="text-sm text-slate-600">{selectedCandidate.bio}</p>
                   </div>
                 )}
               </div>
 
               {/* Actions */}
-              <div className="p-4 border-t flex gap-2">
-                <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white" size="sm">
+              <div className="p-4 border-t border-slate-200 flex gap-2">
+                <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" size="sm">
                   <CheckCircle2 className="w-4 h-4 me-2" />
                   {t.candidates.shortlist}
                 </Button>
-                <Button variant="outline" size="sm" className="text-destructive">
+                <Button variant="outline" size="sm" className="text-destructive border-red-300">
                   <XCircle className="w-4 h-4 me-2" />
                   {t.candidates.reject}
                 </Button>

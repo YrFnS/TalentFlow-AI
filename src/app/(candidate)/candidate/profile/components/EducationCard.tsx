@@ -114,7 +114,7 @@ export default function EducationCard({
               <Label>{t.candidate.institution}</Label>
               <Input
                 value={eduForm.institution || ''}
-                onChange={(e) => setEduForm({ ...eduForm, institution: e.target.value })}
+                onChange={(e) => setEduForm({ ...eduForm, institution: (e.target as unknown as { value: string }).value })}
                 placeholder="e.g. MIT"
               />
             </div>
@@ -137,7 +137,7 @@ export default function EducationCard({
               <Label>{t.candidate.field}</Label>
               <Input
                 value={eduForm.field || ''}
-                onChange={(e) => setEduForm({ ...eduForm, field: e.target.value })}
+                onChange={(e) => setEduForm({ ...eduForm, field: (e.target as unknown as { value: string }).value })}
                 placeholder="e.g. Computer Science"
               />
             </div>
@@ -146,7 +146,7 @@ export default function EducationCard({
                 <Label>{t.candidate.startDate}</Label>
                 <Input
                   value={eduForm.startDate || ''}
-                  onChange={(e) => setEduForm({ ...eduForm, startDate: e.target.value })}
+                  onChange={(e) => setEduForm({ ...eduForm, startDate: (e.target as unknown as { value: string }).value })}
                   placeholder="YYYY-MM"
                 />
               </div>
@@ -154,7 +154,7 @@ export default function EducationCard({
                 <Label>{t.candidate.endDate}</Label>
                 <Input
                   value={eduForm.endDate || ''}
-                  onChange={(e) => setEduForm({ ...eduForm, endDate: e.target.value })}
+                  onChange={(e) => setEduForm({ ...eduForm, endDate: (e.target as unknown as { value: string }).value })}
                   placeholder="YYYY-MM"
                 />
               </div>

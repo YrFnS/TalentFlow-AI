@@ -101,7 +101,7 @@ export default function CertificationCard({
               <Label>Name</Label>
               <Input
                 value={certForm.name || ''}
-                onChange={(e) => setCertForm({ ...certForm, name: e.target.value })}
+                onChange={(e) => setCertForm({ ...certForm, name: (e.target as unknown as { value: string }).value })}
                 placeholder="e.g. AWS Certified Developer"
               />
             </div>
@@ -109,7 +109,7 @@ export default function CertificationCard({
               <Label>{t.candidate.issuer}</Label>
               <Input
                 value={certForm.issuer || ''}
-                onChange={(e) => setCertForm({ ...certForm, issuer: e.target.value })}
+                onChange={(e) => setCertForm({ ...certForm, issuer: (e.target as unknown as { value: string }).value })}
                 placeholder="e.g. Amazon Web Services"
               />
             </div>
@@ -117,7 +117,7 @@ export default function CertificationCard({
               <Label>{t.candidate.date}</Label>
               <Input
                 value={certForm.date || ''}
-                onChange={(e) => setCertForm({ ...certForm, date: e.target.value })}
+                onChange={(e) => setCertForm({ ...certForm, date: (e.target as unknown as { value: string }).value })}
                 placeholder="YYYY-MM"
               />
             </div>

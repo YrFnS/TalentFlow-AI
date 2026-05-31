@@ -42,7 +42,7 @@ export default function SkillsCard({ skills, newSkill, setNewSkill, addSkill, re
           <Input
             placeholder={t.candidate.addSkill}
             value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
+            onChange={(e) => setNewSkill((e.target as unknown as { value: string }).value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
             className="h-9 max-w-xs"
           />

@@ -23,7 +23,6 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import {
   Plus,
-  Sparkles,
   MapPin,
   Briefcase,
   Filter,
@@ -77,7 +76,6 @@ interface Job {
   title: string;
 }
 
-// Stage analytics will be calculated from actual pipeline data
 interface StageAnalytic {
   stageName: string;
   avgDays: number;
@@ -100,12 +98,13 @@ function ApplicationCard({ app, isDragging }: { app: Application; isDragging?: b
     .map((n) => n[0])
     .join('');
 
+  const score = app.matchScore || 0;
   const scoreColor =
-    (app.matchScore || 0) >= 85
-      ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30'
-      : (app.matchScore || 0) >= 70
-      ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30'
-      : 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30';
+    score >= 85
+      ? 'text-emerald-700 bg-emerald-50'
+      : score >= 70
+      ? 'text-blue-700 bg-blue-50'
+      : 'text-amber-700 bg-amber-50';
 
   return (
     <div
@@ -113,34 +112,31 @@ function ApplicationCard({ app, isDragging }: { app: Application; isDragging?: b
       style={style}
       {...attributes}
       className={cn(
-        'p-3 rounded-lg border border-border/50 bg-card hover:shadow-md transition-all active:cursor-grabbing card-glow',
-        isDragging && 'opacity-50 shadow-lg rotate-2 scale-105'
+        'p-3 rounded-lg border border-slate-200 bg-white hover:shadow-md transition-all active:cursor-grabbing',
+        isDragging && 'opacity-50 shadow-lg'
       )}
     >
       <div className="flex items-start gap-2.5">
-        {/* Drag Handle */}
-        <button {...listeners} className="cursor-grab active:cursor-grabbing mt-0.5 opacity-30 hover:opacity-70 transition-opacity touch-none">
-          <GripVertical className="w-4 h-4 text-muted-foreground" />
+        <button {...listeners} className="cursor-grab active:cursor-grabbing mt-0.5 opacity-40 hover:opacity-70 transition-opacity touch-none">
+          <GripVertical className="w-4 h-4 text-slate-400" />
         </button>
-        {/* Avatar */}
         <Avatar className="w-9 h-9 flex-shrink-0">
-          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px] font-semibold">
+          <AvatarFallback className="bg-slate-700 text-white text-[10px] font-semibold">
             {initials}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{app.candidate.user.name}</p>
-          <p className="text-[11px] text-muted-foreground truncate">{app.job.title}</p>
+          <p className="text-sm font-medium text-slate-900 truncate">{app.candidate.user.name}</p>
+          <p className="text-[11px] text-slate-500 truncate">{app.job.title}</p>
         </div>
         {app.matchScore && (
-          <div className={cn('flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold', scoreColor)}>
-            <Sparkles className="w-2.5 h-2.5" />
+          <div className={cn('px-1.5 py-0.5 rounded-md text-[10px] font-semibold', scoreColor)}>
             {app.matchScore}%
           </div>
         )}
       </div>
-      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/30">
-        <span className="text-[10px] text-muted-foreground">
+      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
+        <span className="text-[10px] text-slate-400">
           {new Date(app.appliedAt).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
         </span>
       </div>
@@ -157,29 +153,27 @@ function StageColumn({
 }) {
   return (
     <div className="flex flex-col min-w-[280px] w-[280px] flex-shrink-0">
-      {/* Stage Header */}
       <div className="flex items-center gap-2 mb-3 px-1">
         <div
           className="w-3 h-3 rounded-full flex-shrink-0"
           style={{ backgroundColor: stage.color }}
         />
-        <h3 className="text-sm font-semibold flex-1">{stage.name}</h3>
-        <Badge className="text-[10px] px-2 py-0 h-5 font-semibold animate-bounce-subtle" style={{ backgroundColor: stage.color, color: 'white' }}>
+        <h3 className="text-sm font-semibold text-slate-900 flex-1">{stage.name}</h3>
+        <Badge className="text-[10px] px-2 py-0 h-5 font-semibold bg-slate-100 text-slate-700">
           {applications.length}
         </Badge>
       </div>
 
-      {/* Application Cards */}
       <SortableContext items={applications.map((a) => a.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-3 min-h-[120px] p-3 rounded-lg bg-muted/30 border-2 border-dashed border-teal-200/40 dark:border-teal-800/40 transition-colors hover:border-teal-400/60 dark:hover:border-teal-600/60">
+        <div className="space-y-3 min-h-[120px] p-3 rounded-lg bg-slate-50 border-2 border-dashed border-slate-200 transition-colors hover:border-slate-300">
           {applications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground/60 gap-3">
-              <div className="w-10 h-10 rounded-full border-2 border-dashed border-teal-300/50 dark:border-teal-700/50 flex items-center justify-center">
-                <Plus className="w-5 h-5 text-teal-400/60 dark:text-teal-600/60" />
+            <div className="flex flex-col items-center justify-center h-32 text-slate-400 gap-3">
+              <div className="w-10 h-10 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center">
+                <Plus className="w-5 h-5 text-slate-400" />
               </div>
               <div className="text-center">
-                <p className="text-xs font-medium text-teal-600/60 dark:text-teal-400/60">Drop candidates here</p>
-                <p className="text-[10px] text-muted-foreground/40 mt-0.5">Drag & drop to move</p>
+                <p className="text-xs font-medium text-slate-500">Drop candidates here</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Drag & drop to move</p>
               </div>
             </div>
           ) : (
@@ -203,7 +197,7 @@ export default function PipelinePage() {
   const [selectedJob, setSelectedJob] = useState<string>('all');
   const [addStageOpen, setAddStageOpen] = useState(false);
   const [newStageName, setNewStageName] = useState('');
-  const [newStageColor, setNewStageColor] = useState('#14b8a6');
+  const [newStageColor, setNewStageColor] = useState('#3b82f6');
   const [analyticsExpanded, setAnalyticsExpanded] = useState(true);
 
   const sensors = useSensors(
@@ -334,7 +328,7 @@ export default function PipelinePage() {
       });
       if (res.ok) {
         setNewStageName('');
-        setNewStageColor('#14b8a6');
+        setNewStageColor('#3b82f6');
         setAddStageOpen(false);
         fetchPipeline();
       }
@@ -352,7 +346,6 @@ export default function PipelinePage() {
     0
   );
 
-  // Calculate stage analytics from actual pipeline data
   const stageAnalytics: StageAnalytic[] = stages.map((stage, i) => {
     const apps = stage.currentStageApplications || [];
     const nextStage = stages[i + 1];
@@ -375,15 +368,15 @@ export default function PipelinePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.pipeline.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t.pipeline.title}</h1>
+          <p className="text-slate-500 text-sm mt-1">
             {totalApplications} applications across {stages.length} stages
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={selectedJob} onValueChange={setSelectedJob}>
             <SelectTrigger className="w-[200px] h-9">
-              <Briefcase className="w-4 h-4 me-2 text-muted-foreground" />
+              <Briefcase className="w-4 h-4 me-2 text-slate-400" />
               <SelectValue placeholder="Filter by job" />
             </SelectTrigger>
             <SelectContent>
@@ -398,7 +391,7 @@ export default function PipelinePage() {
 
           <Dialog open={addStageOpen} onOpenChange={setAddStageOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="border-teal-300 dark:border-teal-700">
+              <Button variant="outline" className="border-slate-300">
                 <Plus className="w-4 h-4 me-2" />
                 {t.pipeline.addStage}
               </Button>
@@ -428,7 +421,7 @@ export default function PipelinePage() {
                     <Input value={newStageColor} onChange={(e) => setNewStageColor(e.target.value)} className="flex-1" />
                   </div>
                 </div>
-                <Button onClick={handleAddStage} className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+                <Button onClick={handleAddStage} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                   Add Stage
                 </Button>
               </div>
@@ -438,11 +431,11 @@ export default function PipelinePage() {
       </div>
 
       {/* Pipeline Analytics Summary */}
-      <Card className="border-teal-200/50 dark:border-teal-800/50 animate-fade-in">
+      <Card className="border-slate-200">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <BarChart3 className="w-4 h-4 text-teal-600" />
+            <CardTitle className="flex items-center gap-2 text-sm text-slate-900">
+              <BarChart3 className="w-4 h-4 text-blue-600" />
               {t.pipelineAnalytics?.title || 'Pipeline Analytics'}
             </CardTitle>
             <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setAnalyticsExpanded(!analyticsExpanded)}>
@@ -455,7 +448,7 @@ export default function PipelinePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Stage Metrics */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
                   <Clock className="w-3.5 h-3.5" />
                   {t.pipelineAnalytics?.avgTimeByStage || 'Average Time in Stage'}
                 </div>
@@ -463,8 +456,8 @@ export default function PipelinePage() {
                   stageAnalytics.filter(s => s.avgDays > 0).map((stage) => (
                     <div key={stage.stageName} className="flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: stage.color }} />
-                      <span className="text-xs font-medium w-20 shrink-0">{stage.stageName}</span>
-                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                      <span className="text-xs font-medium text-slate-700 w-20 shrink-0">{stage.stageName}</span>
+                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{
@@ -473,22 +466,21 @@ export default function PipelinePage() {
                           }}
                         />
                       </div>
-                      <span className="text-xs text-muted-foreground w-12 text-end">{stage.avgDays}d</span>
+                      <span className="text-xs text-slate-500 w-12 text-end">{stage.avgDays}d</span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-muted-foreground py-4 text-center">No stage data available</p>
+                  <p className="text-xs text-slate-400 py-4 text-center">No stage data available</p>
                 )}
 
-                {/* Bottleneck Indicator */}
                 {bottleneck && bottleneck.avgDays > 0 && (
-                  <div className="flex items-center gap-2 mt-3 p-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <div className="flex items-center gap-2 mt-3 p-2 rounded-lg bg-amber-50 border border-amber-200">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                     <div>
-                      <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
+                      <span className="text-xs font-medium text-amber-700">
                         {t.pipelineAnalytics?.bottleneck || 'Bottleneck'}: {bottleneck.stageName}
                       </span>
-                      <span className="text-[10px] text-muted-foreground ms-1">({bottleneck.avgDays}d avg)</span>
+                      <span className="text-[10px] text-slate-500 ms-1">({bottleneck.avgDays}d avg)</span>
                     </div>
                   </div>
                 )}
@@ -496,7 +488,7 @@ export default function PipelinePage() {
 
               {/* Conversion Rates + Mini Funnel */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
                   <TrendingUp className="w-3.5 h-3.5" />
                   {t.pipelineAnalytics?.conversionRate || 'Stage Conversion Rates'}
                 </div>
@@ -504,15 +496,15 @@ export default function PipelinePage() {
                   const nextStage = stageAnalytics[i + 1];
                   return (
                     <div key={stage.stageName} className="flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground w-20 shrink-0 truncate">{stage.stageName}</span>
-                      <span className="text-muted-foreground">→</span>
-                      <span className="w-20 shrink-0 truncate">{nextStage.stageName}</span>
+                      <span className="text-slate-500 w-20 shrink-0 truncate">{stage.stageName}</span>
+                      <span className="text-slate-400">→</span>
+                      <span className="w-20 shrink-0 truncate text-slate-500">{nextStage.stageName}</span>
                       <div className="flex-1" />
                       <span className={cn(
                         'font-semibold',
-                        stage.conversionRate >= 60 ? 'text-emerald-600 dark:text-emerald-400' :
-                        stage.conversionRate >= 40 ? 'text-amber-600 dark:text-amber-400' :
-                        'text-red-600 dark:text-red-400'
+                        stage.conversionRate >= 60 ? 'text-emerald-700' :
+                        stage.conversionRate >= 40 ? 'text-amber-700' :
+                        'text-red-600'
                       )}>
                         {stage.conversionRate}%
                       </span>
@@ -520,8 +512,7 @@ export default function PipelinePage() {
                   );
                 })}
 
-                {/* Mini Funnel */}
-                <div className="mt-3 pt-3 border-t">
+                <div className="mt-3 pt-3 border-t border-slate-200">
                   <div className="flex flex-col items-center gap-0.5">
                     {stageAnalytics.map((stage, i) => {
                       const widthPct = 100 - (i * 18);
@@ -555,13 +546,13 @@ export default function PipelinePage() {
             <div key={i} className="min-w-[280px] w-[280px] flex-shrink-0">
               <div className="animate-pulse">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 rounded-full bg-muted" />
-                  <div className="h-4 bg-muted rounded w-20" />
-                  <div className="h-5 bg-muted rounded w-6 ms-auto" />
+                  <div className="w-3 h-3 rounded-full bg-slate-200" />
+                  <div className="h-4 bg-slate-200 rounded w-20" />
+                  <div className="h-5 bg-slate-200 rounded w-6 ms-auto" />
                 </div>
-                <div className="space-y-2 p-1 rounded-lg bg-muted/30">
+                <div className="space-y-2 p-1 rounded-lg bg-slate-50">
                   {[1, 2, 3].map((j) => (
-                    <div key={j} className="h-20 bg-muted rounded-lg" />
+                    <div key={j} className="h-20 bg-slate-200 rounded-lg" />
                   ))}
                 </div>
               </div>
@@ -576,7 +567,7 @@ export default function PipelinePage() {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+          <div className="flex gap-4 overflow-x-auto pb-4">
             {stages.map((stage) => (
               <StageColumn
                 key={stage.id}

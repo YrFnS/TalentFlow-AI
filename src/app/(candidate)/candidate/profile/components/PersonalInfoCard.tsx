@@ -51,7 +51,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
             <Input
               id="name"
               value={personalInfo.name}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, name: e.target.value })}
+              onChange={(e) => setPersonalInfo({ ...personalInfo, name: (e.target as unknown as { value: string }).value })}
             />
           </div>
           <div className="space-y-2">
@@ -60,7 +60,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
               id="email"
               type="email"
               value={personalInfo.email}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
+              onChange={(e) => setPersonalInfo({ ...personalInfo, email: (e.target as unknown as { value: string }).value })}
             />
           </div>
           <div className="space-y-2">
@@ -68,7 +68,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
             <Input
               id="phone"
               value={personalInfo.phone}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
+              onChange={(e) => setPersonalInfo({ ...personalInfo, phone: (e.target as unknown as { value: string }).value })}
             />
           </div>
           <div className="space-y-2">
@@ -76,7 +76,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
             <Input
               id="location"
               value={personalInfo.location}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, location: e.target.value })}
+              onChange={(e) => setPersonalInfo({ ...personalInfo, location: (e.target as unknown as { value: string }).value })}
             />
           </div>
           <div className="space-y-2">
@@ -84,7 +84,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
             <Input
               id="currentTitle"
               value={personalInfo.currentTitle}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, currentTitle: e.target.value })}
+              onChange={(e) => setPersonalInfo({ ...personalInfo, currentTitle: (e.target as unknown as { value: string }).value })}
             />
           </div>
           <div className="space-y-2">
@@ -108,7 +108,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
             <Input
               id="linkedin"
               value={personalInfo.linkedin}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, linkedin: e.target.value })}
+              onChange={(e) => setPersonalInfo({ ...personalInfo, linkedin: (e.target as unknown as { value: string }).value })}
             />
           </div>
           <div className="space-y-2">
@@ -116,7 +116,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
             <Input
               id="portfolio"
               value={personalInfo.portfolio}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, portfolio: e.target.value })}
+              onChange={(e) => setPersonalInfo({ ...personalInfo, portfolio: (e.target as unknown as { value: string }).value })}
             />
           </div>
           <div className="space-y-2 md:col-span-2">
@@ -124,7 +124,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
             <Textarea
               id="bio"
               value={personalInfo.bio}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, bio: e.target.value })}
+              onChange={(e) => setPersonalInfo({ ...personalInfo, bio: (e.target as unknown as { value: string }).value })}
               rows={3}
             />
           </div>

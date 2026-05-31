@@ -86,17 +86,17 @@ const getJobPerf = (jobId: string) => {
 
 const getJobHealth = (applications: number, targetApps: number) => {
   const ratio = targetApps > 0 ? applications / targetApps : 0;
-  if (ratio >= 0.8) return { label: 'Healthy', color: 'bg-emerald-500', textColor: 'text-emerald-700 dark:text-emerald-400', bgColor: 'bg-emerald-50 dark:bg-emerald-950/30' };
-  if (ratio >= 0.5) return { label: 'Moderate', color: 'bg-amber-500', textColor: 'text-amber-700 dark:text-amber-400', bgColor: 'bg-amber-50 dark:bg-amber-950/30' };
-  return { label: 'Low', color: 'bg-red-500', textColor: 'text-red-700 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-950/30' };
+  if (ratio >= 0.8) return { label: 'Healthy', color: 'bg-emerald-500', textColor: 'text-emerald-700', bgColor: 'bg-emerald-50' };
+  if (ratio >= 0.5) return { label: 'Moderate', color: 'bg-amber-500', textColor: 'text-amber-700', bgColor: 'bg-amber-50' };
+  return { label: 'Low', color: 'bg-red-500', textColor: 'text-red-700', bgColor: 'bg-red-50' };
 };
 
 const statusConfig: Record<string, { label: string; color: string; dotColor: string }> = {
-  DRAFT: { label: 'Draft', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400', dotColor: 'bg-gray-400' },
-  OPEN: { label: 'Open', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400', dotColor: 'bg-teal-500' },
-  PAUSED: { label: 'Paused', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dotColor: 'bg-amber-500' },
-  CLOSED: { label: 'Closed', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', dotColor: 'bg-red-500' },
-  ARCHIVED: { label: 'Archived', color: 'bg-gray-100 text-gray-500 dark:bg-gray-800/30 dark:text-gray-500', dotColor: 'bg-gray-400' },
+  DRAFT: { label: 'Draft', color: 'bg-gray-100 text-gray-700 border-gray-200', dotColor: 'bg-gray-400' },
+  OPEN: { label: 'Open', color: 'bg-blue-50 text-blue-700 border-blue-200', dotColor: 'bg-blue-500' },
+  PAUSED: { label: 'Paused', color: 'bg-amber-50 text-amber-700 border-amber-200', dotColor: 'bg-amber-500' },
+  CLOSED: { label: 'Closed', color: 'bg-red-50 text-red-700 border-red-200', dotColor: 'bg-red-500' },
+  ARCHIVED: { label: 'Archived', color: 'bg-gray-100 text-gray-500 border-gray-200', dotColor: 'bg-gray-400' },
 };
 
 const jobTypeLabels: Record<string, string> = {
@@ -183,11 +183,11 @@ export default function JobsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.jobs.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">Manage your job postings and track applicants</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t.jobs.title}</h1>
+          <p className="text-slate-600 text-sm mt-1">Manage your job postings and track applicants</p>
         </div>
         <Link href="/company/jobs/create">
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
             <Plus className="w-4 h-4 me-2" />
             {t.jobs.createJob}
           </Button>
@@ -196,49 +196,49 @@ export default function JobsPage() {
 
       {/* Job Performance Overview */}
       {!loading && jobs.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in">
-          <Card className="stat-card-shine">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Card className="border-slate-200">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center">
-                  <Eye className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <Eye className="w-3.5 h-3.5 text-slate-600" />
                 </div>
-                <span className="text-xs text-muted-foreground">{t.jobsPerf?.totalViews || 'Total Views'}</span>
+                <span className="text-xs text-slate-600">{t.jobsPerf?.totalViews || 'Total Views'}</span>
               </div>
-              <p className="text-xl font-bold">{totalViews.toLocaleString()}</p>
+              <p className="text-xl font-bold text-slate-900">{totalViews.toLocaleString()}</p>
             </CardContent>
           </Card>
-          <Card className="stat-card-shine">
+          <Card className="border-slate-200">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center">
-                  <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <Users className="w-3.5 h-3.5 text-slate-600" />
                 </div>
-                <span className="text-xs text-muted-foreground">{t.jobsPerf?.totalApplications || 'Total Applications'}</span>
+                <span className="text-xs text-slate-600">{t.jobsPerf?.totalApplications || 'Total Applications'}</span>
               </div>
-              <p className="text-xl font-bold">{totalApps}</p>
+              <p className="text-xl font-bold text-slate-900">{totalApps}</p>
             </CardContent>
           </Card>
-          <Card className="stat-card-shine">
+          <Card className="border-slate-200">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-7 h-7 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 flex items-center justify-center">
-                  <TrendingUp className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <TrendingUp className="w-3.5 h-3.5 text-slate-600" />
                 </div>
-                <span className="text-xs text-muted-foreground">{t.jobsPerf?.conversionRate || 'Conversion Rate'}</span>
+                <span className="text-xs text-slate-600">{t.jobsPerf?.conversionRate || 'Conversion Rate'}</span>
               </div>
-              <p className="text-xl font-bold">{avgConversion}%</p>
+              <p className="text-xl font-bold text-slate-900">{avgConversion}%</p>
             </CardContent>
           </Card>
-          <Card className="stat-card-shine">
+          <Card className="border-slate-200">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center">
-                  <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <Clock className="w-3.5 h-3.5 text-slate-600" />
                 </div>
-                <span className="text-xs text-muted-foreground">{t.jobsPerf?.avgTimeToFill || 'Avg. Time to Fill'}</span>
+                <span className="text-xs text-slate-600">{t.jobsPerf?.avgTimeToFill || 'Avg. Time to Fill'}</span>
               </div>
-              <p className="text-xl font-bold">{avgTimeToFill}d</p>
+              <p className="text-xl font-bold text-slate-900">{avgTimeToFill}d</p>
             </CardContent>
           </Card>
         </div>
@@ -247,17 +247,17 @@ export default function JobsPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder={t.jobs.searchJobs}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-9"
+            className="ps-9 h-9 border-slate-200"
           />
         </div>
         <div className="flex items-center gap-2">
           <Tabs value={statusFilter} onValueChange={setStatusFilter}>
-            <TabsList className="h-9">
+            <TabsList className="h-9 border border-slate-200">
               <TabsTrigger value="all" className="text-xs px-3">
                 All ({statusCounts.all})
               </TabsTrigger>
@@ -275,7 +275,7 @@ export default function JobsPage() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <div className="hidden sm:flex items-center border rounded-md">
+          <div className="hidden sm:flex items-center border border-slate-200 rounded-md">
             <Button
               variant={view === 'grid' ? 'secondary' : 'ghost'}
               size="icon"
@@ -300,29 +300,29 @@ export default function JobsPage() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="border-slate-200 animate-pulse">
               <CardContent className="p-4 space-y-3">
-                <div className="h-5 bg-muted rounded w-3/4" />
-                <div className="h-4 bg-muted rounded w-1/2" />
-                <div className="h-4 bg-muted rounded w-2/3" />
+                <div className="h-5 bg-slate-100 rounded w-3/4" />
+                <div className="h-4 bg-slate-100 rounded w-1/2" />
+                <div className="h-4 bg-slate-100 rounded w-2/3" />
                 <div className="flex gap-2 mt-2">
-                  <div className="h-6 bg-muted rounded w-16" />
-                  <div className="h-6 bg-muted rounded w-20" />
+                  <div className="h-6 bg-slate-100 rounded w-16" />
+                  <div className="h-6 bg-slate-100 rounded w-20" />
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : filteredJobs.length === 0 ? (
-        <Card>
+        <Card className="border-slate-200">
           <CardContent className="py-12 text-center">
-            <Briefcase className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-medium">No jobs found</h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900">No jobs found</h3>
+            <p className="text-sm text-slate-600 mt-1">
               {searchQuery ? 'Try adjusting your search terms' : 'Create your first job posting to get started'}
             </p>
             <Link href="/company/jobs/create">
-              <Button className="mt-4 bg-teal-600 hover:bg-teal-700 text-white">
+              <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
                 <Plus className="w-4 h-4 me-2" />
                 {t.jobs.createJob}
               </Button>
@@ -337,12 +337,12 @@ export default function JobsPage() {
             const health = getJobHealth(job._count.applications, perf.targetApps);
 
             return (
-              <Card key={job.id} className="group hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-200 dark:hover:border-teal-800 animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
+              <Card key={job.id} className="group hover:shadow-md transition-shadow duration-200 border-slate-200">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm truncate">{job.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{job.company.name}</p>
+                      <h3 className="font-semibold text-sm text-slate-900 truncate">{job.title}</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">{job.company.name}</p>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -362,16 +362,16 @@ export default function JobsPage() {
                   </div>
 
                   <div className="flex items-center gap-2 mt-3">
-                    <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0 transition-colors duration-300', status.color)}>
-                      <span className={cn('w-1.5 h-1.5 rounded-full me-1 transition-all duration-300', status.dotColor, 'animate-pulse')} />
+                    <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0', status.color)}>
+                      <span className={cn('w-1.5 h-1.5 rounded-full me-1', status.dotColor)} />
                       {status.label}
                     </Badge>
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200 text-slate-600">
                       {jobTypeLabels[job.jobType] || job.jobType}
                     </Badge>
                     {/* Job Health Indicator */}
                     {job.status === 'OPEN' && (
-                      <Badge className={cn('text-[10px] px-1.5 py-0 border-0', health.bgColor, health.textColor)}>
+                      <Badge className={cn('text-[10px] px-1.5 py-0 border border-transparent', health.bgColor, health.textColor)}>
                         <span className={cn('w-1.5 h-1.5 rounded-full me-1', health.color)} />
                         {health.label}
                       </Badge>
@@ -380,46 +380,46 @@ export default function JobsPage() {
 
                   {/* Mini Performance Metrics */}
                   {job.status === 'OPEN' && (
-                    <div className="grid grid-cols-3 gap-2 mt-3 p-2 rounded-md bg-muted/30">
+                    <div className="grid grid-cols-3 gap-2 mt-3 p-2 rounded-md bg-slate-50">
                       <div className="text-center">
-                        <p className="text-[10px] text-muted-foreground">{t.jobsPerf?.views || 'Views'}</p>
-                        <p className="text-xs font-semibold">{perf.views}</p>
+                        <p className="text-[10px] text-slate-500">{t.jobsPerf?.views || 'Views'}</p>
+                        <p className="text-xs font-semibold text-slate-900">{perf.views}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-[10px] text-muted-foreground">{t.jobsPerf?.apps || 'Apps'}</p>
-                        <p className="text-xs font-semibold">{job._count.applications}</p>
+                        <p className="text-[10px] text-slate-500">{t.jobsPerf?.apps || 'Apps'}</p>
+                        <p className="text-xs font-semibold text-slate-900">{job._count.applications}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-[10px] text-muted-foreground">{t.jobsPerf?.timeToFill || 'TTF'}</p>
-                        <p className="text-xs font-semibold">{perf.timeToFill}d</p>
+                        <p className="text-[10px] text-slate-500">{t.jobsPerf?.timeToFill || 'TTF'}</p>
+                        <p className="text-xs font-semibold text-slate-900">{perf.timeToFill}d</p>
                       </div>
                     </div>
                   )}
 
                   <div className="mt-3 space-y-1.5">
                     {job.location && (
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2 text-xs text-slate-600">
                         <MapPin className="w-3 h-3 flex-shrink-0" />
                         <span className="truncate">{job.location}{job.isRemote ? ' · Remote' : ''}</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
                       <DollarSign className="w-3 h-3 flex-shrink-0" />
                       <span>{formatSalary(job.salaryMin, job.salaryMax)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
                       <Users className="w-3 h-3 flex-shrink-0" />
                       <span>{job._count.applications} applicant{job._count.applications !== 1 ? 's' : ''} · {job.openings} opening{job.openings !== 1 ? 's' : ''}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
                       <Clock className="w-3 h-3" />
                       <span>{formatDate(job.createdAt)}</span>
                     </div>
                     <Link href={`/company/jobs/${job.id}`}>
-                      <Button variant="ghost" size="sm" className="text-xs h-7 text-teal-600 hover:text-teal-700">
+                      <Button variant="ghost" size="sm" className="text-xs h-7 text-blue-600 hover:text-blue-700">
                         View
                       </Button>
                     </Link>
@@ -430,7 +430,7 @@ export default function JobsPage() {
           })}
         </div>
       ) : (
-        <Card>
+        <Card className="border-slate-200">
           <Table>
             <TableHeader>
               <TableRow>
@@ -453,28 +453,28 @@ export default function JobsPage() {
 
                 return (
                   <TableRow key={job.id}>
-                    <TableCell className="font-medium text-sm">{job.title}</TableCell>
+                    <TableCell className="font-medium text-sm text-slate-900">{job.title}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0', status.color)}>
                         <span className={cn('w-1.5 h-1.5 rounded-full me-1', status.dotColor)} />
                         {status.label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-xs">{jobTypeLabels[job.jobType] || job.jobType}</TableCell>
-                    <TableCell className="text-xs">{job.location || '—'}{job.isRemote ? ' · Remote' : ''}</TableCell>
-                    <TableCell className="text-xs">{job._count.applications}</TableCell>
-                    <TableCell className="text-xs">{formatSalary(job.salaryMin, job.salaryMax)}</TableCell>
+                    <TableCell className="text-xs text-slate-600">{jobTypeLabels[job.jobType] || job.jobType}</TableCell>
+                    <TableCell className="text-xs text-slate-600">{job.location || '—'}{job.isRemote ? ' · Remote' : ''}</TableCell>
+                    <TableCell className="text-xs text-slate-600">{job._count.applications}</TableCell>
+                    <TableCell className="text-xs text-slate-600">{formatSalary(job.salaryMin, job.salaryMax)}</TableCell>
                     <TableCell>
                       {job.status === 'OPEN' ? (
-                        <Badge className={cn('text-[10px] px-1.5 py-0 border-0', health.bgColor, health.textColor)}>
+                        <Badge className={cn('text-[10px] px-1.5 py-0 border border-transparent', health.bgColor, health.textColor)}>
                           <span className={cn('w-1.5 h-1.5 rounded-full me-1', health.color)} />
                           {health.label}
                         </Badge>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-xs text-slate-400">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs">{formatDate(job.createdAt)}</TableCell>
+                    <TableCell className="text-xs text-slate-600">{formatDate(job.createdAt)}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

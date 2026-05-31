@@ -11,18 +11,13 @@ import {
   Video,
   UserCheck,
   TrendingUp,
-  TrendingDown,
   Plus,
   Calendar,
   GitBranch,
   ArrowUpRight,
-  Sparkles,
   Clock,
   Users,
   RefreshCw,
-  MapPin,
-  Target,
-  Award,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,15 +57,15 @@ const defaultData: DashboardData = {
   jobsByStatus: [],
 };
 
-const funnelColors = ['#14b8a6', '#06b6d4', '#f59e0b', '#8b5cf6', '#10b981'];
+const funnelColors = ['#2563eb', '#0ea5e9', '#f59e0b', '#8b5cf6', '#10b981'];
 
 const statusColors: Record<string, string> = {
-  APPLIED: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-  SCREENING: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
-  INTERVIEW: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-  OFFERED: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-  HIRED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  APPLIED: 'bg-blue-100 text-blue-700',
+  SCREENING: 'bg-sky-100 text-sky-700',
+  INTERVIEW: 'bg-amber-100 text-amber-700',
+  OFFERED: 'bg-violet-100 text-violet-700',
+  HIRED: 'bg-emerald-100 text-emerald-700',
+  REJECTED: 'bg-red-100 text-red-700',
 };
 
 const hiringTimelineData: { week: string; hired: number; interviews: number }[] = [];
@@ -80,9 +75,9 @@ const upcomingInterviews: { id: string; candidate: string; role: string; date: s
 const teamMembers: { id: string; name: string; initials: string; hiresThisMonth: number; openPositions: number; target: number }[] = [];
 
 const interviewTypeColors: Record<string, string> = {
-  Technical: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-  Cultural: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-  Final: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  Technical: 'bg-blue-100 text-blue-700',
+  Cultural: 'bg-violet-100 text-violet-700',
+  Final: 'bg-emerald-100 text-emerald-700',
 };
 
 function SimpleAreaChart({ data, height = 260, gradientId = 'areaGrad' }: { data: number[]; height?: number; gradientId?: string }) {
@@ -104,8 +99,8 @@ function SimpleAreaChart({ data, height = 260, gradientId = 'areaGrad' }: { data
     <svg viewBox={`0 0 ${width} ${height}`} className="w-full" preserveAspectRatio="none">
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgb(20, 184, 166)" stopOpacity={0.3} />
-          <stop offset="100%" stopColor="rgb(20, 184, 166)" stopOpacity={0.02} />
+          <stop offset="0%" stopColor="rgb(37, 99, 235)" stopOpacity={0.3} />
+          <stop offset="100%" stopColor="rgb(37, 99, 235)" stopOpacity={0.02} />
         </linearGradient>
       </defs>
       {[0, 0.25, 0.5, 0.75, 1].map((frac, i) => {
@@ -113,7 +108,7 @@ function SimpleAreaChart({ data, height = 260, gradientId = 'areaGrad' }: { data
         return <line key={i} x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="currentColor" strokeOpacity={0.08} strokeWidth={0.3} />;
       })}
       <polygon points={areaPoints} fill={`url(#${gradientId})`} />
-      <polyline points={points} fill="none" stroke="rgb(20, 184, 166)" strokeWidth={0.8} />
+      <polyline points={points} fill="none" stroke="rgb(37, 99, 235)" strokeWidth={0.8} />
     </svg>
   );
 }
@@ -155,11 +150,11 @@ function SimpleGroupedBarChart({ data, labels, series, height = 220 }: { data: R
   );
 }
 
-const gradientConfigs = [
-  { gradient: 'from-teal-500 to-emerald-600', icon: Briefcase },
-  { gradient: 'from-cyan-500 to-teal-600', icon: FileText },
-  { gradient: 'from-amber-500 to-orange-600', icon: Video },
-  { gradient: 'from-emerald-500 to-cyan-600', icon: UserCheck },
+const iconBgColors: { bg: string; text: string }[] = [
+  { bg: 'bg-blue-600', text: 'text-white' },
+  { bg: 'bg-sky-600', text: 'text-white' },
+  { bg: 'bg-amber-600', text: 'text-white' },
+  { bg: 'bg-emerald-600', text: 'text-white' },
 ];
 
 function DashboardSkeleton() {
@@ -241,7 +236,7 @@ export default function DashboardPage() {
       trend: '+2',
       trendPercent: 12.5,
       trendLabel: t.admin.fromLastMonth,
-      gradient: gradientConfigs[0],
+      iconStyle: iconBgColors[0],
     },
     {
       title: t.dashboard.totalApplications,
@@ -250,7 +245,7 @@ export default function DashboardPage() {
       trend: '+12',
       trendPercent: 18.2,
       trendLabel: t.admin.fromLastMonth,
-      gradient: gradientConfigs[1],
+      iconStyle: iconBgColors[1],
     },
     {
       title: t.dashboard.interviewsToday,
@@ -259,7 +254,7 @@ export default function DashboardPage() {
       trend: '+1',
       trendPercent: 8.3,
       trendLabel: t.admin.fromLastMonth,
-      gradient: gradientConfigs[2],
+      iconStyle: iconBgColors[2],
     },
     {
       title: t.dashboard.hiredThisMonth,
@@ -268,7 +263,7 @@ export default function DashboardPage() {
       trend: '+1',
       trendPercent: 25.0,
       trendLabel: t.admin.fromLastMonth,
-      gradient: gradientConfigs[3],
+      iconStyle: iconBgColors[3],
     },
   ];
 
@@ -283,17 +278,17 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.dashboard.welcome} 👋</h1>
-          <p className="text-muted-foreground text-sm mt-1">{t.dashboard.overview}</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t.dashboard.welcome} 👋</h1>
+          <p className="text-slate-500 text-sm mt-1">{t.dashboard.overview}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
             <Clock className="h-3 w-3" />
             <span>{t.dashboardEnhanced?.lastUpdated || 'Last updated'}: {lastUpdated.toLocaleTimeString()}</span>
-            <RefreshCw className={`h-3 w-3 cursor-pointer hover:text-teal-600 transition-colors ${isRefreshing ? 'animate-spin' : ''}`} onClick={handleRefresh} />
+            <RefreshCw className={`h-3 w-3 cursor-pointer hover:text-blue-600 transition-colors ${isRefreshing ? 'animate-spin' : ''}`} onClick={handleRefresh} />
           </div>
           <Link href="/company/jobs/create">
-            <Button className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white px-6 animate-pulse hover:animate-none">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6">
               <Plus className="w-4 h-4 me-2" />
               {t.dashboard.postJob}
             </Button>
@@ -301,7 +296,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats Cards with Trend Indicators */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card, i) => {
           const Icon = card.icon;
@@ -312,26 +307,24 @@ export default function DashboardPage() {
             'M0,16 L5,12 L10,14 L15,8 L20,6 L25,10 L30,4 L35,6 L40,2',
           ];
           return (
-            <Card key={i} className="card-tilt card-click-ripple relative overflow-hidden border-0 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 group stat-card-shine animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-950/30 dark:to-emerald-950/30" />
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500" />
+            <Card key={i} className="relative overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in">
               <CardContent className="relative p-5">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{card.title}</p>
-                    <p className="text-3xl font-bold tracking-tight">{card.value}</p>
-                    <div className="flex items-center gap-1 trend-indicator">
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{card.title}</p>
+                    <p className="text-3xl font-bold text-slate-900 tracking-tight">{card.value}</p>
+                    <div className="flex items-center gap-1">
                       <TrendingUp className="w-3 h-3 text-emerald-500" />
-                      <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">↑ {card.trendPercent}%</span>
-                      <span className="text-xs text-muted-foreground">{card.trendLabel}</span>
+                      <span className="text-xs text-emerald-600 font-medium">↑ {card.trendPercent}%</span>
+                      <span className="text-xs text-slate-400">{card.trendLabel}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400">
+                    <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl', card.iconStyle.bg, card.iconStyle.text)}>
                       <Icon className="w-5 h-5" />
                     </div>
-                    <svg width="60" height="24" viewBox="0 0 40 24" className="opacity-50 group-hover:opacity-80 transition-opacity">
-                      <path d={sparklines[i]} fill="none" stroke="#14b8a6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg width="60" height="24" viewBox="0 0 40 24" className="opacity-50 transition-opacity">
+                      <path d={sparklines[i]} fill="none" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
                 </div>
@@ -344,16 +337,12 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Application Trend */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 border border-slate-200">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base font-semibold">{t.dashboard.applicationTrend}</CardTitle>
+                <CardTitle className="text-base font-semibold text-slate-900">{t.dashboard.applicationTrend}</CardTitle>
                 <CardDescription className="text-xs">Last 7 days</CardDescription>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Sparkles className="w-3.5 h-3.5 text-teal-500" />
-                {t.common.poweredBy}
               </div>
             </div>
           </CardHeader>
@@ -368,12 +357,10 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Hiring Funnel with Visual Pipeline */}
-        <Card>
+        {/* Hiring Funnel */}
+        <Card className="border border-slate-200">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold">{t.dashboard.hiringFunnel}</CardTitle>
-            </div>
+            <CardTitle className="text-base font-semibold text-slate-900">{t.dashboard.hiringFunnel}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="space-y-2.5">
@@ -390,36 +377,36 @@ export default function DashboardPage() {
                   HIRED: t.applications.hired,
                 };
                 return (
-                  <div key={item.stage} className="funnel-stage space-y-1">
+                  <div key={item.stage} className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium">{stageLabels[item.stage] || item.stage}</span>
+                      <span className="text-xs font-medium text-slate-700">{stageLabels[item.stage] || item.stage}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-muted-foreground">{conversionFromPrev}%</span>
-                        <span className="text-xs font-semibold">{item.count}</span>
+                        <span className="text-[10px] text-slate-400">{conversionFromPrev}%</span>
+                        <span className="text-xs font-semibold text-slate-900">{item.count}</span>
                       </div>
                     </div>
-                    <div className="relative h-3 bg-muted rounded-full overflow-hidden">
+                    <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className="absolute inset-y-0 start-0 rounded-full transition-all duration-700 ease-out"
                         style={{
                           width: `${percentage}%`,
-                          background: `linear-gradient(to right, ${funnelColors[index] || '#14b8a6'}, ${funnelColors[index] || '#14b8a6'}cc)`,
+                          backgroundColor: funnelColors[index] || '#2563eb',
                         }}
                       />
                     </div>
                     {index < data.funnel.length - 1 && (
                       <div className="flex justify-center">
-                        <div className="w-0.5 h-2 bg-gradient-to-b from-muted-foreground/20 to-transparent" />
+                        <div className="w-0.5 h-2 bg-gradient-to-b from-slate-300/40 to-transparent" />
                       </div>
                     )}
                   </div>
                 );
               })}
               {data.funnel.length >= 2 && (
-                <div className="pt-2 border-t">
+                <div className="pt-2 border-t border-slate-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Conversion Rate</span>
-                    <span className="text-xs font-semibold text-teal-600 dark:text-teal-400">
+                    <span className="text-xs text-slate-500">Conversion Rate</span>
+                    <span className="text-xs font-semibold text-emerald-600">
                       {data.funnel[0]?.count > 0
                         ? Math.round((data.funnel[data.funnel.length - 1]?.count / data.funnel[0].count) * 100)
                         : 0}
@@ -436,15 +423,15 @@ export default function DashboardPage() {
       {/* Upcoming Interviews & Team Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Upcoming Interviews */}
-        <Card>
+        <Card className="border border-slate-200">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base font-semibold">{t.dashboardEnhanced?.upcomingInterviews || 'Upcoming Interviews'}</CardTitle>
+                <CardTitle className="text-base font-semibold text-slate-900">{t.dashboardEnhanced?.upcomingInterviews || 'Upcoming Interviews'}</CardTitle>
                 <CardDescription className="text-xs">{t.dashboardEnhanced?.upcomingInterviewsDesc || 'Scheduled interviews this week'}</CardDescription>
               </div>
               <Link href="/company/interviews">
-                <Button variant="ghost" size="sm" className="text-xs text-teal-600 hover:text-teal-700">
+                <Button variant="ghost" size="sm" className="text-xs text-blue-600 hover:text-blue-700">
                   {t.common.viewAll}
                   <ArrowUpRight className="w-3 h-3 ms-1" />
                 </Button>
@@ -456,32 +443,31 @@ export default function DashboardPage() {
               {upcomingInterviews.map((interview, idx) => (
                 <div
                   key={interview.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border border-border/50 hover:bg-accent/30 transition-colors hover-lift animate-fade-in"
-                  style={{ animationDelay: `${idx * 0.08}s`, borderInlineStartWidth: '3px', borderInlineStartColor: funnelColors[idx % funnelColors.length] }}
+                  className="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors animate-fade-in"
                 >
                   <Avatar className="h-9 w-9 shrink-0 rounded-lg">
-                    <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs font-semibold rounded-lg">
+                    <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold rounded-lg">
                       {interview.candidate.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium truncate">{interview.candidate}</p>
+                      <p className="text-sm font-medium text-slate-900 truncate">{interview.candidate}</p>
                       <Badge variant="outline" className={`text-[9px] px-1.5 py-0 ${interviewTypeColors[interview.type] || ''}`}>
                         {interview.type}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">{interview.role}</p>
+                    <p className="text-xs text-slate-500 truncate">{interview.role}</p>
                     <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <span className="text-[10px] text-slate-400 flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {interview.date}
                       </span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <span className="text-[10px] text-slate-400 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {interview.time}
                       </span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <span className="text-[10px] text-slate-400 flex items-center gap-1">
                         <Users className="h-3 w-3" />
                         {interview.interviewer}
                       </span>
@@ -494,15 +480,15 @@ export default function DashboardPage() {
         </Card>
 
         {/* Team Performance */}
-        <Card>
+        <Card className="border border-slate-200">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base font-semibold">{t.dashboardEnhanced?.teamPerformance || 'Team Performance'}</CardTitle>
+                <CardTitle className="text-base font-semibold text-slate-900">{t.dashboardEnhanced?.teamPerformance || 'Team Performance'}</CardTitle>
                 <CardDescription className="text-xs">{t.dashboardEnhanced?.teamPerformanceDesc || 'Hiring progress by team member'}</CardDescription>
               </div>
               <Link href="/company/team">
-                <Button variant="ghost" size="sm" className="text-xs text-teal-600 hover:text-teal-700">
+                <Button variant="ghost" size="sm" className="text-xs text-blue-600 hover:text-blue-700">
                   {t.common.viewAll}
                   <ArrowUpRight className="w-3 h-3 ms-1" />
                 </Button>
@@ -516,31 +502,30 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={member.id}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:bg-accent/30 transition-colors hover-lift animate-fade-in"
-                    style={{ animationDelay: `${idx * 0.08}s` }}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors animate-fade-in"
                   >
                     <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs font-semibold">
+                      <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold">
                         {member.initials}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium">{member.name}</p>
+                        <p className="text-sm font-medium text-slate-900">{member.name}</p>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                          <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
                             <UserCheck className="h-3 w-3 text-emerald-500" />
                             {member.hiresThisMonth} {t.dashboardEnhanced?.hires || 'hires'}
                           </span>
-                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                            <Briefcase className="h-3 w-3 text-teal-500" />
+                          <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
+                            <Briefcase className="h-3 w-3 text-blue-500" />
                             {member.openPositions} {t.dashboard.openPositions}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-1.5">
                         <Progress value={progressPercent} className="h-1.5 flex-1" />
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">{progressPercent}% of target</span>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap">{progressPercent}% of target</span>
                       </div>
                     </div>
                   </div>
@@ -553,13 +538,13 @@ export default function DashboardPage() {
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Recent Applications with Avatars */}
-        <Card className="lg:col-span-2">
+        {/* Recent Applications */}
+        <Card className="lg:col-span-2 border border-slate-200">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold">{t.dashboard.recentActivity}</CardTitle>
+              <CardTitle className="text-base font-semibold text-slate-900">{t.dashboard.recentActivity}</CardTitle>
               <Link href="/company/applications">
-                <Button variant="ghost" size="sm" className="text-xs text-teal-600 hover:text-teal-700">
+                <Button variant="ghost" size="sm" className="text-xs text-blue-600 hover:text-blue-700">
                   {t.common.viewAll}
                   <ArrowUpRight className="w-3 h-3 ms-1" />
                 </Button>
@@ -567,27 +552,25 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-thin">
+            <div className="space-y-3 max-h-80 overflow-y-auto">
               {data.recentApplications.map((app) => (
                 <div
                   key={app.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:bg-accent/30 transition-colors animate-slide-in-right"
-                  style={{ animationDelay: `${app.id === '1' ? '0s' : app.id === '2' ? '0.05s' : app.id === '3' ? '0.1s' : app.id === '4' ? '0.15s' : '0.2s'}` }}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors animate-fade-in"
                 >
                   <Avatar className="w-10 h-10">
-                    <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                    <AvatarFallback className="bg-blue-600 text-white text-xs">
                       {app.candidate.user.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{app.candidate.user.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{app.job.title}</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{app.candidate.user.name}</p>
+                    <p className="text-xs text-slate-500 truncate">{app.job.title}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {app.matchScore && (
-                      <div className="flex items-center gap-1 bg-teal-50 dark:bg-teal-950/50 px-2 py-1 rounded-full">
-                        <Sparkles className="w-3 h-3 text-teal-500" />
-                        <span className="text-xs font-medium text-teal-700 dark:text-teal-400">{app.matchScore}%</span>
+                      <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-full">
+                        <span className="text-xs font-medium text-blue-700">{app.matchScore}%</span>
                       </div>
                     )}
                     <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0', statusColors[app.status])}>
@@ -598,7 +581,7 @@ export default function DashboardPage() {
               ))}
             </div>
             <Link href="/company/applications" className="block mt-3">
-              <Button variant="ghost" size="sm" className="w-full text-teal-600 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/30 text-xs">
+              <Button variant="ghost" size="sm" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs">
                 {t.dashboardEnhanced?.viewAllApplications || 'View All Applications'} →
               </Button>
             </Link>
@@ -606,9 +589,9 @@ export default function DashboardPage() {
         </Card>
 
         {/* Hiring Timeline */}
-        <Card>
+        <Card className="border border-slate-200">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Hiring Timeline</CardTitle>
+            <CardTitle className="text-base font-semibold text-slate-900">Hiring Timeline</CardTitle>
             <CardDescription className="text-xs">Weekly hiring & interview activity</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
@@ -617,7 +600,7 @@ export default function DashboardPage() {
                 data={hiringTimelineData}
                 labels={hiringTimelineData.map(d => d.week)}
                 series={[
-                  { key: 'interviews', color: '#14b8a6' },
+                  { key: 'interviews', color: '#2563eb' },
                   { key: 'hired', color: '#10b981' },
                 ]}
                 height={220}
@@ -625,12 +608,12 @@ export default function DashboardPage() {
             </div>
             <div className="flex justify-center gap-4 mt-2">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded bg-teal-500" />
-                <span className="text-xs text-muted-foreground">Interviews</span>
+                <div className="w-3 h-3 rounded bg-blue-600" />
+                <span className="text-xs text-slate-500">Interviews</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-emerald-500" />
-                <span className="text-xs text-muted-foreground">Hired</span>
+                <span className="text-xs text-slate-500">Hired</span>
               </div>
             </div>
           </CardContent>
@@ -640,42 +623,42 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Link href="/company/jobs/create" className="block">
-          <Card className="h-full hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer border-dashed border-teal-200 dark:border-teal-800 glass-card-hover">
+          <Card className="h-full hover:shadow-md transition-shadow duration-200 cursor-pointer border border-dashed border-slate-300">
             <CardContent className="p-4 flex flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
                 <Plus className="w-5 h-5" />
               </div>
-              <span className="text-xs font-medium">{t.dashboard.postJob}</span>
+              <span className="text-xs font-medium text-slate-700">{t.dashboard.postJob}</span>
             </CardContent>
           </Card>
         </Link>
         <Link href="/company/pipeline" className="block">
-          <Card className="h-full hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer border-dashed border-cyan-200 dark:border-cyan-800 glass-card-hover">
+          <Card className="h-full hover:shadow-md transition-shadow duration-200 cursor-pointer border border-dashed border-slate-300">
             <CardContent className="p-4 flex flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 text-white shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-600 text-white">
                 <GitBranch className="w-5 h-5" />
               </div>
-              <span className="text-xs font-medium">{t.dashboard.viewPipeline}</span>
+              <span className="text-xs font-medium text-slate-700">{t.dashboard.viewPipeline}</span>
             </CardContent>
           </Card>
         </Link>
         <Link href="/company/interviews" className="block">
-          <Card className="h-full hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer border-dashed border-amber-200 dark:border-amber-800 glass-card-hover">
+          <Card className="h-full hover:shadow-md transition-shadow duration-200 cursor-pointer border border-dashed border-slate-300">
             <CardContent className="p-4 flex flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600 text-white">
                 <Calendar className="w-5 h-5" />
               </div>
-              <span className="text-xs font-medium">{t.dashboard.scheduleInterview}</span>
+              <span className="text-xs font-medium text-slate-700">{t.dashboard.scheduleInterview}</span>
             </CardContent>
           </Card>
         </Link>
         <Link href="/company/team" className="block">
-          <Card className="h-full hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer border-dashed border-emerald-200 dark:border-emerald-800 glass-card-hover">
+          <Card className="h-full hover:shadow-md transition-shadow duration-200 cursor-pointer border border-dashed border-slate-300">
             <CardContent className="p-4 flex flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-600 text-white shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white">
                 <Users className="w-5 h-5" />
               </div>
-              <span className="text-xs font-medium">{t.dashboard.inviteTeam}</span>
+              <span className="text-xs font-medium text-slate-700">{t.dashboard.inviteTeam}</span>
             </CardContent>
           </Card>
         </Link>
