@@ -31,29 +31,18 @@ import {
   Sun,
   Moon,
   Languages,
-  Quote,
   Mail,
-  Twitter,
-  Linkedin,
-  Github,
   ArrowUp,
-  Star,
-  BarChart3,
-  Briefcase,
-  Users,
-  Clock,
   Zap,
-  MessageSquare,
-  Calendar,
-  Puzzle,
-  Activity,
+  BarChart3,
+  Shield,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 
 const AIChatbot = dynamic(() => import('@/components/shared/ai-chatbot'), { ssr: false });
 
-/* ── Lightweight useInView hook (replaces framer-motion's useInView) ── */
+/* ── Lightweight useInView hook ── */
 function useInView(ref: React.RefObject<HTMLElement | null>, options?: { once?: boolean }) {
   const [isInView, setIsInView] = useState(false);
   useEffect(() => {
@@ -71,7 +60,7 @@ function useInView(ref: React.RefObject<HTMLElement | null>, options?: { once?: 
   return isInView;
 }
 
-/* ── AnimateOnScroll component (replaces whileInView motion divs) ── */
+/* ── AnimateOnScroll component ── */
 function AnimateOnScroll({ children, className = '', delay = 0, animation = 'animate-fade-in-up' }: { children: React.ReactNode; className?: string; delay?: number; animation?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
@@ -86,6 +75,7 @@ function AnimateOnScroll({ children, className = '', delay = 0, animation = 'ani
   );
 }
 
+/* ── AnimatedCounter ── */
 function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
@@ -116,7 +106,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
   }, [hasStarted, target]);
 
   return (
-    <div ref={ref} className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+    <div ref={ref} className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900">
       {count.toLocaleString()}{suffix}
     </div>
   );
@@ -180,19 +170,19 @@ export default function LandingPage() {
   }, []);
 
   const features = [
-    { icon: Brain, title: t.landing.feature1Title, desc: t.landing.feature1Desc, color: 'text-teal-600 bg-teal-50 dark:bg-teal-950/50' },
-    { icon: GitBranch, title: t.landing.feature2Title, desc: t.landing.feature2Desc, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50' },
-    { icon: Video, title: t.landing.feature3Title, desc: t.landing.feature3Desc, color: 'text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50' },
-    { icon: Target, title: t.landing.feature4Title, desc: t.landing.feature4Desc, color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/50' },
-    { icon: Globe, title: t.landing.feature5Title, desc: t.landing.feature5Desc, color: 'text-rose-600 bg-rose-50 dark:bg-rose-950/50' },
-    { icon: Settings2, title: t.landing.feature6Title, desc: t.landing.feature6Desc, color: 'text-violet-600 bg-violet-50 dark:bg-violet-950/50' },
+    { icon: Brain, title: t.landing.feature1Title, desc: t.landing.feature1Desc },
+    { icon: GitBranch, title: t.landing.feature2Title, desc: t.landing.feature2Desc },
+    { icon: Video, title: t.landing.feature3Title, desc: t.landing.feature3Desc },
+    { icon: Target, title: t.landing.feature4Title, desc: t.landing.feature4Desc },
+    { icon: Globe, title: t.landing.feature5Title, desc: t.landing.feature5Desc },
+    { icon: Settings2, title: t.landing.feature6Title, desc: t.landing.feature6Desc },
   ];
 
   const steps = [
-    { num: '01', title: t.landing.step1, desc: t.landing.step1Desc, icon: User },
-    { num: '02', title: t.landing.step2, desc: t.landing.step2Desc, icon: Building2 },
-    { num: '03', title: t.landing.step3, desc: t.landing.step3Desc, icon: Brain },
-    { num: '04', title: t.landing.step4, desc: t.landing.step4Desc, icon: Sparkles },
+    { title: t.landing.step1, desc: t.landing.step1Desc, icon: User },
+    { title: t.landing.step2, desc: t.landing.step2Desc, icon: Building2 },
+    { title: t.landing.step3, desc: t.landing.step3Desc, icon: Brain },
+    { title: t.landing.step4, desc: t.landing.step4Desc, icon: Sparkles },
   ];
 
   // Pricing with toggle support
@@ -243,8 +233,6 @@ export default function LandingPage() {
     { name: t.landing.pricingFeatureSso, starter: false, growth: false, enterprise: true },
   ];
 
-
-
   const faqs = [
     { q: t.landing.faq1Q, a: t.landing.faq1A },
     { q: t.landing.faq2Q, a: t.landing.faq2A },
@@ -272,24 +260,11 @@ export default function LandingPage() {
   ];
 
   const statsData = [
-    { value: t.landing.statsSatisfaction, desc: t.landing.statsSatisfactionDesc, icon: Star, color: 'from-teal-500 to-emerald-500', progress: 98 },
-    { value: t.landing.statsFaster, desc: t.landing.statsFasterDesc, icon: Zap, color: 'from-emerald-500 to-cyan-500', progress: 75 },
-    { value: t.landing.statsScreenings, desc: t.landing.statsScreeningsDesc, icon: Activity, color: 'from-cyan-500 to-teal-500', progress: 85 },
-    { value: t.landing.statsUptime, desc: t.landing.statsUptimeDesc, icon: Clock, color: 'from-teal-600 to-emerald-400', progress: 100 },
+    { value: t.landing.statsSatisfaction, desc: t.landing.statsSatisfactionDesc, icon: Zap },
+    { value: t.landing.statsFaster, desc: t.landing.statsFasterDesc, icon: BarChart3 },
+    { value: t.landing.statsScreenings, desc: t.landing.statsScreeningsDesc, icon: Brain },
+    { value: t.landing.statsUptime, desc: t.landing.statsUptimeDesc, icon: Shield },
   ];
-
-  const integrations = [
-    { name: 'Slack', icon: MessageSquare, color: 'bg-[#4A154B]' },
-    { name: 'Gmail', icon: Mail, color: 'bg-red-600' },
-    { name: 'LinkedIn', icon: Linkedin, color: 'bg-[#0A66C2]' },
-    { name: 'Google Calendar', icon: Calendar, color: 'bg-blue-600' },
-    { name: 'Zapier', icon: Zap, color: 'bg-orange-500' },
-    { name: 'Jira', icon: Puzzle, color: 'bg-blue-700' },
-    { name: 'Notion', icon: Building2, color: 'bg-neutral-900 dark:bg-neutral-100' },
-    { name: 'Microsoft Teams', icon: Users, color: 'bg-[#6264A7]' },
-  ];
-
-
 
   const scrollToSection = (id: string) => {
     if (typeof document !== 'undefined') {
@@ -300,26 +275,27 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" dir={dir}>
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
+    <div className="min-h-screen flex flex-col bg-white" dir={dir}>
+      {/* ─── Header ─── */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
+            {/* Logo */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold text-slate-900">
                 {t.common.appName}
               </span>
             </div>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-6">
-              <button onClick={() => scrollToSection('features')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t.landing.features}</button>
-              <button onClick={() => scrollToSection('how-it-works')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t.landing.howItWorks}</button>
-              <button onClick={() => scrollToSection('pricing')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t.landing.pricing}</button>
-              <button onClick={() => scrollToSection('faq')} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t.landing.faqLabel}</button>
+            <nav className="hidden md:flex items-center gap-8">
+              <button onClick={() => scrollToSection('features')} className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium">{t.landing.features}</button>
+              <button onClick={() => scrollToSection('how-it-works')} className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium">{t.landing.howItWorks}</button>
+              <button onClick={() => scrollToSection('pricing')} className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium">{t.landing.pricing}</button>
+              <button onClick={() => scrollToSection('faq')} className="text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium">{t.landing.faqLabel}</button>
             </nav>
 
             <div className="hidden md:flex items-center gap-2">
@@ -343,10 +319,10 @@ export default function LandingPage() {
                   {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 </Button>
               )}
-              <Button variant="ghost" onClick={() => router.push('/auth/login')}>
+              <Button variant="ghost" onClick={() => router.push('/auth/login')} className="text-slate-600 hover:text-slate-900">
                 {t.auth.signIn}
               </Button>
-              <Button className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white" onClick={() => router.push('/auth/register')}>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => router.push('/auth/register')}>
                 {t.landing.getStarted}
               </Button>
             </div>
@@ -359,11 +335,11 @@ export default function LandingPage() {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden border-t py-4 space-y-3 animate-slide-down">
-              <button onClick={() => scrollToSection('features')} className="block text-sm text-muted-foreground hover:text-foreground">{t.landing.features}</button>
-              <button onClick={() => scrollToSection('how-it-works')} className="block text-sm text-muted-foreground hover:text-foreground">{t.landing.howItWorks}</button>
-              <button onClick={() => scrollToSection('pricing')} className="block text-sm text-muted-foreground hover:text-foreground">{t.landing.pricing}</button>
-              <button onClick={() => scrollToSection('faq')} className="block text-sm text-muted-foreground hover:text-foreground">{t.landing.faqLabel}</button>
+            <div className="md:hidden border-t border-slate-200 py-4 space-y-3 animate-slide-down">
+              <button onClick={() => scrollToSection('features')} className="block text-sm text-slate-600 hover:text-slate-900 font-medium">{t.landing.features}</button>
+              <button onClick={() => scrollToSection('how-it-works')} className="block text-sm text-slate-600 hover:text-slate-900 font-medium">{t.landing.howItWorks}</button>
+              <button onClick={() => scrollToSection('pricing')} className="block text-sm text-slate-600 hover:text-slate-900 font-medium">{t.landing.pricing}</button>
+              <button onClick={() => scrollToSection('faq')} className="block text-sm text-slate-600 hover:text-slate-900 font-medium">{t.landing.faqLabel}</button>
               <div className="flex gap-2 pt-2">
                 <Button variant="ghost" size="sm" onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')}>
                   <Languages className="w-4 h-4 me-1" /> {locale === 'en' ? 'العربية' : 'English'}
@@ -374,7 +350,7 @@ export default function LandingPage() {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" className="flex-1" onClick={() => router.push('/auth/login')}>{t.auth.signIn}</Button>
-                <Button className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-600 text-white" onClick={() => router.push('/auth/register')}>{t.landing.getStarted}</Button>
+                <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" onClick={() => router.push('/auth/register')}>{t.landing.getStarted}</Button>
               </div>
             </div>
           )}
@@ -383,437 +359,459 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* ─── Hero Section ─── */}
-        <section className="relative overflow-hidden">
-          {/* Animated gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-emerald-50 to-cyan-50 dark:from-teal-950/30 dark:via-emerald-950/20 dark:to-background animate-gradient-shift" />
-          {/* Grid line pattern */}
-          <div className="absolute inset-0 grid-pattern opacity-60 dark:opacity-30" />
-          {/* Dot grid pattern */}
-          <div className="absolute inset-0 dot-grid opacity-50 dark:opacity-20" />
-          {/* Particle dots */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="particle"
-                style={{
-                  top: `${10 + (i * 4.3) % 80}%`,
-                  left: `${5 + (i * 7.1) % 90}%`,
-                  animationDelay: `${i * 0.4}s`,
-                  animationDuration: `${6 + (i % 4)}s`,
-                  width: `${2 + (i % 3)}px`,
-                  height: `${2 + (i % 3)}px`,
-                }}
-              />
-            ))}
-          </div>
-          <div className="absolute inset-0 opacity-30 dark:opacity-10">
-            <div className="absolute top-20 start-10 w-72 h-72 bg-teal-400 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-20 end-10 w-96 h-96 bg-emerald-400 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-          </div>
-
-          {/* 3D-like floating shapes */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[15%] end-[10%] w-20 h-20 rounded-xl bg-teal-500/10 dark:bg-teal-500/5 rotate-12 animate-float" />
-            <div className="absolute top-[40%] end-[20%] w-14 h-14 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 animate-float" style={{ animationDelay: '0.5s' }} />
-            <div className="absolute bottom-[25%] start-[8%] w-16 h-16 rounded-lg bg-cyan-500/10 dark:bg-cyan-500/5 -rotate-12 animate-float" style={{ animationDelay: '1s' }} />
-            <div className="absolute top-[25%] start-[15%] w-10 h-10 rounded-full bg-teal-400/15 dark:bg-teal-400/5 animate-float" style={{ animationDelay: '1.5s' }} />
-          </div>
-
-          {/* Morphing blobs for dreamy effect */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="animate-blob absolute top-[10%] start-[5%] w-64 sm:w-80 h-64 sm:h-80 bg-gradient-to-br from-teal-400/8 to-emerald-400/5 dark:from-teal-500/5 dark:to-emerald-500/3 blur-3xl" style={{ animationDelay: '0s' }} />
-            <div className="animate-blob absolute top-[30%] end-[10%] w-48 sm:w-72 h-48 sm:h-72 bg-gradient-to-br from-emerald-400/7 to-cyan-400/5 dark:from-emerald-500/4 dark:to-cyan-500/3 blur-3xl" style={{ animationDelay: '2s' }} />
-            <div className="animate-blob absolute bottom-[10%] start-[20%] w-56 sm:w-96 h-56 sm:h-96 bg-gradient-to-br from-cyan-400/6 to-teal-400/4 dark:from-cyan-500/3 dark:to-teal-500/2 blur-3xl" style={{ animationDelay: '4s' }} />
-          </div>
-
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 md:py-32">
-            <div className="text-center max-w-4xl mx-auto">
-              <div className="animate-fade-in-up">
-                <Badge className="mb-4 sm:mb-6 bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300 border-teal-200 dark:border-teal-800 animate-scale-in">
-                  <Sparkles className="w-3 h-3 me-1" />
+        <section className="relative overflow-hidden bg-slate-50 border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-28">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              {/* Left: Copy */}
+              <div>
+                <Badge className="mb-4 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-50">
+                  <Sparkles className="w-3 h-3 me-1.5" />
                   {t.common.poweredBy}
                 </Badge>
-              </div>
-              <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6 animate-fade-in-up heading-glow" style={{ animationDelay: '0.1s' }}>
-                <span className="bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 bg-clip-text text-transparent">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4 leading-tight">
                   {t.landing.hero}
-                </span>
-              </h1>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                {t.landing.heroSubtitle}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                <Button
-                  size="lg"
-                  className="glow-teal bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-lg px-8 h-12 shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-shadow"
-                  onClick={() => router.push('/auth/register')}
-                >
-                  {t.landing.getStarted}
-                  <ArrowRight className="w-5 h-5 ms-2 rtl:rotate-180" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="glow-teal text-lg px-8 h-12 border-teal-300 dark:border-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/50"
-                  onClick={() => router.push('/candidate/jobs')}
-                >
-                  {t.landing.viewJobs}
-                </Button>
+                </h1>
+                <p className="text-base sm:text-lg text-slate-600 max-w-xl mb-8 leading-relaxed">
+                  {t.landing.heroSubtitle}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    size="lg"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 text-base"
+                    onClick={() => router.push('/auth/register')}
+                  >
+                    {t.landing.getStarted}
+                    <ArrowRight className="w-5 h-5 ms-2 rtl:rotate-180" />
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="px-8 h-12 text-base border-slate-300 text-slate-700 hover:bg-slate-100"
+                    onClick={() => scrollToSection('how-it-works')}
+                  >
+                    {t.landing.howItWorks}
+                  </Button>
+                </div>
+
+                {/* Trusted by */}
+                <div className="mt-10 pt-8 border-t border-slate-200">
+                  <p className="text-xs text-slate-500 mb-4">{t.landing.trustedBy}</p>
+                  <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm font-semibold text-slate-400">
+                    <span>Stripe</span>
+                    <span>Vercel</span>
+                    <span>Linear</span>
+                    <span>Notion</span>
+                    <span>Figma</span>
+                    <span>Shopify</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Kanban Pipeline Mockup */}
+              <div className="animate-fade-in-up">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  {/* Window chrome */}
+                  <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 bg-slate-50">
+                    <div className="w-3 h-3 rounded-full bg-slate-300" />
+                    <div className="w-3 h-3 rounded-full bg-slate-300" />
+                    <div className="w-3 h-3 rounded-full bg-slate-300" />
+                    <span className="ms-2 text-xs text-slate-500 font-medium">{t.landing.heroDashboardTitle}</span>
+                  </div>
+
+                  {/* Kanban board */}
+                  <div className="p-4">
+                    <div className="grid grid-cols-3 gap-3">
+                      {/* Column: Screening */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{t.landing.heroMockupScreening}</span>
+                          <span className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">12</span>
+                        </div>
+                        {[
+                          { name: 'Alex M.', role: 'Frontend Dev', score: '92%' },
+                          { name: 'Priya S.', role: 'Backend Dev', score: '88%' },
+                          { name: 'James K.', role: 'Full Stack', score: '85%' },
+                        ].map((c, i) => (
+                          <div key={i} className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                            <p className="text-xs font-semibold text-slate-800">{c.name}</p>
+                            <p className="text-[10px] text-slate-500">{c.role}</p>
+                            <div className="mt-1.5 flex items-center gap-1">
+                              <div className="h-1 flex-1 bg-slate-200 rounded-full overflow-hidden">
+                                <div className="h-full bg-blue-500 rounded-full" style={{ width: c.score }} />
+                              </div>
+                              <span className="text-[10px] text-slate-500 font-medium">{c.score}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Column: Interview */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{t.landing.heroMockupInterview}</span>
+                          <span className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">5</span>
+                        </div>
+                        {[
+                          { name: 'Maria L.', role: 'Product Mgr', stage: 'Technical' },
+                          { name: 'David R.', role: 'Data Eng', stage: 'Behavioral' },
+                        ].map((c, i) => (
+                          <div key={i} className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                            <p className="text-xs font-semibold text-slate-800">{c.name}</p>
+                            <p className="text-[10px] text-slate-500">{c.role}</p>
+                            <span className="inline-block mt-1.5 text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded font-medium">{c.stage}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Column: Offers */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{t.landing.heroMockupOffers}</span>
+                          <span className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">3</span>
+                        </div>
+                        {[
+                          { name: 'Sarah T.', role: 'Senior Dev', status: 'Accepted' },
+                          { name: 'Tom W.', role: 'Designer', status: 'Pending' },
+                        ].map((c, i) => (
+                          <div key={i} className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                            <p className="text-xs font-semibold text-slate-800">{c.name}</p>
+                            <p className="text-[10px] text-slate-500">{c.role}</p>
+                            <span className={`inline-block mt-1.5 text-[10px] px-1.5 py-0.5 rounded font-medium ${c.status === 'Accepted' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}`}>{c.status}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Platform Stats - fetched from API */}
-            <div className="mt-10 sm:mt-16 grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto">
-              {statsLoading ? (
-                <>
-                  <div className="text-center animate-bounce-in" style={{ animationDelay: '0.6s' }}>
-                    <div className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent animate-pulse">—</div>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t.landing.counterCandidatesLabel}</p>
-                  </div>
-                  <div className="text-center animate-bounce-in" style={{ animationDelay: '0.75s' }}>
-                    <div className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent animate-pulse">—</div>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t.landing.counterCompaniesLabel}</p>
-                  </div>
-                  <div className="text-center animate-bounce-in" style={{ animationDelay: '0.9s' }}>
-                    <div className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent animate-pulse">—</div>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t.landing.counterJobsLabel}</p>
-                  </div>
-                </>
-              ) : stats ? (
-                <>
-                  <div className="text-center animate-bounce-in" style={{ animationDelay: '0.6s' }}>
-                    <AnimatedCounter target={stats.candidates} suffix="+" />
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t.landing.counterCandidatesLabel}</p>
-                  </div>
-                  <div className="text-center animate-bounce-in" style={{ animationDelay: '0.75s' }}>
-                    <AnimatedCounter target={stats.companies} suffix="+" />
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t.landing.counterCompaniesLabel}</p>
-                  </div>
-                  <div className="text-center animate-bounce-in" style={{ animationDelay: '0.9s' }}>
-                    <AnimatedCounter target={stats.jobs} suffix="+" />
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t.landing.counterJobsLabel}</p>
-                  </div>
-                </>
-              ) : null}
-            </div>
-
-            {/* ─── Hero Dashboard Preview Mockup ─── */}
-            <div className="mt-10 sm:mt-16 max-w-4xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-              <div className="glass-card glass-mockup rounded-2xl p-6 md:p-8">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                  <span className="ms-3 text-xs text-muted-foreground font-medium">{t.landing.heroDashboardTitle}</span>
-                </div>
-                {/* Mini stat cards */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  <div className="bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-950/40 dark:to-emerald-950/40 rounded-xl p-3 text-center">
-                    <div className="w-8 h-8 mx-auto rounded-lg bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-2">
-                      <Briefcase className="w-4 h-4 text-white" />
+            {/* Platform Stats */}
+            <div className="mt-16 pt-8 border-t border-slate-200">
+              <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+                {statsLoading ? (
+                  <>
+                    <div className="text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-slate-300 animate-pulse">—</div>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">{t.landing.counterCandidatesLabel}</p>
                     </div>
-                    <p className="text-lg font-bold text-teal-700 dark:text-teal-300">24</p>
-                    <p className="text-xs text-muted-foreground">{t.landing.heroDashboardStat1}</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-950/40 dark:to-cyan-950/40 rounded-xl p-3 text-center">
-                    <div className="w-8 h-8 mx-auto rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center mb-2">
-                      <Users className="w-4 h-4 text-white" />
+                    <div className="text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-slate-300 animate-pulse">—</div>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">{t.landing.counterCompaniesLabel}</p>
                     </div>
-                    <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">1.2K</p>
-                    <p className="text-xs text-muted-foreground">{t.landing.heroDashboardStat2}</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-950/40 dark:to-teal-950/40 rounded-xl p-3 text-center">
-                    <div className="w-8 h-8 mx-auto rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center mb-2">
-                      <Video className="w-4 h-4 text-white" />
+                    <div className="text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-slate-300 animate-pulse">—</div>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">{t.landing.counterJobsLabel}</p>
                     </div>
-                    <p className="text-lg font-bold text-cyan-700 dark:text-cyan-300">8</p>
-                    <p className="text-xs text-muted-foreground">{t.landing.heroDashboardStat3}</p>
-                  </div>
-                </div>
-                {/* Mini chart mockup */}
-                <div className="bg-muted/30 dark:bg-muted/20 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-muted-foreground">{t.landing.heroMockupPipeline}</span>
-                    <Badge className="text-[10px] bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0">{t.landing.heroMockupLive}</Badge>
-                  </div>
-                  <div className="flex items-end gap-1 h-12">
-                    {[40, 65, 45, 80, 55, 70, 90, 60, 75, 85, 50, 95].map((h, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 rounded-sm bg-gradient-to-t from-teal-500 to-emerald-400 opacity-70"
-                        style={{ height: `${h}%` }}
-                      />
-                    ))}
-                  </div>
-                  {/* Activity indicators */}
-                  <div className="flex items-center gap-4 mt-3">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                      <span className="text-[10px] text-muted-foreground">{t.landing.heroMockupScreening}</span>
+                  </>
+                ) : stats ? (
+                  <>
+                    <div className="text-center">
+                      <AnimatedCounter target={stats.candidates} suffix="+" />
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">{t.landing.counterCandidatesLabel}</p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
-                      <span className="text-[10px] text-muted-foreground">{t.landing.heroMockupInterview}</span>
+                    <div className="text-center">
+                      <AnimatedCounter target={stats.companies} suffix="+" />
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">{t.landing.counterCompaniesLabel}</p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" style={{ animationDelay: '1s' }} />
-                      <span className="text-[10px] text-muted-foreground">{t.landing.heroMockupOffers}</span>
+                    <div className="text-center">
+                      <AnimatedCounter target={stats.jobs} suffix="+" />
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">{t.landing.counterJobsLabel}</p>
                     </div>
-                  </div>
-                </div>
+                  </>
+                ) : null}
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── Features Section ─── */}
-        <section id="features" className="py-20 md:py-28 bg-background">
+        {/* ─── Features Section (Bento Layout) ─── */}
+        <section id="features" className="py-20 md:py-28 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimateOnScroll className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
+            <AnimateOnScroll className="max-w-2xl mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 {t.landing.features}
               </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full animate-fade-in-up" style={{ animationDelay: '0.1s' }} />
+              <p className="text-slate-600 text-lg">
+                Everything you need to manage the full hiring lifecycle — from sourcing to offer.
+              </p>
             </AnimateOnScroll>
 
-            <AnimateOnScroll className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {features.map((feature, index) => (
-                <div key={index} className="animate-scale-in-card" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <Card className="h-full card-hover-lift transition-all duration-300 border-t-4 border-t-teal-500/30 hover:border-t-teal-500">
-                    <CardContent className="p-6">
-                      <div className={`w-12 h-12 rounded-lg ${feature.color} flex items-center justify-center mb-4`}>
-                        <feature.icon className="w-6 h-6" />
+            {/* Bento grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {/* Wide card: AI Screening (spans 2 cols) */}
+              <AnimateOnScroll className="md:col-span-2" delay={0.1}>
+                <Card className="h-full border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-11 h-11 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
+                        <Brain className="w-5 h-5 text-blue-600" />
                       </div>
-                      <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{feature.desc}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-1.5">{t.landing.feature1Title}</h3>
+                        <p className="text-slate-600 text-sm leading-relaxed">{t.landing.feature1Desc}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </AnimateOnScroll>
+
+              {/* Tall card: Pipeline */}
+              <AnimateOnScroll className="md:row-span-2" delay={0.2}>
+                <Card className="h-full border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200">
+                  <CardContent className="p-6">
+                    <div className="w-11 h-11 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
+                      <GitBranch className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1.5">{t.landing.feature2Title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed mb-6">{t.landing.feature2Desc}</p>
+                    {/* Mini pipeline visual */}
+                    <div className="space-y-2">
+                      {['Applied', 'Screening', 'Interview', 'Offer'].map((stage, i) => (
+                        <div key={stage} className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${i < 3 ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                          <span className="text-xs text-slate-600 font-medium">{stage}</span>
+                          {i < 3 && <div className="flex-1 h-px bg-slate-200" />}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </AnimateOnScroll>
+
+              {/* Small card: Interview Intelligence */}
+              <AnimateOnScroll delay={0.15}>
+                <Card className="h-full border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200">
+                  <CardContent className="p-6">
+                    <div className="w-11 h-11 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center mb-4">
+                      <Video className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1.5">{t.landing.feature3Title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{t.landing.feature3Desc}</p>
+                  </CardContent>
+                </Card>
+              </AnimateOnScroll>
+
+              {/* Small card: Skill Gap */}
+              <AnimateOnScroll delay={0.25}>
+                <Card className="h-full border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200">
+                  <CardContent className="p-6">
+                    <div className="w-11 h-11 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center mb-4">
+                      <Target className="w-5 h-5 text-violet-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1.5">{t.landing.feature4Title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{t.landing.feature4Desc}</p>
+                  </CardContent>
+                </Card>
+              </AnimateOnScroll>
+
+              {/* Small card: Multi-language */}
+              <AnimateOnScroll delay={0.3}>
+                <Card className="h-full border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200">
+                  <CardContent className="p-6">
+                    <div className="w-11 h-11 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center mb-4">
+                      <Globe className="w-5 h-5 text-rose-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1.5">{t.landing.feature5Title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{t.landing.feature5Desc}</p>
+                  </CardContent>
+                </Card>
+              </AnimateOnScroll>
+
+              {/* Small card: Configurable AI */}
+              <AnimateOnScroll delay={0.35}>
+                <Card className="h-full border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200">
+                  <CardContent className="p-6">
+                    <div className="w-11 h-11 rounded-lg bg-cyan-50 border border-cyan-100 flex items-center justify-center mb-4">
+                      <Settings2 className="w-5 h-5 text-cyan-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1.5">{t.landing.feature6Title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{t.landing.feature6Desc}</p>
+                  </CardContent>
+                </Card>
+              </AnimateOnScroll>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Social Proof / Metrics ─── */}
+        <section className="py-16 bg-slate-50 border-y border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimateOnScroll>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+                {statsData.map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <div className="w-10 h-10 mx-auto rounded-lg bg-white border border-slate-200 flex items-center justify-center mb-3">
+                      <stat.icon className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">{stat.value}</div>
+                    <p className="text-sm text-slate-500">{stat.desc}</p>
+                  </div>
+                ))}
+              </div>
             </AnimateOnScroll>
           </div>
         </section>
 
-        {/* ─── Comparison/Benefits Section ─── */}
-        <section className="py-20 md:py-28 bg-muted/30">
+        {/* ─── Comparison Section ─── */}
+        <section className="py-20 md:py-28 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimateOnScroll className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
+            <AnimateOnScroll className="max-w-2xl mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 {t.landing.comparisonTitle}
               </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full animate-fade-in-up" style={{ animationDelay: '0.1s' }} />
             </AnimateOnScroll>
 
-            <AnimateOnScroll className="relative">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center">
-                {/* Traditional Hiring */}
-                <div>
-                  <h3 className="text-xl font-bold mb-6 text-center text-orange-600 dark:text-orange-400 animate-fade-in-up">
-                    {t.landing.comparisonTraditional}
-                  </h3>
-                  <div className="space-y-3">
-                    {traditionalItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="animate-scale-in-card"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <Card className="bg-red-50/50 dark:bg-red-950/20 border-red-200/50 dark:border-red-900/30 hover:shadow-md transition-all duration-300">
-                          <CardContent className="p-4 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
-                              <X className="w-4 h-4 text-red-500" />
-                            </div>
-                            <span className="text-sm text-red-800 dark:text-red-300 font-medium">{item}</span>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    ))}
+            <AnimateOnScroll>
+              <div className="max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-slate-200 rounded-xl overflow-hidden">
+                  {/* Traditional Hiring */}
+                  <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-slate-200">
+                    <h3 className="text-lg font-semibold text-slate-500 mb-6">{t.landing.comparisonTraditional}</h3>
+                    <ul className="space-y-3">
+                      {traditionalItems.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <X className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-slate-600">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
 
-                {/* VS Badge (center, desktop only) */}
-                <div className="hidden md:flex absolute start-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                  <div className="vs-badge w-14 h-14 rounded-full flex items-center justify-center text-sm font-black">
-                    VS
+                  {/* TalentFlow AI */}
+                  <div className="p-6 md:p-8 bg-blue-50/50">
+                    <h3 className="text-lg font-semibold text-blue-700 mb-6">{t.landing.comparisonAI}</h3>
+                    <ul className="space-y-3">
+                      {aiItems.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <Check className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-slate-700 font-medium">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
-
-                {/* TalentFlow AI */}
-                <div>
-                  <h3 className="text-xl font-bold mb-6 text-center text-teal-600 dark:text-teal-400 animate-fade-in-up">
-                    {t.landing.comparisonAI}
-                  </h3>
-                  <div className="space-y-3">
-                    {aiItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="animate-scale-in-card"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <Card className="bg-teal-50/50 dark:bg-teal-950/20 border-teal-200/50 dark:border-teal-900/30 hover:shadow-md transition-all duration-300">
-                          <CardContent className="p-4 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center flex-shrink-0">
-                              <Check className="w-4 h-4 text-teal-500" />
-                            </div>
-                            <span className="text-sm text-teal-800 dark:text-teal-300 font-medium">{item}</span>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* VS Badge mobile (between columns) */}
-              <div className="flex md:hidden justify-center -my-2">
-                <div className="vs-badge w-12 h-12 rounded-full flex items-center justify-center text-xs font-black">
-                  VS
                 </div>
               </div>
             </AnimateOnScroll>
           </div>
         </section>
 
-        {/* ─── How It Works Section ─── */}
-        <section id="how-it-works" className="py-20 md:py-28 bg-background">
+        {/* ─── How It Works ─── */}
+        <section id="how-it-works" className="py-20 md:py-28 bg-slate-50 border-y border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimateOnScroll className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
+            <AnimateOnScroll className="max-w-2xl mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 {t.landing.howItWorks}
               </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full animate-fade-in-up" style={{ animationDelay: '0.1s' }} />
+              <p className="text-slate-600 text-lg">
+                Get started in minutes, not weeks.
+              </p>
             </AnimateOnScroll>
 
-            <AnimateOnScroll className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {steps.map((step, index) => (
-                <div key={index} className="text-center animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div className="relative inline-flex mb-6">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                      <step.icon className="w-7 h-7 text-white" />
+            <AnimateOnScroll>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {steps.map((step, index) => (
+                  <div key={index} className="relative">
+                    {index < steps.length - 1 && (
+                      <div className="hidden lg:block absolute top-8 left-[calc(50%+2rem)] w-[calc(100%-4rem)] h-px bg-slate-300" />
+                    )}
+                    <div className="w-16 h-16 rounded-full bg-white border-2 border-blue-200 flex items-center justify-center mb-5">
+                      <step.icon className="w-7 h-7 text-blue-600" />
                     </div>
-                    <span className="absolute -top-2 -end-2 w-7 h-7 rounded-full bg-background border-2 border-teal-500 text-xs font-bold flex items-center justify-center text-teal-600">
-                      {step.num}
-                    </span>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">{step.title}</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">{step.desc}</p>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </AnimateOnScroll>
           </div>
         </section>
 
-        {/* ─── Stats/Social Proof Section ─── */}
-        <section className="py-20 md:py-28 bg-background relative overflow-hidden">
-          {/* Subtle background decoration */}
-          <div className="absolute inset-0 opacity-5 dark:opacity-3">
-            <div className="absolute top-0 start-0 w-96 h-96 bg-teal-400 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 end-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl" />
-          </div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimateOnScroll className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
-                {t.landing.statsTitle}
+        {/* ─── Integrations ─── */}
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimateOnScroll className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+                {t.landing.integrationsTitle}
               </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full animate-fade-in-up" style={{ animationDelay: '0.1s' }} />
+              <p className="text-slate-500 text-sm">
+                {t.landing.integrationsSubtitle}
+              </p>
             </AnimateOnScroll>
-
-            <AnimateOnScroll className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {statsData.map((stat, index) => (
-                <div
-                  key={index}
-                  className="animate-scale-in-card"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <Card className="stat-card-shine hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                    <CardContent className="p-6 text-center">
-                      <div className={`w-14 h-14 mx-auto rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-4 shadow-md`}>
-                        <stat.icon className="w-7 h-7 text-white" />
-                      </div>
-                      <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent mb-1">
-                        {stat.value}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{stat.desc}</p>
-                      {/* Progress bar indicator */}
-                      <div className="mt-4 w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out"
-                          style={{ width: `${stat.progress}%` }}
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
+            <AnimateOnScroll>
+              <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-medium text-slate-500">
+                {['Slack', 'LinkedIn', 'Google Calendar', 'Zapier', 'Jira', 'Notion', 'Microsoft Teams', 'Gmail'].map((name) => (
+                  <span key={name} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-slate-300" />
+                    {name}
+                  </span>
+                ))}
+              </div>
             </AnimateOnScroll>
           </div>
         </section>
 
         {/* ─── Pricing Section ─── */}
-        <section id="pricing" className="py-20 md:py-28 bg-muted/30">
+        <section id="pricing" className="py-20 md:py-28 bg-slate-50 border-y border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimateOnScroll className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 {t.landing.pricing}
               </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full animate-fade-in-up" style={{ animationDelay: '0.1s' }} />
+              <p className="text-slate-600 max-w-xl mx-auto">
+                Transparent pricing. No hidden fees. Scale as you grow.
+              </p>
             </AnimateOnScroll>
 
             {/* Monthly/Yearly Toggle */}
             <AnimateOnScroll className="flex items-center justify-center gap-3 mb-12" delay={0.2}>
-              <span className={`text-sm font-medium transition-colors ${!isYearly ? 'pricing-toggle-active px-3 py-1.5 rounded-lg' : 'pricing-toggle-inactive'}`}>
+              <span className={`text-sm font-medium transition-colors ${!isYearly ? 'text-slate-900' : 'text-slate-400'}`}>
                 {t.landing.pricingMonthly}
               </span>
               <button
                 onClick={() => { setIsYearly(!isYearly); setPricingLoading(true); setTimeout(() => setPricingLoading(false), 600); }}
-                className="relative w-14 h-7 rounded-full bg-muted border border-border transition-colors focus-visible:outline-2 focus-visible:outline-teal-500"
+                className="relative w-14 h-7 rounded-full bg-slate-200 border border-slate-300 transition-colors focus-visible:outline-2 focus-visible:outline-blue-500"
                 aria-label={isYearly ? t.landing.pricingMonthly : t.landing.pricingYearly}
                 role="switch"
                 aria-checked={isYearly}
               >
-                <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 shadow-md transition-all duration-300 ${isYearly ? 'start-7' : 'start-0.5'}`} />
+                <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-blue-600 shadow-sm transition-all duration-300 ${isYearly ? 'start-7' : 'start-0.5'}`} />
               </button>
-              <span className={`text-sm font-medium transition-colors ${isYearly ? 'pricing-toggle-active px-3 py-1.5 rounded-lg' : 'pricing-toggle-inactive'}`}>
+              <span className={`text-sm font-medium transition-colors ${isYearly ? 'text-slate-900' : 'text-slate-400'}`}>
                 {t.landing.pricingYearly}
               </span>
               {isYearly && (
-                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 border-0 animate-scale-in text-xs">
+                <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs">
                   {t.landing.pricingSave}
                 </Badge>
               )}
             </AnimateOnScroll>
 
-            <AnimateOnScroll className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <AnimateOnScroll className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {pricingPlans.map((plan, index) => (
-                <div key={index} className="animate-scale-in-card hover:scale-[1.03] transition-transform" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <Card className={`h-full relative overflow-hidden ${plan.popular ? 'border-2 border-teal-500 shadow-xl animate-pulse-glow' : 'border'} ${pricingLoading ? 'skeleton-shimmer' : ''}`}>
-                    {plan.popular && (
-                      <div className="pricing-ribbon">
-                        {t.landing.popular}
-                      </div>
-                    )}
+                <div key={index} className={pricingLoading ? 'skeleton-shimmer' : ''}>
+                  <Card className={`h-full relative ${plan.popular ? 'border-2 border-blue-500 shadow-md' : 'border border-slate-200'} ${pricingLoading ? 'skeleton-shimmer' : ''}`}>
                     <CardContent className="p-6">
                       <div className="text-center pb-4">
-                        <h3 className="text-xl font-semibold">{plan.name}</h3>
+                        <h3 className="text-lg font-semibold text-slate-900">{plan.name}</h3>
                         <div className="mt-4">
-                          <span className="text-4xl font-bold">{isYearly ? plan.yearlyPrice : plan.monthlyPrice}</span>
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-4xl font-bold text-slate-900">{isYearly ? plan.yearlyPrice : plan.monthlyPrice}</span>
+                          <span className="text-sm text-slate-500">
                             {isYearly ? plan.yearlySuffix : plan.monthlySuffix}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-2">{plan.desc}</p>
+                        <p className="text-sm text-slate-500 mt-2">{plan.desc}</p>
                       </div>
-                      <ul className="space-y-3 pt-4 border-t">
+                      <ul className="space-y-3 pt-4 border-t border-slate-200">
                         {plan.features.map((feature, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm">
-                            <Check className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                          <li key={i} className="flex items-center gap-2 text-sm text-slate-700">
+                            <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
                             <span>{feature}</span>
                           </li>
                         ))}
                       </ul>
                       <Button
-                        className={`w-full mt-6 ${plan.popular ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:from-teal-700 hover:to-emerald-700' : ''}`}
+                        className={`w-full mt-6 ${plan.popular ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-300 text-slate-700 hover:bg-slate-50'}`}
                         variant={plan.popular ? 'default' : 'outline'}
                         onClick={() => router.push('/auth/register')}
                       >
@@ -827,41 +825,41 @@ export default function LandingPage() {
 
             {/* Pricing Comparison Table */}
             <AnimateOnScroll className="mt-12 max-w-3xl mx-auto" delay={0.3}>
-              <Card>
+              <Card className="border border-slate-200">
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b bg-muted/50">
-                          <th className="text-start p-4 font-medium text-muted-foreground">{t.landing.pricingFeatureColumn}</th>
-                          <th className="p-4 text-center font-medium">{t.landing.starter}</th>
-                          <th className="p-4 text-center font-medium text-teal-600">{t.landing.growth}</th>
-                          <th className="p-4 text-center font-medium">{t.landing.enterprise}</th>
+                        <tr className="border-b border-slate-200 bg-slate-50">
+                          <th className="text-start p-4 font-medium text-slate-500">{t.landing.pricingFeatureColumn}</th>
+                          <th className="p-4 text-center font-medium text-slate-700">{t.landing.starter}</th>
+                          <th className="p-4 text-center font-medium text-blue-600">{t.landing.growth}</th>
+                          <th className="p-4 text-center font-medium text-slate-700">{t.landing.enterprise}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {comparisonFeatures.map((feature, index) => (
-                          <tr key={index} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                            <td className="p-4 text-muted-foreground">{feature.name}</td>
+                          <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                            <td className="p-4 text-slate-600">{feature.name}</td>
                             <td className="p-4 text-center">
                               {typeof feature.starter === 'boolean' ? (
-                                feature.starter ? <Check className="w-4 h-4 text-teal-600 mx-auto" /> : <span className="text-muted-foreground/40">—</span>
+                                feature.starter ? <Check className="w-4 h-4 text-blue-600 mx-auto" /> : <span className="text-slate-300">—</span>
                               ) : (
-                                <span className="text-xs font-medium">{feature.starter}</span>
+                                <span className="text-xs font-medium text-slate-600">{feature.starter}</span>
                               )}
                             </td>
                             <td className="p-4 text-center">
                               {typeof feature.growth === 'boolean' ? (
-                                feature.growth ? <Check className="w-4 h-4 text-teal-600 mx-auto" /> : <span className="text-muted-foreground/40">—</span>
+                                feature.growth ? <Check className="w-4 h-4 text-blue-600 mx-auto" /> : <span className="text-slate-300">—</span>
                               ) : (
-                                <span className="text-xs font-medium">{feature.growth}</span>
+                                <span className="text-xs font-medium text-slate-600">{feature.growth}</span>
                               )}
                             </td>
                             <td className="p-4 text-center">
                               {typeof feature.enterprise === 'boolean' ? (
-                                feature.enterprise ? <Check className="w-4 h-4 text-teal-600 mx-auto" /> : <span className="text-muted-foreground/40">—</span>
+                                feature.enterprise ? <Check className="w-4 h-4 text-blue-600 mx-auto" /> : <span className="text-slate-300">—</span>
                               ) : (
-                                <span className="text-xs font-medium">{feature.enterprise}</span>
+                                <span className="text-xs font-medium text-slate-600">{feature.enterprise}</span>
                               )}
                             </td>
                           </tr>
@@ -876,23 +874,22 @@ export default function LandingPage() {
         </section>
 
         {/* ─── FAQ Section ─── */}
-        <section id="faq" className="py-20 md:py-28 bg-background">
+        <section id="faq" className="py-20 md:py-28 bg-white">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimateOnScroll className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
+            <AnimateOnScroll className="mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 {t.landing.faqTitle}
               </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full animate-fade-in-up" style={{ animationDelay: '0.1s' }} />
             </AnimateOnScroll>
 
             <AnimateOnScroll>
               <Accordion type="single" collapsible className="space-y-3">
                 {faqs.map((faq, index) => (
-                  <AccordionItem key={index} value={`faq-${index}`} className="border rounded-lg px-4 data-[state=open]:border-teal-300 dark:data-[state=open]:border-teal-700 data-[state=open]:bg-teal-50/50 dark:data-[state=open]:bg-teal-950/20 transition-colors">
-                    <AccordionTrigger className="text-left text-sm font-medium hover:no-underline py-4">
+                  <AccordionItem key={index} value={`faq-${index}`} className="border border-slate-200 rounded-lg px-4 data-[state=open]:border-blue-200 data-[state=open]:bg-blue-50/30 transition-colors">
+                    <AccordionTrigger className="text-left text-sm font-medium text-slate-900 hover:no-underline py-4">
                       {faq.q}
                     </AccordionTrigger>
-                    <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4">
+                    <AccordionContent className="text-sm text-slate-600 leading-relaxed pb-4">
                       {faq.a}
                     </AccordionContent>
                   </AccordionItem>
@@ -902,76 +899,29 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ─── Integration/Partners Section ─── */}
-        <section className="py-20 md:py-28 bg-muted/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimateOnScroll className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
-                {t.landing.integrationsTitle}
-              </h2>
-              <p className="text-muted-foreground max-w-xl mx-auto mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                {t.landing.integrationsSubtitle}
-              </p>
-              <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 mx-auto rounded-full animate-fade-in-up" style={{ animationDelay: '0.2s' }} />
-            </AnimateOnScroll>
-
-            {/* Marquee container */}
-            <AnimateOnScroll className="relative overflow-hidden" delay={0.2}>
-              {/* Fade edges */}
-              <div className="absolute start-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-e from-muted/30 to-transparent z-10 pointer-events-none" />
-              <div className="absolute end-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-s from-muted/30 to-transparent z-10 pointer-events-none" />
-
-              {/* Scrolling row */}
-              <div className="animate-marquee flex gap-6 w-max [animation-duration:45s] sm:[animation-duration:30s]">
-                {[...integrations, ...integrations].map((integration, index) => (
-                  <div
-                    key={`${integration.name}-${index}`}
-                    className="flex-shrink-0 group"
-                  >
-                    <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 w-40">
-                      <CardContent className="p-5 flex flex-col items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl ${integration.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}>
-                          <integration.icon className="w-6 h-6 text-white" />
-                        </div>
-                        <span className="text-sm font-medium text-center">{integration.name}</span>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-            </AnimateOnScroll>
-          </div>
-        </section>
-
         {/* ─── CTA Section ─── */}
-        <section className="py-20 md:py-28 bg-background">
+        <section className="py-20 md:py-28 bg-blue-600">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimateOnScroll className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 p-8 sm:p-12 md:p-16 text-center text-white">
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 start-0 w-64 h-64 bg-white rounded-full blur-3xl" />
-                <div className="absolute bottom-0 end-0 w-80 h-80 bg-white rounded-full blur-3xl" />
-              </div>
-              <div className="relative">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.landing.cta}</h2>
-                <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">{t.landing.ctaSubtitle}</p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button
-                    size="lg"
-                    className="bg-white text-teal-700 hover:bg-white/90 text-lg px-8 h-12"
-                    onClick={() => router.push('/auth/register')}
-                  >
-                    {t.landing.getStarted}
-                    <ArrowRight className="w-5 h-5 ms-2 rtl:rotate-180" />
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-white/30 text-white hover:bg-white/10 text-lg px-8 h-12"
-                    onClick={() => router.push('/candidate/jobs')}
-                  >
-                    {t.landing.viewJobs}
-                  </Button>
-                </div>
+            <AnimateOnScroll className="text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{t.landing.cta}</h2>
+              <p className="text-lg text-blue-100 max-w-2xl mx-auto mb-8">{t.landing.ctaSubtitle}</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  size="lg"
+                  className="bg-white text-blue-700 hover:bg-blue-50 text-lg px-8 h-12"
+                  onClick={() => router.push('/auth/register')}
+                >
+                  {t.landing.getStarted}
+                  <ArrowRight className="w-5 h-5 ms-2 rtl:rotate-180" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 text-lg px-8 h-12"
+                  onClick={() => router.push('/candidate/jobs')}
+                >
+                  {t.landing.viewJobs}
+                </Button>
               </div>
             </AnimateOnScroll>
           </div>
@@ -979,29 +929,29 @@ export default function LandingPage() {
       </main>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t bg-background">
+      <footer className="border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8">
             <div className="col-span-2 sm:col-span-2 lg:col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                <span className="text-lg font-bold text-slate-900">
                   {t.common.appName}
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground mb-6 max-w-xs">{t.common.appDescription}</p>
+              <p className="text-sm text-slate-500 mb-6 max-w-xs">{t.common.appDescription}</p>
               {/* Newsletter */}
               <div>
-                <p className="text-sm font-semibold mb-2">{t.landing.newsletterTitle}</p>
-                <p className="text-xs text-muted-foreground mb-3">{t.landing.newsletterSubtitle}</p>
+                <p className="text-sm font-semibold text-slate-900 mb-1">{t.landing.newsletterTitle}</p>
+                <p className="text-xs text-slate-500 mb-3">{t.landing.newsletterSubtitle}</p>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                       placeholder={t.landing.newsletterPlaceholder}
-                      className="h-10 text-sm ps-9 pe-3 rounded-lg border-teal-200 dark:border-teal-800 focus:border-teal-500"
+                      className="h-10 text-sm ps-9 pe-3 rounded-lg border-slate-300 focus:border-blue-500"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       onKeyDown={(e) => {
@@ -1010,22 +960,22 @@ export default function LandingPage() {
                     />
                   </div>
                   <Button
-                    className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:from-teal-700 hover:to-emerald-700 h-10 px-4"
+                    className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-4"
                     onClick={() => { if (email.trim()) setEmailSubmitted(true); }}
                   >
                     {emailSubmitted ? <Check className="w-4 h-4" /> : t.landing.newsletterSubscribe}
                   </Button>
                 </div>
                 {emailSubmitted && (
-                  <p className="text-xs text-teal-600 dark:text-teal-400 mt-2 flex items-center gap-1">
+                  <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
                     <Check className="w-3 h-3" /> Subscribed successfully!
                   </p>
                 )}
               </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-3">{t.landing.features}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h4 className="font-semibold text-slate-900 mb-3">{t.landing.features}</h4>
+              <ul className="space-y-2 text-sm text-slate-500">
                 <li>{t.landing.feature1Title}</li>
                 <li>{t.landing.feature2Title}</li>
                 <li>{t.landing.feature3Title}</li>
@@ -1033,8 +983,8 @@ export default function LandingPage() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-3">{t.common.settings}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h4 className="font-semibold text-slate-900 mb-3">{t.common.settings}</h4>
+              <ul className="space-y-2 text-sm text-slate-500">
                 <li>{t.footer.about}</li>
                 <li>{t.footer.help}</li>
                 <li>{t.footer.contact}</li>
@@ -1042,24 +992,18 @@ export default function LandingPage() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-3">{t.common.language}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h4 className="font-semibold text-slate-900 mb-3">{t.common.language}</h4>
+              <ul className="space-y-2 text-sm text-slate-500">
                 <li>{t.footer.terms}</li>
                 <li>{t.footer.rights}</li>
               </ul>
-              {/* Social Icons */}
-              <div className="flex items-center gap-3 mt-4">
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-teal-600 transition-colors" aria-label="Twitter"><Twitter className="w-4 h-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-teal-600 transition-colors" aria-label="LinkedIn"><Linkedin className="w-4 h-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-teal-600 transition-colors" aria-label="GitHub"><Github className="w-4 h-4" /></Button>
-              </div>
             </div>
           </div>
 
-          <div className="border-t mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+          <div className="border-t border-slate-200 mt-8 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-slate-500">
             <p>&copy; {new Date().getFullYear()} {t.common.appName}. {t.footer.rights}.</p>
             <div className="flex items-center gap-2">
-              <Sparkles className="w-3 h-3 text-teal-500" />
+              <Sparkles className="w-3 h-3 text-blue-500" />
               <span>Powered by TalentFlow AI</span>
             </div>
           </div>
@@ -1070,7 +1014,7 @@ export default function LandingPage() {
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-22 end-6 z-40 h-10 w-10 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-lg shadow-teal-500/25 hover:from-teal-700 hover:to-emerald-700 hover:shadow-teal-500/40 transition-all flex items-center justify-center scroll-top-btn"
+          className="fixed bottom-22 end-6 z-40 h-10 w-10 rounded-full bg-blue-600 text-white shadow-md hover:bg-blue-700 transition-all flex items-center justify-center scroll-top-btn"
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-5 h-5" />
