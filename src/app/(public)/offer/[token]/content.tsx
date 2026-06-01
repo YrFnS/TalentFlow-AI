@@ -406,7 +406,7 @@ export default function OfferSignContent() {
                     className="text-lg font-serif h-12"
                   />
                   {typedSignature && (
-                    <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-border/30">
+                    <div className="p-4 bg-white  rounded-lg border border-border/30">
                       <p className="font-serif text-2xl text-gray-800 dark:text-gray-200 italic">
                         {typedSignature}
                       </p>
@@ -479,7 +479,7 @@ export default function OfferSignContent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0 space-y-3">
-              <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-border/30">
+              <div className="p-4 bg-white  rounded-lg border border-border/30">
                 {offer.candidateSignature.startsWith('data:image') ? (
                   <img
                     src={offer.candidateSignature}

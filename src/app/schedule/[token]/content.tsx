@@ -335,7 +335,7 @@ export default function ScheduleContent() {
   return (
     <div className="min-h-screen bg-slate-50 dark:from-gray-950 dark:to-gray-900">
       {/* Top branding bar */}
-      <header className="bg-white/80 dark:bg-gray-900/80 border-b border-border/50">
+      <header className="bg-white/80 /80 border-b border-border/50">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br bg-blue-600">
             <Sparkles className="w-4 h-4 text-white" />
@@ -473,7 +473,7 @@ export default function ScheduleContent() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 bg-white/50 dark:bg-gray-900/50 mt-auto">
+      <footer className="border-t border-border/50 bg-white/50 /50 mt-auto">
         <div className="max-w-2xl mx-auto px-4 py-4 text-center">
           <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
             <Sparkles className="w-3 h-3 text-blue-500" />

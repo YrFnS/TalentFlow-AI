@@ -519,8 +519,8 @@ export default function ProfilePage() {
             <div
               className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 cursor-pointer ${
                 isDragging
-                  ? 'border-teal-400 bg-teal-50 dark:border-teal-600 dark:bg-teal-950/30'
-                  : 'border-teal-300 dark:border-teal-700 hover:border-teal-400 dark:hover:border-teal-600 hover:bg-teal-50/50 dark:hover:bg-teal-950/20'
+                  ? 'border-teal-400 bg-teal-50 dark:border-teal-600'
+                  : 'border-teal-300 hover:border-teal-400 dark:hover:border-teal-600 hover:bg-teal-50/50 dark:hover:bg-teal-950/20'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -533,7 +533,7 @@ export default function ProfilePage() {
             >
               <div className="flex flex-col items-center gap-3">
                 <div className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-950/50 flex items-center justify-center">
-                  <CloudUpload className="w-8 h-8 text-teal-600 dark:text-teal-400" />
+                  <CloudUpload className="w-8 h-8 text-teal-600" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">{t.resume.uploadArea}</p>
@@ -542,7 +542,7 @@ export default function ProfilePage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-1 border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                  className="mt-1 border-teal-300 text-teal-600 hover:bg-teal-50"
                   onClick={(e) => { e.stopPropagation(); handleBrowseClick(); }}
                 >
                   <Upload className="w-3.5 h-3.5 me-1.5" />
@@ -565,7 +565,7 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/30 transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-950/50 flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                    <FileText className="w-5 h-5 text-teal-600" />
                   </div>
                   <div className="min-w-0">
                     <h4 className="font-semibold text-sm truncate">{uploadedFile.name}</h4>
@@ -604,7 +604,7 @@ export default function ProfilePage() {
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant="outline"
-                  className="gap-2 flex-1 border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                  className="gap-2 flex-1 border-teal-300 text-teal-600 hover:bg-teal-50"
                   onClick={handleParseResume}
                   disabled={isParsing || isUploading}
                 >
@@ -638,19 +638,19 @@ export default function ProfilePage() {
                     {(parsedData.name || parsedData.email || parsedData.phone) && (
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {parsedData.name && (
-                          <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
+                          <div className="p-3 rounded-lg bg-teal-50 border border-teal-200 dark:border-teal-800">
                             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{t.resume.name}</p>
                             <p className="text-sm font-medium mt-0.5">{parsedData.name}</p>
                           </div>
                         )}
                         {parsedData.email && (
-                          <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
+                          <div className="p-3 rounded-lg bg-teal-50 border border-teal-200 dark:border-teal-800">
                             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{t.resume.email}</p>
                             <p className="text-sm font-medium mt-0.5 truncate">{parsedData.email}</p>
                           </div>
                         )}
                         {parsedData.phone && (
-                          <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
+                          <div className="p-3 rounded-lg bg-teal-50 border border-teal-200 dark:border-teal-800">
                             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{t.resume.phone}</p>
                             <p className="text-sm font-medium mt-0.5">{parsedData.phone}</p>
                           </div>
@@ -667,7 +667,7 @@ export default function ProfilePage() {
                             <Badge
                               key={`parsed-skill-${idx}`}
                               variant="secondary"
-                              className="text-xs bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300 border-0"
+                              className="text-xs bg-teal-50 text-teal-700 dark:bg-teal-950 border-0"
                             >
                               {skill}
                             </Badge>
@@ -720,7 +720,7 @@ export default function ProfilePage() {
                             <Badge
                               key={`parsed-cert-${idx}`}
                               variant="outline"
-                              className="text-xs border-teal-300 dark:border-teal-700"
+                              className="text-xs border-teal-300"
                             >
                               {cert.name}
                             </Badge>
@@ -786,7 +786,7 @@ export default function ProfilePage() {
                   </defs>
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{profileCompleteness}%</span>
+                  <span className="text-2xl font-bold text-teal-600">{profileCompleteness}%</span>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2 text-center">{t.candidate.profileCompleteness}</p>

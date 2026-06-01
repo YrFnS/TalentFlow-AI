@@ -211,7 +211,7 @@ export default function LeavePage() {
               </div>
               <div className="mt-3 h-2 bg-muted/50 rounded-full overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
+                  className="h-full rounded-full bg-blue-500 transition-all duration-500"
                   style={{ width: `${(bal.used / bal.total) * 100}%` }}
                 />
               </div>

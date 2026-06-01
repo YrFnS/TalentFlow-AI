@@ -406,7 +406,7 @@ export default function CompanyBillingContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 text-white">
             {t.billing.title}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">{t.billing.subtitle}</p>

@@ -288,7 +288,7 @@ export default function JobWorkflowsContent() {
                 'text-xs',
                 currentWorkflow.customEnabled
                   ? 'border-slate-300 text-blue-700'
-                  : 'border-gray-300 text-gray-500 dark:border-gray-700 dark:text-gray-400'
+                  : 'border-gray-300 text-gray-500  dark:text-gray-400'
               )}
             >
               {currentWorkflow.customEnabled ? jt.customPipelineActive : jt.usingDefaultPipeline}

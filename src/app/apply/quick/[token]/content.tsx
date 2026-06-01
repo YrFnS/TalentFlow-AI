@@ -265,7 +265,7 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
 
             {/* Job Header Card */}
             <Card className="card-border-border/50 overflow-hidden">
-              <div className="h-1.5 bg-gradient-to-r from-teal-500 to-emerald-500" />
+              <div className="h-1.5 bg-blue-500" />
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br bg-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md">

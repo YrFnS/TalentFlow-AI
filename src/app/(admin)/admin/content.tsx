@@ -336,7 +336,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 dark:bg-teal-900/50 text-blue-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-blue-600">
                       <Icon className="h-5 w-5" />
                     </div>
                   </div>

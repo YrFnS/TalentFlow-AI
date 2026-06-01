@@ -239,7 +239,7 @@ function VerifyEmailForm() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br bg-blue-600">
               <Brain className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-bold bg-blue-600 bg-clip-text text-transparent lg:hidden">
+            <span className="text-lg font-bold bg-blue-600 text-white lg:hidden">
               {t.common.appName}
             </span>
           </Link>

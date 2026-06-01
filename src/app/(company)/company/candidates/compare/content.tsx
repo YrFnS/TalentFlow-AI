@@ -905,7 +905,7 @@ export default function CompareContent() {
                           'flex-1 text-xs',
                           hiringDecisions[candidate.id] === 'pass'
                             ? 'bg-gray-600 hover:bg-gray-700 text-white'
-                            : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+                            : 'border-gray-300  text-gray-600 dark:text-gray-400'
                         )}
                         onClick={() => handleHiringDecision(candidate.id, 'pass')}
                       >

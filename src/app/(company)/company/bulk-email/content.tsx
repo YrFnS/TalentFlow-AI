@@ -627,7 +627,7 @@ export default function BulkEmailContent() {
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
+                      className="h-full rounded-full bg-blue-500 transition-all duration-500"
                       style={{ width: `${Math.min(rate, 100)}%` }}
                     />
                   </div>
@@ -1105,7 +1105,7 @@ export default function BulkEmailContent() {
                     </div>
                     <div className="h-3 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"
+                        className="h-full rounded-full bg-blue-500"
                         style={{ width: `${Math.min((selectedCampaign.opened / selectedCampaign.sent) * 100, 100)}%` }}
                       />
                     </div>

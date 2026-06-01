@@ -301,7 +301,7 @@ export default function SecurityDashboardContent() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 text-white">
             {t.security.title}
           </h1>
           <p className="text-muted-foreground mt-1">{t.security.subtitle}</p>
@@ -391,7 +391,7 @@ export default function SecurityDashboardContent() {
                 {loading ? <Skeleton /> : (
                   <>
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100">
                         <LogIn className="h-4 w-4 text-blue-600" />
                       </div>
                       <span className="text-xs text-muted-foreground">{t.security.loginSuccess}</span>
@@ -472,7 +472,7 @@ export default function SecurityDashboardContent() {
         <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('rateLimiting')}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100">
                 <Server className="h-4 w-4 text-blue-600" />
               </div>
               <div>
@@ -584,7 +584,7 @@ export default function SecurityDashboardContent() {
           <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('csp')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100">
                   <LockKeyhole className="h-4 w-4 text-blue-600" />
                 </div>
                 <CardTitle className="text-lg font-semibold">{t.security.cspConfiguration}</CardTitle>
@@ -642,7 +642,7 @@ export default function SecurityDashboardContent() {
         <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('authStats')}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100">
                 <Users className="h-4 w-4 text-blue-600" />
               </div>
               <CardTitle className="text-lg font-semibold">{t.security.authStats}</CardTitle>
@@ -719,7 +719,7 @@ export default function SecurityDashboardContent() {
           <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('encryption')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100">
                   <Key className="h-4 w-4 text-blue-600" />
                 </div>
                 <CardTitle className="text-base font-semibold">{t.security.encryptionStatus}</CardTitle>
@@ -771,7 +771,7 @@ export default function SecurityDashboardContent() {
           <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('fileUpload')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100">
                   <Upload className="h-4 w-4 text-blue-600" />
                 </div>
                 <CardTitle className="text-base font-semibold">{t.security.fileUploadSecurity}</CardTitle>
@@ -828,7 +828,7 @@ export default function SecurityDashboardContent() {
           <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('vulnerabilities')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100">
                   <Bug className="h-4 w-4 text-blue-600" />
                 </div>
                 <CardTitle className="text-base font-semibold">{t.security.depVulnerabilities}</CardTitle>
@@ -872,7 +872,7 @@ export default function SecurityDashboardContent() {
         <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('cors')}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100">
                 <Globe className="h-4 w-4 text-blue-600" />
               </div>
               <CardTitle className="text-lg font-semibold">{t.security.corsConfiguration}</CardTitle>
@@ -948,7 +948,7 @@ export default function SecurityDashboardContent() {
         <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('headers')}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100">
                 <FileText className="h-4 w-4 text-blue-600" />
               </div>
               <CardTitle className="text-lg font-semibold">{t.security.securityHeaders}</CardTitle>

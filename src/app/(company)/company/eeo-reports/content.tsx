@@ -92,7 +92,7 @@ export default function EEOReportsContent() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold tracking-tight bg-blue-600 text-white">
           {t.eeo.companySummary}
         </h1>
         <p className="text-muted-foreground mt-1">{t.eeo.subtitle}</p>

@@ -207,7 +207,7 @@ export default function FeedbackPage() {
                     </div>
                     <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
+                        className="h-full rounded-full bg-blue-500 transition-all duration-500"
                         style={{ width: `${maxDist > 0 ? (d.count / maxDist) * 100 : 0}%` }}
                       />
                     </div>

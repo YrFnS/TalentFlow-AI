@@ -125,7 +125,7 @@ const statusConfig: Record<string, { color: string; bgColor: string; borderColor
   },
   CANCELLED: {
     color: 'text-gray-700 dark:text-gray-400',
-    bgColor: 'bg-gray-100 dark:bg-gray-900/30',
+    bgColor: 'bg-gray-100 /30',
     borderColor: 'border-gray-200 dark:border-gray-800/30',
     icon: XCircle,
   },

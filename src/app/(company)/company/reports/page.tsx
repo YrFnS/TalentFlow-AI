@@ -114,7 +114,7 @@ export default function CompanyReportsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 text-white">
             {t.reports.title}
           </h1>
           <p className="text-muted-foreground mt-1">{t.reports.subtitle}</p>

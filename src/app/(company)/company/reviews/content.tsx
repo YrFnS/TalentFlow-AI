@@ -315,7 +315,7 @@ export default function ReviewsContent() {
                       </div>
                       <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all"
+                          className="h-full rounded-full bg-blue-500 transition-all"
                           style={{ width: `${(cycle.completedReviews / cycle.totalReviews) * 100}%` }}
                         />
                       </div>

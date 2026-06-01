@@ -135,7 +135,7 @@ export function getStatusConfig(status: string, t: TranslationKeys) {
     case 'DRAFT':
       return { label: t.workflows.draft, color: 'bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border-0', icon: 'FileText' as const };
     case 'ARCHIVED':
-      return { label: t.workflows.archived, color: 'bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-400 border-0', icon: 'Archive' as const };
+      return { label: t.workflows.archived, color: 'bg-gray-50 text-gray-700  dark:text-gray-400 border-0', icon: 'Archive' as const };
     default:
       return { label: status, color: 'bg-slate-50 text-slate-700 border-0', icon: 'FileText' as const };
   }
