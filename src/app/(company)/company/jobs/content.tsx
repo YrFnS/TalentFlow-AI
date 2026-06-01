@@ -91,9 +91,9 @@ interface QuickApplyConfigData {
 
 const statusConfig: Record<string, { label: string; color: string; dotColor: string }> = {
   DRAFT: { label: 'Draft', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400', dotColor: 'bg-gray-400' },
-  OPEN: { label: 'Open', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400', dotColor: 'bg-teal-500' },
-  PAUSED: { label: 'Paused', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dotColor: 'bg-amber-500' },
-  CLOSED: { label: 'Closed', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', dotColor: 'bg-red-500' },
+  OPEN: { label: 'Open', color: 'bg-teal-100 text-blue-700', dotColor: 'bg-slate-500' },
+  PAUSED: { label: 'Paused', color: 'bg-amber-100 text-amber-700', dotColor: 'bg-amber-500' },
+  CLOSED: { label: 'Closed', color: 'bg-red-100 text-red-700', dotColor: 'bg-red-500' },
   ARCHIVED: { label: 'Archived', color: 'bg-gray-100 text-gray-500 dark:bg-gray-800/30 dark:text-gray-500', dotColor: 'bg-gray-400' },
 };
 
@@ -232,7 +232,7 @@ export default function JobsPage() {
           <p className="text-muted-foreground text-sm mt-1">Manage your job postings and track applicants</p>
         </div>
         <Link href="/company/jobs/create">
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
             <Plus className="w-4 h-4 me-2" />
             {t.jobs.createJob}
           </Button>
@@ -317,7 +317,7 @@ export default function JobsPage() {
               {searchQuery ? 'Try adjusting your search terms' : 'Create your first job posting to get started'}
             </p>
             <Link href="/company/jobs/create">
-              <Button className="mt-4 bg-teal-600 hover:bg-teal-700 text-white">
+              <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
                 <Plus className="w-4 h-4 me-2" />
                 {t.jobs.createJob}
               </Button>
@@ -329,7 +329,7 @@ export default function JobsPage() {
           {filteredJobs.map((job) => {
             const status = statusConfig[job.status] || statusConfig.DRAFT;
             return (
-              <Card key={job.id} className="group hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-200 dark:hover:border-teal-800">
+              <Card key={job.id} className="group hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-200 dark:hover:border-teal-800">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -391,14 +391,14 @@ export default function JobsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-xs h-7 text-teal-600 hover:text-teal-700"
+                        className="text-xs h-7 text-blue-600 hover:text-blue-700"
                         onClick={() => openQuickApplyConfig(job)}
                       >
                         <Zap className="w-3 h-3 me-1" />
                         <span className="hidden sm:inline">{t.quickApply.configTitle}</span>
                       </Button>
                       <Link href={`/company/jobs/${job.id}`}>
-                        <Button variant="ghost" size="sm" className="text-xs h-7 text-teal-600 hover:text-teal-700">
+                        <Button variant="ghost" size="sm" className="text-xs h-7 text-blue-600 hover:text-blue-700">
                           View
                         </Button>
                       </Link>
@@ -473,7 +473,7 @@ export default function JobsPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-teal-600" />
+              <Zap className="w-5 h-5 text-blue-600" />
               {t.quickApply.configTitle}
             </DialogTitle>
             <DialogDescription>
@@ -490,8 +490,8 @@ export default function JobsPage() {
               {/* Enable Quick Apply */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
                     <Label className="text-sm font-medium">{t.quickApply.enableQuickApply}</Label>
@@ -529,7 +529,7 @@ export default function JobsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center">
-                    <MessageSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <MessageSquare className="w-4 h-4 text-emerald-600" />
                   </div>
                   <div>
                     <Label className="text-sm font-medium">{t.quickApply.enableTextApply}</Label>
@@ -546,7 +546,7 @@ export default function JobsPage() {
                 <div className="p-3 rounded-lg bg-muted/30 border border-border/50 animate-fade-in">
                   <Label className="text-xs text-muted-foreground">{t.quickApply.textCodeLabel}</Label>
                   <div className="flex items-center gap-2 mt-1">
-                    <code className="text-sm font-mono font-bold text-teal-600 dark:text-teal-400 px-2 py-0.5 bg-teal-50 dark:bg-teal-950/30 rounded">
+                    <code className="text-sm font-mono font-bold text-blue-600 px-2 py-0.5 bg-slate-50 rounded">
                       {configData.textApplyCode}
                     </code>
                     <Button
@@ -569,7 +569,7 @@ export default function JobsPage() {
               {/* QR Code */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <QrCode className="w-4 h-4 text-teal-600" />
+                  <QrCode className="w-4 h-4 text-blue-600" />
                   <Label className="text-sm font-medium">{t.quickApply.qrCodeLabel}</Label>
                 </div>
                 {configData.qrCodeUrl ? (
@@ -626,7 +626,7 @@ export default function JobsPage() {
                 <Button
                   onClick={handleSaveConfig}
                   disabled={configSaving}
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {configSaving ? (
                     <span className="flex items-center gap-2">

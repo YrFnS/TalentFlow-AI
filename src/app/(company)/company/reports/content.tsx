@@ -69,7 +69,7 @@ export default function CompanyReportsPage() {
   });
 
   const reportTemplates: ReportTemplate[] = [
-    { title: t.reports.hiringSummary, description: t.reports.hiringSummaryDesc, icon: FileText, color: 'from-teal-500 to-emerald-600' },
+    { title: t.reports.hiringSummary, description: t.reports.hiringSummaryDesc, icon: FileText, color: 'bg-blue-600' },
     { title: t.reports.pipelineAnalytics, description: t.reports.pipelineAnalyticsDesc, icon: GitBranch, color: 'from-emerald-500 to-teal-600' },
     { title: t.reports.candidateSource, description: t.reports.candidateSourceDesc, icon: Users, color: 'from-cyan-500 to-teal-600' },
     { title: t.reports.interviewPerformance, description: t.reports.interviewPerformanceDesc, icon: BarChart3, color: 'from-teal-600 to-emerald-700' },
@@ -80,7 +80,7 @@ export default function CompanyReportsPage() {
   const generatedReports: GeneratedReport[] = [];
 
   const quickStats = [
-    { label: t.reports.reportsThisMonth, value: '—', icon: FileBarChart, gradient: 'from-teal-500 to-emerald-600' },
+    { label: t.reports.reportsThisMonth, value: '—', icon: FileBarChart, gradient: 'bg-blue-600' },
     { label: t.reports.mostPopular, value: '—', icon: Trophy, gradient: 'from-emerald-500 to-teal-600' },
     { label: t.reports.avgGenerationTime, value: '—', icon: Timer, gradient: 'from-cyan-500 to-teal-600' },
   ];
@@ -96,9 +96,9 @@ export default function CompanyReportsPage() {
 
   const getFormatBadge = (format: string) => {
     const colors: Record<string, string> = {
-      PDF: 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400',
+      PDF: 'bg-red-50 text-red-700 dark:bg-red-950/30',
       CSV: 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400',
-      Excel: 'bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400',
+      Excel: 'bg-blue-50 text-blue-700 dark:bg-blue-950/30',
     };
     return colors[format] || 'bg-muted text-muted-foreground';
   };
@@ -108,14 +108,14 @@ export default function CompanyReportsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
             {t.reports.title}
           </h1>
           <p className="text-muted-foreground mt-1">{t.reports.subtitle}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-lg">
+            <Button className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-lg">
               <Plus className="h-4 w-4 me-2" />
               {t.reports.generateReport}
             </Button>
@@ -195,7 +195,7 @@ export default function CompanyReportsPage() {
                             sections: { ...reportForm.sections, [section.key]: e.target.checked },
                           })
                         }
-                        className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                       <span className="text-sm">{section.label}</span>
                     </label>
@@ -208,7 +208,7 @@ export default function CompanyReportsPage() {
                 {t.common.cancel}
               </Button>
               <Button
-                className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+                className="bg-gradient-to-r bg-blue-600 text-white"
                 onClick={() => setDialogOpen(false)}
               >
                 <Sparkles className="h-4 w-4 me-2" />
@@ -250,7 +250,7 @@ export default function CompanyReportsPage() {
             {reportTemplates.map((template) => (
               <div
                 key={template.title}
-                className="group relative p-5 rounded-xl border border-border/50 hover:border-teal-300 dark:hover:border-teal-700 bg-gradient-to-br from-muted/30 to-transparent hover:shadow-lg transition-all cursor-pointer"
+                className="group relative p-5 rounded-xl border border-border/50 hover:border-slate-300 bg-gradient-to-br from-muted/30 to-transparent hover:shadow-lg transition-all cursor-pointer"
               >
                 <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${template.color} text-white shadow mb-3`}>
                   <template.icon className="h-5 w-5" />
@@ -260,7 +260,7 @@ export default function CompanyReportsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="mt-3 text-teal-600 hover:text-teal-700 dark:text-teal-400 p-0 h-auto"
+                  className="mt-3 text-blue-600 hover:text-blue-700 p-0 h-auto"
                 >
                   <Plus className="h-3.5 w-3.5 me-1" />
                   Generate
@@ -304,7 +304,7 @@ export default function CompanyReportsPage() {
                   <Badge variant="secondary" className={`text-xs border-0 ${getFormatBadge(report.format)}`}>
                     {report.format}
                   </Badge>
-                  <Button variant="ghost" size="sm" className="text-teal-600 hover:text-teal-700 dark:text-teal-400">
+                  <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
                     <Download className="h-4 w-4 me-1" />
                     {t.reports.download}
                   </Button>

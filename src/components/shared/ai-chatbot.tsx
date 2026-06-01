@@ -218,7 +218,7 @@ export default function AIChatbot({ source = 'landing' }: AIChatbotProps) {
       {/* Floating Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 end-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center ${isOpen ? 'rotate-0 scale-0 opacity-0 pointer-events-none' : 'rotate-0 scale-100 opacity-100'}`}
+        className={`fixed bottom-6 end-6 z-50 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
         aria-label={isOpen ? t.common.close : getTitle()}
       >
         <MessageSquare className="w-6 h-6" />
@@ -233,16 +233,16 @@ export default function AIChatbot({ source = 'landing' }: AIChatbotProps) {
         }`}
         dir={dir}
       >
-        <div className="w-[calc(100vw-3rem)] sm:w-[340px] h-[70vh] max-h-[520px] flex flex-col rounded-2xl border border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl shadow-teal-500/10 overflow-hidden">
+        <div className="w-[calc(100vw-3rem)] sm:w-[340px] h-[70vh] max-h-[520px] flex flex-col rounded-2xl border border-border/50 bg-background shadow-2xl overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
+          <div className="flex items-center justify-between px-4 py-3 bg-slate-900 text-white">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                 <Bot className="w-4 h-4" />
               </div>
               <div>
                 <h3 className="text-sm font-semibold leading-tight">{getTitle()}</h3>
-                <p className="text-[10px] text-white/70 leading-tight">{getSubtitle()}</p>
+                <p className="text-[10px] text-white/60 leading-tight">{getSubtitle()}</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -278,8 +278,8 @@ export default function AIChatbot({ source = 'landing' }: AIChatbotProps) {
                   <div
                     className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
                       msg.role === 'assistant'
-                        ? 'bg-gradient-to-br from-teal-500 to-emerald-600 text-white'
-                        : 'bg-muted text-muted-foreground'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 text-slate-600'
                     }`}
                   >
                     {msg.role === 'assistant' ? (
@@ -292,8 +292,8 @@ export default function AIChatbot({ source = 'landing' }: AIChatbotProps) {
                   <div
                     className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
                       msg.role === 'assistant'
-                        ? 'bg-muted/80 text-foreground rounded-ss-sm'
-                        : 'bg-gradient-to-br from-teal-500 to-emerald-600 text-white rounded-se-sm'
+                        ? 'bg-slate-100 text-foreground rounded-ss-sm'
+                        : 'bg-blue-600 text-white rounded-se-sm'
                     }`}
                   >
                     {msg.content}
@@ -304,14 +304,14 @@ export default function AIChatbot({ source = 'landing' }: AIChatbotProps) {
               {/* Typing Indicator */}
               {isLoading && (
                 <div className="flex gap-2 flex-row">
-                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center">
+                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center">
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
-                  <div className="bg-muted/80 rounded-2xl rounded-ss-sm px-4 py-3">
+                  <div className="bg-slate-100 rounded-2xl rounded-ss-sm px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <span className="typing-dot w-2 h-2 rounded-full bg-teal-500 inline-block" style={{ animationDelay: '0ms' }} />
-                      <span className="typing-dot w-2 h-2 rounded-full bg-teal-500 inline-block" style={{ animationDelay: '150ms' }} />
-                      <span className="typing-dot w-2 h-2 rounded-full bg-teal-500 inline-block" style={{ animationDelay: '300ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-slate-400 inline-block animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-slate-400 inline-block animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-slate-400 inline-block animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export default function AIChatbot({ source = 'landing' }: AIChatbotProps) {
                   <button
                     key={index}
                     onClick={() => handleQuickAction(action.message)}
-                    className="text-xs px-3 py-1.5 rounded-full border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 bg-teal-50/50 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors flex items-center gap-1"
+                    className="text-xs px-3 py-1.5 rounded-full border border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 transition-colors flex items-center gap-1"
                   >
                     <action.icon className="w-3 h-3" />
                     {action.label}
@@ -338,43 +338,26 @@ export default function AIChatbot({ source = 'landing' }: AIChatbotProps) {
           )}
 
           {/* Input Area */}
-          <form onSubmit={handleSubmit} className="flex items-center gap-2 p-3 border-t border-border/50 bg-background/50">
+          <form onSubmit={handleSubmit} className="flex items-center gap-2 p-3 border-t border-border/50 bg-background">
             <Input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={t.common.chatbot.placeholder}
               disabled={isLoading}
-              className="flex-1 h-9 text-sm rounded-full border-teal-200 dark:border-teal-800 focus-visible:ring-teal-500/30"
+              className="flex-1 h-9 text-sm rounded-full border-slate-200"
             />
             <Button
               type="submit"
               size="icon"
               disabled={!input.trim() || isLoading}
-              className="h-9 w-9 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-sm disabled:opacity-50"
+              className="h-9 w-9 rounded-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
             >
               <Send className="w-4 h-4" />
             </Button>
           </form>
         </div>
       </div>
-
-      {/* CSS for typing animation */}
-      <style jsx global>{`
-        .typing-dot {
-          animation: typing-bounce 1.2s ease-in-out infinite;
-        }
-        @keyframes typing-bounce {
-          0%, 60%, 100% {
-            transform: translateY(0);
-            opacity: 0.4;
-          }
-          30% {
-            transform: translateY(-6px);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </>
   );
 }

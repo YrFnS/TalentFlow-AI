@@ -138,7 +138,7 @@ function AdminSidebarContent() {
     <>
       <SidebarHeader className="px-4 py-4">
         <Link href="/admin" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
             <Sparkles className="h-4 w-4" />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
@@ -165,12 +165,12 @@ function AdminSidebarContent() {
                       isActive={isActive}
                       tooltip={t.nav[item.labelKey]}
                       className={cn(
-                        'transition-all duration-200 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400',
-                        isActive && 'bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 sidebar-active-indicator nav-item-active'
+                        'transition-all duration-200 hover:bg-slate-50',
+                        isActive && 'bg-slate-50 text-slate-700 sidebar-active-indicator nav-item-active'
                       )}
                     >
                       <Link href={item.href} className="flex items-center gap-3">
-                        <item.icon className={cn('h-4 w-4', isActive && 'text-teal-600 dark:text-teal-400')} />
+                        <item.icon className={cn('h-4 w-4', isActive && 'text-blue-600')} />
                         <span>{t.nav[item.labelKey]}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -183,7 +183,7 @@ function AdminSidebarContent() {
       </SidebarContent>
       <SidebarFooter className="p-4">
         <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap min-w-0 group-data-[collapsible=icon]:hidden">
-          <Sparkles className="h-3 w-3 text-teal-500 shrink-0" />
+          <Sparkles className="h-3 w-3 text-blue-500 shrink-0" />
           <span className="truncate">Powered by TalentFlow AI</span>
         </div>
       </SidebarFooter>
@@ -262,11 +262,11 @@ function TopBar() {
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => setLocale('en')}>
               <span className={cn(locale === 'en' && 'font-bold')}>English</span>
-              {locale === 'en' && <span className="ms-auto text-teal-600">✓</span>}
+              {locale === 'en' && <span className="ms-auto text-blue-600">✓</span>}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setLocale('ar')}>
               <span className={cn(locale === 'ar' && 'font-bold')}>العربية</span>
-              {locale === 'ar' && <span className="ms-auto text-teal-600">✓</span>}
+              {locale === 'ar' && <span className="ms-auto text-blue-600">✓</span>}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -290,7 +290,7 @@ function TopBar() {
             <Button variant="ghost" size="icon" className="h-9 w-9 relative" aria-label="Notifications">
               <Bell className="h-4 w-4" />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -end-0.5 h-4 w-4 rounded-full bg-teal-500 text-[10px] font-bold text-white flex items-center justify-center notification-dot">
+                <span className="absolute -top-0.5 -end-0.5 h-4 w-4 rounded-full bg-blue-500 text-[10px] font-bold text-white flex items-center justify-center notification-dot">
                   {unreadCount}
                 </span>
               )}
@@ -300,12 +300,12 @@ function TopBar() {
             <DropdownMenuLabel className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 {t.common.notifications}
-                <span className="flex items-center gap-1 text-[10px] text-teal-600 dark:text-teal-400 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 notification-dot" />
+                <span className="flex items-center gap-1 text-[10px] text-blue-600 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 notification-dot" />
                   {t.notifEnhanced?.live || 'Live'}
                 </span>
               </div>
-              <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-teal-600">
+              <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-blue-600">
                 {t.common.markAllRead}
               </Button>
             </DropdownMenuLabel>
@@ -315,16 +315,16 @@ function TopBar() {
                 <DropdownMenuItem key={n.id} className="flex items-start gap-3 p-3 cursor-pointer">
                   <div className={cn(
                     'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-                    n.read ? 'bg-muted text-muted-foreground' : 'bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400'
+                    n.read ? 'bg-muted text-muted-foreground' : 'bg-slate-50 text-slate-600'
                   )}>
                     <n.icon className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">{n.title}</p>
                     <p className="text-xs text-muted-foreground">{n.desc}</p>
-                    <p className="text-[10px] text-teal-600 dark:text-teal-400 mt-0.5">{n.time}</p>
+                    <p className="text-[10px] text-blue-600 mt-0.5">{n.time}</p>
                   </div>
-                  {!n.read && <div className="w-2 h-2 rounded-full bg-teal-500 mt-1.5 shrink-0 notification-dot" />}
+                  {!n.read && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0 notification-dot" />}
                 </DropdownMenuItem>
               )) : (
                 <div className="flex flex-col items-center justify-center py-8 text-muted-foreground/60 gap-3">
@@ -344,7 +344,7 @@ function TopBar() {
             <Button variant="ghost" className="h-9 gap-2 px-2">
               <Avatar className="h-7 w-7">
                 <AvatarImage src={user?.image} />
-                <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                <AvatarFallback className="bg-blue-600 text-white text-xs">
                   {user?.name?.split(' ').map(n => n[0]).join('') || 'AD'}
                 </AvatarFallback>
               </Avatar>
@@ -359,7 +359,7 @@ function TopBar() {
                   <p className="text-sm font-medium">{user?.name || 'Admin User'}</p>
                 </div>
                 <p className="text-xs text-muted-foreground">{user?.email || 'admin@talentflow.ai'}</p>
-                <Badge className="w-fit text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 mt-1">
+                <Badge className="w-fit text-[10px] bg-blue-50 text-blue-700 border-0 mt-1">
                   <Shield className="w-3 h-3 me-1" />
                   Super Admin
                 </Badge>

@@ -243,16 +243,16 @@ export default function JobWorkflowsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <GitBranch className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{jt.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{jt.title}</h1>
             <p className="text-sm text-muted-foreground">{jt.subtitle}</p>
           </div>
         </div>
         <Button
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
           onClick={handleSave}
         >
           <Save className="h-4 w-4 me-2" />
@@ -261,7 +261,7 @@ export default function JobWorkflowsContent() {
       </div>
 
       {/* Job Selector */}
-      <Card className="border-border/50 card-hover-lift">
+      <Card className="border-border/50 card-">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <label className="text-sm font-medium min-w-[140px]">{jt.selectJob}</label>
@@ -274,7 +274,7 @@ export default function JobWorkflowsContent() {
                   <SelectItem key={w.jobId} value={w.jobId}>
                     {w.jobTitle}
                     {w.customEnabled && (
-                      <Badge className="ms-2 text-[9px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                      <Badge className="ms-2 text-[9px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                         {jt.customPipelineActive}
                       </Badge>
                     )}
@@ -287,7 +287,7 @@ export default function JobWorkflowsContent() {
               className={cn(
                 'text-xs',
                 currentWorkflow.customEnabled
-                  ? 'border-teal-300 text-teal-700 dark:border-teal-700 dark:text-teal-400'
+                  ? 'border-slate-300 text-blue-700'
                   : 'border-gray-300 text-gray-500 dark:border-gray-700 dark:text-gray-400'
               )}
             >
@@ -301,10 +301,10 @@ export default function JobWorkflowsContent() {
         {/* Left: Pipeline Configurator */}
         <div className="lg:col-span-2 space-y-6">
           {/* Custom Pipeline Toggle */}
-          <Card className="border-border/50 card-hover-lift">
+          <Card className="border-border/50 card-">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <GitBranch className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <GitBranch className="h-4 w-4 text-blue-600" />
                 {jt.customPipeline}
               </CardTitle>
             </CardHeader>
@@ -333,7 +333,7 @@ export default function JobWorkflowsContent() {
                         className={cn(
                           'flex items-center gap-3 p-2.5 rounded-lg border transition-all',
                           stage.included
-                            ? 'border-teal-200 bg-teal-50/50 dark:border-teal-800 dark:bg-teal-950/20'
+                            ? 'border-slate-200 bg-slate-50'
                             : 'border-border/50 bg-muted/20 opacity-60'
                         )}
                       >
@@ -378,17 +378,17 @@ export default function JobWorkflowsContent() {
           </Card>
 
           {/* Auto-Advance Rules */}
-          <Card className="border-border/50 card-hover-lift">
+          <Card className="border-border/50 card-">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <Zap className="h-4 w-4 text-blue-600" />
                   {jt.autoAdvanceRules}
                 </CardTitle>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                  className="gap-1.5 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                   onClick={handleAddRule}
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -470,7 +470,7 @@ export default function JobWorkflowsContent() {
                               ))}
                           </SelectContent>
                         </Select>
-                        <ArrowRight className="h-3.5 w-3.5 text-teal-500 shrink-0" />
+                        <ArrowRight className="h-3.5 w-3.5 text-blue-500 shrink-0" />
                         <Select
                           value={rule.toStage}
                           onValueChange={(val) => handleUpdateRule(rule.id, { toStage: val })}
@@ -509,10 +509,10 @@ export default function JobWorkflowsContent() {
         {/* Right: Preview Panel */}
         <div className="space-y-6">
           {/* Pipeline Preview */}
-          <Card className="border-border/50 card-hover-lift">
+          <Card className="border-border/50 card-">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Eye className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Eye className="h-4 w-4 text-blue-600" />
                 {jt.pipelinePreview}
               </CardTitle>
             </CardHeader>
@@ -600,12 +600,12 @@ export default function JobWorkflowsContent() {
                               <span className="text-muted-foreground">
                                 {jt[conditionLabels[rule.condition] || rule.condition] || rule.condition}
                               </span>
-                              <ArrowRight className="h-2.5 w-2.5 text-teal-500" />
-                              <span className="font-medium text-teal-600 dark:text-teal-400">
+                              <ArrowRight className="h-2.5 w-2.5 text-blue-500" />
+                              <span className="font-medium text-blue-600">
                                 {fromName} → {toName}
                               </span>
                               {rule.threshold && (
-                                <Badge className="text-[8px] bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0 ms-1">
+                                <Badge className="text-[8px] bg-amber-50 text-amber-700 dark:bg-amber-950 border-0 ms-1">
                                   ≥ {rule.threshold}
                                 </Badge>
                               )}
@@ -619,10 +619,10 @@ export default function JobWorkflowsContent() {
                 {/* Stats */}
                 <div className="grid grid-cols-2 gap-2 mt-3">
                   <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/50 text-center">
-                    <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                    <div className="text-lg font-bold text-emerald-600">
                       {includedStages.length}
                     </div>
-                    <div className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70">
+                    <div className="text-[10px] text-emerald-600/70/70">
                       {jt.includedStages}
                     </div>
                   </div>
@@ -642,7 +642,7 @@ export default function JobWorkflowsContent() {
           {/* Save Button (mobile) */}
           <div className="lg:hidden">
             <Button
-              className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="w-full bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               onClick={handleSave}
             >
               <Save className="h-4 w-4 me-2" />

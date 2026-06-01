@@ -40,10 +40,10 @@ interface FeedbackEntry {
 }
 
 const categoryColors: Record<FeedbackCategory, string> = {
-  'UI/UX': 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  'Performance': 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  'Features': 'bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-400 border-0',
-  'Support': 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0',
+  'UI/UX': 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  'Performance': 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  'Features': 'bg-violet-50 text-violet-700 dark:bg-violet-950 border-0',
+  'Support': 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0',
   'Other': 'bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border-0',
 };
 
@@ -107,7 +107,7 @@ export default function FeedbackPage() {
   }));
 
   const categoryDotColors: Record<FeedbackCategory, string> = {
-    'UI/UX': 'bg-teal-500',
+    'UI/UX': 'bg-slate-500',
     'Performance': 'bg-amber-500',
     'Features': 'bg-violet-500',
     'Support': 'bg-blue-500',
@@ -119,7 +119,7 @@ export default function FeedbackPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <MessageSquare className="h-5 w-5" />
           </div>
           <div>
@@ -131,10 +131,10 @@ export default function FeedbackPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <MessageSquare className="h-4 w-4" />
               </div>
               <div>
@@ -144,10 +144,10 @@ export default function FeedbackPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Star className="h-4 w-4" />
               </div>
               <div>
@@ -160,10 +160,10 @@ export default function FeedbackPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
                 <ThumbsUp className="h-4 w-4" />
               </div>
               <div>
@@ -173,10 +173,10 @@ export default function FeedbackPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div>
@@ -195,7 +195,7 @@ export default function FeedbackPage() {
           <Card className="border-border/50">
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <BarChart3 className="h-4 w-4 text-blue-600" />
                 {t.feedback.ratingDistribution}
               </h3>
               <div className="space-y-3">
@@ -222,7 +222,7 @@ export default function FeedbackPage() {
           <Card className="border-border/50">
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                <Filter className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Filter className="h-4 w-4 text-blue-600" />
                 {t.feedback.categoryBreakdown}
               </h3>
               <div className="space-y-3">
@@ -300,7 +300,7 @@ export default function FeedbackPage() {
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <Avatar className="h-9 w-9 shrink-0">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                        <AvatarFallback className="bg-blue-600 text-white text-xs">
                           {fb.avatar}
                         </AvatarFallback>
                       </Avatar>

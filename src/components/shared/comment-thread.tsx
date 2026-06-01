@@ -120,7 +120,7 @@ function MentionDropdown({
 					onClick={() => onSelect(member)}
 				>
 					<Avatar className="w-6 h-6">
-						<AvatarFallback className="text-[10px] bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300">
+						<AvatarFallback className="text-[10px] bg-teal-100 text-blue-700 dark:bg-teal-900">
 							{getInitials(member.name)}
 						</AvatarFallback>
 						{member.image && <AvatarImage src={member.image} />}
@@ -188,7 +188,7 @@ function CommentItem({
 				return (
 					<span
 						key={i}
-						className="text-teal-600 dark:text-teal-400 font-medium bg-teal-50 dark:bg-teal-950/30 px-0.5 rounded"
+						className="text-blue-600 font-medium bg-slate-50 px-0.5 rounded"
 					>
 						{part}
 					</span>
@@ -223,7 +223,7 @@ function CommentItem({
 		>
 			<div className={cn("flex gap-3", depth > 0 && "ms-10 mt-3")}>
 				<Avatar className="w-8 h-8 shrink-0">
-					<AvatarFallback className="text-xs bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300">
+					<AvatarFallback className="text-xs bg-teal-100 text-blue-700 dark:bg-teal-900">
 						{getInitials(comment.author.name)}
 					</AvatarFallback>
 					{comment.author.image && <AvatarImage src={comment.author.image} />}
@@ -236,7 +236,7 @@ function CommentItem({
 						{comment.isPinned && (
 							<Badge
 								variant="outline"
-								className="text-[10px] h-4 px-1.5 border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400"
+								className="text-[10px] h-4 px-1.5 border-amber-300 text-amber-700 dark:border-amber-700"
 							>
 								<Pin className="w-2.5 h-2.5 me-0.5" />
 								{t.comments.pinned}
@@ -245,7 +245,7 @@ function CommentItem({
 						{comment.isResolved && (
 							<Badge
 								variant="outline"
-								className="text-[10px] h-4 px-1.5 border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-400"
+								className="text-[10px] h-4 px-1.5 border-emerald-300 text-emerald-700 dark:border-emerald-700"
 							>
 								<CheckCircle2 className="w-2.5 h-2.5 me-0.5" />
 								{t.comments.resolved}
@@ -267,7 +267,7 @@ function CommentItem({
 								<Button
 									size="sm"
 									onClick={handleSaveEdit}
-									className="h-7 text-xs bg-teal-600 hover:bg-teal-700"
+									className="h-7 text-xs bg-blue-600 hover:bg-blue-700"
 								>
 									{t.common.save}
 								</Button>
@@ -296,8 +296,8 @@ function CommentItem({
 								className={cn(
 									"inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs border transition-colors",
 									group.hasOwn
-										? "border-teal-300 bg-teal-50 dark:border-teal-700 dark:bg-teal-950/30"
-										: "border-border hover:border-teal-300 dark:hover:border-teal-700",
+										? "border-slate-300 bg-slate-50"
+										: "border-border hover:border-slate-300",
 								)}
 							>
 								<span>{group.emoji}</span>
@@ -340,7 +340,7 @@ function CommentItem({
 							<Button
 								variant="ghost"
 								size="sm"
-								className="h-6 px-2 text-xs text-muted-foreground hover:text-teal-600"
+								className="h-6 px-2 text-xs text-muted-foreground hover:text-blue-600"
 								onClick={() => setShowReplyInput(!showReplyInput)}
 							>
 								<Reply className="w-3 h-3 me-1" />
@@ -433,7 +433,7 @@ function CommentItem({
 								size="sm"
 								onClick={handleSubmitReply}
 								disabled={!replyText.trim()}
-								className="h-8 bg-teal-600 hover:bg-teal-700 shrink-0"
+								className="h-8 bg-blue-600 hover:bg-blue-700 shrink-0"
 							>
 								<Send className="w-3.5 h-3.5" />
 							</Button>
@@ -608,7 +608,7 @@ export default function CommentThread({
 							<Badge
 								key={m.id}
 								variant="outline"
-								className="text-[10px] h-5 border-teal-300 text-teal-700 dark:border-teal-700 dark:text-teal-400"
+								className="text-[10px] h-5 border-slate-300 text-blue-700"
 							>
 								@{m.name}
 							</Badge>
@@ -631,7 +631,7 @@ export default function CommentThread({
 							size="sm"
 							onClick={handleSubmit}
 							disabled={!newComment.trim()}
-							className="h-7 text-xs bg-teal-600 hover:bg-teal-700"
+							className="h-7 text-xs bg-blue-600 hover:bg-blue-700"
 						>
 							<MessageSquare className="w-3 h-3 me-1" />
 							{t.common.submit}
@@ -643,7 +643,7 @@ export default function CommentThread({
 			{/* Pinned comments */}
 			{pinnedComments.length > 0 && (
 				<div className="space-y-3">
-					<div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
+					<div className="flex items-center gap-2 text-sm font-medium text-amber-700">
 						<Pin className="w-3.5 h-3.5" />
 						{t.comments.pinned} ({pinnedComments.length})
 					</div>

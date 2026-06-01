@@ -134,7 +134,7 @@ export default function CompanySettingsContent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-teal-600" />
+              <Globe className="h-5 w-5 text-blue-600" />
               {t.settings.languageAppearance}
             </CardTitle>
             <CardDescription>{t.settings.choosePreferredLanguage}</CardDescription>
@@ -146,8 +146,8 @@ export default function CompanySettingsContent() {
                 <p className="text-sm text-muted-foreground">{t.settings.chooseLanguage}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant={locale === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLocale('en')} className={locale === 'en' ? 'bg-teal-600' : ''}>English</Button>
-                <Button variant={locale === 'ar' ? 'default' : 'outline'} size="sm" onClick={() => setLocale('ar')} className={locale === 'ar' ? 'bg-teal-600' : ''}>العربية</Button>
+                <Button variant={locale === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLocale('en')} className={locale === 'en' ? 'bg-blue-600' : ''}>English</Button>
+                <Button variant={locale === 'ar' ? 'default' : 'outline'} size="sm" onClick={() => setLocale('ar')} className={locale === 'ar' ? 'bg-blue-600' : ''}>العربية</Button>
               </div>
             </div>
             <div className="section-divider" />
@@ -166,7 +166,7 @@ export default function CompanySettingsContent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-teal-600" />
+              <Bell className="h-5 w-5 text-blue-600" />
               {t.settings.notifications}
             </CardTitle>
             <CardDescription>{t.settings.notificationsDesc}</CardDescription>
@@ -202,7 +202,7 @@ export default function CompanySettingsContent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-teal-600" />
+              <Bot className="h-5 w-5 text-blue-600" />
               {cb.settingsTitle}
             </CardTitle>
             <CardDescription>{cb.settingsDesc}</CardDescription>
@@ -248,7 +248,7 @@ export default function CompanySettingsContent() {
                     size="sm"
                     onClick={() => setPersonality(p)}
                     disabled={!chatbotActive}
-                    className={personality === p ? 'bg-teal-600 hover:bg-teal-700' : ''}
+                    className={personality === p ? 'bg-blue-600 hover:bg-blue-700' : ''}
                   >
                     {p === 'professional' ? cb.personalityProfessional : p === 'friendly' ? cb.personalityFriendly : cb.personalityCasual}
                   </Button>
@@ -299,7 +299,7 @@ export default function CompanySettingsContent() {
             <Button
               onClick={handleSaveChatbot}
               disabled={savingChatbot || !chatbotActive}
-              className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white btn-save-success"
+              className="bg-blue-600 hover:bg-blue-700 text-white btn-save-success"
             >
               {savingChatbot ? '...' : t.settings.updatePassword ? t.common.save || 'Save' : 'Save'}
             </Button>
@@ -309,7 +309,7 @@ export default function CompanySettingsContent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-teal-600" />
+              <Shield className="h-5 w-5 text-blue-600" />
               {t.settings.security}
             </CardTitle>
             <CardDescription>{t.settings.securityDesc}</CardDescription>
@@ -327,7 +327,7 @@ export default function CompanySettingsContent() {
               <Label htmlFor="confirm-new-password">{t.settings.confirmPassword}</Label>
               <Input id="confirm-new-password" type="password" placeholder={t.settings.confirmPasswordPlaceholder} className="focus-ring" />
             </div>
-            <Button className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white btn-save-success">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white btn-save-success">
               {t.settings.updatePassword}
             </Button>
           </CardContent>

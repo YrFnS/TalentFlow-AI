@@ -142,7 +142,7 @@ export function SocialLoginStatus({ userId }: SocialLoginStatusProps) {
           <CardTitle className="text-lg">{t.socialLogin.connectedAccounts}</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-teal-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
         </CardContent>
       </Card>
     );
@@ -171,7 +171,7 @@ export function SocialLoginStatus({ userId }: SocialLoginStatusProps) {
                   <div>
                     <p className="font-medium text-sm">{provider.name}</p>
                     {connected ? (
-                      <Badge variant="secondary" className="mt-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-0">
+                      <Badge variant="secondary" className="mt-1 bg-emerald-50 text-emerald-700 border-0">
                         <CheckCircle2 className="w-3 h-3 me-1" />
                         {t.socialLogin.connected}
                       </Badge>

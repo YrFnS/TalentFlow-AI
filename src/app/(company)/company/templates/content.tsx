@@ -79,13 +79,13 @@ export default function TemplatesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold">{t.templates.title}</h1>
-          <Badge variant="secondary" className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+          <Badge variant="secondary" className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
             {initialTemplates.length}
           </Badge>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md">
+            <Button className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md">
               <Plus className="w-4 h-4 me-2" />
               {t.templates.createTemplate}
             </Button>
@@ -132,7 +132,7 @@ export default function TemplatesPage() {
                 <Button variant="outline">{t.common.cancel}</Button>
               </DialogClose>
               <Button
-                className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white"
+                className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white"
                 onClick={() => setDialogOpen(false)}
               >
                 {t.templates.saveTemplate}
@@ -184,7 +184,7 @@ export default function TemplatesPage() {
                       <CardTitle className="text-sm font-semibold leading-tight truncate">
                         {template.name}
                       </CardTitle>
-                      <Badge variant="secondary" className="mt-1.5 text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                      <Badge variant="secondary" className="mt-1.5 text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                         {categoryLabel}
                       </Badge>
                     </div>
@@ -204,7 +204,7 @@ export default function TemplatesPage() {
                   <div className="flex gap-2 pt-1">
                     <Button
                       size="sm"
-                      className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs h-8"
+                      className="flex-1 bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs h-8"
                     >
                       {t.templates.useTemplate}
                     </Button>
@@ -220,13 +220,13 @@ export default function TemplatesPage() {
       ) : (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/30 mb-4">
-              <FileText className="w-8 h-8 text-teal-500" />
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4">
+              <FileText className="w-8 h-8 text-blue-500" />
             </div>
             <h3 className="text-lg font-semibold mb-1">{t.templates.emptyTitle}</h3>
             <p className="text-sm text-muted-foreground max-w-sm">{t.templates.emptyDesc}</p>
             <Button
-              className="mt-4 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white"
+              className="mt-4 bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white"
               onClick={() => setDialogOpen(true)}
             >
               <Plus className="w-4 h-4 me-2" />

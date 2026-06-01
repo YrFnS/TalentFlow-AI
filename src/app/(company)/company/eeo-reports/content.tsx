@@ -92,7 +92,7 @@ export default function EEOReportsContent() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
           {t.eeo.companySummary}
         </h1>
         <p className="text-muted-foreground mt-1">{t.eeo.subtitle}</p>
@@ -100,22 +100,22 @@ export default function EEOReportsContent() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-10" />
+        <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-10" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t.eeo.responseRate}</p>
                 <p className="text-3xl font-bold mt-1">{responseRate}%</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
                 <Users className="h-6 w-6" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+        <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-10" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
@@ -123,14 +123,14 @@ export default function EEOReportsContent() {
                 <p className="text-sm text-muted-foreground">{t.eeo.applicantPoolDiversity}</p>
                 <p className="text-3xl font-bold mt-1">{totalApplicants}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-lg">
                 <BarChart3 className="h-6 w-6" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+        <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up" style={{ animationDelay: '200ms' }}>
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-teal-600 opacity-10" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
@@ -138,14 +138,14 @@ export default function EEOReportsContent() {
                 <p className="text-sm text-muted-foreground">{t.eeo.diversityScore}</p>
                 <p className="text-3xl font-bold mt-1">{diversityScore}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 text-white shadow-lg">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-600 text-white shadow-lg">
                 <Target className="h-6 w-6" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+        <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up" style={{ animationDelay: '300ms' }}>
           <div className="absolute inset-0 bg-gradient-to-br from-teal-600 to-emerald-700 opacity-10" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
@@ -181,7 +181,7 @@ export default function EEOReportsContent() {
           <Card className="border-border/50 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <BarChart3 className="h-4 w-4 text-blue-600" />
                 {t.eeo.gender} — {t.eeo.applicantDemographics} vs {t.eeo.hiredDemographics}
               </CardTitle>
             </CardHeader>
@@ -211,7 +211,7 @@ export default function EEOReportsContent() {
           <Card className="border-border/50 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <BarChart3 className="h-4 w-4 text-emerald-600" />
                 {t.eeo.ethnicity} — {t.eeo.applicantDemographics} vs {t.eeo.hiredDemographics}
               </CardTitle>
             </CardHeader>
@@ -248,7 +248,7 @@ export default function EEOReportsContent() {
         <Card className="border-border/50 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <TrendingUp className="h-4 w-4 text-blue-600" />
               {t.eeo.trendAnalysis}
             </CardTitle>
             <CardDescription>{t.eeo.monthOverMonth} {t.eeo.diversityScore}</CardDescription>
@@ -293,9 +293,9 @@ export default function EEOReportsContent() {
                   </defs>
                 </svg>
                 {trendData.length >= 2 && (
-                  <div className="flex items-center gap-2 mt-3 p-2 rounded-lg bg-teal-50 dark:bg-teal-950/20">
-                    <ArrowUpRight className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                    <span className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">
+                  <div className="flex items-center gap-2 mt-3 p-2 rounded-lg bg-slate-50">
+                    <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                    <span className="text-sm text-emerald-700 font-medium">
                       {trendData[trendData.length - 1].diversityScore - trendData[0].diversityScore > 0 ? '+' : ''}
                       {trendData[trendData.length - 1].diversityScore - trendData[0].diversityScore} pts
                     </span>
@@ -311,7 +311,7 @@ export default function EEOReportsContent() {
         <Card className="border-border/50 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <ShieldCheck className="h-4 w-4 text-blue-600" />
               {t.eeo.complianceStatus}
             </CardTitle>
             <CardDescription>EEO-1 Report Readiness</CardDescription>
@@ -327,8 +327,8 @@ export default function EEOReportsContent() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">{readyCount}/{complianceItems.length} {t.eeo.ready}</span>
                   <Badge className={compliancePercent >= 75
-                    ? 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0'
-                    : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0'
+                    ? 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0'
+                    : 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0'
                   }>
                     {compliancePercent}%
                   </Badge>
@@ -348,8 +348,8 @@ export default function EEOReportsContent() {
                       <span className="text-sm flex-1">{item.label}</span>
                       <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
                         item.ready
-                          ? 'border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400'
-                          : 'border-red-200 text-red-700 dark:border-red-800 dark:text-red-400'
+                          ? 'border-emerald-200 text-emerald-700 dark:border-emerald-800'
+                          : 'border-red-200 text-red-700 dark:border-red-800'
                       }`}>
                         {item.ready ? t.eeo.ready : t.eeo.notReady}
                       </Badge>
@@ -366,7 +366,7 @@ export default function EEOReportsContent() {
       <Card className="border-border/50 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <Lightbulb className="h-4 w-4 text-blue-600" />
             {t.eeo.actionItems}
           </CardTitle>
           <CardDescription>AI-generated suggestions for improving diversity and inclusion</CardDescription>
@@ -386,10 +386,10 @@ export default function EEOReportsContent() {
                 >
                   <div className={`flex h-8 w-8 items-center justify-center rounded-lg shrink-0 ${
                     rec.priority === 'high'
-                      ? 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400'
+                      ? 'bg-red-50 text-red-600 dark:bg-red-950/30'
                       : rec.priority === 'medium'
-                      ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
-                      : 'bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400'
+                      ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/30'
+                      : 'bg-slate-50 text-blue-600 dark:bg-teal-950'
                   }`}>
                     {rec.priority === 'high' ? (
                       <AlertTriangle className="h-4 w-4" />
@@ -405,10 +405,10 @@ export default function EEOReportsContent() {
                   </div>
                   <Badge variant="outline" className={`text-[10px] px-1.5 py-0 shrink-0 ${
                     rec.priority === 'high'
-                      ? 'border-red-200 text-red-700 dark:border-red-800 dark:text-red-400'
+                      ? 'border-red-200 text-red-700 dark:border-red-800'
                       : rec.priority === 'medium'
-                      ? 'border-amber-200 text-amber-700 dark:border-amber-800 dark:text-amber-400'
-                      : 'border-teal-200 text-teal-700 dark:border-teal-800 dark:text-teal-400'
+                      ? 'border-amber-200 text-amber-700 dark:border-amber-800'
+                      : 'border-slate-200 text-blue-700'
                   }`}>
                     {rec.priority}
                   </Badge>

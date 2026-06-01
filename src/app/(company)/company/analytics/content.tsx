@@ -239,7 +239,7 @@ export default function AnalyticsPage() {
       icon: FileText,
       trend: '',
       trendUp: true,
-      gradient: 'from-teal-500 to-emerald-600',
+      gradient: 'bg-blue-600',
     },
     {
       title: t.dashboard.interviewsToday,
@@ -274,13 +274,13 @@ export default function AnalyticsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-teal-500" />
+            <BarChart3 className="h-6 w-6 text-blue-500" />
             {t.nav.analytics}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">{t.dashboard.overview}</p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+          <Sparkles className="w-3.5 h-3.5 text-blue-500" />
           {t.common.poweredBy}
         </div>
       </div>
@@ -303,7 +303,7 @@ export default function AnalyticsPage() {
                       ) : (
                         <ArrowDownRight className="w-3 h-3 text-red-500" />
                       )}
-                      <span className={`text-xs font-medium ${card.trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                      <span className={`text-xs font-medium ${card.trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
                         {card.trend}
                       </span>
                       <span className="text-xs text-muted-foreground">vs last month</span>
@@ -352,7 +352,7 @@ export default function AnalyticsPage() {
             </div>
             <div className="flex justify-center gap-6 mt-2">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded bg-teal-500" />
+                <div className="w-3 h-3 rounded bg-slate-500" />
                 <span className="text-xs text-muted-foreground">Applications</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -397,7 +397,7 @@ export default function AnalyticsPage() {
             <div className="pt-3 border-t mt-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Conversion Rate</span>
-                <span className="text-xs font-semibold text-teal-600 dark:text-teal-400">
+                <span className="text-xs font-semibold text-blue-600">
                   {data.hiringFunnel[0]?.count > 0
                     ? Math.round((data.hiringFunnel[data.hiringFunnel.length - 1]?.count / data.hiringFunnel[0].count) * 100)
                     : 0}
@@ -484,7 +484,7 @@ export default function AnalyticsPage() {
                       <TableRow key={i} className="hover:bg-accent/30">
                         <TableCell className="font-medium text-sm">
                           <div className="flex items-center gap-2">
-                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px] font-bold">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white text-[10px] font-bold">
                               {i + 1}
                             </div>
                             <span className="truncate">{job.title}</span>
@@ -497,12 +497,12 @@ export default function AnalyticsPage() {
                           <Badge variant="secondary" className="text-[10px]">{job.interviews}</Badge>
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0">{job.hired}</Badge>
+                          <Badge className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0">{job.hired}</Badge>
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex items-center justify-center gap-1">
-                            <Target className="h-3 w-3 text-teal-500" />
-                            <span className="text-xs font-medium text-teal-700 dark:text-teal-400">{job.avgMatch}%</span>
+                            <Target className="h-3 w-3 text-blue-500" />
+                            <span className="text-xs font-medium text-blue-700">{job.avgMatch}%</span>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -514,7 +514,7 @@ export default function AnalyticsPage() {
                 <div className="flex items-center justify-between mt-4 pt-3 border-t">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Briefcase className="h-3.5 w-3.5 text-teal-500" />
+                      <Briefcase className="h-3.5 w-3.5 text-blue-500" />
                       <span>{data.topJobs.reduce((sum, j) => sum + j.applications, 0)} total applications</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -523,8 +523,8 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 text-xs">
-                    <TrendingUp className="h-3.5 w-3.5 text-teal-500" />
-                    <span className="font-medium text-teal-700 dark:text-teal-400">
+                    <TrendingUp className="h-3.5 w-3.5 text-blue-500" />
+                    <span className="font-medium text-blue-700">
                       {Math.round(data.topJobs.reduce((sum, j) => sum + j.avgMatch, 0) / data.topJobs.length)}% avg match
                     </span>
                   </div>

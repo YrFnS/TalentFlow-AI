@@ -19,7 +19,7 @@ interface TalentPoolCardProps {
 export default function TalentPoolCard({ pool, isActive, onSelect, t }: TalentPoolCardProps) {
   return (
     <Card
-      className="border-border/50 card-hover-lift cursor-pointer hover:border-teal-300 dark:hover:border-teal-700 transition-all"
+      className="border-border/50 card-cursor-pointer hover:border-slate-300 transition-all"
       onClick={() => onSelect(pool.id)}
     >
       <CardContent className="p-4">
@@ -45,7 +45,7 @@ export default function TalentPoolCard({ pool, isActive, onSelect, t }: TalentPo
         </div>
         {isActive && (
           <div className="mt-2 pt-2 border-t border-border/30">
-            <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+            <Badge className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
               ✓ Filtering
             </Badge>
           </div>

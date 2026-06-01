@@ -108,7 +108,7 @@ const samplePreviews = [
     job: 'Senior Frontend Engineer',
     action: 'applied for',
     colorClass: 'border-l-teal-500',
-    bgClass: 'bg-teal-50 dark:bg-teal-950/20',
+    bgClass: 'bg-slate-50',
   },
   {
     event: 'Interview Scheduled',
@@ -194,16 +194,16 @@ export default function IntegrationsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Plug className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{it.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{it.title}</h1>
             <p className="text-sm text-muted-foreground">{it.subtitle}</p>
           </div>
         </div>
         <Button
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
           onClick={handleSave}
         >
           <Save className="h-4 w-4 me-2" />
@@ -214,7 +214,7 @@ export default function IntegrationsContent() {
       {/* Integration Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Slack Integration */}
-        <Card className="border-border/50 card-hover-lift">
+        <Card className="border-border/50 card-">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -227,7 +227,7 @@ export default function IntegrationsContent() {
                 {slack.connected ? (
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 rounded-full bg-emerald-500 status-dot-green" />
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400">{it.connected}</span>
+                    <span className="text-[10px] text-emerald-600">{it.connected}</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1">
@@ -265,7 +265,7 @@ export default function IntegrationsContent() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full gap-1.5 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                className="w-full gap-1.5 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                 onClick={() => handleTestConnection('slack')}
                 disabled={testingSlack}
               >
@@ -281,7 +281,7 @@ export default function IntegrationsContent() {
         </Card>
 
         {/* Teams Integration */}
-        <Card className="border-border/50 card-hover-lift">
+        <Card className="border-border/50 card-">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -294,7 +294,7 @@ export default function IntegrationsContent() {
                 {teams.connected ? (
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 rounded-full bg-emerald-500 status-dot-green" />
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400">{it.connected}</span>
+                    <span className="text-[10px] text-emerald-600">{it.connected}</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1">
@@ -332,7 +332,7 @@ export default function IntegrationsContent() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full gap-1.5 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                className="w-full gap-1.5 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                 onClick={() => handleTestConnection('teams')}
                 disabled={testingTeams}
               >
@@ -351,10 +351,10 @@ export default function IntegrationsContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Event Notifications */}
         <div className="lg:col-span-2">
-          <Card className="border-border/50 card-hover-lift">
+          <Card className="border-border/50 card-">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Bell className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Bell className="h-4 w-4 text-blue-600" />
                 {it.eventNotifications}
               </CardTitle>
             </CardHeader>
@@ -366,7 +366,7 @@ export default function IntegrationsContent() {
                     className={cn(
                       'flex items-center justify-between p-2.5 rounded-lg border transition-all',
                       events[evt.key]
-                        ? 'border-teal-200 bg-teal-50/50 dark:border-teal-800 dark:bg-teal-950/20'
+                        ? 'border-slate-200 bg-slate-50'
                         : 'border-border/50 bg-muted/20'
                     )}
                   >
@@ -374,7 +374,7 @@ export default function IntegrationsContent() {
                       <div
                         className={cn(
                           'w-2 h-2 rounded-full',
-                          events[evt.key] ? 'bg-teal-500' : 'bg-gray-300 dark:bg-gray-600'
+                          events[evt.key] ? 'bg-slate-500' : 'bg-gray-300 dark:bg-gray-600'
                         )}
                       />
                       <span className="text-xs font-medium">{it[evt.labelKey]}</span>
@@ -393,10 +393,10 @@ export default function IntegrationsContent() {
 
         {/* Notification Preview */}
         <div>
-          <Card className="border-border/50 card-hover-lift">
+          <Card className="border-border/50 card-">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Wifi className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Wifi className="h-4 w-4 text-blue-600" />
                 {it.notificationPreview}
               </CardTitle>
             </CardHeader>
@@ -427,10 +427,10 @@ export default function IntegrationsContent() {
       </div>
 
       {/* Activity Log */}
-      <Card className="border-border/50 card-hover-lift">
+      <Card className="border-border/50 card-">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Activity className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <Activity className="h-4 w-4 text-blue-600" />
             {it.activityLog}
           </CardTitle>
         </CardHeader>
@@ -470,8 +470,8 @@ export default function IntegrationsContent() {
                         className={cn(
                           'text-[10px] gap-1 border-0',
                           entry.status === 'sent'
-                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
-                            : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
+                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
+                            : 'bg-red-50 text-red-700 dark:bg-red-950'
                         )}
                       >
                         {entry.status === 'sent' ? (
@@ -493,7 +493,7 @@ export default function IntegrationsContent() {
       {/* Save Button (mobile) */}
       <div className="lg:hidden">
         <Button
-          className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="w-full bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
           onClick={handleSave}
         >
           <Save className="h-4 w-4 me-2" />

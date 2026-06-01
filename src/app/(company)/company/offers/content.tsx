@@ -78,12 +78,12 @@ interface Offer {
 
 const statusColors: Record<OfferStatus, string> = {
   Draft: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 border-0',
-  Pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Sent: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  Accepted: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  Declined: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
-  Withdrawn: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 border-0',
-  Expired: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 border-0',
+  Pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Sent: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  Accepted: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  Declined: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
+  Withdrawn: 'bg-neutral-100 text-neutral-700 border-0',
+  Expired: 'bg-neutral-100 text-neutral-700 border-0',
 };
 
 const statusIcons: Record<OfferStatus, React.ElementType> = {
@@ -98,11 +98,11 @@ const statusIcons: Record<OfferStatus, React.ElementType> = {
 
 const signingStatusColors: Record<SigningStatus, string> = {
   PENDING: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 border-0',
-  SENT: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  CANDIDATE_SIGNED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  COMPLETED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  EXPIRED: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 border-0',
-  DECLINED: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  SENT: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  CANDIDATE_SIGNED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  COMPLETED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  EXPIRED: 'bg-neutral-100 text-neutral-700 border-0',
+  DECLINED: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 const signingStatusIcons: Record<SigningStatus, React.ElementType> = {
@@ -354,7 +354,7 @@ TechVision Inc.`;
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 end-4 z-50 animate-fade-in-up">
-          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 shadow-lg border border-emerald-200 dark:border-emerald-800">
+          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 shadow-lg border border-emerald-200 dark:border-emerald-800">
             <CheckCircle2 className="h-4 w-4" />
             <span className="text-sm font-medium">{toast}</span>
           </div>
@@ -364,16 +364,16 @@ TechVision Inc.`;
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <FileCheck className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{ot.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{ot.title}</h1>
             <p className="text-sm text-muted-foreground">{ot.subtitle}</p>
           </div>
         </div>
         <Button
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
           onClick={() => {
             setFormData({});
             setCreateLetter('');
@@ -387,11 +387,11 @@ TechVision Inc.`;
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 card-relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <FileCheck className="h-4 w-4" />
               </div>
               <div>
@@ -401,11 +401,11 @@ TechVision Inc.`;
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -415,11 +415,11 @@ TechVision Inc.`;
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -429,11 +429,11 @@ TechVision Inc.`;
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-rose-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-950 text-red-600">
                 <XCircle className="h-4 w-4" />
               </div>
               <div>
@@ -466,7 +466,7 @@ TechVision Inc.`;
             placeholder={ot.searchOffers}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+            className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-blue-500/50"
           />
         </div>
       </div>
@@ -475,7 +475,7 @@ TechVision Inc.`;
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <FileText className="h-4 w-4 text-blue-600" />
             {ot.title}
           </CardTitle>
         </CardHeader>
@@ -505,7 +505,7 @@ TechVision Inc.`;
                       <td className="p-3">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-7 w-7">
-                            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[9px]">
+                            <AvatarFallback className="bg-blue-600 text-white text-[9px]">
                               {offer.candidateInitials}
                             </AvatarFallback>
                           </Avatar>
@@ -554,7 +554,7 @@ TechVision Inc.`;
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 px-2 text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700"
+                              className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700"
                               onClick={() => showToast(ot.offerSent)}
                             >
                               <Send className="h-3 w-3 me-1" />
@@ -564,7 +564,7 @@ TechVision Inc.`;
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 px-2 text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700"
+                              className="h-7 px-2 text-xs text-emerald-600 hover:text-emerald-700"
                               onClick={() => showToast(est.signatureSent)}
                               title={est.sendForSignature}
                             >
@@ -605,7 +605,7 @@ TechVision Inc.`;
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <FileCheck className="h-5 w-5 text-teal-600" />
+              <FileCheck className="h-5 w-5 text-blue-600" />
               {ot.viewDetails}
             </DialogTitle>
           </DialogHeader>
@@ -615,14 +615,14 @@ TechVision Inc.`;
               <Card className="border-border/50">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <User className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <User className="h-4 w-4 text-blue-600" />
                     {ot.candidateInfo}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                      <AvatarFallback className="bg-blue-600 text-white">
                         {selectedOffer.candidateInitials}
                       </AvatarFallback>
                     </Avatar>
@@ -645,7 +645,7 @@ TechVision Inc.`;
               <Card className="border-border/50">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <Building2 className="h-4 w-4 text-blue-600" />
                     {ot.jobInfo}
                   </CardTitle>
                 </CardHeader>
@@ -679,7 +679,7 @@ TechVision Inc.`;
               {/* Offer Terms */}
               <div>
                 <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <DollarSign className="h-4 w-4 text-blue-600" />
                   {ot.offerTerms}
                 </h3>
                 <OfferTermsForm offer={selectedOffer} t={ot} onChange={() => {}} />
@@ -689,13 +689,13 @@ TechVision Inc.`;
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <FileText className="h-4 w-4 text-blue-600" />
                     {ot.offerLetter}
                   </h3>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-1.5 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                    className="gap-1.5 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                     onClick={generateOfferLetter}
                     disabled={generatingLetter}
                   >
@@ -732,7 +732,7 @@ TechVision Inc.`;
                     </Button>
                     <Button
                       size="sm"
-                      className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                      className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
                       onClick={() => {
                         showToast(ot.offerSent);
                         setDetailOpen(false);
@@ -768,7 +768,7 @@ TechVision Inc.`;
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-teal-600" />
+              <Plus className="h-5 w-5 text-blue-600" />
               {ot.createOffer}
             </DialogTitle>
           </DialogHeader>
@@ -809,7 +809,7 @@ TechVision Inc.`;
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                      <AvatarFallback className="bg-blue-600 text-white text-xs">
                         {formData.candidateInitials}
                       </AvatarFallback>
                     </Avatar>
@@ -843,13 +843,13 @@ TechVision Inc.`;
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <FileText className="h-4 w-4 text-blue-600" />
                   {ot.offerLetter}
                 </h3>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                  className="gap-1.5 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                   onClick={generateCreateLetter}
                   disabled={generatingCreateLetter}
                 >
@@ -881,7 +881,7 @@ TechVision Inc.`;
               {ot.saveDraft}
             </Button>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               onClick={() => handleCreateOffer('send')}
             >
               <Send className="h-3.5 w-3.5 me-1.5" />

@@ -63,15 +63,15 @@ interface LeaveEntry {
 }
 
 const leaveTypeConfig: Record<LeaveType, { label: string; color: string; icon: React.ElementType }> = {
-  annual: { label: 'Annual Leave', color: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0', icon: Sun },
+  annual: { label: 'Annual Leave', color: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0', icon: Sun },
   sick: { label: 'Sick Leave', color: 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400 border-0', icon: Heart },
-  personal: { label: 'Personal Leave', color: 'bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-400 border-0', icon: User },
+  personal: { label: 'Personal Leave', color: 'bg-violet-50 text-violet-700 dark:bg-violet-950 border-0', icon: User },
 };
 
 const statusConfig: Record<LeaveStatus, { label: string; color: string; icon: React.ElementType }> = {
-  approved: { label: 'Approved', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: CheckCircle2 },
-  pending: { label: 'Pending', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: Clock },
-  rejected: { label: 'Rejected', color: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0', icon: XCircle },
+  approved: { label: 'Approved', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: CheckCircle2 },
+  pending: { label: 'Pending', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: Clock },
+  rejected: { label: 'Rejected', color: 'bg-red-50 text-red-700 dark:bg-red-950 border-0', icon: XCircle },
 };
 
 const leaves: LeaveEntry[] = [];
@@ -117,7 +117,7 @@ export default function LeavePage() {
   const historyLeaves = leaves.filter((l) => l.status !== 'pending');
 
   const leaveBalances = [
-    { label: t.leave.annualLeave, used: 0, total: 0, icon: Sun, color: 'from-teal-500 to-emerald-600' },
+    { label: t.leave.annualLeave, used: 0, total: 0, icon: Sun, color: 'bg-blue-600' },
     { label: t.leave.sickLeave, used: 0, total: 0, icon: Heart, color: 'from-rose-500 to-pink-600' },
     { label: t.leave.personalLeave, used: 0, total: 0, icon: User, color: 'from-violet-500 to-purple-600' },
     { label: t.leave.totalUsed, used: 0, total: 0, icon: Calendar, color: 'from-amber-500 to-orange-600' },
@@ -128,7 +128,7 @@ export default function LeavePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Calendar className="h-5 w-5" />
           </div>
           <div>
@@ -138,7 +138,7 @@ export default function LeavePage() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
               <Plus className="h-4 w-4 me-2" />
               {t.leave.requestLeave}
             </Button>
@@ -187,7 +187,7 @@ export default function LeavePage() {
               <DialogClose asChild>
                 <Button variant="outline">{t.leave.cancel}</Button>
               </DialogClose>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 {t.leave.submitRequest}
               </Button>
             </DialogFooter>
@@ -198,7 +198,7 @@ export default function LeavePage() {
       {/* Leave Balance Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {leaveBalances.map((bal) => (
-          <Card key={bal.label} className="border-border/50 stat-card-shine">
+          <Card key={bal.label} className="border-border/50 ">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br text-white', bal.color)}>
@@ -264,8 +264,8 @@ export default function LeavePage() {
                     key={dateStr}
                     className={cn(
                       'h-8 flex flex-col items-center justify-center rounded-md text-xs relative',
-                      hasApproved && 'bg-teal-100 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400',
-                      hasPending && 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400',
+                      hasApproved && 'bg-teal-100 text-blue-700',
+                      hasPending && 'bg-amber-100 dark:bg-amber-950/50 text-amber-700',
                       !hasApproved && !hasPending && 'hover:bg-muted/50',
                     )}
                   >
@@ -277,7 +277,7 @@ export default function LeavePage() {
                             key={li}
                             className={cn(
                               'w-1 h-1 rounded-full',
-                              l.status === 'approved' && 'bg-teal-500',
+                              l.status === 'approved' && 'bg-slate-500',
                               l.status === 'pending' && 'bg-amber-500',
                               l.status === 'rejected' && 'bg-red-500',
                             )}
@@ -291,7 +291,7 @@ export default function LeavePage() {
             </div>
             <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/50">
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-teal-500" />
+                <div className="w-2 h-2 rounded-full bg-slate-500" />
                 <span className="text-[10px] text-muted-foreground">{t.leave.approved}</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -307,7 +307,7 @@ export default function LeavePage() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <Clock className="h-4 w-4 text-amber-600" />
                 {t.leave.pendingRequests} ({pendingLeaves.length})
               </CardTitle>
             </CardHeader>
@@ -321,7 +321,7 @@ export default function LeavePage() {
                   return (
                     <div key={leave.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
                       <Avatar className="h-8 w-8 shrink-0">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px]">
+                        <AvatarFallback className="bg-blue-600 text-white text-[10px]">
                           {leave.avatar}
                         </AvatarFallback>
                       </Avatar>
@@ -338,11 +338,11 @@ export default function LeavePage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/30">
+                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:hover:bg-emerald-950/30">
                           <CheckCircle2 className="h-3 w-3 me-1" />
                           {t.leave.approve}
                         </Button>
-                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/30">
+                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-950/30">
                           <XCircle className="h-3 w-3 me-1" />
                           {t.leave.reject}
                         </Button>
@@ -381,7 +381,7 @@ export default function LeavePage() {
                         <TableCell className="text-sm py-2">
                           <div className="flex items-center gap-2">
                             <Avatar className="h-6 w-6">
-                              <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[8px]">
+                              <AvatarFallback className="bg-blue-600 text-white text-[8px]">
                                 {leave.avatar}
                               </AvatarFallback>
                             </Avatar>

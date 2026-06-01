@@ -98,10 +98,10 @@ interface OnboardingAssignment {
 
 // ── Category config ────────────────────────────────────────────────
 const categoryBadgeColors: Record<TaskCategory, string> = {
-  Document: 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0',
+  Document: 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0',
   Training: 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400 border-0',
-  Setup: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  Introduction: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
+  Setup: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  Introduction: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
   General: 'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-400 border-0',
 };
 
@@ -115,9 +115,9 @@ const categoryIcons: Record<TaskCategory, React.ElementType> = {
 
 const statusBadgeColors: Record<OnboardingStatus, string> = {
   Pending: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 border-0',
-  'In Progress': 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  Completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  Overdue: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  'In Progress': 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  Completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  Overdue: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 // ── Mock data ──────────────────────────────────────────────────────
@@ -460,11 +460,11 @@ export default function OnboardingContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <ClipboardCheck className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{ot.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{ot.title}</h1>
             <p className="text-sm text-muted-foreground">{ot.subtitle}</p>
           </div>
         </div>
@@ -472,14 +472,14 @@ export default function OnboardingContent() {
           <Button
             variant="outline"
             size="sm"
-            className="border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+            className="border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
             onClick={() => setTriggerOpen(true)}
           >
             <PlayCircle className="h-4 w-4 me-2" />
             {ot.triggerOnboarding}
           </Button>
           <Button
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+            className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
             onClick={() => setCreatePlanOpen(true)}
           >
             <Plus className="h-4 w-4 me-2" />
@@ -490,11 +490,11 @@ export default function OnboardingContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 card-relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <UserPlus className="h-4 w-4" />
               </div>
               <div>
@@ -504,11 +504,11 @@ export default function OnboardingContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -518,11 +518,11 @@ export default function OnboardingContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -532,11 +532,11 @@ export default function OnboardingContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-rose-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-950 text-red-600">
                 <AlertCircle className="h-4 w-4" />
               </div>
               <div>
@@ -551,19 +551,19 @@ export default function OnboardingContent() {
       {/* Onboarding Plans Section */}
       <div>
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <ClipboardCheck className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <ClipboardCheck className="h-5 w-5 text-blue-600" />
           {ot.plans}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {plans.map((plan) => (
-            <Card key={plan.id} className="border-border/50 card-hover-lift">
+            <Card key={plan.id} className="border-border/50 card-">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-sm font-semibold">{plan.name}</CardTitle>
                   <Badge className={cn(
                     'text-[10px] border-0',
                     plan.isActive
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
                       : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
                   )}>
                     {plan.isActive ? ot.planActive : ot.planInactive}
@@ -596,7 +596,7 @@ export default function OnboardingContent() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                  className="w-full text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                   onClick={() => handleTogglePlanActive(plan.id)}
                 >
                   {plan.isActive ? ot.planInactive : ot.planActive}
@@ -605,14 +605,14 @@ export default function OnboardingContent() {
             </Card>
           ))}
           <Card
-            className="border-dashed border-2 border-teal-300 dark:border-teal-700 card-hover-lift cursor-pointer hover:bg-teal-50/50 dark:hover:bg-teal-950/20 transition-colors"
+            className="border-dashed border-2 border-slate-300 card-cursor-pointer hover:bg-slate-50 transition-colors"
             onClick={() => setCreatePlanOpen(true)}
           >
             <CardContent className="p-6 flex flex-col items-center justify-center min-h-[180px]">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 mb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-950 text-blue-600 mb-3">
                 <Plus className="h-5 w-5" />
               </div>
-              <p className="text-sm font-medium text-teal-700 dark:text-teal-400">{ot.createPlan}</p>
+              <p className="text-sm font-medium text-blue-700">{ot.createPlan}</p>
             </CardContent>
           </Card>
         </div>
@@ -621,7 +621,7 @@ export default function OnboardingContent() {
       {/* Active Assignments Section */}
       <div>
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Users className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <Users className="h-5 w-5 text-blue-600" />
           {ot.activeAssignments}
         </h2>
 
@@ -646,7 +646,7 @@ export default function OnboardingContent() {
               placeholder={ot.searchByName}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+              className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-blue-500/50"
             />
           </div>
         </div>
@@ -661,14 +661,14 @@ export default function OnboardingContent() {
 
             return (
               <Card key={assignment.id} className={cn(
-                'border-border/50 card-hover-lift',
+                'border-border/50 card-',
                 assignment.status === 'Overdue' && 'border-red-200 dark:border-red-800'
               )}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedAssignment(isExpanded ? null : assignment.id)}>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                        <AvatarFallback className="bg-blue-600 text-white text-xs">
                           {getInitials(assignment.employeeName)}
                         </AvatarFallback>
                       </Avatar>
@@ -686,7 +686,7 @@ export default function OnboardingContent() {
                         {getStatusLabel(assignment.status)}
                       </Badge>
                       {overdueTasks > 0 && (
-                        <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0 text-[10px]">
+                        <Badge className="bg-red-50 text-red-700 dark:bg-red-950 border-0 text-[10px]">
                           <AlertCircle className="h-3 w-3 me-1" />
                           {overdueTasks} {ot.overdue}
                         </Badge>
@@ -712,7 +712,7 @@ export default function OnboardingContent() {
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-medium text-muted-foreground">{completedTasks}/{totalTasks} {ot.taskCount}</span>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-teal-600" onClick={handleSendReminder}>
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-blue-600" onClick={handleSendReminder}>
                             <Send className="h-3 w-3 me-1" /> {ot.sendReminder}
                           </Button>
                           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => handleOpenDetail(assignment)}>
@@ -777,7 +777,7 @@ export default function OnboardingContent() {
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ClipboardCheck className="h-5 w-5 text-teal-600" />
+              <ClipboardCheck className="h-5 w-5 text-blue-600" />
               {ot.newHireDetail}
             </DialogTitle>
           </DialogHeader>
@@ -787,14 +787,14 @@ export default function OnboardingContent() {
               <Card className="border-border/50">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <UserPlus className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <UserPlus className="h-4 w-4 text-blue-600" />
                     {ot.employee}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                      <AvatarFallback className="bg-blue-600 text-white">
                         {getInitials(selectedAssignment.employeeName)}
                       </AvatarFallback>
                     </Avatar>
@@ -816,7 +816,7 @@ export default function OnboardingContent() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{ot.progress}</span>
-                  <span className="text-sm font-bold text-teal-600 dark:text-teal-400">{selectedAssignment.progress}%</span>
+                  <span className="text-sm font-bold text-blue-600">{selectedAssignment.progress}%</span>
                 </div>
                 <Progress value={selectedAssignment.progress} className="h-3" />
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -832,7 +832,7 @@ export default function OnboardingContent() {
               {/* Task Checklist by Category */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <CheckCircle2 className="h-4 w-4 text-blue-600" />
                   {ot.tasks}
                 </h3>
                 <ScrollArea className="max-h-[400px]">
@@ -848,7 +848,7 @@ export default function OnboardingContent() {
                               'flex h-6 w-6 items-center justify-center rounded-md text-white text-[10px]',
                               cat === 'Document' ? 'bg-blue-500' :
                               cat === 'Training' ? 'bg-purple-500' :
-                              cat === 'Setup' ? 'bg-teal-500' :
+                              cat === 'Setup' ? 'bg-slate-500' :
                               cat === 'Introduction' ? 'bg-amber-500' :
                               'bg-gray-500'
                             )}>
@@ -877,7 +877,7 @@ export default function OnboardingContent() {
                                   />
                                   <span className={cn('flex-1 text-xs', task.isCompleted && 'line-through')}>{task.title}</span>
                                   {task.isRequired && (
-                                    <Badge className="text-[8px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">{ot.required}</Badge>
+                                    <Badge className="text-[8px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">{ot.required}</Badge>
                                   )}
                                   {!task.isRequired && (
                                     <Badge className="text-[8px] bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-0">{ot.optional}</Badge>
@@ -914,7 +914,7 @@ export default function OnboardingContent() {
                 {selectedAssignment.status !== 'Completed' && (
                   <Button
                     size="sm"
-                    className="text-xs bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+                    className="text-xs bg-gradient-to-r bg-blue-600 text-white"
                     onClick={handleMarkAllComplete}
                   >
                     <CheckCircle2 className="h-3 w-3 me-1" />
@@ -932,7 +932,7 @@ export default function OnboardingContent() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-teal-600" />
+              <Sparkles className="h-5 w-5 text-blue-600" />
               {ot.createPlan}
             </DialogTitle>
           </DialogHeader>
@@ -1045,7 +1045,7 @@ export default function OnboardingContent() {
             </DialogClose>
             <Button
               size="sm"
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+              className="bg-gradient-to-r bg-blue-600 text-white"
               onClick={handleCreatePlan}
             >
               {ot.createPlan}
@@ -1059,7 +1059,7 @@ export default function OnboardingContent() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <PlayCircle className="h-5 w-5 text-teal-600" />
+              <PlayCircle className="h-5 w-5 text-blue-600" />
               {ot.triggerOnboarding}
             </DialogTitle>
           </DialogHeader>
@@ -1106,7 +1106,7 @@ export default function OnboardingContent() {
             </DialogClose>
             <Button
               size="sm"
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+              className="bg-gradient-to-r bg-blue-600 text-white"
               onClick={handleTriggerOnboarding}
             >
               <PlayCircle className="h-3.5 w-3.5 me-1" />

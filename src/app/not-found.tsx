@@ -10,7 +10,7 @@ export default function NotFound() {
       <div className="text-center space-y-4">
         <div className="flex justify-center">
           <div className="h-20 w-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-            <ShieldAlert className="h-10 w-10 text-red-600 dark:text-red-400" />
+            <ShieldAlert className="h-10 w-10 text-red-600" />
           </div>
         </div>
         <h1 className="text-4xl font-bold">403 - Access Denied</h1>
@@ -23,7 +23,7 @@ export default function NotFound() {
             <Button variant="outline">Go Home</Button>
           </Link>
           <Link href="/auth/login">
-            <Button className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
+            <Button className="bg-blue-600 text-white">
               Sign In
             </Button>
           </Link>

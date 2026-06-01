@@ -216,15 +216,15 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6" dir={dir}>
         <div className="max-w-md w-full text-center animate-fade-in-up">
           <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
+            <CheckCircle2 className="w-10 h-10 text-emerald-600" />
           </div>
           <h1 className="text-2xl font-bold mb-2">{t.quickApply.successTitle}</h1>
           <p className="text-muted-foreground mb-4">{t.quickApply.successMessage}</p>
           <div className="bg-muted/50 rounded-lg p-4 mb-6">
             <p className="text-xs text-muted-foreground mb-1">{t.quickApply.successAppId}</p>
-            <p className="text-lg font-mono font-bold text-teal-600 dark:text-teal-400">{applicationId}</p>
+            <p className="text-lg font-mono font-bold text-blue-600">{applicationId}</p>
           </div>
-          <Button onClick={() => window.location.href = '/'} className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white h-12">
+          <Button onClick={() => window.location.href = '/'} className="bg-blue-600 text-white h-12">
             {t.quickApply.successViewJobs}
           </Button>
         </div>
@@ -235,7 +235,7 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
   return (
     <div className="min-h-screen flex flex-col bg-background" dir={dir}>
       {/* Top Bar */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-lg mx-auto flex items-center h-14 px-4">
           <button onClick={() => window.history.back()} className="p-2 -ms-2 rounded-lg hover:bg-muted/50 transition-colors">
             <ArrowLeft className="w-5 h-5" />
@@ -257,18 +257,18 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
           <div className="space-y-6 animate-fade-in-up">
             {/* Text-to-Apply Badge */}
             <div className="flex items-center gap-2 justify-center">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
-                <MessageSquare className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                <span className="text-xs font-medium text-teal-700 dark:text-teal-400">{t.quickApply.textApplySubtitle}</span>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
+                <MessageSquare className="w-3.5 h-3.5 text-blue-600" />
+                <span className="text-xs font-medium text-blue-700">{t.quickApply.textApplySubtitle}</span>
               </div>
             </div>
 
             {/* Job Header Card */}
-            <Card className="card-hover-lift border-border/50 overflow-hidden">
+            <Card className="card-border-border/50 overflow-hidden">
               <div className="h-1.5 bg-gradient-to-r from-teal-500 to-emerald-500" />
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br bg-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md">
                     {job.company.logo ? (
                       <img src={job.company.logo} alt={job.company.name} className="w-12 h-12 rounded-xl object-cover" />
                     ) : (
@@ -283,7 +283,7 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
 
                 <div className="flex flex-wrap gap-2 mt-4">
                   {job.jobType && (
-                    <Badge variant="outline" className="text-xs px-2 py-0.5 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400">
+                    <Badge variant="outline" className="text-xs px-2 py-0.5 border-slate-200 text-blue-700">
                       <Briefcase className="w-3 h-3 me-1" />
                       {jobTypeLabels[job.jobType] || job.jobType}
                     </Badge>
@@ -295,14 +295,14 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
                     </Badge>
                   )}
                   {job.isRemote && (
-                    <Badge variant="outline" className="text-xs px-2 py-0.5 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+                    <Badge variant="outline" className="text-xs px-2 py-0.5 text-emerald-600 border-emerald-200 dark:border-emerald-800">
                       Remote
                     </Badge>
                   )}
                 </div>
 
                 {formatSalary() && (
-                  <div className="flex items-center gap-1.5 mt-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                  <div className="flex items-center gap-1.5 mt-3 text-sm font-semibold text-emerald-600">
                     <DollarSign className="w-4 h-4" />
                     {formatSalary()}
                     <span className="text-xs text-muted-foreground font-normal">/year</span>
@@ -312,14 +312,14 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
             </Card>
 
             {/* Simplified Apply Form */}
-            <Card className="card-hover-lift border-border/50">
+            <Card className="card-border-border/50">
               <CardContent className="p-5 space-y-5">
                 <h2 className="text-lg font-bold">{t.quickApply.quickApplyBtn}</h2>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="ta-name" className="text-sm font-medium flex items-center gap-2">
-                      <User className="w-3.5 h-3.5 text-teal-600" />
+                      <User className="w-3.5 h-3.5 text-blue-600" />
                       {t.quickApply.fullName} *
                     </Label>
                     <Input
@@ -333,7 +333,7 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="ta-email" className="text-sm font-medium flex items-center gap-2">
-                      <Mail className="w-3.5 h-3.5 text-teal-600" />
+                      <Mail className="w-3.5 h-3.5 text-blue-600" />
                       {t.quickApply.emailAddress} *
                     </Label>
                     <Input
@@ -348,7 +348,7 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="ta-phone" className="text-sm font-medium flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-teal-600" />
+                      <Phone className="w-3.5 h-3.5 text-blue-600" />
                       {t.quickApply.phoneNumber}
                     </Label>
                     <Input
@@ -380,10 +380,10 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
                     className={cn(
                       'relative flex flex-col items-center justify-center w-full h-32 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer',
                       isDragOver
-                        ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/20'
+                        ? 'border-teal-500 bg-slate-50'
                         : resumeFile
                         ? 'border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20'
-                        : 'border-muted-foreground/25 hover:border-teal-400 hover:bg-muted/30'
+                        : 'border-muted-foreground/25 hover:border-slate-400 hover:bg-muted/30'
                     )}
                     onClick={() => {
                       const input = document.createElement('input');
@@ -401,13 +401,13 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
                     {resumeFile ? (
                       <div className="flex items-center gap-2">
                         <FileText className="w-5 h-5 text-emerald-600" />
-                        <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">{resumeFile.name}</span>
+                        <span className="text-sm font-medium text-emerald-700">{resumeFile.name}</span>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-1.5 text-center">
                         <Upload className="w-5 h-5 text-muted-foreground" />
                         <p className="text-xs">
-                          <span className="text-teal-600 dark:text-teal-400 font-medium">{t.quickApply.resumeDragDrop}</span>{' '}
+                          <span className="text-blue-600 font-medium">{t.quickApply.resumeDragDrop}</span>{' '}
                           {t.quickApply.resumeOrClick}
                         </p>
                       </div>
@@ -429,7 +429,7 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full h-12 text-base bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-lg"
+              className="w-full h-12 text-base bg-blue-600 text-white shadow-lg"
             >
               {submitting ? (
                 <span className="flex items-center gap-2">
@@ -448,7 +448,7 @@ export default function TextApplyContent({ tokenPromise }: { tokenPromise: Promi
       <footer className="border-t border-border/50 bg-background py-4 mt-auto">
         <div className="max-w-lg mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+            <Sparkles className="w-3.5 h-3.5 text-blue-500" />
             {t.careerPage.poweredBy}
           </div>
         </div>

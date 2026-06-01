@@ -176,9 +176,9 @@ export default function ScheduleContent() {
   // ─── Loading State ────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
           <p className="text-sm text-muted-foreground">{t.common.loading}</p>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function ScheduleContent() {
   // ─── Error State ──────────────────────────────────────────────
   if (error || !slotInfo) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="py-12 text-center">
             <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
@@ -203,11 +203,11 @@ export default function ScheduleContent() {
   // ─── Confirmation Step ────────────────────────────────────────
   if (step === 'done' && selectedSlot) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
         <Card className="max-w-md w-full animate-fade-in-up">
           <CardContent className="py-8 text-center space-y-6">
             <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+              <CheckCircle2 className="w-8 h-8 text-emerald-600" />
             </div>
             <div>
               <h2 className="text-xl font-bold">{t.selfScheduling.bookingConfirmed}</h2>
@@ -215,14 +215,14 @@ export default function ScheduleContent() {
             </div>
             <div className="bg-white dark:bg-gray-800/50 rounded-lg border border-border/50 p-4 text-start space-y-3">
               <div className="flex items-center gap-3">
-                <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+                <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">{t.selfScheduling.interviewDate}</p>
                   <p className="text-sm font-medium">{formatDate(selectedSlot.startTime)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+                <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">{t.selfScheduling.interviewTime}</p>
                   <p className="text-sm font-medium">
@@ -231,21 +231,21 @@ export default function ScheduleContent() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <User className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+                <User className="w-4 h-4 text-blue-600 flex-shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">{t.selfScheduling.interviewerName}</p>
                   <p className="text-sm font-medium">{slotInfo.interviewerName}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Building2 className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+                <Building2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">{t.selfScheduling.companyName}</p>
                   <p className="text-sm font-medium">{slotInfo.companyName}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+                <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">{t.selfScheduling.location}</p>
                   <p className="text-sm font-medium">{slotInfo.location}</p>
@@ -264,10 +264,10 @@ export default function ScheduleContent() {
   // ─── Confirm Booking Step ─────────────────────────────────────
   if (step === 'confirm' && selectedSlot) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
         <Card className="max-w-md w-full animate-fade-in-up">
           <CardHeader>
-            <Button variant="ghost" size="sm" className="w-fit -mt-2 -ms-2 text-teal-600" onClick={() => setStep('select')}>
+            <Button variant="ghost" size="sm" className="w-fit -mt-2 -ms-2 text-blue-600" onClick={() => setStep('select')}>
               <ArrowLeft className="w-4 h-4 me-1" />{t.selfScheduling.backToSlots}
             </Button>
             <CardTitle className="text-xl">{t.selfScheduling.confirmBooking}</CardTitle>
@@ -277,21 +277,21 @@ export default function ScheduleContent() {
           </CardHeader>
           <CardContent className="space-y-5">
             {/* Booking summary */}
-            <div className="bg-teal-50 dark:bg-teal-950/20 rounded-lg p-4 space-y-2 border border-teal-100 dark:border-teal-900/30">
+            <div className="bg-slate-50 rounded-lg p-4 space-y-2 border border-teal-100 dark:border-teal-900/30">
               <div className="flex items-center gap-2 text-sm">
-                <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <Calendar className="w-4 h-4 text-blue-600" />
                 <span>{formatDate(selectedSlot.startTime)}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Clock className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <Clock className="w-4 h-4 text-blue-600" />
                 <span>{formatTime(selectedSlot.startTime)} – {formatTime(selectedSlot.endTime)} ({selectedSlot.duration} {t.selfScheduling.minutes})</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <User className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <User className="w-4 h-4 text-blue-600" />
                 <span>{slotInfo.interviewerName}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Building2 className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <Building2 className="w-4 h-4 text-blue-600" />
                 <span>{slotInfo.companyName}</span>
               </div>
             </div>
@@ -318,7 +318,7 @@ export default function ScheduleContent() {
             </div>
 
             <Button
-              className="w-full bg-teal-600 hover:bg-teal-700 text-white h-11"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11"
               onClick={handleConfirmBooking}
               disabled={booking || !candidateName.trim() || !candidateEmail.trim()}
             >
@@ -333,11 +333,11 @@ export default function ScheduleContent() {
 
   // ─── Main: Slot Selection ─────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:from-gray-950 dark:to-gray-900">
       {/* Top branding bar */}
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-border/50">
+      <header className="bg-white/80 dark:bg-gray-900/80 border-b border-border/50">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br bg-blue-600">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <span className="text-sm font-bold tracking-tight">TalentFlow AI</span>
@@ -346,21 +346,21 @@ export default function ScheduleContent() {
 
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         {/* Header card */}
-        <Card className="border-teal-200 dark:border-teal-800/30 animate-fade-in-up">
+        <Card className="border-slate-200/30 animate-fade-in-up">
           <CardContent className="p-6">
             <h1 className="text-xl sm:text-2xl font-bold mb-1">{t.selfScheduling.scheduleInterview}</h1>
             <p className="text-sm text-muted-foreground mb-4">{t.selfScheduling.scheduleDesc}</p>
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/30">
-                <Briefcase className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-teal-100 dark:border-teal-900/30">
+                <Briefcase className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium">{slotInfo.jobTitle}</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-100 dark:border-cyan-900/30">
-                <User className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                <User className="w-4 h-4 text-cyan-600" />
                 <span className="text-sm font-medium">{slotInfo.interviewerName}</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30">
-                <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <Building2 className="w-4 h-4 text-emerald-600" />
                 <span className="text-sm font-medium">{slotInfo.companyName}</span>
               </div>
             </div>
@@ -400,8 +400,8 @@ export default function ScheduleContent() {
                       className={cn(
                         'flex-shrink-0 px-4 py-3 rounded-lg border text-center transition-all duration-200 min-w-[80px]',
                         isActive
-                          ? 'bg-teal-600 text-white border-teal-600 shadow-md'
-                          : 'bg-white dark:bg-gray-800/50 border-border/50 hover:border-teal-300 dark:hover:border-teal-700'
+                          ? 'bg-blue-600 text-white border-teal-600 shadow-md'
+                          : 'bg-white dark:bg-gray-800/50 border-border/50 hover:border-slate-300'
                       )}
                     >
                       <p className={cn('text-xs font-medium', isActive ? 'text-teal-100' : 'text-muted-foreground')}>
@@ -432,11 +432,11 @@ export default function ScheduleContent() {
                           className={cn(
                             'p-4 rounded-lg border-2 text-center transition-all duration-200 animate-fade-in-up',
                             isSelected
-                              ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/30 shadow-md'
-                              : 'border-border/50 bg-white dark:bg-gray-800/50 hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-sm'
+                              ? 'border-teal-500 bg-slate-50 shadow-md'
+                              : 'border-border/50 bg-white dark:bg-gray-800/50 hover:border-slate-300 hover:shadow-sm'
                           )}
                         >
-                          <p className={cn('text-base font-bold', isSelected ? 'text-teal-700 dark:text-teal-400' : '')}>
+                          <p className={cn('text-base font-bold', isSelected ? 'text-blue-700' : '')}>
                             {formatTime(slot.startTime)}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
@@ -453,7 +453,7 @@ export default function ScheduleContent() {
               {selectedSlot && (
                 <div className="mt-6 animate-fade-in-up">
                   <Button
-                    className="w-full bg-teal-600 hover:bg-teal-700 text-white h-11"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11"
                     onClick={() => setStep('confirm')}
                   >
                     {t.selfScheduling.confirmBooking}
@@ -476,7 +476,7 @@ export default function ScheduleContent() {
       <footer className="border-t border-border/50 bg-white/50 dark:bg-gray-900/50 mt-auto">
         <div className="max-w-2xl mx-auto px-4 py-4 text-center">
           <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-teal-500" />
+            <Sparkles className="w-3 h-3 text-blue-500" />
             Powered by TalentFlow AI
           </p>
         </div>

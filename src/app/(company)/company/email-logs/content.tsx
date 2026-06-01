@@ -73,15 +73,15 @@ interface EmailTemplate {
 
 const STATUS_CONFIG: Record<string, { color: string; icon: typeof CheckCircle2 }> = {
   SENT: {
-    color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+    color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
     icon: CheckCircle2,
   },
   FAILED: {
-    color: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+    color: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
     icon: XCircle,
   },
   BOUNCED: {
-    color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
+    color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
     icon: AlertTriangle,
   },
   PENDING: {
@@ -344,11 +344,11 @@ export default function EmailLogsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <MailCheck className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.emailLogs.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.emailLogs.title}</h1>
             <p className="text-sm text-muted-foreground">{t.emailLogs.subtitle}</p>
           </div>
         </div>
@@ -357,7 +357,7 @@ export default function EmailLogsContent() {
             resetSendForm();
             setSendDialogOpen(true);
           }}
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
         >
           <Send className="h-4 w-4 me-2" />
           {t.emailLogs.sendEmail}
@@ -366,11 +366,11 @@ export default function EmailLogsContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 card-relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Send className="h-4 w-4" />
               </div>
               <div>
@@ -380,11 +380,11 @@ export default function EmailLogsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -394,11 +394,11 @@ export default function EmailLogsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-rose-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-950 text-red-600">
                 <XCircle className="h-4 w-4" />
               </div>
               <div>
@@ -408,11 +408,11 @@ export default function EmailLogsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div>
@@ -468,7 +468,7 @@ export default function EmailLogsContent() {
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
             </div>
           ) : logs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground/60 gap-3">
@@ -504,7 +504,7 @@ export default function EmailLogsContent() {
                     >
                       <td className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 shrink-0">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600 shrink-0">
                             <Mail className="h-4 w-4" />
                           </div>
                           <span className="text-sm font-medium truncate max-w-[180px]">{log.to}</span>
@@ -518,7 +518,7 @@ export default function EmailLogsContent() {
                       </td>
                       <td className="p-3 hidden md:table-cell">
                         {log.templateId ? (
-                          <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 text-[10px]">
+                          <Badge className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 text-[10px]">
                             <FileText className="h-2.5 w-2.5 me-0.5" />
                             {t.emailLogs.template}
                           </Badge>
@@ -603,13 +603,13 @@ export default function EmailLogsContent() {
         <DialogContent className="max-w-3xl max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Mail className="h-5 w-5 text-blue-600" />
               {t.emailLogs.emailPreview}
             </DialogTitle>
           </DialogHeader>
           {previewLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
             </div>
           ) : previewLog ? (
             <div className="space-y-4 py-2 max-h-[65vh] overflow-y-auto scrollbar-thin">
@@ -634,7 +634,7 @@ export default function EmailLogsContent() {
                 {previewLog.templateId && (
                   <div className="space-y-1">
                     <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t.emailLogs.template}</p>
-                    <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 text-[10px]">
+                    <Badge className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 text-[10px]">
                       <FileText className="h-2.5 w-2.5 me-0.5" />
                       {t.emailLogs.template}
                     </Badge>
@@ -653,7 +653,7 @@ export default function EmailLogsContent() {
                 {previewLog.error && (
                   <div className="space-y-1 sm:col-span-2">
                     <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t.emailLogs.error}</p>
-                    <p className="text-sm text-red-600 dark:text-red-400">{previewLog.error}</p>
+                    <p className="text-sm text-red-600">{previewLog.error}</p>
                   </div>
                 )}
               </div>
@@ -687,7 +687,7 @@ export default function EmailLogsContent() {
                   handleResend(previewLog);
                   setPreviewDialogOpen(false);
                 }}
-                className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               >
                 <RefreshCw className="h-4 w-4 me-2" />
                 {t.emailLogs.resend}
@@ -702,7 +702,7 @@ export default function EmailLogsContent() {
         <DialogContent className="max-w-2xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Send className="h-5 w-5 text-blue-600" />
               {t.emailLogs.sendNewEmail}
             </DialogTitle>
           </DialogHeader>
@@ -729,14 +729,14 @@ export default function EmailLogsContent() {
             {templateVarKeys.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <Mail className="h-4 w-4 text-blue-600" />
                   <label className="text-sm font-medium">{t.emailLogs.variables}</label>
                 </div>
-                <Card className="border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/30">
+                <Card className="border-slate-200 bg-slate-50">
                   <CardContent className="p-3 space-y-2">
                     {templateVarKeys.map((varKey) => (
                       <div key={varKey} className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-teal-600 dark:text-teal-400 min-w-[140px]">
+                        <span className="text-xs font-mono text-blue-600 min-w-[140px]">
                           {`{{${varKey}}}`}
                         </span>
                         <Input
@@ -799,7 +799,7 @@ export default function EmailLogsContent() {
             </DialogClose>
             <Button
               onClick={handleSendEmail}
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               disabled={!sendTo || !sendSubject || !sendBody || sending}
             >
               {sending ? (

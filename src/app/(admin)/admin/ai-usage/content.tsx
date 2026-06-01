@@ -41,7 +41,7 @@ interface AIUsageData {
   apiKeys: { name: string; provider: string; calls: number; cost: string; status: string }[];
 }
 
-const featureColors = ['bg-teal-500', 'bg-emerald-500', 'bg-cyan-500', 'bg-teal-400', 'bg-emerald-400', 'bg-cyan-400', 'bg-amber-500'];
+const featureColors = ['bg-slate-500', 'bg-emerald-500', 'bg-cyan-500', 'bg-teal-400', 'bg-emerald-400', 'bg-cyan-400', 'bg-amber-500'];
 
 export default function AIUsagePage() {
   const { t } = useI18n();
@@ -105,7 +105,7 @@ export default function AIUsagePage() {
           ))
         ) : (
           [
-            { title: t.aiUsage.totalCost, value: data?.totalCost || '—', icon: DollarSign, gradient: 'from-teal-500 to-emerald-600' },
+            { title: t.aiUsage.totalCost, value: data?.totalCost || '—', icon: DollarSign, gradient: 'bg-blue-600' },
             { title: t.aiUsage.apiCalls, value: (data?.totalCalls || 0).toLocaleString(), icon: Zap, gradient: 'from-cyan-500 to-blue-600' },
             { title: t.aiUsage.avgCostPerCall, value: data?.avgCostPerCall || '—', icon: Calculator, gradient: 'from-emerald-500 to-teal-600' },
             { title: t.aiUsage.activeKeys, value: String(data?.activeKeys || 0), icon: Key, gradient: 'from-purple-500 to-pink-600' },
@@ -234,7 +234,7 @@ export default function AIUsagePage() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                            <AvatarFallback className="bg-blue-600 text-white text-xs">
                               {getInitials(user.name)}
                             </AvatarFallback>
                           </Avatar>
@@ -294,8 +294,8 @@ export default function AIUsagePage() {
                           variant="secondary"
                           className={`text-[10px] border-0 ${
                             key.status === 'active'
-                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
-                              : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
+                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
+                              : 'bg-red-50 text-red-700 dark:bg-red-950'
                           }`}
                         >
                           {key.status === 'active' ? (

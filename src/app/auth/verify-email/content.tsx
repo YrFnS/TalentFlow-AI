@@ -90,7 +90,7 @@ function VerifyEmailForm() {
       case 'loading':
         return (
           <div className="flex flex-col items-center gap-4 py-6">
-            <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
+            <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
             <p className="text-muted-foreground">{t.auth.verifyingEmail}</p>
           </div>
         );
@@ -99,17 +99,17 @@ function VerifyEmailForm() {
         return (
           <div className="space-y-4 animate-fade-in-up">
             <div className="flex flex-col items-center gap-3 py-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center">
-                <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
               </div>
-              <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
+              <h2 className="text-xl font-bold text-emerald-700">
                 {t.auth.emailVerified}
               </h2>
               <p className="text-sm text-muted-foreground">{t.auth.emailVerifiedDesc}</p>
             </div>
             <Button
               asChild
-              className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               size="lg"
             >
               <Link href="/auth/login">
@@ -124,9 +124,9 @@ function VerifyEmailForm() {
           <div className="space-y-4 animate-fade-in-up">
             <div className="flex flex-col items-center gap-3 py-4">
               <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center">
-                <XCircle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+                <XCircle className="h-8 w-8 text-amber-600" />
               </div>
-              <h2 className="text-xl font-bold text-amber-700 dark:text-amber-300">
+              <h2 className="text-xl font-bold text-amber-700">
                 {t.auth.verificationExpired}
               </h2>
             </div>
@@ -139,12 +139,12 @@ function VerifyEmailForm() {
                   placeholder={t.auth.enterEmail}
                   value={resendEmail}
                   onChange={(e) => setResendEmail(e.target.value)}
-                  className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                  className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 />
                 <Button
                   onClick={handleResend}
                   disabled={isResending}
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isResending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -162,9 +162,9 @@ function VerifyEmailForm() {
           <div className="space-y-4 animate-fade-in-up">
             <div className="flex flex-col items-center gap-3 py-4">
               <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center">
-                <XCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+                <XCircle className="h-8 w-8 text-red-600" />
               </div>
-              <h2 className="text-xl font-bold text-red-700 dark:text-red-300">
+              <h2 className="text-xl font-bold text-red-700">
                 {t.auth.verificationInvalid}
               </h2>
             </div>
@@ -177,12 +177,12 @@ function VerifyEmailForm() {
                   placeholder={t.auth.enterEmail}
                   value={resendEmail}
                   onChange={(e) => setResendEmail(e.target.value)}
-                  className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                  className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 />
                 <Button
                   onClick={handleResend}
                   disabled={isResending}
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isResending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -220,7 +220,7 @@ function VerifyEmailForm() {
 
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
               <Brain className="w-6 h-6" />
             </div>
             <span className="text-2xl font-bold">TalentFlow AI</span>
@@ -236,10 +236,10 @@ function VerifyEmailForm() {
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br bg-blue-600">
               <Brain className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent lg:hidden">
+            <span className="text-lg font-bold bg-blue-600 bg-clip-text text-transparent lg:hidden">
               {t.common.appName}
             </span>
           </Link>
@@ -271,7 +271,7 @@ function VerifyEmailForm() {
           <div className="w-full max-w-md">
             <Card className="relative border-border/50 shadow-xl shadow-teal-500/5 animate-scale-in">
               <CardHeader className="text-center pb-2">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-lg shadow-teal-500/20">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br bg-blue-600 shadow-lg shadow-teal-500/20">
                   <Mail className="h-7 w-7 text-white" />
                 </div>
                 <CardTitle className="text-2xl font-bold">{t.auth.verifyEmail}</CardTitle>
@@ -292,7 +292,7 @@ export default function VerifyEmailContent() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     }>
       <VerifyEmailForm />

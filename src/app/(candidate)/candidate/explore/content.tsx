@@ -54,11 +54,11 @@ interface CompanyData {
 }
 
 const categoryConfig = [
-  { key: 'engineering', icon: Code2, gradient: 'from-teal-500 to-emerald-600' },
-  { key: 'design', icon: Palette, gradient: 'from-emerald-500 to-cyan-600' },
-  { key: 'data', icon: Database, gradient: 'from-cyan-500 to-teal-600' },
-  { key: 'product', icon: Package, gradient: 'from-teal-600 to-emerald-700' },
-  { key: 'devops', icon: Server, gradient: 'from-emerald-600 to-teal-500' },
+  { key: 'engineering', icon: Code2 },
+  { key: 'design', icon: Palette },
+  { key: 'data', icon: Database },
+  { key: 'product', icon: Package },
+  { key: 'devops', icon: Server },
 ];
 
 export default function ExplorePage() {
@@ -134,8 +134,8 @@ export default function ExplorePage() {
   }, [searchQuery, activeCategory, jobs]);
 
   const stats = [
-    { label: t.jobs.openPositions, value: jobs.length.toString(), icon: Briefcase, color: 'text-teal-600 dark:text-teal-400' },
-    { label: t.dashboard.totalCompanies, value: companies.length.toString(), icon: Building2, color: 'text-emerald-600 dark:text-emerald-400' },
+    { label: t.jobs.openPositions, value: jobs.length.toString(), icon: Briefcase, color: 'text-blue-600' },
+    { label: t.dashboard.totalCompanies, value: companies.length.toString(), icon: Building2, color: 'text-blue-600' },
   ];
 
   const formatSalary = (min: number | null, max: number | null, currency: string) => {
@@ -155,11 +155,10 @@ export default function ExplorePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-emerald-600 to-cyan-700 dark:from-teal-900 dark:via-emerald-900 dark:to-cyan-950">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
+      <div className="relative overflow-hidden bg-blue-600">
         <div className="relative px-4 md:px-6 lg:px-8 py-12 md:py-20 max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-white/90 text-sm mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-white/90 text-sm mb-6">
               <Sparkles className="h-4 w-4" />
               {t.common.poweredBy}
             </div>
@@ -175,7 +174,7 @@ export default function ExplorePage() {
                 placeholder={t.jobs.searchJobs}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-12 ps-12 pe-4 text-base bg-white dark:bg-background rounded-xl border-0 shadow-lg focus-visible:ring-2 focus-visible:ring-teal-400"
+                className="h-12 ps-12 pe-4 text-base bg-white rounded-xl border-0 shadow-lg focus-visible:ring-2 focus-visible:ring-blue-400"
               />
             </div>
           </div>
@@ -200,13 +199,13 @@ export default function ExplorePage() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2">
-                <Zap className="h-5 w-5 text-teal-500" />
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 text-slate-900">
+                <Zap className="h-5 w-5 text-blue-500" />
                 {t.jobs.featuredJobs}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">Hand-picked opportunities for you</p>
             </div>
-            <Button variant="ghost" size="sm" className="text-teal-600 hover:text-teal-700 dark:text-teal-400">
+            <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
               {t.common.viewAll}
               <ArrowRight className="h-4 w-4 ms-1" />
             </Button>
@@ -216,10 +215,10 @@ export default function ExplorePage() {
               {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-64" />)}
             </div>
           ) : jobs.length === 0 ? (
-            <Card className="border-0 shadow-sm">
+            <Card className="border border-slate-200 shadow-sm">
               <CardContent className="p-12 text-center">
                 <Search className="h-12 w-12 mx-auto text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-semibold">No jobs available yet</h3>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">No jobs available yet</h3>
                 <p className="mt-1 text-sm text-muted-foreground">Check back soon for new opportunities!</p>
               </CardContent>
             </Card>
@@ -228,17 +227,17 @@ export default function ExplorePage() {
               {jobs.slice(0, 4).map((job) => (
                 <Card
                   key={job.id}
-                  className="group relative overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                  className="group border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
                 >
-                  <CardContent className="relative p-5">
+                  <CardContent className="p-5">
                     <div className="flex items-center gap-3 mb-3">
                       <Avatar className="h-10 w-10 rounded-lg">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs font-bold rounded-lg">
+                        <AvatarFallback className="bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">
                           {job.company.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <h3 className="font-semibold text-sm truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{job.title}</h3>
+                        <h3 className="font-semibold text-sm truncate text-slate-900 group-hover:text-blue-600 transition-colors">{job.title}</h3>
                         <p className="text-xs text-muted-foreground truncate">{job.company}</p>
                       </div>
                     </div>
@@ -252,13 +251,13 @@ export default function ExplorePage() {
                         <Badge key={skill} variant="secondary" className="text-[10px] h-5">{skill}</Badge>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between pt-3 border-t">
-                      <span className="text-sm font-semibold text-teal-700 dark:text-teal-400">
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+                      <span className="text-sm font-semibold text-slate-900">
                         {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency)}
                       </span>
                       <span className="text-[10px] text-muted-foreground">{timeAgo(job.publishedAt)}</span>
                     </div>
-                    <Button className="w-full mt-3 h-8 text-xs bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white">
+                    <Button className="w-full mt-3 h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white">
                       {t.jobs.applyNow}
                     </Button>
                   </CardContent>
@@ -271,8 +270,8 @@ export default function ExplorePage() {
         {/* Jobs by Category */}
         <section>
           <div className="mb-6">
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-emerald-500" />
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 text-slate-900">
+              <TrendingUp className="h-5 w-5 text-blue-500" />
               {t.jobs.jobsByCategory}
             </h2>
           </div>
@@ -281,7 +280,7 @@ export default function ExplorePage() {
               variant={activeCategory === null ? 'default' : 'outline'}
               size="sm"
               onClick={() => setActiveCategory(null)}
-              className={activeCategory === null ? 'bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white' : ''}
+              className={activeCategory === null ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}
             >
               {t.common.all}
             </Button>
@@ -293,7 +292,7 @@ export default function ExplorePage() {
                   variant={activeCategory === cat.key ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveCategory(activeCategory === cat.key ? null : cat.key)}
-                  className={activeCategory === cat.key ? `bg-gradient-to-r ${cat.gradient} text-white` : ''}
+                  className={activeCategory === cat.key ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}
                 >
                   <Icon className="h-3.5 w-3.5 me-1.5" />
                   {categoryLabelMap[cat.key]}
@@ -306,18 +305,18 @@ export default function ExplorePage() {
             {filteredJobs.map((job) => (
               <Card
                 key={job.id}
-                className="group border-0 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+                className="group border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-3 min-w-0">
                       <Avatar className="h-9 w-9 shrink-0 rounded-lg">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px] font-bold rounded-lg">
+                        <AvatarFallback className="bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg">
                           {job.company.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <h3 className="font-semibold text-sm truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{job.title}</h3>
+                        <h3 className="font-semibold text-sm truncate text-slate-900 group-hover:text-blue-600 transition-colors">{job.title}</h3>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <Building2 className="h-3 w-3 shrink-0" />
                           <span className="truncate">{job.company}</span>
@@ -344,11 +343,11 @@ export default function ExplorePage() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t">
-                    <span className="text-sm font-semibold text-teal-700 dark:text-teal-400">
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200">
+                    <span className="text-sm font-semibold text-slate-900">
                       {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency)}
                     </span>
-                    <Button size="sm" className="h-7 text-xs bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white">
+                    <Button size="sm" className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white">
                       {t.jobs.applyNow}
                     </Button>
                   </div>
@@ -358,10 +357,10 @@ export default function ExplorePage() {
           </div>
 
           {filteredJobs.length === 0 && !loading && (
-            <Card className="border-0 shadow-sm">
+            <Card className="border border-slate-200 shadow-sm">
               <CardContent className="p-12 text-center">
                 <Search className="h-12 w-12 mx-auto text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-semibold">{t.common.noResults}</h3>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">{t.common.noResults}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">Try adjusting your search or category filter</p>
               </CardContent>
             </Card>
@@ -372,18 +371,18 @@ export default function ExplorePage() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-cyan-500" />
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2 text-slate-900">
+                <Building2 className="h-5 w-5 text-blue-500" />
                 {t.jobs.trendingCompanies}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">Top companies hiring now</p>
             </div>
           </div>
           {companies.length === 0 ? (
-            <Card className="border-0 shadow-sm">
+            <Card className="border border-slate-200 shadow-sm">
               <CardContent className="p-12 text-center">
                 <Building2 className="h-12 w-12 mx-auto text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-semibold">No companies yet</h3>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">No companies yet</h3>
                 <p className="mt-1 text-sm text-muted-foreground">Companies will appear here once they start posting jobs.</p>
               </CardContent>
             </Card>
@@ -392,26 +391,26 @@ export default function ExplorePage() {
               {companies.map((company) => (
                 <Card
                   key={company.id}
-                  className="group border-0 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+                  className="group border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
                 >
                   <CardContent className="p-5">
                     <div className="flex items-center gap-4">
                       <Avatar className="h-12 w-12 rounded-xl">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-bold rounded-xl">
+                        <AvatarFallback className="bg-slate-100 text-slate-600 font-bold rounded-xl">
                           {company.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-sm truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{company.name}</h3>
+                        <h3 className="font-semibold text-sm truncate text-slate-900 group-hover:text-blue-600 transition-colors">{company.name}</h3>
                         <p className="text-xs text-muted-foreground">{company.industry}</p>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t">
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Briefcase className="h-3.5 w-3.5 text-teal-500" />
+                        <Briefcase className="h-3.5 w-3.5 text-slate-500" />
                         <span>{company.openJobs} {t.jobs.openPositions.toLowerCase()}</span>
                       </div>
-                      <Button variant="outline" size="sm" className="h-7 text-xs hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 dark:hover:bg-teal-950 dark:hover:text-teal-400 dark:hover:border-teal-800">
+                      <Button variant="outline" size="sm" className="h-7 text-xs hover:bg-slate-50 hover:text-blue-700 hover:border-blue-200">
                         {t.common.viewAll}
                       </Button>
                     </div>

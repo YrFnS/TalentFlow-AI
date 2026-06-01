@@ -40,23 +40,23 @@ const iconMap: Record<string, React.ElementType> = {
 
 const colorMap: Record<string, { bg: string; text: string; border: string }> = {
   info: {
-    bg: 'bg-teal-50 dark:bg-teal-950/50',
-    text: 'text-teal-600 dark:text-teal-400',
+    bg: 'bg-slate-50',
+    text: 'text-blue-600',
     border: 'border-s-teal-300 dark:border-s-teal-700',
   },
   success: {
     bg: 'bg-emerald-50 dark:bg-emerald-950/50',
-    text: 'text-emerald-600 dark:text-emerald-400',
+    text: 'text-emerald-600',
     border: 'border-s-emerald-300 dark:border-s-emerald-700',
   },
   warning: {
     bg: 'bg-amber-50 dark:bg-amber-950/50',
-    text: 'text-amber-600 dark:text-amber-400',
+    text: 'text-amber-600',
     border: 'border-s-amber-300 dark:border-s-amber-700',
   },
   error: {
     bg: 'bg-red-50 dark:bg-red-950/50',
-    text: 'text-red-600 dark:text-red-400',
+    text: 'text-red-600',
     border: 'border-s-red-300 dark:border-s-red-700',
   },
 };
@@ -219,7 +219,7 @@ export default function NotificationsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Bell className="h-6 w-6 text-teal-500" />
+            <Bell className="h-6 w-6 text-blue-500" />
             {t.common.notificationsCenter}
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -233,7 +233,7 @@ export default function NotificationsPage() {
             onClick={markAllAsRead}
             variant="outline"
             size="sm"
-            className="gap-2 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 dark:hover:bg-teal-950 dark:hover:text-teal-400 dark:hover:border-teal-800"
+            className="gap-2 hover:bg-slate-50 hover:text-blue-700 hover:border-slate-200 dark:hover:bg-teal-950 dark:hover:text-blue-400 dark:hover:border-teal-800"
           >
             <CheckCheck className="h-4 w-4" />
             {t.common.markAllRead}
@@ -251,7 +251,7 @@ export default function NotificationsPage() {
           <TabsTrigger value="unread" className="gap-1.5">
             {t.common.unread}
             {unreadCount > 0 && (
-              <Badge className="h-4 min-w-4 px-1 text-[10px] bg-teal-500 text-white border-0">{unreadCount}</Badge>
+              <Badge className="h-4 min-w-4 px-1 text-[10px] bg-slate-500 text-white border-0">{unreadCount}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="applications">
@@ -298,7 +298,7 @@ export default function NotificationsPage() {
                               <div className="flex items-center gap-2">
                                 <h3 className="font-semibold text-sm">{notification.title}</h3>
                                 {!notification.isRead && (
-                                  <div className="w-2 h-2 rounded-full bg-teal-500 shrink-0" />
+                                  <div className="w-2 h-2 rounded-full bg-slate-500 shrink-0" />
                                 )}
                               </div>
                               <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
@@ -314,7 +314,7 @@ export default function NotificationsPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-7 text-xs text-teal-600 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950"
+                                  className="h-7 text-xs text-blue-600 hover:text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     markAsRead(notification.id);

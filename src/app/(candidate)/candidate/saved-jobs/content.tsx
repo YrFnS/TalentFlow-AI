@@ -112,11 +112,11 @@ export default function SavedJobsPage() {
     const modeMap: Record<WorkMode, { label: string; color: string }> = {
       remote: {
         label: isAr ? 'عن بُعد' : 'Remote',
-        color: 'bg-teal-50 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300 border-teal-200 dark:border-teal-800',
+        color: 'bg-slate-50 text-blue-700 border-slate-200',
       },
       hybrid: {
         label: isAr ? 'هجين' : 'Hybrid',
-        color: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+        color: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800',
       },
       onsite: {
         label: isAr ? 'في الموقع' : 'On-site',
@@ -142,15 +142,15 @@ export default function SavedJobsPage() {
   };
 
   const getMatchColor = (score: number) => {
-    if (score >= 90) return 'text-teal-600 dark:text-teal-400';
-    if (score >= 75) return 'text-emerald-600 dark:text-emerald-400';
-    if (score >= 60) return 'text-amber-600 dark:text-amber-400';
+    if (score >= 90) return 'text-blue-600';
+    if (score >= 75) return 'text-emerald-600';
+    if (score >= 60) return 'text-amber-600';
     return 'text-muted-foreground';
   };
 
   const getMatchBg = (score: number) => {
-    if (score >= 90) return 'bg-teal-50 dark:bg-teal-950/30 border-teal-200 dark:border-teal-800';
-    if (score >= 75) return 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800';
+    if (score >= 90) return 'bg-slate-50 border-slate-200';
+    if (score >= 75) return 'bg-emerald-50 border-emerald-200 dark:border-emerald-800';
     if (score >= 60) return 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800';
     return 'bg-muted/50 border-border';
   };
@@ -161,7 +161,7 @@ export default function SavedJobsPage() {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-lg shadow-teal-500/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br bg-blue-600 shadow-lg shadow-teal-500/20">
               <Bookmark className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -172,7 +172,7 @@ export default function SavedJobsPage() {
                 {isAr ? 'الوظائف التي حفظتها للاحقاً' : "Jobs you've bookmarked for later"}
               </p>
             </div>
-            <Badge className="bg-teal-100 text-teal-800 dark:bg-teal-950/50 dark:text-teal-300 border-teal-200 dark:border-teal-800">
+            <Badge className="bg-teal-100 text-slate-800 border-slate-200">
               {isAr ? `${savedCount} وظائف محفوظة` : `${savedCount} jobs saved`}
             </Badge>
           </div>
@@ -186,7 +186,7 @@ export default function SavedJobsPage() {
               placeholder={isAr ? 'ابحث في الوظائف المحفوظة...' : 'Search saved jobs...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-9 h-10 bg-background border-border/50 focus-visible:ring-teal-500"
+              className="ps-9 h-10 bg-background border-border/50 focus-visible:ring-blue-500"
             />
           </div>
           <div className="flex gap-2">
@@ -211,7 +211,7 @@ export default function SavedJobsPage() {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs border-teal-300 dark:border-teal-700 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+              className="h-8 text-xs border-slate-300 text-blue-700 hover:bg-slate-50"
               onClick={handleApplyAll}
             >
               <Zap className="h-3.5 w-3.5 me-1.5" />
@@ -241,7 +241,7 @@ export default function SavedJobsPage() {
                   className="animate-fade-in-up"
                   style={{ animationDelay: `${index * 0.06}s` }}
                 >
-                  <Card className="group h-full glass-card hover:shadow-lg hover:shadow-teal-500/5 transition-all duration-300 hover:-translate-y-1 border-border/50 overflow-hidden">
+                  <Card className="group h-full hover:shadow-lg hover:shadow-teal-500/5 transition-all duration-300 hover:-translate-y-1 border-border/50 overflow-hidden">
                     <CardContent className="p-4 space-y-3">
                       {/* Company Header */}
                       <div className="flex items-start justify-between gap-2">
@@ -261,7 +261,7 @@ export default function SavedJobsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 shrink-0 text-teal-500 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                          className="h-8 w-8 shrink-0 text-blue-500 hover:text-blue-600 hover:bg-slate-50"
                           onClick={() => handleRemoveJob(job.id)}
                           title={isAr ? 'إزالة' : 'Remove'}
                         >
@@ -283,7 +283,7 @@ export default function SavedJobsPage() {
                       {/* Salary */}
                       <div className="flex items-center gap-1.5">
                         <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
-                        <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span className="text-sm font-semibold text-emerald-600">
                           {job.salaryCurrency}{job.salaryMin.toLocaleString()} - {job.salaryCurrency}{job.salaryMax.toLocaleString()}
                         </span>
                         <span className="text-[10px] text-muted-foreground">/yr</span>
@@ -313,7 +313,7 @@ export default function SavedJobsPage() {
                       <div className="flex items-center gap-2 pt-1">
                         <Button
                           size="sm"
-                          className="flex-1 h-8 text-xs bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-sm"
+                          className="flex-1 h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
                           asChild
                         >
                           <Link href={`/candidate/jobs/${job.id}`}>
@@ -343,10 +343,10 @@ export default function SavedJobsPage() {
         >
           <div className="relative mb-6">
             <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-950/50 dark:to-emerald-950/50 flex items-center justify-center">
-              <Bookmark className="w-10 h-10 text-teal-500/60" />
+              <Bookmark className="w-10 h-10 text-blue-500/60" />
             </div>
-            <div className="absolute -bottom-1 -end-1 w-8 h-8 rounded-full bg-background border-2 border-teal-200 dark:border-teal-800 flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-teal-500" />
+            <div className="absolute -bottom-1 -end-1 w-8 h-8 rounded-full bg-background border-2 border-slate-200 flex items-center justify-center">
+              <Building2 className="w-4 h-4 text-blue-500" />
             </div>
           </div>
           <h3 className="text-lg font-semibold mb-2">
@@ -356,7 +356,7 @@ export default function SavedJobsPage() {
             {isAr ? 'تصفح الوظائف واحفظ تلك التي تعجبك!' : 'Browse jobs and save the ones you like!'}
           </p>
           <Button
-            className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
             asChild
           >
             <Link href="/candidate/jobs">

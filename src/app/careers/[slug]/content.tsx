@@ -16,12 +16,10 @@ import {
   TrendingUp,
   Lightbulb,
   Heart,
-  Sparkles,
   Share2,
   Upload,
   X,
   ChevronDown,
-  Award,
   ArrowUp,
   ExternalLink,
 } from 'lucide-react';
@@ -83,7 +81,7 @@ const emptyCompanyConfig: CompanyConfig = {
   slug: '',
   tagline: '',
   logo: null,
-  primaryColor: 'teal',
+  primaryColor: 'blue',
   values: [],
   benefits: [],
   cultureText: '',
@@ -100,33 +98,6 @@ const jobTypeLabels: Record<string, string> = {
   INTERNSHIP: 'Internship',
   REMOTE: 'Remote',
   HYBRID: 'Hybrid',
-};
-
-const colorMap: Record<string, { gradient: string; bg: string; text: string; border: string }> = {
-  teal: {
-    gradient: 'from-teal-500 to-emerald-600',
-    bg: 'bg-teal-50 dark:bg-teal-950/30',
-    text: 'text-teal-700 dark:text-teal-400',
-    border: 'border-teal-200 dark:border-teal-800',
-  },
-  emerald: {
-    gradient: 'from-emerald-500 to-green-600',
-    bg: 'bg-emerald-50 dark:bg-emerald-950/30',
-    text: 'text-emerald-700 dark:text-emerald-400',
-    border: 'border-emerald-200 dark:border-emerald-800',
-  },
-  green: {
-    gradient: 'from-green-500 to-lime-600',
-    bg: 'bg-green-50 dark:bg-green-950/30',
-    text: 'text-green-700 dark:text-green-400',
-    border: 'border-green-200 dark:border-green-800',
-  },
-  cyan: {
-    gradient: 'from-cyan-500 to-teal-600',
-    bg: 'bg-cyan-50 dark:bg-cyan-950/30',
-    text: 'text-cyan-700 dark:text-cyan-400',
-    border: 'border-cyan-200 dark:border-cyan-800',
-  },
 };
 
 export default function CareerPageContent({ slugPromise }: { slugPromise: Promise<{ slug: string }> }) {
@@ -151,8 +122,6 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
   const [submitting, setSubmitting] = useState(false);
 
   const [showScrollTop, setShowScrollTop] = useState(false);
-
-  const colors = colorMap[company.primaryColor] || colorMap.teal;
 
   useEffect(() => {
     slugPromise.then((p) => setSlug(p.slug));
@@ -233,7 +202,6 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
       return;
     }
     setSubmitting(true);
-    // Simulate API call
     await new Promise((r) => setTimeout(r, 1500));
     setSubmitting(false);
     setShowApplyDialog(false);
@@ -261,9 +229,9 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background" dir={dir}>
         <Building2 className="w-16 h-16 text-muted-foreground/30 mb-6" />
-        <h1 className="text-2xl font-bold mb-2">{t.careerPage.companyNotFound || 'Company Not Found'}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">{t.careerPage.companyNotFound || 'Company Not Found'}</h1>
         <p className="text-muted-foreground mb-6">{t.careerPage.companyNotFoundDesc || 'The company you are looking for does not exist or has not published a career page.'}</p>
-        <Button onClick={() => router.push('/')} className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
+        <Button onClick={() => router.push('/')} className="bg-blue-600 text-white">
           {t.common.backToHome || 'Back to Home'}
         </Button>
       </div>
@@ -273,10 +241,10 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
   return (
     <div className="min-h-screen flex flex-col bg-background" dir={dir}>
       {/* Fixed Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95">
         <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br text-white shadow-md', colors.gradient)}>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
               {company.logo ? (
                 <img src={company.logo} alt={company.name} className="h-9 w-9 rounded-lg object-cover" />
               ) : (
@@ -284,7 +252,7 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
               )}
             </div>
             <div>
-              <span className="font-bold text-sm">{company.name}</span>
+              <span className="font-bold text-sm text-slate-900">{company.name}</span>
               <span className="text-xs text-muted-foreground ms-2 hidden sm:inline">{company.tagline}</span>
             </div>
           </div>
@@ -305,40 +273,32 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
       </header>
 
       {/* Hero Section */}
-      <section className={cn('relative overflow-hidden py-16 sm:py-24', colors.bg)}>
-        <div className="absolute inset-0 dot-grid opacity-30" />
-        <div className="absolute top-10 end-10 w-64 h-64 rounded-full bg-gradient-to-br from-teal-400/20 to-emerald-400/10 blur-3xl animate-blob" />
-        <div className="absolute bottom-10 start-10 w-48 h-48 rounded-full bg-gradient-to-br from-emerald-400/15 to-cyan-400/10 blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
-
+      <section className="relative overflow-hidden py-16 sm:py-24 bg-slate-50">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <div className="animate-fade-in-up">
-            <div className={cn('inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br text-white shadow-lg mb-6', colors.gradient)}>
+          <div>
+            <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-blue-600 text-white shadow-lg mb-6">
               {company.logo ? (
                 <img src={company.logo} alt={company.name} className="h-16 w-16 rounded-2xl object-cover" />
               ) : (
                 <Building2 className="h-8 w-8" />
               )}
             </div>
-            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4">
-              <span className="gradient-text">{t.careerPage.joinTeam}</span>
+            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4 text-slate-900">
+              {t.careerPage.joinTeam}
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-2">{company.name}</p>
             <p className="text-muted-foreground max-w-xl mx-auto">{company.tagline}</p>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10 max-w-3xl mx-auto stagger-children">
-            {[
-              { icon: Briefcase, value: `${filteredJobs.length}`, label: t.careerPage.openPositions },
-            ].map((stat, i) => (
-              <Card key={i} className="card-hover-lift bg-background/80 backdrop-blur border-border/50">
-                <CardContent className="p-4 text-center">
-                  <stat.icon className={cn('w-5 h-5 mx-auto mb-2', colors.text)} />
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid grid-cols-1 gap-4 mt-10 max-w-sm mx-auto">
+            <Card className="bg-white border-slate-200">
+              <CardContent className="p-4 text-center">
+                <Briefcase className="w-5 h-5 mx-auto mb-2 text-blue-600" />
+                <p className="text-2xl font-bold text-slate-900">{filteredJobs.length}</p>
+                <p className="text-xs text-muted-foreground">{t.careerPage.openPositions}</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -346,22 +306,22 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
       {/* Why Join Us */}
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 animate-fade-in-up">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-10">
             {t.careerPage.whyJoinUs}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: TrendingUp, titleKey: 'growth' as const, descKey: 'growthDesc' as const, gradient: 'from-teal-500 to-emerald-500' },
-              { icon: Lightbulb, titleKey: 'innovation' as const, descKey: 'innovationDesc' as const, gradient: 'from-emerald-500 to-cyan-500' },
-              { icon: Heart, titleKey: 'impact' as const, descKey: 'impactDesc' as const, gradient: 'from-cyan-500 to-teal-500' },
-              { icon: Users, titleKey: 'culture' as const, descKey: 'cultureDesc' as const, gradient: 'from-teal-500 to-green-500' },
+              { icon: TrendingUp, titleKey: 'growth' as const, descKey: 'growthDesc' as const },
+              { icon: Lightbulb, titleKey: 'innovation' as const, descKey: 'innovationDesc' as const },
+              { icon: Heart, titleKey: 'impact' as const, descKey: 'impactDesc' as const },
+              { icon: Users, titleKey: 'culture' as const, descKey: 'cultureDesc' as const },
             ].map((item, i) => (
-              <Card key={i} className="card-hover-lift border-border/50 text-center group">
+              <Card key={i} className="border-slate-200 text-center">
                 <CardContent className="p-6">
-                  <div className={cn('inline-flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br text-white shadow-md mb-4 group-hover:scale-110 transition-transform', item.gradient)}>
+                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-blue-600 text-white mb-4">
                     <item.icon className="w-6 h-6" />
                   </div>
-                  <h3 className="font-semibold mb-2">{t.careerPage[item.titleKey]}</h3>
+                  <h3 className="font-semibold text-slate-900 mb-2">{t.careerPage[item.titleKey]}</h3>
                   <p className="text-sm text-muted-foreground">{t.careerPage[item.descKey]}</p>
                 </CardContent>
               </Card>
@@ -370,12 +330,10 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
         </div>
       </section>
 
-      <div className="section-divider max-w-4xl mx-auto" />
-
       {/* Open Positions */}
       <section id="positions" className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3 animate-fade-in-up">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-3">
             {t.careerPage.openPositions}
           </h2>
           <p className="text-muted-foreground text-center mb-8">
@@ -445,27 +403,27 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
           ) : filteredJobs.length === 0 ? (
             <div className="text-center py-12">
               <Briefcase className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-              <h3 className="text-lg font-medium">{t.careerPage.noOpenPositions}</h3>
+              <h3 className="text-lg font-medium text-slate-900">{t.careerPage.noOpenPositions}</h3>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredJobs.map((job) => (
                 <Card
                   key={job.id}
-                  className="card-hover-lift border-border/50 group cursor-pointer"
+                  className="border-slate-200 group cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => { setSelectedJob(job); setShowJobDialog(true); }}
                 >
                   <CardContent className="p-5">
-                    <h3 className="font-semibold text-base mb-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{job.title}</h3>
+                    <h3 className="font-semibold text-base text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{job.title}</h3>
                     <div className="flex flex-wrap gap-1.5 mb-3">
-                      <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0', colors.text, colors.border)}>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200">
                         {job.department}
                       </Badge>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200">
                         {jobTypeLabels[job.jobType] || job.jobType}
                       </Badge>
                       {job.isRemote && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-blue-600 border-blue-200">
                           Remote
                         </Badge>
                       )}
@@ -489,7 +447,7 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={cn('mt-3 w-full text-xs h-8', colors.text, 'hover:bg-teal-50 dark:hover:bg-teal-950/30')}
+                      className="mt-3 w-full text-xs h-8 text-blue-600 hover:bg-blue-50"
                       onClick={(e) => { e.stopPropagation(); setSelectedJob(job); setShowJobDialog(true); }}
                     >
                       {t.careerPage.viewDetails}
@@ -503,46 +461,19 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
         </div>
       </section>
 
-      <div className="section-divider max-w-4xl mx-auto" />
-
       {/* Culture Section */}
-      <section id="culture" className="py-16 bg-muted/30">
+      <section id="culture" className="py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 animate-fade-in-up">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-10">
             {t.careerPage.companyCulture}
           </h2>
 
-          {/* Photo-like grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-10 max-w-4xl mx-auto stagger-children">
-            {[
-              'from-teal-400 to-emerald-500',
-              'from-emerald-400 to-cyan-500',
-              'from-cyan-400 to-teal-500',
-              'from-teal-500 to-green-500',
-              'from-emerald-500 to-teal-400',
-              'from-green-400 to-emerald-500',
-            ].map((gradient, i) => (
-              <div
-                key={i}
-                className={cn(
-                  'aspect-[4/3] rounded-xl bg-gradient-to-br flex items-center justify-center',
-                  gradient,
-                  i === 0 && 'sm:col-span-2 sm:aspect-[8/3]'
-                )}
-              >
-                <span className="text-white/70 text-xs font-medium">
-                  {['Team Collaboration', 'Innovation Hub', 'Global Team', 'Learning & Growth', 'Office Life', 'Team Events'][i]}
-                </span>
-              </div>
-            ))}
-          </div>
-
           {/* Values */}
           <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-xl font-semibold mb-4">{t.careerPage.companyValues}</h3>
+            <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.careerPage.companyValues}</h3>
             <div className="flex flex-wrap justify-center gap-2 mb-6">
               {company.values.map((val, i) => (
-                <Badge key={i} className={cn('px-3 py-1 border-0 text-sm', 'bg-gradient-to-r text-white', colors.gradient)}>
+                <Badge key={i} className="px-3 py-1 text-sm bg-blue-600 text-white border-0">
                   {val}
                 </Badge>
               ))}
@@ -553,10 +484,9 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 bg-background py-8 mt-auto">
+      <footer className="border-t border-slate-200 bg-background py-8 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-3">
-            <Sparkles className="w-4 h-4 text-teal-500" />
             <span>{t.careerPage.poweredBy}</span>
           </div>
           <div className="flex items-center justify-center gap-4">
@@ -583,7 +513,7 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 end-6 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg hover:shadow-xl transition-all scroll-top-btn"
+          className="fixed bottom-6 end-6 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-colors"
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-4 h-4" />
@@ -592,18 +522,18 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
 
       {/* Job Detail Dialog */}
       <Dialog open={showJobDialog} onOpenChange={setShowJobDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto dialog-content-glow">
-          <DialogHeader className="dialog-header-accent pt-2">
-            <DialogTitle className="text-xl">{selectedJob?.title}</DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-slate-900">{selectedJob?.title}</DialogTitle>
             <DialogDescription className="flex flex-wrap gap-2 mt-2">
-              <Badge variant="outline" className={cn('text-xs px-2', colors.text, colors.border)}>
+              <Badge variant="outline" className="text-xs px-2 border-slate-200">
                 {selectedJob?.department}
               </Badge>
-              <Badge variant="outline" className="text-xs px-2">
+              <Badge variant="outline" className="text-xs px-2 border-slate-200">
                 {selectedJob ? jobTypeLabels[selectedJob.jobType] || selectedJob.jobType : ''}
               </Badge>
               {selectedJob?.isRemote && (
-                <Badge variant="outline" className="text-xs px-2 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+                <Badge variant="outline" className="text-xs px-2 text-blue-600 border-blue-200">
                   Remote
                 </Badge>
               )}
@@ -623,16 +553,16 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
               <Separator />
 
               <div>
-                <h4 className="font-semibold mb-2">Description</h4>
+                <h4 className="font-semibold text-slate-900 mb-2">Description</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed">{selectedJob.description}</p>
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">{t.careerPage.requirements}</h4>
+                <h4 className="font-semibold text-slate-900 mb-2">{t.careerPage.requirements}</h4>
                 <ul className="space-y-1.5">
                   {selectedJob.requirements.map((req, i) => (
                     <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                      <span className={cn('w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0', `bg-gradient-to-r ${colors.gradient}`)} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 flex-shrink-0" />
                       {req}
                     </li>
                   ))}
@@ -640,11 +570,11 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">{t.careerPage.benefits}</h4>
+                <h4 className="font-semibold text-slate-900 mb-2">{t.careerPage.benefits}</h4>
                 <ul className="space-y-1.5">
                   {selectedJob.benefits.map((ben, i) => (
                     <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                      <span className={cn('w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0', `bg-gradient-to-r ${colors.gradient}`)} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 flex-shrink-0" />
                       {ben}
                     </li>
                   ))}
@@ -656,7 +586,7 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   onClick={() => { setShowJobDialog(false); setShowApplyDialog(true); }}
-                  className={cn('flex-1 bg-gradient-to-r text-white shadow-md', colors.gradient)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {t.careerPage.applyNow}
                 </Button>
@@ -672,9 +602,9 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
 
       {/* Apply Dialog */}
       <Dialog open={showApplyDialog} onOpenChange={setShowApplyDialog}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto dialog-content-glow">
-          <DialogHeader className="dialog-header-accent pt-2">
-            <DialogTitle>{t.careerPage.applicationForm}</DialogTitle>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900">{t.careerPage.applicationForm}</DialogTitle>
             <DialogDescription>
               {selectedJob?.title} — {company.name}
             </DialogDescription>
@@ -725,8 +655,8 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
                 className={cn(
                   'relative flex flex-col items-center justify-center w-full h-28 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer',
                   isDragOver
-                    ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/20'
-                    : 'border-muted-foreground/25 hover:border-teal-400 hover:bg-muted/30'
+                    ? 'border-blue-500 bg-blue-50/50'
+                    : 'border-muted-foreground/25 hover:border-blue-400 hover:bg-muted/30'
                 )}
                 onClick={() => {
                   const input = document.createElement('input');
@@ -743,10 +673,10 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
                   <Upload className="w-6 h-6 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">
                     {appForm.resumeFile ? (
-                      <span className="text-teal-600 dark:text-teal-400">{appForm.resumeFile.name}</span>
+                      <span className="text-blue-600">{appForm.resumeFile.name}</span>
                     ) : (
                       <>
-                        <span className="text-teal-600 dark:text-teal-400">Click to upload</span> or drag and drop
+                        <span className="text-blue-600">Click to upload</span> or drag and drop
                       </>
                     )}
                   </p>
@@ -811,7 +741,7 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
             <Button
               onClick={handleApply}
               disabled={submitting}
-              className={cn('w-full bg-gradient-to-r text-white shadow-md', colors.gradient)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               {submitting ? (
                 <span className="flex items-center gap-2">

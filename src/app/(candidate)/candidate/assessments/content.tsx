@@ -63,16 +63,16 @@ interface CompletedAssessment {
 }
 
 const difficultyColors: Record<Difficulty, string> = {
-  Beginner: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  Intermediate: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Advanced: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  Beginner: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  Intermediate: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Advanced: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 const categoryColors: Record<AssessmentCategory, string> = {
-  Technical: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  Technical: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
   'Soft Skills': 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400 border-0',
   Design: 'bg-pink-50 text-pink-700 dark:bg-pink-950 dark:text-pink-400 border-0',
-  Domain: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
+  Domain: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
 };
 
 
@@ -239,11 +239,11 @@ export default function AssessmentsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Brain className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.assessments.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.assessments.title}</h1>
             <p className="text-sm text-muted-foreground">{t.assessments.subtitle}</p>
           </div>
         </div>
@@ -251,11 +251,11 @@ export default function AssessmentsContent() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <FileQuestion className="h-4 w-4" />
               </div>
               <div>
@@ -265,11 +265,11 @@ export default function AssessmentsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -279,11 +279,11 @@ export default function AssessmentsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Target className="h-4 w-4" />
               </div>
               <div>
@@ -293,11 +293,11 @@ export default function AssessmentsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-teal-600 to-emerald-700 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                 <Trophy className="h-4 w-4" />
               </div>
               <div>
@@ -314,7 +314,7 @@ export default function AssessmentsContent() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <BarChart3 className="h-4 w-4 text-blue-600" />
               {t.assessments.skillRadar}
             </CardTitle>
           </CardHeader>
@@ -324,7 +324,7 @@ export default function AssessmentsContent() {
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 w-full">
                 {skillDimensions.map((s) => (
                   <div key={s.label} className="text-center p-2 rounded-lg bg-muted/20 border border-border/30">
-                    <p className="text-lg font-bold text-teal-700 dark:text-teal-400">{s.value}%</p>
+                    <p className="text-lg font-bold text-blue-700">{s.value}%</p>
                     <p className="text-[10px] text-muted-foreground">{s.label}</p>
                   </div>
                 ))}
@@ -373,7 +373,7 @@ export default function AssessmentsContent() {
       {/* Available Assessments Grid */}
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
-          <FileQuestion className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <FileQuestion className="h-5 w-5 text-blue-600" />
           {t.assessments.availableAssessments}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -423,8 +423,8 @@ export default function AssessmentsContent() {
                       className={cn(
                         'w-full h-8 text-xs gap-1.5',
                         isCompleted
-                          ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950 dark:text-emerald-400 dark:hover:bg-emerald-900 border border-emerald-200 dark:border-emerald-800'
-                          : 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700'
+                          ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950 dark:hover:bg-emerald-900 border border-emerald-200 dark:border-emerald-800'
+                          : 'bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700'
                       )}
                       onClick={() => openStartDialog(assessment)}
                     >
@@ -452,7 +452,7 @@ export default function AssessmentsContent() {
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             {t.assessments.completedAssessments}
           </CardTitle>
         </CardHeader>
@@ -492,14 +492,14 @@ export default function AssessmentsContent() {
                             <div
                               className={cn(
                                 'h-full rounded-full',
-                                result.score >= 90 ? 'bg-emerald-500' : result.score >= 70 ? 'bg-teal-500' : 'bg-amber-500'
+                                result.score >= 90 ? 'bg-emerald-500' : result.score >= 70 ? 'bg-slate-500' : 'bg-amber-500'
                               )}
                               style={{ width: `${result.score}%` }}
                             />
                           </div>
                           <span className={cn(
                             'text-sm font-medium',
-                            result.score >= 90 ? 'text-emerald-600 dark:text-emerald-400' : result.score >= 70 ? 'text-teal-600 dark:text-teal-400' : 'text-amber-600 dark:text-amber-400'
+                            result.score >= 90 ? 'text-emerald-600' : result.score >= 70 ? 'text-blue-600' : 'text-amber-600'
                           )}>
                             {result.score}%
                           </span>
@@ -540,23 +540,23 @@ export default function AssessmentsContent() {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="text-center p-3 rounded-lg bg-muted/20 border border-border/30">
-                  <Timer className="h-5 w-5 text-teal-600 dark:text-teal-400 mx-auto mb-1" />
+                  <Timer className="h-5 w-5 text-blue-600 mx-auto mb-1" />
                   <p className="text-sm font-bold">{selectedAssessment.duration} {t.assessments.minutes}</p>
                   <p className="text-[10px] text-muted-foreground">{t.assessments.timeLimit}</p>
                 </div>
                 <div className="text-center p-3 rounded-lg bg-muted/20 border border-border/30">
-                  <FileQuestion className="h-5 w-5 text-teal-600 dark:text-teal-400 mx-auto mb-1" />
+                  <FileQuestion className="h-5 w-5 text-blue-600 mx-auto mb-1" />
                   <p className="text-sm font-bold">{selectedAssessment.questionCount}</p>
                   <p className="text-[10px] text-muted-foreground">{t.assessments.questions}</p>
                 </div>
                 <div className="text-center p-3 rounded-lg bg-muted/20 border border-border/30">
-                  <Zap className="h-5 w-5 text-teal-600 dark:text-teal-400 mx-auto mb-1" />
+                  <Zap className="h-5 w-5 text-blue-600 mx-auto mb-1" />
                   <p className="text-sm font-bold">{selectedAssessment.difficulty}</p>
                   <p className="text-[10px] text-muted-foreground">{t.assessments.difficulty}</p>
                 </div>
               </div>
               <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-800/50">
-                <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">{t.assessments.instructions}</p>
+                <p className="text-xs text-amber-700 font-medium">{t.assessments.instructions}</p>
                 <ul className="mt-2 space-y-1">
                   <li className="text-[10px] text-amber-600 dark:text-amber-500">• {t.assessments.instruction1}</li>
                   <li className="text-[10px] text-amber-600 dark:text-amber-500">• {t.assessments.instruction2}</li>
@@ -569,7 +569,7 @@ export default function AssessmentsContent() {
             <DialogClose asChild>
               <Button variant="outline">{t.common.cancel}</Button>
             </DialogClose>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-1.5">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-1.5">
               <Play className="h-4 w-4" />
               {t.assessments.beginAssessment}
             </Button>

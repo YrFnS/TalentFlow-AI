@@ -344,25 +344,25 @@ export default function ScorecardsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <ClipboardCheck className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{st.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{st.title}</h1>
             <p className="text-sm text-muted-foreground">{st.subtitle}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            className="border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+            className="border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
             onClick={openScorecardDialog}
           >
             <Star className="h-4 w-4 me-2" />
             {st.submitScorecard}
           </Button>
           <Button
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+            className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
             onClick={openCreateDialog}
           >
             <Plus className="h-4 w-4 me-2" />
@@ -373,11 +373,11 @@ export default function ScorecardsContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 card-relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <ClipboardCheck className="h-4 w-4" />
               </div>
               <div>
@@ -387,11 +387,11 @@ export default function ScorecardsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -401,11 +401,11 @@ export default function ScorecardsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Award className="h-4 w-4" />
               </div>
               <div>
@@ -415,11 +415,11 @@ export default function ScorecardsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600">
                 <BarChart3 className="h-4 w-4" />
               </div>
               <div>
@@ -439,7 +439,7 @@ export default function ScorecardsContent() {
             <h3 className="text-lg font-semibold mb-1">{st.noTemplates}</h3>
             <p className="text-sm text-muted-foreground mb-4">{st.noTemplatesDesc}</p>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               onClick={openCreateDialog}
             >
               <Plus className="h-4 w-4 me-2" />
@@ -452,7 +452,7 @@ export default function ScorecardsContent() {
           {templates.map((template) => (
             <Card
               key={template.id}
-              className="border-border/50 card-hover-lift transition-all duration-200 hover:shadow-md"
+              className="border-border/50 card-transition-all duration-200 hover:shadow-md"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
@@ -460,7 +460,7 @@ export default function ScorecardsContent() {
                     <CardTitle className="text-sm font-semibold flex items-center gap-2">
                       {template.name}
                       {template.isDefault && (
-                        <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0 text-[10px]">
+                        <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 border-0 text-[10px]">
                           {st.defaultTemplate}
                         </Badge>
                       )}
@@ -470,7 +470,7 @@ export default function ScorecardsContent() {
                     className={cn(
                       'text-[10px] border-0 shrink-0',
                       template.isActive
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950'
                         : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                     )}
                   >
@@ -489,8 +489,8 @@ export default function ScorecardsContent() {
                     className={cn(
                       'font-medium',
                       template.totalWeight === 100
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-red-600 dark:text-red-400'
+                        ? 'text-emerald-600'
+                        : 'text-red-600'
                     )}
                   >
                     {template.totalWeight}%
@@ -501,7 +501,7 @@ export default function ScorecardsContent() {
                     <Badge
                       key={c.id}
                       variant="outline"
-                      className="text-[10px] border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400"
+                      className="text-[10px] border-slate-200 text-blue-700"
                     >
                       {c.name} ({c.weight}%)
                     </Badge>
@@ -528,7 +528,7 @@ export default function ScorecardsContent() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 px-2 text-xs text-teal-600 dark:text-teal-400"
+                    className="h-7 px-2 text-xs text-blue-600"
                     onClick={() => openEditDialog(template)}
                   >
                     <Edit className="h-3 w-3 me-1" />
@@ -557,7 +557,7 @@ export default function ScorecardsContent() {
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ClipboardCheck className="h-5 w-5 text-teal-600" />
+              <ClipboardCheck className="h-5 w-5 text-blue-600" />
               {editTemplate ? st.editTemplate : st.createTemplate}
             </DialogTitle>
           </DialogHeader>
@@ -579,7 +579,7 @@ export default function ScorecardsContent() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400"
+                  className="text-xs border-slate-200 text-blue-700"
                   onClick={addCriterion}
                 >
                   <Plus className="h-3 w-3 me-1" />
@@ -646,7 +646,7 @@ export default function ScorecardsContent() {
                 className={cn(
                   'flex items-center justify-between p-3 rounded-lg',
                   totalWeight === 100
-                    ? 'bg-emerald-50 dark:bg-emerald-950/30'
+                    ? 'bg-emerald-50'
                     : 'bg-red-50 dark:bg-red-950/30'
                 )}
               >
@@ -656,16 +656,16 @@ export default function ScorecardsContent() {
                     className={cn(
                       'text-lg font-bold',
                       totalWeight === 100
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-red-600 dark:text-red-400'
+                        ? 'text-emerald-600'
+                        : 'text-red-600'
                     )}
                   >
                     {totalWeight}%
                   </span>
                   {totalWeight === 100 ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                   ) : (
-                    <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                    <AlertCircle className="h-4 w-4 text-red-600" />
                   )}
                 </div>
               </div>
@@ -688,7 +688,7 @@ export default function ScorecardsContent() {
               <Button variant="outline">{t.common.cancel}</Button>
             </DialogClose>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               onClick={handleSaveTemplate}
               disabled={totalWeight !== 100 || !formName.trim()}
             >
@@ -703,7 +703,7 @@ export default function ScorecardsContent() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-teal-600" />
+              <Eye className="h-5 w-5 text-blue-600" />
               {st.templateDetails}
             </DialogTitle>
           </DialogHeader>
@@ -712,7 +712,7 @@ export default function ScorecardsContent() {
               <div className="flex items-center gap-3">
                 <h2 className="text-lg font-semibold">{viewTemplate.name}</h2>
                 {viewTemplate.isDefault && (
-                  <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0 text-[10px]">
+                  <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 border-0 text-[10px]">
                     {st.defaultTemplate}
                   </Badge>
                 )}
@@ -720,7 +720,7 @@ export default function ScorecardsContent() {
                   className={cn(
                     'text-[10px] border-0',
                     viewTemplate.isActive
-                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950'
                       : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                   )}
                 >
@@ -748,7 +748,7 @@ export default function ScorecardsContent() {
                         </div>
                         <Badge
                           variant="outline"
-                          className="text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 shrink-0"
+                          className="text-xs border-slate-200 text-blue-700 shrink-0"
                         >
                           {c.weight}%
                         </Badge>
@@ -761,7 +761,7 @@ export default function ScorecardsContent() {
                 className={cn(
                   'flex items-center justify-between p-3 rounded-lg',
                   viewTemplate.totalWeight === 100
-                    ? 'bg-emerald-50 dark:bg-emerald-950/30'
+                    ? 'bg-emerald-50'
                     : 'bg-red-50 dark:bg-red-950/30'
                 )}
               >
@@ -770,8 +770,8 @@ export default function ScorecardsContent() {
                   className={cn(
                     'font-bold',
                     viewTemplate.totalWeight === 100
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'text-red-600 dark:text-red-400'
+                      ? 'text-emerald-600'
+                      : 'text-red-600'
                   )}
                 >
                   {viewTemplate.totalWeight}%
@@ -850,10 +850,10 @@ export default function ScorecardsContent() {
                   <label className="text-sm font-medium">{st.overallRecommendation}</label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { value: 'STRONG_HIRE', label: st.strongHire, color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700' },
-                      { value: 'HIRE', label: st.hire, color: 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-teal-300 dark:border-teal-700' },
-                      { value: 'NO_HIRE', label: st.noHire, color: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-amber-300 dark:border-amber-700' },
-                      { value: 'STRONG_NO_HIRE', label: st.strongNoHire, color: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 border-red-300 dark:border-red-700' },
+                      { value: 'STRONG_HIRE', label: st.strongHire, color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700' },
+                      { value: 'HIRE', label: st.hire, color: 'bg-teal-100 text-blue-700 dark:bg-teal-950 border-slate-300' },
+                      { value: 'NO_HIRE', label: st.noHire, color: 'bg-amber-100 text-amber-700 dark:bg-amber-950 border-amber-300 dark:border-amber-700' },
+                      { value: 'STRONG_NO_HIRE', label: st.strongNoHire, color: 'bg-red-100 text-red-700 dark:bg-red-950 border-red-300 dark:border-red-700' },
                     ].map((option) => (
                       <button
                         key={option.value}
@@ -888,7 +888,7 @@ export default function ScorecardsContent() {
               <Button variant="outline">{t.common.cancel}</Button>
             </DialogClose>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               onClick={handleSubmitScorecard}
               disabled={!scorecardTemplateId || !overallRecommendation}
             >

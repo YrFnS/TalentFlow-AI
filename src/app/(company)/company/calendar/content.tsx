@@ -63,10 +63,10 @@ interface CalendarEvent {
 }
 
 const eventTypeColors: Record<EventType, { bg: string; text: string; icon: React.ElementType }> = {
-  Interview: { bg: 'bg-teal-100 dark:bg-teal-950/50', text: 'text-teal-700 dark:text-teal-400', icon: Video },
-  Meeting: { bg: 'bg-emerald-100 dark:bg-emerald-950/50', text: 'text-emerald-700 dark:text-emerald-400', icon: CalendarIcon },
-  Call: { bg: 'bg-cyan-100 dark:bg-cyan-950/50', text: 'text-cyan-700 dark:text-cyan-400', icon: Phone },
-  Deadline: { bg: 'bg-amber-100 dark:bg-amber-950/50', text: 'text-amber-700 dark:text-amber-400', icon: AlertCircle },
+  Interview: { bg: 'bg-teal-100', text: 'text-blue-700', icon: Video },
+  Meeting: { bg: 'bg-emerald-100 dark:bg-emerald-950/50', text: 'text-emerald-700', icon: CalendarIcon },
+  Call: { bg: 'bg-cyan-100 dark:bg-cyan-950/50', text: 'text-cyan-700', icon: Phone },
+  Deadline: { bg: 'bg-amber-100 dark:bg-amber-950/50', text: 'text-amber-700', icon: AlertCircle },
   Reminder: { bg: 'bg-rose-100 dark:bg-rose-950/50', text: 'text-rose-700 dark:text-rose-400', icon: Bell },
   Other: { bg: 'bg-gray-100 dark:bg-gray-800/50', text: 'text-gray-700 dark:text-gray-400', icon: MoreHorizontal },
 };
@@ -234,15 +234,15 @@ export default function CalendarContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <CalendarIcon className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.calendar.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.calendar.title}</h1>
             <p className="text-sm text-muted-foreground">{t.calendar.subtitle}</p>
           </div>
         </div>
-        <Button onClick={() => openCreateDialog()} className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+        <Button onClick={() => openCreateDialog()} className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
           <Plus className="h-4 w-4 me-2" />
           {t.calendar.createEvent}
         </Button>
@@ -276,7 +276,7 @@ export default function CalendarContent() {
                     onClick={() => setViewMode('month')}
                     className={cn(
                       'px-3 py-1 rounded-md text-xs font-medium transition-colors',
-                      viewMode === 'month' ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white' : 'text-muted-foreground hover:text-foreground'
+                      viewMode === 'month' ? 'bg-gradient-to-r bg-blue-600 text-white' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     {t.calendar.monthView}
@@ -285,7 +285,7 @@ export default function CalendarContent() {
                     onClick={() => setViewMode('week')}
                     className={cn(
                       'px-3 py-1 rounded-md text-xs font-medium transition-colors',
-                      viewMode === 'week' ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white' : 'text-muted-foreground hover:text-foreground'
+                      viewMode === 'week' ? 'bg-gradient-to-r bg-blue-600 text-white' : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     {t.calendar.weekView}
@@ -322,13 +322,13 @@ export default function CalendarContent() {
                         onClick={() => handleDayClick(dateStr)}
                         className={cn(
                           'min-h-[80px] sm:min-h-[100px] p-1.5 rounded text-start transition-colors relative group',
-                          isSelected ? 'bg-teal-50 dark:bg-teal-950/30 ring-1 ring-teal-500' : 'hover:bg-muted/30',
-                          isToday && !isSelected && 'bg-teal-50/30 dark:bg-teal-950/10'
+                          isSelected ? 'bg-slate-50 ring-1 ring-blue-500' : 'hover:bg-muted/30',
+                          isToday && !isSelected && 'bg-slate-50/30 dark:bg-teal-950/10'
                         )}
                       >
                         <span className={cn(
                           'inline-flex items-center justify-center h-6 w-6 rounded-full text-xs font-medium',
-                          isToday ? 'bg-teal-500 text-white ring-2 ring-teal-300' : 'text-foreground'
+                          isToday ? 'bg-slate-500 text-white ring-2 ring-teal-300' : 'text-foreground'
                         )}>
                           {day}
                         </span>
@@ -369,12 +369,12 @@ export default function CalendarContent() {
                       <div key={wd.dateStr} className="space-y-2">
                         <div className={cn(
                           'text-center py-2 rounded-lg',
-                          wd.isToday ? 'bg-teal-50 dark:bg-teal-950/30' : ''
+                          wd.isToday ? 'bg-slate-50' : ''
                         )}>
                           <div className="text-xs text-muted-foreground">{wd.dayName}</div>
                           <div className={cn(
                             'text-lg font-bold',
-                            wd.isToday ? 'text-teal-600 dark:text-teal-400' : ''
+                            wd.isToday ? 'text-blue-600' : ''
                           )}>{wd.dayNum}</div>
                         </div>
                         {dayEvents.length > 0 ? dayEvents.map(evt => {
@@ -413,7 +413,7 @@ export default function CalendarContent() {
             <Card className="border-border/50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <Clock className="h-4 w-4 text-blue-600" />
                   {t.calendar.eventsFor} {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                 </CardTitle>
               </CardHeader>
@@ -460,7 +460,7 @@ export default function CalendarContent() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Bell className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Bell className="h-4 w-4 text-blue-600" />
                 {t.calendar.upcomingEvents}
               </CardTitle>
             </CardHeader>
@@ -529,31 +529,31 @@ export default function CalendarContent() {
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <CalendarIcon className="h-4 w-4 text-teal-600" />
+                  <CalendarIcon className="h-4 w-4 text-blue-600" />
                   <span>{new Date(detailEvent.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 </div>
                 {!detailEvent.allDay && (
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4 text-teal-600" />
+                    <Clock className="h-4 w-4 text-blue-600" />
                     <span>{formatTime12(detailEvent.startTime)} - {formatTime12(detailEvent.endTime)}</span>
                   </div>
                 )}
                 {detailEvent.allDay && (
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4 text-teal-600" />
+                    <Clock className="h-4 w-4 text-blue-600" />
                     <span>{t.calendar.allDay}</span>
                   </div>
                 )}
                 {detailEvent.location && (
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="h-4 w-4 text-teal-600" />
+                    <MapPin className="h-4 w-4 text-blue-600" />
                     <span>{detailEvent.location}</span>
                   </div>
                 )}
                 {detailEvent.meetingLink && (
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Video className="h-4 w-4 text-teal-600" />
-                    <a href={detailEvent.meetingLink} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline truncate flex items-center gap-1">
+                    <Video className="h-4 w-4 text-blue-600" />
+                    <a href={detailEvent.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate flex items-center gap-1">
                       {detailEvent.meetingLink}
                       <ExternalLink className="h-3 w-3" />
                     </a>
@@ -561,7 +561,7 @@ export default function CalendarContent() {
                 )}
                 {detailEvent.applicationName && (
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <FileText className="h-4 w-4 text-teal-600" />
+                    <FileText className="h-4 w-4 text-blue-600" />
                     <span>{t.calendar.relatedApplication}: {detailEvent.applicationName}</span>
                   </div>
                 )}
@@ -626,7 +626,7 @@ export default function CalendarContent() {
                 id="allDay"
                 checked={formAllDay}
                 onChange={(e) => setFormAllDay(e.target.checked)}
-                className="h-4 w-4 rounded border-border text-teal-600 focus:ring-teal-500"
+                className="h-4 w-4 rounded border-border text-blue-600 focus:ring-blue-500"
               />
               <Label htmlFor="allDay" className="text-sm font-medium cursor-pointer">{t.calendar.allDay}</Label>
             </div>
@@ -689,7 +689,7 @@ export default function CalendarContent() {
             <DialogClose asChild>
               <Button variant="outline">{t.common.cancel}</Button>
             </DialogClose>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
               {t.common.create}
             </Button>
           </DialogFooter>

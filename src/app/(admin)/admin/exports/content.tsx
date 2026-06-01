@@ -194,18 +194,18 @@ export default function ExportsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Download className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.dataExport.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.dataExport.title}</h1>
             <p className="text-sm text-muted-foreground">{t.dataExport.subtitle}</p>
           </div>
         </div>
         <Button
           onClick={handleBulkExport}
           disabled={exportingId === 'bulk'}
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
         >
           {exportingId === 'bulk' ? (
             <>
@@ -224,7 +224,7 @@ export default function ExportsContent() {
       {/* Bulk Export Description */}
       <Card className="border-border/50 bg-gradient-to-r from-teal-50/50 to-emerald-50/50 dark:from-teal-950/20 dark:to-emerald-950/20">
         <CardContent className="p-4 flex items-center gap-3">
-          <Archive className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
+          <Archive className="h-5 w-5 text-blue-600 shrink-0" />
           <div>
             <p className="text-sm font-medium">{t.dataExport.bulkExport}</p>
             <p className="text-xs text-muted-foreground">{t.dataExport.bulkExportDesc}</p>
@@ -235,7 +235,7 @@ export default function ExportsContent() {
       {/* Export Categories */}
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
-          <Download className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <Download className="h-5 w-5 text-blue-600" />
           {t.dataExport.exportCategories}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -245,7 +245,7 @@ export default function ExportsContent() {
             const currentFormat = exportFormats[cat.id];
 
             return (
-              <Card key={cat.id} className="border-border/50 card-hover-lift animate-fade-in-up">
+              <Card key={cat.id} className="border-border/50 card-animate-fade-in-up">
                 <CardContent className="p-5 space-y-4">
                   <div className="flex items-start gap-3">
                     <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br text-white shrink-0', cat.color)}>
@@ -260,7 +260,7 @@ export default function ExportsContent() {
                   </div>
 
                   <div className="flex items-center gap-2 text-xs">
-                    <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                    <Badge className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                       <CheckCircle2 className="h-3 w-3 me-1" />
                       {cat.recordCount.toLocaleString()} {t.dataExport.recordCount}
                     </Badge>
@@ -276,7 +276,7 @@ export default function ExportsContent() {
                           name={`format-${cat.id}`}
                           checked={currentFormat === 'csv'}
                           onChange={() => setExportFormats(prev => ({ ...prev, [cat.id]: 'csv' }))}
-                          className="h-3.5 w-3.5 text-teal-600 focus:ring-teal-500 border-border"
+                          className="h-3.5 w-3.5 text-blue-600 focus:ring-blue-500 border-border"
                         />
                         <span className="text-xs font-medium">{t.dataExport.formatCSV}</span>
                       </label>
@@ -286,7 +286,7 @@ export default function ExportsContent() {
                           name={`format-${cat.id}`}
                           checked={currentFormat === 'json'}
                           onChange={() => setExportFormats(prev => ({ ...prev, [cat.id]: 'json' }))}
-                          className="h-3.5 w-3.5 text-teal-600 focus:ring-teal-500 border-border"
+                          className="h-3.5 w-3.5 text-blue-600 focus:ring-blue-500 border-border"
                         />
                         <span className="text-xs font-medium">{t.dataExport.formatJSON}</span>
                       </label>
@@ -319,7 +319,7 @@ export default function ExportsContent() {
                     size="sm"
                     onClick={() => handleExport(cat)}
                     disabled={isExporting}
-                    className="w-full h-9 text-xs bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-1.5"
+                    className="w-full h-9 text-xs bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-1.5"
                   >
                     {isExporting ? (
                       <>
@@ -344,7 +344,7 @@ export default function ExportsContent() {
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <Clock className="h-4 w-4 text-blue-600" />
             {t.dataExport.exportHistory}
           </CardTitle>
         </CardHeader>
@@ -371,8 +371,8 @@ export default function ExportsContent() {
                         <Badge className={cn(
                           'text-[10px] border-0',
                           entry.format === 'CSV'
-                            ? 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400'
-                            : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+                            ? 'bg-slate-50 text-blue-700 dark:bg-teal-950'
+                            : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
                         )}>
                           {entry.format}
                         </Badge>
@@ -385,7 +385,7 @@ export default function ExportsContent() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 text-xs gap-1 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800"
+                          className="h-7 text-xs gap-1 hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400 hover:border-slate-200 dark:hover:border-teal-800"
                           onClick={() => handleRedownload(entry)}
                         >
                           <Download className="h-3 w-3" />

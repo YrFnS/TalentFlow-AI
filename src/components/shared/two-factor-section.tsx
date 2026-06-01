@@ -159,7 +159,7 @@ export default function TwoFactorSection() {
       <Card className="animate-fade-in-up">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-teal-600" />
+            <ShieldCheck className="h-5 w-5 text-blue-600" />
             {tf.title || 'Two-Factor Authentication'}
           </CardTitle>
           <CardDescription>{tf.description || 'Add an extra layer of security to your account'}</CardDescription>
@@ -169,15 +169,15 @@ export default function TwoFactorSection() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                    <Check className="h-5 w-5 text-emerald-600" />
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                    <Check className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
                     <p className="font-medium">{tf.enabled || '2FA is enabled'}</p>
                     <p className="text-sm text-muted-foreground">{tf.description || 'Add an extra layer of security to your account'}</p>
                   </div>
                 </div>
-                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+                <Badge className="bg-green-100 text-green-700">
                   <Check className="h-3 w-3 me-1" />
                   {tf.enabled || '2FA is enabled'}
                 </Badge>
@@ -187,7 +187,7 @@ export default function TwoFactorSection() {
               {showBackupCodes && savedBackupCodes.length > 0 && (
                 <div className="p-4 border border-amber-200 dark:border-amber-800 rounded-lg bg-amber-50 dark:bg-amber-900/20 space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-amber-800 dark:text-amber-300">
+                    <p className="font-medium text-amber-800">
                       {tf.backupCodes || 'Backup Codes'}
                     </p>
                     <div className="flex gap-2">
@@ -201,7 +201,7 @@ export default function TwoFactorSection() {
                       </Button>
                     </div>
                   </div>
-                  <p className="text-sm text-amber-700 dark:text-amber-400">
+                  <p className="text-sm text-amber-700">
                     {tf.backupCodesDesc || 'Save these backup codes in a safe place. Each can only be used once.'}
                   </p>
                   <div className="grid grid-cols-2 gap-2 font-mono text-sm">
@@ -216,7 +216,7 @@ export default function TwoFactorSection() {
 
               <Button
                 variant="outline"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
                 onClick={() => setShowDisableDialog(true)}
               >
                 <ShieldOff className="h-4 w-4 me-2" />
@@ -241,7 +241,7 @@ export default function TwoFactorSection() {
               </div>
 
               <Button
-                className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={handleSetup}
                 disabled={isLoading}
               >
@@ -262,7 +262,7 @@ export default function TwoFactorSection() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5 text-teal-600" />
+              <QrCode className="h-5 w-5 text-blue-600" />
               {tf.setupTitle || 'Set Up Two-Factor Authentication'}
             </DialogTitle>
             <DialogDescription>
@@ -323,7 +323,7 @@ export default function TwoFactorSection() {
               {t.common.cancel}
             </Button>
             <Button
-              className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={handleVerifySetup}
               disabled={isVerifying || !verifyCode.trim()}
             >

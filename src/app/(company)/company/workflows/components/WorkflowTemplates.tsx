@@ -26,7 +26,7 @@ export default function WorkflowTemplates({ templates, applyTemplate }: Workflow
         return (
           <Card
             key={template.id}
-            className="border-border/50 hover:border-teal-300 dark:hover:border-teal-700 cursor-pointer transition-colors card-hover-lift"
+            className="border-border/50 hover:border-slate-300 cursor-pointer transition-colors card-"
             onClick={() => applyTemplate(template)}
           >
             <CardContent className="p-4">
@@ -35,7 +35,7 @@ export default function WorkflowTemplates({ templates, applyTemplate }: Workflow
                   <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
                   <p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>
                   <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                    <Badge variant="outline" className="text-[10px] text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800">
+                    <Badge variant="outline" className="text-[10px] text-blue-700 border-slate-200">
                       <Zap className="h-2.5 w-2.5 me-1" />
                       {getTriggerLabel(template.trigger, t)}
                     </Badge>
@@ -56,7 +56,7 @@ export default function WorkflowTemplates({ templates, applyTemplate }: Workflow
                     ))}
                   </div>
                 </div>
-                <Button size="sm" variant="outline" className="shrink-0 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400">
+                <Button size="sm" variant="outline" className="shrink-0 border-slate-200 text-blue-700">
                   {t.workflows.useTemplate}
                 </Button>
               </div>

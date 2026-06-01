@@ -216,9 +216,9 @@ function RiskGauge({ score, size = 180 }: { score: number; size?: number }) {
 // Recommendation badge component
 function RecommendationBadge({ recommendation }: { recommendation: string }) {
   const config: Record<string, { color: string; bgColor: string; icon: React.ElementType }> = {
-    Proceed: { color: 'text-emerald-700 dark:text-emerald-400', bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', icon: CheckCircle2 },
-    Caution: { color: 'text-amber-700 dark:text-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-900/30', icon: AlertTriangle },
-    Pass: { color: 'text-red-700 dark:text-red-400', bgColor: 'bg-red-100 dark:bg-red-900/30', icon: XCircle },
+    Proceed: { color: 'text-emerald-700', bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', icon: CheckCircle2 },
+    Caution: { color: 'text-amber-700', bgColor: 'bg-amber-100 dark:bg-amber-900/30', icon: AlertTriangle },
+    Pass: { color: 'text-red-700', bgColor: 'bg-red-100 dark:bg-red-900/30', icon: XCircle },
   };
 
   const cfg = config[recommendation] || config['Caution'];
@@ -259,9 +259,9 @@ function getCategoryKey(category: string): string {
 
 // Severity color
 function getSeverityColor(severity: string): string {
-  if (severity === 'high') return 'text-red-600 dark:text-red-400';
-  if (severity === 'medium') return 'text-amber-600 dark:text-amber-400';
-  return 'text-emerald-600 dark:text-emerald-400';
+  if (severity === 'high') return 'text-red-600';
+  if (severity === 'medium') return 'text-amber-600';
+  return 'text-emerald-600';
 }
 
 function getSeverityBg(severity: string): string {
@@ -373,9 +373,9 @@ export default function RiskAnalysisContent() {
       title: t.riskAnalysis.totalAnalyzed,
       value: stats.total,
       icon: ShieldCheck,
-      gradient: 'from-teal-500 to-emerald-600',
-      bgColor: 'bg-teal-50 dark:bg-teal-950/30',
-      iconColor: 'text-teal-600 dark:text-teal-400',
+      gradient: 'bg-blue-600',
+      bgColor: 'bg-slate-50',
+      iconColor: 'text-blue-600',
     },
     {
       title: t.riskAnalysis.highRisk,
@@ -383,7 +383,7 @@ export default function RiskAnalysisContent() {
       icon: ShieldAlert,
       gradient: 'from-red-500 to-rose-600',
       bgColor: 'bg-red-50 dark:bg-red-950/30',
-      iconColor: 'text-red-600 dark:text-red-400',
+      iconColor: 'text-red-600',
     },
     {
       title: t.riskAnalysis.mediumRisk,
@@ -391,15 +391,15 @@ export default function RiskAnalysisContent() {
       value: stats.medium,
       gradient: 'from-amber-500 to-orange-600',
       bgColor: 'bg-amber-50 dark:bg-amber-950/30',
-      iconColor: 'text-amber-600 dark:text-amber-400',
+      iconColor: 'text-amber-600',
     },
     {
       title: t.riskAnalysis.lowRisk,
       value: stats.low,
       icon: ShieldCheck,
       gradient: 'from-emerald-500 to-cyan-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-950/30',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      bgColor: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
     },
   ];
 
@@ -409,13 +409,13 @@ export default function RiskAnalysisContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <ShieldAlert className="w-7 h-7 text-teal-600 dark:text-teal-400" />
+            <ShieldAlert className="w-7 h-7 text-blue-600" />
             {t.riskAnalysis.title}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">{t.riskAnalysis.subtitle}</p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+          <Sparkles className="w-3.5 h-3.5 text-blue-500" />
           {t.common.poweredBy}
         </div>
       </div>
@@ -427,7 +427,7 @@ export default function RiskAnalysisContent() {
           return (
             <Card
               key={card.title}
-              className="card-hover-lift animate-fade-in-up relative overflow-hidden border-0 shadow-sm"
+              className="card-animate-fade-in-up relative overflow-hidden border-0 shadow-sm"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/80 to-emerald-50/80 dark:from-teal-950/20 dark:to-emerald-950/20" />
@@ -603,7 +603,7 @@ export default function RiskAnalysisContent() {
                         <td className="p-3">
                           <div className="flex items-center gap-2">
                             <Avatar className="w-8 h-8">
-                              <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-[10px]">
+                              <AvatarFallback className="bg-teal-100 text-blue-700 text-[10px]">
                                 {getInitials(candidate.candidateName)}
                               </AvatarFallback>
                             </Avatar>
@@ -624,7 +624,7 @@ export default function RiskAnalysisContent() {
                             </div>
                             <span className={cn(
                               'text-xs font-semibold',
-                              candidate.riskScore > 60 ? 'text-red-600 dark:text-red-400' : candidate.riskScore >= 30 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400',
+                              candidate.riskScore > 60 ? 'text-red-600' : candidate.riskScore >= 30 ? 'text-amber-600' : 'text-emerald-600',
                             )}>
                               {candidate.riskScore}
                             </span>
@@ -638,13 +638,13 @@ export default function RiskAnalysisContent() {
                                 variant="outline"
                                 className={cn(
                                   'text-[10px] px-1.5 py-0 border-0',
-                                  f.severity === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                                  f.severity === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700',
                                 )}
                               >
                                 {t.riskAnalysis[getCategoryKey(f.category) as keyof typeof t.riskAnalysis]}
                               </Badge>
                             )) : (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-0 bg-emerald-100 text-emerald-700">
                                 Low Risk
                               </Badge>
                             )}
@@ -660,7 +660,7 @@ export default function RiskAnalysisContent() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
+                            className="text-blue-600 hover:text-blue-700 dark:hover:text-blue-300"
                             onClick={() => handleViewDetails(candidate)}
                           >
                             <Eye className="w-4 h-4 me-1" />
@@ -682,7 +682,7 @@ export default function RiskAnalysisContent() {
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto dialog-content-glow">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-teal-600" />
+              <ShieldAlert className="w-5 h-5 text-blue-600" />
               {t.riskAnalysis.analysisDetails}
             </DialogTitle>
             <DialogDescription>
@@ -774,18 +774,18 @@ export default function RiskAnalysisContent() {
                               ? 'bg-red-500 border-red-300 dark:border-red-700'
                               : entry.flag === 'short_tenure'
                                 ? 'bg-amber-500 border-amber-300 dark:border-amber-700'
-                                : 'bg-teal-500 border-teal-300 dark:border-teal-700',
+                                : 'bg-slate-500 border-slate-300',
                           )} />
                           <div className="flex-1 min-w-0 pt-0.5">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-medium">{entry.role || t.riskAnalysis.employmentGaps}</span>
                               {entry.flag === 'gap' && (
-                                <Badge variant="outline" className="text-[9px] px-1 py-0 border-0 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 border-0 bg-red-100 text-red-700">
                                   Gap
                                 </Badge>
                               )}
                               {entry.flag === 'short_tenure' && (
-                                <Badge variant="outline" className="text-[9px] px-1 py-0 border-0 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 border-0 bg-amber-100 text-amber-700">
                                   Short
                                 </Badge>
                               )}
@@ -809,7 +809,7 @@ export default function RiskAnalysisContent() {
                   <h4 className="text-sm font-semibold">{t.riskAnalysis.detailedAnalysis}</h4>
                   <Button
                     size="sm"
-                    className="bg-teal-600 hover:bg-teal-700 text-white"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={handleGenerateReport}
                     disabled={generatingReport}
                   >
@@ -830,7 +830,7 @@ export default function RiskAnalysisContent() {
                 <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
                   {generatingReport ? (
                     <div className="flex items-center gap-3 py-4">
-                      <Loader2 className="w-5 h-5 text-teal-600 animate-spin" />
+                      <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
                       <div className="flex-1">
                         <p className="text-sm text-muted-foreground">{t.riskAnalysis.generating}</p>
                         <div className="flex gap-1 mt-2">
@@ -859,11 +859,11 @@ export default function RiskAnalysisContent() {
               )}>
                 <div className="flex items-center gap-3">
                   {selectedCandidate.recommendation === 'Proceed' ? (
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
                   ) : selectedCandidate.recommendation === 'Pass' ? (
-                    <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                    <XCircle className="w-6 h-6 text-red-600" />
                   ) : (
-                    <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                    <AlertTriangle className="w-6 h-6 text-amber-600" />
                   )}
                   <div>
                     <p className="text-sm font-semibold">{t.riskAnalysis.recommendation}</p>

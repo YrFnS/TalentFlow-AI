@@ -47,24 +47,24 @@ interface Ticket {
 }
 
 const statusConfig: Record<TicketStatus, { label: string; color: string; icon: React.ElementType }> = {
-  open: { label: 'Open', color: 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0', icon: AlertCircle },
-  in_progress: { label: 'In Progress', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: Clock },
-  resolved: { label: 'Resolved', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: CheckCircle2 },
+  open: { label: 'Open', color: 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0', icon: AlertCircle },
+  in_progress: { label: 'In Progress', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: Clock },
+  resolved: { label: 'Resolved', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: CheckCircle2 },
   closed: { label: 'Closed', color: 'bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border-0', icon: XCircle },
 };
 
 const priorityConfig: Record<Priority, { label: string; color: string; dot: string }> = {
   low: { label: 'Low', color: 'bg-slate-50 text-slate-600 dark:bg-slate-900 dark:text-slate-400 border-0', dot: 'bg-slate-400' },
-  medium: { label: 'Medium', color: 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 border-0', dot: 'bg-blue-500' },
-  high: { label: 'High', color: 'bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400 border-0', dot: 'bg-amber-500' },
-  critical: { label: 'Critical', color: 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400 border-0', dot: 'bg-red-500' },
+  medium: { label: 'Medium', color: 'bg-blue-50 text-blue-600 dark:bg-blue-950 border-0', dot: 'bg-blue-500' },
+  high: { label: 'High', color: 'bg-amber-50 text-amber-600 dark:bg-amber-950 border-0', dot: 'bg-amber-500' },
+  critical: { label: 'Critical', color: 'bg-red-50 text-red-600 dark:bg-red-950 border-0', dot: 'bg-red-500' },
 };
 
 const categoryConfig: Record<Category, string> = {
-  Technical: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  Billing: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  Account: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border-0',
-  'Feature Request': 'bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-400 border-0',
+  Technical: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  Billing: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  Account: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 border-0',
+  'Feature Request': 'bg-violet-50 text-violet-700 dark:bg-violet-950 border-0',
   'Bug Report': 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400 border-0',
 };
 
@@ -105,7 +105,7 @@ export default function SupportPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <LifeBuoy className="h-5 w-5" />
           </div>
           <div>
@@ -120,7 +120,7 @@ export default function SupportPage() {
         <Card className="border-border/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <MessageSquare className="h-4 w-4" />
               </div>
               <div>
@@ -133,7 +133,7 @@ export default function SupportPage() {
         <Card className="border-border/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
                 <AlertCircle className="h-4 w-4" />
               </div>
               <div>
@@ -146,7 +146,7 @@ export default function SupportPage() {
         <Card className="border-border/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -159,7 +159,7 @@ export default function SupportPage() {
         <Card className="border-border/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div>
@@ -271,22 +271,22 @@ export default function SupportPage() {
                     <div className="mt-4 pt-4 border-t border-border/50 space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                         <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                          <User className="h-4 w-4 text-blue-600 shrink-0" />
                           <span className="text-muted-foreground">{t.support.reporter}:</span>
                           <span className="font-medium">{ticket.reporter}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <BarChart3 className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                          <BarChart3 className="h-4 w-4 text-blue-600 shrink-0" />
                           <span className="text-muted-foreground">{t.support.category}:</span>
                           <Badge className={cn('text-[10px]', categoryConfig[ticket.category])}>{ticket.category}</Badge>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                          <Clock className="h-4 w-4 text-blue-600 shrink-0" />
                           <span className="text-muted-foreground">{t.support.createdDate}:</span>
                           <span className="font-medium">{ticket.createdDate}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <AlertCircle className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                          <AlertCircle className="h-4 w-4 text-blue-600 shrink-0" />
                           <span className="text-muted-foreground">{t.support.lastUpdate}:</span>
                           <span className="font-medium">{ticket.lastUpdate}</span>
                         </div>

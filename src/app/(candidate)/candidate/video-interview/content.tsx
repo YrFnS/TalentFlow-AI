@@ -261,7 +261,7 @@ export default function VideoInterviewCandidateContent() {
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
           <Video className="h-5 w-5" />
         </div>
         <div>
@@ -273,7 +273,7 @@ export default function VideoInterviewCandidateContent() {
       {/* Upcoming Interviews */}
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
-          <Clock className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <Clock className="h-5 w-5 text-blue-600" />
           {t.asyncInterview.upcoming}
         </h2>
         {pendingInterviews.length === 0 ? (
@@ -288,11 +288,11 @@ export default function VideoInterviewCandidateContent() {
           {pendingInterviews.map((interview) => {
             const isDeadlinePassed = new Date(interview.deadline) < new Date();
             return (
-              <Card key={interview.id} className="card-hover-lift border-border/50 overflow-hidden">
-                <div className="h-24 bg-gradient-to-br from-teal-500 to-emerald-600 relative flex items-center justify-center">
+              <Card key={interview.id} className="card-border-border/50 overflow-hidden">
+                <div className="h-24 bg-gradient-to-br bg-blue-600 relative flex items-center justify-center">
                   <Video className="h-10 w-10 text-white/20" />
                   <div className="absolute top-2 start-2">
-                    <Badge className="bg-white/20 text-white border-0 text-[10px] backdrop-blur-sm">
+                    <Badge className="bg-white/20 text-white border-0 text-[10px]">
                       {interview.questions.length} {t.asyncInterview.questions}
                     </Badge>
                   </div>
@@ -301,7 +301,7 @@ export default function VideoInterviewCandidateContent() {
                       'text-[10px] border-0',
                       isDeadlinePassed
                         ? 'bg-red-500/80 text-white'
-                        : 'bg-white/20 text-white backdrop-blur-sm'
+                        : 'bg-white/20 text-white'
                     )}>
                       {isDeadlinePassed ? t.asyncInterview.deadlinePassed : interview.status}
                     </Badge>
@@ -325,7 +325,7 @@ export default function VideoInterviewCandidateContent() {
                     </span>
                   </div>
                   <Button
-                    className="w-full h-8 text-xs bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                    className="w-full h-8 text-xs bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
                     onClick={() => handleStartInterview(interview)}
                     disabled={isDeadlinePassed}
                   >
@@ -343,7 +343,7 @@ export default function VideoInterviewCandidateContent() {
       {/* Completed Interviews */}
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
-          <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
           {t.asyncInterview.completedInterviews}
         </h2>
         {completedInterviews.length === 0 ? (
@@ -360,7 +360,7 @@ export default function VideoInterviewCandidateContent() {
               ? Math.round(interview.responses.reduce((sum, r) => sum + (r.aiScore || 0), 0) / interview.responses.length)
               : null;
             return (
-              <Card key={interview.id} className="card-hover-lift border-border/50">
+              <Card key={interview.id} className="card-border-border/50">
                 <CardContent className="p-4 space-y-3">
                   <div>
                     <h3 className="text-sm font-bold">{interview.title}</h3>
@@ -374,9 +374,9 @@ export default function VideoInterviewCandidateContent() {
                     {avgScore !== null && (
                       <span className={cn(
                         'font-bold',
-                        avgScore >= 85 ? 'text-emerald-600 dark:text-emerald-400' :
-                        avgScore >= 70 ? 'text-teal-600 dark:text-teal-400' :
-                        'text-amber-600 dark:text-amber-400'
+                        avgScore >= 85 ? 'text-emerald-600' :
+                        avgScore >= 70 ? 'text-blue-600' :
+                        'text-amber-600'
                       )}>
                         {t.asyncInterview.aiScore}: {avgScore}%
                       </span>
@@ -385,7 +385,7 @@ export default function VideoInterviewCandidateContent() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full h-8 text-xs border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                    className="w-full h-8 text-xs border-slate-300 text-blue-600 hover:bg-slate-50"
                     onClick={() => handleViewFeedback(interview)}
                   >
                     <Eye className="w-3.5 h-3.5 me-1" />
@@ -408,7 +408,7 @@ export default function VideoInterviewCandidateContent() {
       <div className="max-w-2xl mx-auto animate-fade-in-up">
         <Card className="border-border/50">
           <CardHeader className="text-center pb-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center mb-3">
+            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br bg-blue-600 flex items-center justify-center mb-3">
               <Video className="w-8 h-8 text-white" />
             </div>
             <CardTitle className="text-xl">{t.asyncInterview.instructions}</CardTitle>
@@ -420,7 +420,7 @@ export default function VideoInterviewCandidateContent() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center p-3 rounded-lg bg-muted/20 border border-border/30">
-                <Timer className="h-5 w-5 text-teal-600 dark:text-teal-400 mx-auto mb-1" />
+                <Timer className="h-5 w-5 text-blue-600 mx-auto mb-1" />
                 <p className="text-sm font-bold">
                   {activeInterview.timePerQuestion > 0
                     ? `${activeInterview.timePerQuestion} ${t.asyncInterview.seconds}`
@@ -429,14 +429,14 @@ export default function VideoInterviewCandidateContent() {
                 <p className="text-[10px] text-muted-foreground">{t.asyncInterview.timeLimit}</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/20 border border-border/30">
-                <RotateCcw className="h-5 w-5 text-teal-600 dark:text-teal-400 mx-auto mb-1" />
+                <RotateCcw className="h-5 w-5 text-blue-600 mx-auto mb-1" />
                 <p className="text-sm font-bold">{activeInterview.maxRetakes}</p>
                 <p className="text-[10px] text-muted-foreground">{t.asyncInterview.retakesAllowed}</p>
               </div>
             </div>
 
             <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-800/50">
-              <p className="text-xs font-medium text-amber-700 dark:text-amber-400 flex items-center gap-1.5 mb-2">
+              <p className="text-xs font-medium text-amber-700 flex items-center gap-1.5 mb-2">
                 <Lightbulb className="w-3.5 h-3.5" />
                 {t.asyncInterview.tips}
               </p>
@@ -453,7 +453,7 @@ export default function VideoInterviewCandidateContent() {
                 {t.common.back}
               </Button>
               <Button
-                className="bg-teal-600 hover:bg-teal-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={() => setCurrentStep('question')}
               >
                 {t.asyncInterview.startInterview}
@@ -488,7 +488,7 @@ export default function VideoInterviewCandidateContent() {
           <CardContent className="p-6 space-y-5">
             {/* Question */}
             <div className="flex items-start gap-3">
-              <Badge variant="outline" className="text-[10px] bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800/30 shrink-0 mt-0.5">
+              <Badge variant="outline" className="text-[10px] bg-slate-50 text-blue-700 border-slate-200/30 shrink-0 mt-0.5">
                 {getQuestionTypeLabel(question.type)}
               </Badge>
               <p className="text-lg font-medium">{question.text}</p>
@@ -498,13 +498,13 @@ export default function VideoInterviewCandidateContent() {
             <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900 aspect-video flex items-center justify-center border border-border/20">
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <div className="relative flex flex-col items-center gap-3">
-                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20">
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
                   <Camera className="w-7 h-7 text-white/70" />
                 </div>
                 <p className="text-xs text-white/50">Camera preview</p>
               </div>
               {timeLimit > 0 && !hasExistingResponse && (
-                <div className="absolute top-3 end-3 bg-black/50 rounded-lg px-2.5 py-1 text-white text-sm font-mono backdrop-blur-sm">
+                <div className="absolute top-3 end-3 bg-black/50 rounded-lg px-2.5 py-1 text-white text-sm font-mono">
                   {formatDuration(countdown || timeLimit)}
                 </div>
               )}
@@ -539,7 +539,7 @@ export default function VideoInterviewCandidateContent() {
                   </Button>
                 )}
                 <Button
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={handleStartRecording}
                 >
                   <Camera className="w-4 h-4 me-2" />
@@ -578,17 +578,17 @@ export default function VideoInterviewCandidateContent() {
             <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900 aspect-video flex items-center justify-center border-2 border-red-500/50">
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <div className="relative flex flex-col items-center gap-3">
-                <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center backdrop-blur-sm border border-red-500/30 animate-pulse">
+                <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 animate-pulse">
                   <Camera className="w-7 h-7 text-red-400" />
                 </div>
                 <p className="text-xs text-white/50">Recording in progress...</p>
               </div>
               {timeRemaining !== null && (
-                <div className="absolute top-3 end-3 bg-red-500/80 rounded-lg px-2.5 py-1 text-white text-sm font-mono backdrop-blur-sm">
+                <div className="absolute top-3 end-3 bg-red-500/80 rounded-lg px-2.5 py-1 text-white text-sm font-mono">
                   {t.asyncInterview.timeRemaining}: {formatDuration(timeRemaining)}
                 </div>
               )}
-              <div className="absolute top-3 start-3 flex items-center gap-1.5 bg-red-500/80 rounded-lg px-2 py-1 backdrop-blur-sm">
+              <div className="absolute top-3 start-3 flex items-center gap-1.5 bg-red-500/80 rounded-lg px-2 py-1">
                 <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                 <span className="text-xs text-white font-medium">REC</span>
               </div>
@@ -652,7 +652,7 @@ export default function VideoInterviewCandidateContent() {
             <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-teal-900/80 to-emerald-900/80 dark:from-teal-950 dark:to-emerald-950 aspect-video flex items-center justify-center">
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <div className="relative flex flex-col items-center gap-2">
-                <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
                   <Play className="w-6 h-6 text-white ms-0.5" />
                 </div>
                 {response?.duration && (
@@ -663,7 +663,7 @@ export default function VideoInterviewCandidateContent() {
 
             {/* Question info */}
             <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/20 border border-border/30">
-              <Badge variant="outline" className="text-[10px] bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800/30 shrink-0">
+              <Badge variant="outline" className="text-[10px] bg-slate-50 text-blue-700 border-slate-200/30 shrink-0">
                 {getQuestionTypeLabel(question.type)}
               </Badge>
               <p className="text-sm text-muted-foreground">{question.text}</p>
@@ -693,7 +693,7 @@ export default function VideoInterviewCandidateContent() {
                   </Button>
                 )}
                 <Button
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={handleNextQuestion}
                 >
                   {currentQuestionIdx < activeInterview.questions.length - 1 ? (
@@ -721,7 +721,7 @@ export default function VideoInterviewCandidateContent() {
     <div className="max-w-lg mx-auto animate-fade-in-up">
       <Card className="border-border/50">
         <CardContent className="p-8 text-center space-y-4">
-          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
+          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br bg-blue-600 flex items-center justify-center">
             <PartyPopper className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-2xl font-bold">{t.asyncInterview.completionTitle}</h2>
@@ -729,7 +729,7 @@ export default function VideoInterviewCandidateContent() {
             {t.asyncInterview.completionMessage}
           </p>
           <Button
-            className="bg-teal-600 hover:bg-teal-700 text-white mt-4"
+            className="bg-blue-600 hover:bg-blue-700 text-white mt-4"
             onClick={handleBackToList}
           >
             {t.common.back}
@@ -774,7 +774,7 @@ export default function VideoInterviewCandidateContent() {
             <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleSubmitAll}
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {t.asyncInterview.submit}
             </AlertDialogAction>
@@ -787,7 +787,7 @@ export default function VideoInterviewCandidateContent() {
         <DialogContent className="sm:max-w-[560px] max-h-[80vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-teal-600" />
+              <Brain className="h-5 w-5 text-blue-600" />
               {t.asyncInterview.aiFeedback}
             </DialogTitle>
           </DialogHeader>
@@ -799,7 +799,7 @@ export default function VideoInterviewCandidateContent() {
                   <Card key={idx} className="border-border/50">
                     <CardContent className="p-3 space-y-2">
                       <div className="flex items-start gap-2">
-                        <Badge variant="outline" className="text-[10px] bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800/30 shrink-0">
+                        <Badge variant="outline" className="text-[10px] bg-slate-50 text-blue-700 border-slate-200/30 shrink-0">
                           {getQuestionTypeLabel(question.type)}
                         </Badge>
                         <p className="text-sm">{question.text}</p>
@@ -817,9 +817,9 @@ export default function VideoInterviewCandidateContent() {
                             <span className="text-xs text-muted-foreground">{t.asyncInterview.aiScore}:</span>
                             <span className={cn(
                               'text-sm font-bold',
-                              (response.aiScore || 0) >= 85 ? 'text-emerald-600 dark:text-emerald-400' :
-                              (response.aiScore || 0) >= 70 ? 'text-teal-600 dark:text-teal-400' :
-                              'text-amber-600 dark:text-amber-400'
+                              (response.aiScore || 0) >= 85 ? 'text-emerald-600' :
+                              (response.aiScore || 0) >= 70 ? 'text-blue-600' :
+                              'text-amber-600'
                             )}>
                               {response.aiScore}%
                             </span>

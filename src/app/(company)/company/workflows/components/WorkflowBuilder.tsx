@@ -83,9 +83,9 @@ export default function WorkflowBuilder(props: WorkflowBuilderProps) {
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
                 i === formStep
-                  ? 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400'
+                  ? 'bg-teal-100 text-blue-700 dark:bg-teal-950'
                   : i < formStep
-                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
                   : 'bg-muted text-muted-foreground'
               )}
             >
@@ -186,7 +186,7 @@ export default function WorkflowBuilder(props: WorkflowBuilderProps) {
         <div className="space-y-4 animate-fade-in-up max-h-[50vh] overflow-y-auto">
           <div className="flex items-center justify-between">
             <Label>{t.workflows.steps}</Label>
-            <Button variant="ghost" size="sm" className="h-7 text-xs text-teal-600" onClick={addFormStep}>
+            <Button variant="ghost" size="sm" className="h-7 text-xs text-blue-600" onClick={addFormStep}>
               <Plus className="h-3 w-3 me-1" />
               {t.workflows.addAction}
             </Button>
@@ -204,7 +204,7 @@ export default function WorkflowBuilder(props: WorkflowBuilderProps) {
       {/* Step 4: Review & Save */}
       {formStep === 3 && (
         <div className="space-y-4 animate-fade-in-up">
-          <Card className="border-teal-200 dark:border-teal-800">
+          <Card className="border-slate-200">
             <CardContent className="p-4 space-y-3">
               <div>
                 <span className="text-xs font-medium text-muted-foreground">{t.workflows.workflowName}:</span>
@@ -223,7 +223,7 @@ export default function WorkflowBuilder(props: WorkflowBuilderProps) {
                 <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                   {formSteps.filter((s) => s.action).map((step, i, arr) => (
                     <React.Fragment key={i}>
-                      <Badge variant="outline" className="text-[10px] border-teal-200 dark:border-teal-800">
+                      <Badge variant="outline" className="text-[10px] border-slate-200">
                         {i + 1}. {getActionLabel(step.action, t)}
                       </Badge>
                       {i < arr.length - 1 && (
@@ -255,7 +255,7 @@ export default function WorkflowBuilder(props: WorkflowBuilderProps) {
         {formStep < 3 ? (
           <Button
             size="sm"
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+            className="bg-gradient-to-r bg-blue-600 text-white"
             onClick={() => setFormStep((prev) => Math.min(3, prev + 1))}
           >
             {t.workflows.next}
@@ -264,7 +264,7 @@ export default function WorkflowBuilder(props: WorkflowBuilderProps) {
         ) : (
           <Button
             size="sm"
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+            className="bg-gradient-to-r bg-blue-600 text-white"
             onClick={handleSave}
             disabled={saving}
           >

@@ -57,22 +57,22 @@ interface FeatureFlag {
 }
 
 const categoryColors: Record<FlagCategory, string> = {
-  Core: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  Core: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
   AI: 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400 border-0',
-  Analytics: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
+  Analytics: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
   Integrations: 'bg-pink-50 text-pink-700 dark:bg-pink-950 dark:text-pink-400 border-0',
 };
 
 const statusColors: Record<FlagStatus, string> = {
-  Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+  Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   Inactive: 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-400 border-0',
-  Scheduled: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
+  Scheduled: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
 };
 
 const envColors: Record<Environment, string> = {
-  Production: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
-  Staging: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Development: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  Production: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
+  Staging: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Development: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
 };
 
 const categoryIcons: Record<FlagCategory, React.ElementType> = {
@@ -126,17 +126,17 @@ export default function FeaturesContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Flag className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.featureFlags.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.featureFlags.title}</h1>
             <p className="text-sm text-muted-foreground">{t.featureFlags.subtitle}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
               <Plus className="h-4 w-4 me-2" />
               {t.featureFlags.createFlag}
             </Button>
@@ -200,7 +200,7 @@ export default function FeaturesContent() {
               <DialogClose asChild>
                 <Button variant="outline">{t.common.cancel}</Button>
               </DialogClose>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 {t.common.create}
               </Button>
             </DialogFooter>
@@ -210,11 +210,11 @@ export default function FeaturesContent() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Flag className="h-4 w-4" />
               </div>
               <div>
@@ -224,11 +224,11 @@ export default function FeaturesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -238,7 +238,7 @@ export default function FeaturesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-slate-500 to-slate-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
@@ -252,11 +252,11 @@ export default function FeaturesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -300,7 +300,7 @@ export default function FeaturesContent() {
           return (
             <div key={category}>
               <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
-                <CategoryIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                <CategoryIcon className="h-5 w-5 text-blue-600" />
                 {category}
                 <Badge className="text-[10px] bg-muted text-muted-foreground border-0">{categoryFlags.length}</Badge>
               </h2>

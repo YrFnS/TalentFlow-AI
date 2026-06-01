@@ -61,11 +61,11 @@ interface Feature {
 }
 
 const categoryColors: Record<Category, string> = {
-  Core: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  Core: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
   AI: 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400 border-0',
   UX: 'bg-pink-50 text-pink-700 dark:bg-pink-950 dark:text-pink-400 border-0',
-  Integration: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Security: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  Integration: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Security: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 const priorityColors: Record<Priority, string> = {
@@ -77,9 +77,9 @@ const priorityColors: Record<Priority, string> = {
 
 const statusConfig: Record<FeatureStatus, { color: string; icon: React.ElementType }> = {
   Planned: { color: 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-0', icon: Clock },
-  'In Progress': { color: 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0', icon: ArrowRight },
-  'In Review': { color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: Eye },
-  Shipped: { color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: Rocket },
+  'In Progress': { color: 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0', icon: ArrowRight },
+  'In Review': { color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: Eye },
+  Shipped: { color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: Rocket },
 };
 
 // No mock data - roadmap features come from real data only
@@ -147,7 +147,7 @@ export default function RoadmapPage() {
           <div className="flex items-center justify-between pt-1 border-t border-border/30">
             <div className="flex items-center gap-1.5">
               <Avatar className="h-5 w-5">
-                <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[8px]">
+                <AvatarFallback className="bg-blue-600 text-white text-[8px]">
                   {feature.assigneeInitials}
                 </AvatarFallback>
               </Avatar>
@@ -165,11 +165,11 @@ export default function RoadmapPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Map className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.roadmap.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.roadmap.title}</h1>
             <p className="text-sm text-muted-foreground">{t.roadmap.subtitle}</p>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function RoadmapPage() {
             <Button
               variant="ghost"
               size="sm"
-              className={cn('h-8 px-3 text-xs rounded-none gap-1.5', view === 'timeline' && 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400')}
+              className={cn('h-8 px-3 text-xs rounded-none gap-1.5', view === 'timeline' && 'bg-slate-50 text-blue-700 dark:bg-teal-950')}
               onClick={() => setView('timeline')}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
@@ -188,7 +188,7 @@ export default function RoadmapPage() {
             <Button
               variant="ghost"
               size="sm"
-              className={cn('h-8 px-3 text-xs rounded-none gap-1.5', view === 'kanban' && 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400')}
+              className={cn('h-8 px-3 text-xs rounded-none gap-1.5', view === 'kanban' && 'bg-slate-50 text-blue-700 dark:bg-teal-950')}
               onClick={() => setView('kanban')}
             >
               <Columns3 className="h-3.5 w-3.5" />
@@ -197,7 +197,7 @@ export default function RoadmapPage() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 <Plus className="h-4 w-4 me-2" />
                 {t.roadmap.addFeature}
               </Button>
@@ -267,7 +267,7 @@ export default function RoadmapPage() {
                 <DialogClose asChild>
                   <Button variant="outline">{t.common.cancel}</Button>
                 </DialogClose>
-                <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+                <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                   {t.common.create}
                 </Button>
               </DialogFooter>
@@ -278,10 +278,10 @@ export default function RoadmapPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Map className="h-4 w-4" />
               </div>
               <div>
@@ -291,10 +291,10 @@ export default function RoadmapPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
                 <ArrowRight className="h-4 w-4" />
               </div>
               <div>
@@ -304,10 +304,10 @@ export default function RoadmapPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -317,10 +317,10 @@ export default function RoadmapPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <Rocket className="h-4 w-4" />
               </div>
               <div>
@@ -386,13 +386,13 @@ export default function RoadmapPage() {
                   const qShipped = qFeatures.filter(f => f.status === 'Shipped').length;
                   return (
                     <div key={q} className="text-center">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500/10 to-emerald-500/10 border border-teal-200/50 dark:border-teal-800/50">
-                        <span className="text-sm font-bold text-teal-700 dark:text-teal-400">{q}</span>
-                        <Badge className="text-[9px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-50 to-emerald-500/10 border border-slate-200/50/50">
+                        <span className="text-sm font-bold text-blue-700">{q}</span>
+                        <Badge className="text-[9px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                           {qFeatures.length} {t.roadmap.features}
                         </Badge>
                         {qShipped > 0 && (
-                          <Badge className="text-[9px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0">
+                          <Badge className="text-[9px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0">
                             <CheckCircle2 className="h-2.5 w-2.5 me-0.5" />
                             {qShipped}
                           </Badge>
@@ -409,7 +409,7 @@ export default function RoadmapPage() {
                 {quarters.map((q, i) => (
                   <div
                     key={q}
-                    className="absolute top-0 w-2.5 h-2.5 rounded-full bg-teal-500 border-2 border-white dark:border-background"
+                    className="absolute top-0 w-2.5 h-2.5 rounded-full bg-slate-500 border-2 border-white dark:border-background"
                     style={{ left: `${12.5 + i * 25}%`, transform: 'translateX(-50%) translateY(-50%)' }}
                   />
                 ))}
@@ -478,7 +478,7 @@ export default function RoadmapPage() {
                         <div className="flex items-center justify-between ms-5 pt-1 border-t border-border/30">
                           <div className="flex items-center gap-1">
                             <Avatar className="h-4 w-4">
-                              <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[7px]">
+                              <AvatarFallback className="bg-blue-600 text-white text-[7px]">
                                 {feature.assigneeInitials}
                               </AvatarFallback>
                             </Avatar>

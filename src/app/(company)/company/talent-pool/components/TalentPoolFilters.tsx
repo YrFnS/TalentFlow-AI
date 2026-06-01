@@ -50,7 +50,7 @@ export default function TalentPoolFilters({
           placeholder={t.searchCandidates}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+          className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-blue-500/50"
         />
       </div>
       <Select value={filterPool} onValueChange={onFilterPoolChange}>
@@ -91,7 +91,7 @@ export default function TalentPoolFilters({
         placeholder={t.filterBySkills}
         value={filterSkills}
         onChange={(e) => onFilterSkillsChange(e.target.value)}
-        className="w-32 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+        className="w-32 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-blue-500/50"
       />
       {hasActiveFilters && (
         <Button

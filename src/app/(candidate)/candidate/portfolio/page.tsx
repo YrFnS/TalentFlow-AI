@@ -66,34 +66,34 @@ interface Project {
 const techColors: Record<string, string> = {
   'React': 'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-400 border-0',
   'Next.js': 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-0',
-  'TypeScript': 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0',
-  'Node.js': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  'Python': 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  'Tailwind CSS': 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  'TypeScript': 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0',
+  'Node.js': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  'Python': 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  'Tailwind CSS': 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
   'PostgreSQL': 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400 border-0',
   'MongoDB': 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400 border-0',
   'GraphQL': 'bg-pink-50 text-pink-700 dark:bg-pink-950 dark:text-pink-400 border-0',
-  'Docker': 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0',
+  'Docker': 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0',
   'AWS': 'bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-400 border-0',
-  'Redis': 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
-  'Prisma': 'bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-400 border-0',
-  'Vue.js': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+  'Redis': 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
+  'Prisma': 'bg-violet-50 text-violet-700 dark:bg-violet-950 border-0',
+  'Vue.js': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   'Django': 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400 border-0',
   'TensorFlow': 'bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-400 border-0',
   'Figma': 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400 border-0',
-  'Rust': 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  'Go': 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border-0',
-  'Kubernetes': 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0',
+  'Rust': 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  'Go': 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 border-0',
+  'Kubernetes': 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0',
 };
 
 const statusColors: Record<ProjectStatus, string> = {
-  Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  Completed: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  Completed: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
   Archived: 'bg-slate-50 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-0',
 };
 
 const gradients = [
-  'from-teal-500 to-emerald-600',
+  'bg-blue-600',
   'from-purple-500 to-pink-600',
   'from-blue-500 to-cyan-600',
   'from-amber-500 to-orange-600',
@@ -184,17 +184,17 @@ export default function PortfolioPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <FolderOpen className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.portfolio.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.portfolio.title}</h1>
             <p className="text-sm text-muted-foreground">{t.portfolio.subtitle}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
               <Plus className="h-4 w-4 me-2" />
               {t.portfolio.addProject}
             </Button>
@@ -228,7 +228,7 @@ export default function PortfolioPage() {
                 {newTechTags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {newTechTags.map(tag => (
-                      <Badge key={tag} className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 gap-1">
+                      <Badge key={tag} className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 gap-1">
                         {tag}
                         <button onClick={() => removeTechTag(tag)} className="hover:text-destructive">×</button>
                       </Badge>
@@ -286,7 +286,7 @@ export default function PortfolioPage() {
               <DialogClose asChild>
                 <Button variant="outline">{t.common.cancel}</Button>
               </DialogClose>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 {t.common.create}
               </Button>
             </DialogFooter>
@@ -296,10 +296,10 @@ export default function PortfolioPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <FolderOpen className="h-4 w-4" />
               </div>
               <div>
@@ -309,10 +309,10 @@ export default function PortfolioPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <Globe className="h-4 w-4" />
               </div>
               <div>
@@ -322,10 +322,10 @@ export default function PortfolioPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Star className="h-4 w-4" />
               </div>
               <div>
@@ -335,10 +335,10 @@ export default function PortfolioPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                 <Eye className="h-4 w-4" />
               </div>
               <div>
@@ -366,7 +366,7 @@ export default function PortfolioPage() {
                   <div className={cn('h-32 bg-gradient-to-br flex items-center justify-center relative', project.gradient)}>
                     <ProjectIcon className="h-12 w-12 text-white/30" />
                     <div className="absolute top-3 start-3">
-                      <Badge className="text-[10px] bg-white/20 text-white border-0 backdrop-blur-sm">
+                      <Badge className="text-[10px] bg-white/20 text-white border-0">
                         <Star className="h-2.5 w-2.5 me-0.5 fill-amber-300 text-amber-300" />
                         {t.portfolio.featured}
                       </Badge>
@@ -397,12 +397,12 @@ export default function PortfolioPage() {
                     <div className="flex items-center justify-between pt-2 border-t border-border/30">
                       <div className="flex items-center gap-3">
                         {project.liveUrl && (
-                          <a href={project.liveUrl} className="text-muted-foreground hover:text-teal-600 dark:hover:text-teal-400 transition-colors" title="Live Demo">
+                          <a href={project.liveUrl} className="text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Live Demo">
                             <ExternalLink className="h-3.5 w-3.5" />
                           </a>
                         )}
                         {project.githubUrl && (
-                          <a href={project.githubUrl} className="text-muted-foreground hover:text-teal-600 dark:hover:text-teal-400 transition-colors" title="GitHub">
+                          <a href={project.githubUrl} className="text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="GitHub">
                             <Github className="h-3.5 w-3.5" />
                           </a>
                         )}
@@ -454,7 +454,7 @@ export default function PortfolioPage() {
         <Button
           variant={featuredOnly ? 'default' : 'outline'}
           size="sm"
-          className={cn('h-8 text-xs gap-1.5 shrink-0', featuredOnly && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 border-0')}
+          className={cn('h-8 text-xs gap-1.5 shrink-0', featuredOnly && 'bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 border-0')}
           onClick={() => setFeaturedOnly(!featuredOnly)}
         >
           <Star className="h-3.5 w-3.5" />
@@ -465,7 +465,7 @@ export default function PortfolioPage() {
       {/* All Projects Grid */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold flex items-center gap-2">
-          <FolderOpen className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <FolderOpen className="h-5 w-5 text-blue-600" />
           {t.portfolio.allProjects}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -525,7 +525,7 @@ export default function PortfolioPage() {
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Code2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <Code2 className="h-4 w-4 text-blue-600" />
             {t.portfolio.skillsShowcase}
           </CardTitle>
         </CardHeader>
@@ -544,14 +544,14 @@ export default function PortfolioPage() {
                     className={cn(
                       'inline-flex items-center gap-1 px-3 py-1.5 rounded-full border transition-all hover:shadow-md cursor-pointer',
                       filterTech === skill
-                        ? 'border-teal-300 bg-teal-50 dark:border-teal-700 dark:bg-teal-950/50'
-                        : 'border-border/50 bg-muted/20 hover:border-teal-200 dark:hover:border-teal-800',
+                        ? 'border-slate-300 bg-slate-50'
+                        : 'border-border/50 bg-muted/20 hover:border-slate-200 dark:hover:border-teal-800',
                     )}
                     style={{ fontSize: `${size}rem` }}
                   >
                     <span className={cn(
                       'font-medium',
-                      filterTech === skill ? 'text-teal-700 dark:text-teal-400' : 'text-foreground/80',
+                      filterTech === skill ? 'text-blue-700' : 'text-foreground/80',
                     )}>
                       {skill}
                     </span>

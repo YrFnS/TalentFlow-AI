@@ -107,10 +107,10 @@ const SOURCE_TYPE_ICONS: Record<string, React.ElementType> = {
 };
 
 const SOURCE_TYPE_COLORS: Record<string, string> = {
-  JOB_BOARD: 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300',
+  JOB_BOARD: 'bg-teal-100 text-blue-700 dark:bg-teal-950',
   REFERRAL: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
-  SOCIAL: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300',
-  CAREER_PAGE: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  SOCIAL: 'bg-sky-100 text-sky-700 dark:bg-cyan-950',
+  CAREER_PAGE: 'bg-amber-100 text-amber-700 dark:bg-amber-950',
   AGENCY: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300',
   DIRECT: 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
   OTHER: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
@@ -281,7 +281,7 @@ export default function SourcesContent() {
           <h1 className="text-2xl font-bold">{t.sources.title}</h1>
           <p className="text-muted-foreground mt-1">{t.sources.subtitle}</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)} className="bg-teal-600 hover:bg-teal-700">
+        <Button onClick={() => setShowCreateDialog(true)} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="w-4 h-4 me-2" />
           {t.sources.createSource}
         </Button>
@@ -289,10 +289,10 @@ export default function SourcesContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{totalSources}</p>
@@ -301,10 +301,10 @@ export default function SourcesContent() {
           </CardContent>
         </Card>
 
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{totalApplications}</p>
@@ -313,10 +313,10 @@ export default function SourcesContent() {
           </CardContent>
         </Card>
 
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
-              <Star className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              <Star className="w-5 h-5 text-amber-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{bestSource.sourceName}</p>
@@ -325,10 +325,10 @@ export default function SourcesContent() {
           </CardContent>
         </Card>
 
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-cyan-50 dark:bg-cyan-950/30 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+            <div className="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-cyan-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{avgTimeToHire}</p>
@@ -375,7 +375,7 @@ export default function SourcesContent() {
                               {t.sources[`type${source.type.charAt(0) + source.type.slice(1).toLowerCase()}` as keyof typeof t.sources] || source.type.replace('_', ' ')}
                             </Badge>
                             {source.isDefault && (
-                              <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-teal-300 text-teal-700 dark:border-teal-700 dark:text-teal-400">
+                              <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-slate-300 text-blue-700">
                                 <Star className="w-2.5 h-2.5 me-0.5" />
                                 {t.sources.defaultSource}
                               </Badge>
@@ -389,7 +389,7 @@ export default function SourcesContent() {
                           <Switch
                             checked={source.isActive}
                             onCheckedChange={() => handleToggleActive(source.id)}
-                            className="data-[state=checked]:bg-teal-600"
+                            className="data-[state=checked]:bg-blue-600"
                           />
                           <span className="text-xs text-muted-foreground">
                             {source.isActive ? t.sources.isActive : 'Inactive'}
@@ -421,7 +421,7 @@ export default function SourcesContent() {
               <div className="space-y-3">
                 {MOCK_ANALYTICS.map((item) => {
                   const widthPercent = maxApplications > 0 ? (item.applications / maxApplications) * 100 : 0;
-                  const barColor = item.conversionRate >= 30 ? 'bg-emerald-500' : item.conversionRate >= 15 ? 'bg-teal-500' : 'bg-amber-500';
+                  const barColor = item.conversionRate >= 30 ? 'bg-emerald-500' : item.conversionRate >= 15 ? 'bg-slate-500' : 'bg-amber-500';
                   return (
                     <div key={item.sourceId} className="flex items-center gap-3">
                       <span className="text-sm w-28 shrink-0 truncate font-medium">{item.sourceName}</span>
@@ -470,16 +470,16 @@ export default function SourcesContent() {
                         </TableCell>
                         <TableCell className="text-center">{item.applications}</TableCell>
                         <TableCell className="text-center">
-                          <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-400">
+                          <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700 dark:border-emerald-700">
                             {item.hired}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
                           <span className={cn(
                             'text-sm font-medium',
-                            item.conversionRate >= 30 ? 'text-emerald-600 dark:text-emerald-400' :
-                            item.conversionRate >= 15 ? 'text-teal-600 dark:text-teal-400' :
-                            'text-amber-600 dark:text-amber-400'
+                            item.conversionRate >= 30 ? 'text-emerald-600' :
+                            item.conversionRate >= 15 ? 'text-blue-600' :
+                            'text-amber-600'
                           )}>
                             {item.conversionRate}%
                           </span>
@@ -499,11 +499,11 @@ export default function SourcesContent() {
 
         {/* UTM Parameters Tab */}
         <TabsContent value="utm" className="mt-4 space-y-4">
-          <Card className="border-teal-200 dark:border-teal-800">
+          <Card className="border-slate-200">
             <CardContent className="p-4">
               <div className="flex gap-3">
-                <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center shrink-0">
-                  <Info className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
+                  <Info className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <h3 className="font-medium text-sm">{t.sources.utmParameters}</h3>
@@ -542,7 +542,7 @@ export default function SourcesContent() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="text-[10px] h-5 border-teal-300 text-teal-700 dark:border-teal-700 dark:text-teal-400">
+                          <Badge variant="outline" className="text-[10px] h-5 border-slate-300 text-blue-700">
                             {app.utmSource}
                           </Badge>
                         </TableCell>
@@ -601,11 +601,11 @@ export default function SourcesContent() {
                     {filteredAttributions.map((app) => {
                       const statusColor: Record<string, string> = {
                         APPLIED: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-                        SCREENING: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
-                        INTERVIEW: 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300',
+                        SCREENING: 'bg-amber-100 text-amber-700 dark:bg-amber-950',
+                        INTERVIEW: 'bg-teal-100 text-blue-700 dark:bg-teal-950',
                         OFFERED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
                         HIRED: 'bg-emerald-200 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
-                        REJECTED: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+                        REJECTED: 'bg-red-100 text-red-700 dark:bg-red-950',
                       };
                       const hasUtm = app.utmSource || app.utmMedium;
                       return (
@@ -692,14 +692,14 @@ export default function SourcesContent() {
               <Switch
                 checked={formDefault}
                 onCheckedChange={setFormDefault}
-                className="data-[state=checked]:bg-teal-600"
+                className="data-[state=checked]:bg-blue-600"
               />
               <Label>{t.sources.isDefault}</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>{t.common.cancel}</Button>
-            <Button onClick={handleCreateSource} disabled={!formName.trim()} className="bg-teal-600 hover:bg-teal-700">
+            <Button onClick={handleCreateSource} disabled={!formName.trim()} className="bg-blue-600 hover:bg-blue-700">
               {editingSource ? t.common.save : t.common.create}
             </Button>
           </DialogFooter>

@@ -45,7 +45,7 @@ const avatarGradients = [
   'from-teal-400 to-cyan-500',
   'from-emerald-400 to-teal-500',
   'from-cyan-400 to-emerald-500',
-  'from-teal-500 to-emerald-600',
+  'bg-blue-600',
   'from-emerald-500 to-teal-600',
   'from-cyan-500 to-teal-600',
 ];
@@ -97,7 +97,7 @@ export default function MessagesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Mail className="h-5 w-5" />
           </div>
           <div>
@@ -105,7 +105,7 @@ export default function MessagesPage() {
             <p className="text-sm text-muted-foreground">{t.messages.subtitle}</p>
           </div>
         </div>
-        <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white" onClick={() => setComposeOpen(true)}>
+        <Button className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white" onClick={() => setComposeOpen(true)}>
           <Plus className="h-4 w-4 me-2" />
           {t.messages.compose}
         </Button>
@@ -138,7 +138,7 @@ export default function MessagesPage() {
                 size="sm"
                 className={cn(
                   'flex-1 h-8 text-xs',
-                  filterTab === tab && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
+                  filterTab === tab && 'bg-gradient-to-r bg-blue-600 text-white'
                 )}
                 onClick={() => setFilterTab(tab)}
               >
@@ -167,7 +167,7 @@ export default function MessagesPage() {
                   key={msg.id}
                   className={cn(
                     'cursor-pointer border-border/50 transition-colors hover:bg-accent/50',
-                    selectedMessage?.id === msg.id && 'border-teal-300 dark:border-teal-700 bg-teal-50/50 dark:bg-teal-950/20'
+                    selectedMessage?.id === msg.id && 'border-slate-300 bg-slate-50'
                   )}
                   onClick={() => selectMessage(msg)}
                 >
@@ -188,7 +188,7 @@ export default function MessagesPage() {
                         <p className="text-[11px] text-muted-foreground truncate mt-0.5">{msg.preview}</p>
                       </div>
                       <div className="flex flex-col items-center gap-1.5 shrink-0">
-                        {msg.unread && <div className="w-2 h-2 rounded-full bg-teal-500" />}
+                        {msg.unread && <div className="w-2 h-2 rounded-full bg-slate-500" />}
                         <button onClick={(e) => toggleStar(msg.id, e)} className="text-muted-foreground hover:text-amber-500 transition-colors">
                           {msg.starred ? <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> : <StarOff className="h-3.5 w-3.5" />}
                         </button>
@@ -277,7 +277,7 @@ export default function MessagesPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-teal-600" />
+              <Mail className="h-5 w-5 text-blue-600" />
               {t.messages.compose}
             </DialogTitle>
           </DialogHeader>
@@ -310,7 +310,7 @@ export default function MessagesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setComposeOpen(false)}>{t.common.cancel}</Button>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white" onClick={handleCompose}>
+            <Button className="bg-gradient-to-r bg-blue-600 text-white" onClick={handleCompose}>
               <Send className="h-4 w-4 me-2" />
               {t.messages.send}
             </Button>

@@ -50,7 +50,7 @@ export default function CreatePoolDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5 text-teal-600" />
+            <Plus className="h-5 w-5 text-blue-600" />
             {t.createPool}
           </DialogTitle>
         </DialogHeader>
@@ -92,7 +92,7 @@ export default function CreatePoolDialog({
             <Button variant="outline">{t[cancelKey] || t.common?.cancel || 'Cancel'}</Button>
           </DialogClose>
           <Button
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+            className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
             onClick={onConfirm}
             disabled={!poolName.trim()}
           >

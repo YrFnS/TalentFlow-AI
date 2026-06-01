@@ -23,7 +23,7 @@ export default function WorkflowStats({
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card className="card-hover-lift">
+      <Card className="card-">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950">
@@ -36,11 +36,11 @@ export default function WorkflowStats({
           </div>
         </CardContent>
       </Card>
-      <Card className="card-hover-lift">
+      <Card className="card-">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950">
-              <Activity className="h-4 w-4 text-teal-600" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-teal-950">
+              <Activity className="h-4 w-4 text-blue-600" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">{t.workflows.totalExecutions}</p>
@@ -49,7 +49,7 @@ export default function WorkflowStats({
           </div>
         </CardContent>
       </Card>
-      <Card className="card-hover-lift">
+      <Card className="card-">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950">
@@ -62,7 +62,7 @@ export default function WorkflowStats({
           </div>
         </CardContent>
       </Card>
-      <Card className="card-hover-lift">
+      <Card className="card-">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-50 dark:bg-cyan-950">

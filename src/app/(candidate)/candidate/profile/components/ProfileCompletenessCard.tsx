@@ -48,7 +48,7 @@ export default function ProfileCompletenessCard({
           : t.profileComplete.motivationStart;
 
   return (
-    <Card className="border-0 shadow-sm card-hover-lift">
+    <Card className="border-0 shadow-sm card-">
       <CardContent className="p-5">
         <div className="flex flex-col sm:flex-row items-start gap-6">
           {/* Animated Progress Ring */}
@@ -74,7 +74,7 @@ export default function ProfileCompletenessCard({
                 </defs>
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{profileCompleteness}%</span>
+                <span className="text-2xl font-bold text-blue-600">{profileCompleteness}%</span>
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">{t.candidate.profileCompleteness}</p>

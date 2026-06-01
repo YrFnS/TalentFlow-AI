@@ -493,7 +493,7 @@ export function AISettingsPanel({ role = 'candidate' }: AISettingsPanelProps) {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-              <Brain className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+              <Brain className="w-6 h-6 text-emerald-600" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
@@ -582,7 +582,7 @@ export function AISettingsPanel({ role = 'candidate' }: AISettingsPanelProps) {
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10">
-                            <Zap className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                            <Zap className="w-5 h-5 text-emerald-600" />
                           </div>
                           <div>
                             <CardTitle className="text-lg flex items-center gap-2">
@@ -602,7 +602,7 @@ export function AISettingsPanel({ role = 'candidate' }: AISettingsPanelProps) {
                                 }
                                 className={
                                   provider.isActive
-                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                    ? 'bg-emerald-100 text-emerald-700'
                                     : ''
                                 }
                               >
@@ -620,7 +620,7 @@ export function AISettingsPanel({ role = 'candidate' }: AISettingsPanelProps) {
                               variant="outline"
                               size="sm"
                               onClick={() => handleSetDefault(provider)}
-                              className="gap-1.5 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-900/20"
+                              className="gap-1.5 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:bg-emerald-900/20"
                             >
                               <Star className="w-3.5 h-3.5" />
                               <span className="hidden sm:inline">
@@ -756,7 +756,7 @@ export function AISettingsPanel({ role = 'candidate' }: AISettingsPanelProps) {
                               </TableCell>
                               <TableCell className="text-center">
                                 {model.isDefault ? (
-                                  <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                  <Badge className="bg-emerald-100 text-emerald-700">
                                     <Star className="w-3 h-3 me-1" />
                                     {t.ai.default}
                                   </Badge>
@@ -807,7 +807,7 @@ export function AISettingsPanel({ role = 'candidate' }: AISettingsPanelProps) {
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10">
-                          <Activity className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          <Activity className="w-5 h-5 text-emerald-600" />
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">
@@ -823,8 +823,8 @@ export function AISettingsPanel({ role = 'candidate' }: AISettingsPanelProps) {
                   <Card>
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-teal-500/10">
-                          <Cpu className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-500/10">
+                          <Cpu className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">
@@ -841,7 +841,7 @@ export function AISettingsPanel({ role = 'candidate' }: AISettingsPanelProps) {
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-500/10">
-                          <Zap className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                          <Zap className="w-5 h-5 text-cyan-600" />
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">

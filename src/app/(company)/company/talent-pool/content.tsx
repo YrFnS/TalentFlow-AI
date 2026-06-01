@@ -99,10 +99,10 @@ interface ActivityEntry {
 // ========================
 
 const categoryColors: Record<PoolCategory, string> = {
-  Silver: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-0',
-  Gold: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Platinum: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border-0',
-  General: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  Silver: 'bg-gray-100 text-gray-700 border-0',
+  Gold: 'bg-amber-50 text-amber-700 border-0',
+  Platinum: 'bg-blue-50 text-blue-700 border-0',
+  General: 'bg-slate-100 text-slate-700 border-0',
 };
 
 const categoryIcons: Record<PoolCategory, string> = {
@@ -449,30 +449,30 @@ export default function TalentPoolContent() {
 
   const activityColor = (type: string) => {
     switch (type) {
-      case 'email': return 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950';
-      case 'call': return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950';
-      case 'note': return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950';
-      case 'job': return 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950';
-      case 'pool': return 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950';
-      default: return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-950';
+      case 'email': return 'text-blue-600 bg-blue-50';
+      case 'call': return 'text-emerald-600 bg-emerald-50';
+      case 'note': return 'text-amber-600 bg-amber-50';
+      case 'job': return 'text-blue-600 bg-blue-50';
+      case 'pool': return 'text-slate-600 bg-slate-50';
+      default: return 'text-gray-600 bg-gray-50';
     }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{tp.title}</h1>
-            <p className="text-sm text-muted-foreground">{tp.subtitle}</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">{tp.title}</h1>
+            <p className="text-sm text-slate-500">{tp.subtitle}</p>
           </div>
         </div>
         <Button
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-blue-600 hover:bg-blue-700 text-white"
           onClick={() => setCreatePoolOpen(true)}
         >
           <Plus className="h-4 w-4 me-2" />
@@ -482,58 +482,54 @@ export default function TalentPoolContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
-          <CardContent className="p-4 relative">
+        <Card className="border-slate-200">
+          <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                 <Users className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{tp.totalCandidates}</p>
-                <p className="text-xl font-bold">{stats.totalCandidates}</p>
+                <p className="text-xs text-slate-500">{tp.totalCandidates}</p>
+                <p className="text-xl font-bold text-slate-900">{stats.totalCandidates}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
-          <CardContent className="p-4 relative">
+        <Card className="border-slate-200">
+          <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                 <Star className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{tp.activePools}</p>
-                <p className="text-xl font-bold">{stats.activePools}</p>
+                <p className="text-xs text-slate-500">{tp.activePools}</p>
+                <p className="text-xl font-bold text-slate-900">{stats.activePools}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
-          <CardContent className="p-4 relative">
+        <Card className="border-slate-200">
+          <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                 <Mail className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{tp.engagedMonth}</p>
-                <p className="text-xl font-bold">{stats.engagedThisMonth}</p>
+                <p className="text-xs text-slate-500">{tp.engagedMonth}</p>
+                <p className="text-xl font-bold text-slate-900">{stats.engagedThisMonth}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-teal-600 opacity-[0.06]" />
-          <CardContent className="p-4 relative">
+        <Card className="border-slate-200">
+          <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">{tp.avgTimeInPool}</p>
-                <p className="text-xl font-bold">{stats.avgTimeInPool}</p>
+                <p className="text-xs text-slate-500">{tp.avgTimeInPool}</p>
+                <p className="text-xl font-bold text-slate-900">{stats.avgTimeInPool}</p>
               </div>
             </div>
           </CardContent>
@@ -542,8 +538,8 @@ export default function TalentPoolContent() {
 
       {/* Pools Section */}
       <div>
-        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Star className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+        <h2 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+          <Star className="h-4 w-4 text-amber-500" />
           {tp.activePools}
         </h2>
         {pools.length > 0 ? (
@@ -551,33 +547,33 @@ export default function TalentPoolContent() {
             {pools.map(pool => (
               <Card
                 key={pool.id}
-                className="border-border/50 card-hover-lift cursor-pointer hover:border-teal-300 dark:hover:border-teal-700 transition-all"
+                className="border-slate-200 cursor-pointer hover:border-blue-300 hover:shadow-md transition-all"
                 onClick={() => { setFilterPool(pool.id === filterPool ? 'all' : pool.id); }}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-base">{categoryIcons[pool.category]}</span>
-                      <h3 className="font-semibold text-sm truncate">{pool.name}</h3>
+                      <h3 className="font-semibold text-sm text-slate-900 truncate">{pool.name}</h3>
                     </div>
                     <Badge className={cn('text-[10px]', categoryColors[pool.category])}>
                       {tp[`category${pool.category}`] || pool.category}
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{pool.description}</p>
+                  <p className="text-xs text-slate-500 line-clamp-2 mb-3">{pool.description}</p>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1 text-xs text-slate-500">
                       <Users className="h-3 w-3" />
                       {pool.memberCount} {tp.members}
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <div className="flex items-center gap-1 text-[10px] text-slate-400">
                       <Clock className="h-3 w-3" />
                       {pool.lastActivity}
                     </div>
                   </div>
                   {filterPool === pool.id && (
-                    <div className="mt-2 pt-2 border-t border-border/30">
-                      <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                    <div className="mt-2 pt-2 border-t border-slate-200">
+                      <Badge className="text-[10px] bg-blue-50 text-blue-700 border-0">
                         ✓ Filtering
                       </Badge>
                     </div>
@@ -587,10 +583,10 @@ export default function TalentPoolContent() {
             ))}
           </div>
         ) : (
-          <Card className="border-border/50">
+          <Card className="border-slate-200">
             <CardContent className="p-8 text-center">
-              <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">{tp.noPools}</p>
+              <Users className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-500">{tp.noPools}</p>
             </CardContent>
           </Card>
         )}
@@ -599,8 +595,8 @@ export default function TalentPoolContent() {
       {/* Candidate List Section */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+          <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+            <Users className="h-4 w-4 text-blue-600" />
             {tp.totalCandidates} ({filteredCandidates.length})
           </h2>
           <div className="flex items-center gap-2">
@@ -619,14 +615,14 @@ export default function TalentPoolContent() {
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+          <Filter className="h-4 w-4 text-slate-400 shrink-0" />
           <div className="relative flex-1 min-w-[200px] max-w-xs">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder={tp.searchCandidates}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+              className="ps-9 h-8 text-xs bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-blue-500/50"
             />
           </div>
           <Select value={filterPool} onValueChange={setFilterPool}>
@@ -667,13 +663,13 @@ export default function TalentPoolContent() {
             placeholder={tp.filterBySkills}
             value={filterSkills}
             onChange={(e) => setFilterSkills(e.target.value)}
-            className="w-32 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+            className="w-32 h-8 text-xs bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-blue-500/50"
           />
           {(filterPool !== 'all' || filterCategory !== 'all' || filterAvailability !== 'all' || filterSkills || searchQuery) && (
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 text-xs text-muted-foreground"
+              className="h-8 text-xs text-slate-500"
               onClick={() => { setFilterPool('all'); setFilterCategory('all'); setFilterAvailability('all'); setFilterSkills(''); setSearchQuery(''); }}
             >
               <X className="h-3 w-3 me-1" />
@@ -686,29 +682,29 @@ export default function TalentPoolContent() {
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredCandidates.map(candidate => (
-              <Card key={candidate.id} className="border-border/50 card-hover-lift">
+              <Card key={candidate.id} className="border-slate-200 hover:shadow-md transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3 mb-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                      <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                         {getInitials(candidate.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-sm truncate">{candidate.name}</h3>
-                        <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 shrink-0 ms-2">
+                        <h3 className="font-semibold text-sm text-slate-900 truncate">{candidate.name}</h3>
+                        <Badge className="text-[10px] bg-blue-50 text-blue-700 border-0 shrink-0 ms-2">
                           {candidate.matchScore}%
                         </Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{candidate.currentTitle}</p>
+                      <p className="text-xs text-slate-500 truncate">{candidate.currentTitle}</p>
                     </div>
                   </div>
 
                   {/* Skills */}
                   <div className="flex flex-wrap gap-1 mb-3">
                     {candidate.skills.slice(0, 4).map(skill => (
-                      <Badge key={skill} variant="outline" className="text-[10px] px-1.5 py-0 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400">
+                      <Badge key={skill} variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200 text-slate-600">
                         {skill}
                       </Badge>
                     ))}
@@ -736,7 +732,7 @@ export default function TalentPoolContent() {
                   {candidate.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-3">
                       {candidate.tags.map(tag => (
-                        <span key={tag} className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                        <span key={tag} className="inline-flex items-center gap-0.5 text-[10px] text-slate-500">
                           <Tag className="h-2.5 w-2.5" />
                           {tag}
                         </span>
@@ -745,7 +741,7 @@ export default function TalentPoolContent() {
                   )}
 
                   {/* Meta */}
-                  <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-3">
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 mb-3">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {tp.lastContacted}: {candidate.lastContacted}
@@ -754,7 +750,7 @@ export default function TalentPoolContent() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-1 border-t border-border/30 pt-3">
+                  <div className="flex items-center gap-1 border-t border-slate-200 pt-3">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -767,7 +763,7 @@ export default function TalentPoolContent() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 px-2 text-xs flex-1 text-teal-600 dark:text-teal-400 hover:text-teal-700"
+                      className="h-7 px-2 text-xs flex-1 text-blue-600 hover:text-blue-700"
                       onClick={() => openEngage(candidate)}
                     >
                       <Mail className="h-3 w-3 me-1" />
@@ -788,57 +784,57 @@ export default function TalentPoolContent() {
           </div>
         ) : (
           /* Table View */
-          <Card className="border-border/50">
+          <Card className="border-slate-200">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border/50">
-                      <th className="text-start text-xs font-medium text-muted-foreground p-3">{tp.title}</th>
-                      <th className="text-start text-xs font-medium text-muted-foreground p-3">Skills</th>
-                      <th className="text-start text-xs font-medium text-muted-foreground p-3">Match</th>
-                      <th className="text-start text-xs font-medium text-muted-foreground p-3">{tp.lastContacted}</th>
-                      <th className="text-start text-xs font-medium text-muted-foreground p-3">Pools</th>
-                      <th className="text-start text-xs font-medium text-muted-foreground p-3">{tp.category}</th>
-                      <th className="text-start text-xs font-medium text-muted-foreground p-3">{t.common.actions}</th>
+                    <tr className="border-b border-slate-200">
+                      <th className="text-start text-xs font-medium text-slate-500 p-3">{tp.title}</th>
+                      <th className="text-start text-xs font-medium text-slate-500 p-3">Skills</th>
+                      <th className="text-start text-xs font-medium text-slate-500 p-3">Match</th>
+                      <th className="text-start text-xs font-medium text-slate-500 p-3">{tp.lastContacted}</th>
+                      <th className="text-start text-xs font-medium text-slate-500 p-3">Pools</th>
+                      <th className="text-start text-xs font-medium text-slate-500 p-3">{tp.category}</th>
+                      <th className="text-start text-xs font-medium text-slate-500 p-3">{t.common.actions}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredCandidates.map(candidate => (
                       <tr
                         key={candidate.id}
-                        className="border-b border-border/30 hover:bg-muted/10 transition-colors cursor-pointer"
+                        className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                         onClick={() => openProfile(candidate)}
                       >
                         <td className="p-3">
                           <div className="flex items-center gap-2">
                             <Avatar className="h-7 w-7">
-                              <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[9px]">
+                              <AvatarFallback className="bg-blue-100 text-blue-700 text-[9px]">
                                 {getInitials(candidate.name)}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <span className="text-sm font-medium block">{candidate.name}</span>
-                              <span className="text-[10px] text-muted-foreground">{candidate.currentTitle}</span>
+                              <span className="text-sm font-medium block text-slate-900">{candidate.name}</span>
+                              <span className="text-[10px] text-slate-500">{candidate.currentTitle}</span>
                             </div>
                           </div>
                         </td>
                         <td className="p-3">
                           <div className="flex flex-wrap gap-1">
                             {candidate.skills.slice(0, 3).map(s => (
-                              <Badge key={s} variant="outline" className="text-[9px] px-1 py-0 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400">
+                              <Badge key={s} variant="outline" className="text-[9px] px-1 py-0 border-slate-200 text-slate-600">
                                 {s}
                               </Badge>
                             ))}
                           </div>
                         </td>
                         <td className="p-3">
-                          <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                          <Badge className="text-[10px] bg-blue-50 text-blue-700 border-0">
                             {candidate.matchScore}%
                           </Badge>
                         </td>
                         <td className="p-3">
-                          <span className="text-xs text-muted-foreground">{candidate.lastContacted}</span>
+                          <span className="text-xs text-slate-500">{candidate.lastContacted}</span>
                         </td>
                         <td className="p-3">
                           <div className="flex flex-wrap gap-1">
@@ -867,7 +863,7 @@ export default function TalentPoolContent() {
                             <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => openAddToPool(candidate)}>
                               <UserPlus className="h-3 w-3" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-teal-600 dark:text-teal-400" onClick={() => openEngage(candidate)}>
+                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-blue-600" onClick={() => openEngage(candidate)}>
                               <Mail className="h-3 w-3" />
                             </Button>
                             <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => openProfile(candidate)}>
@@ -880,8 +876,8 @@ export default function TalentPoolContent() {
                     {filteredCandidates.length === 0 && (
                       <tr>
                         <td colSpan={7} className="p-8 text-center">
-                          <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-sm text-muted-foreground">{tp.noCandidates}</p>
+                          <Users className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                          <p className="text-sm text-slate-500">{tp.noCandidates}</p>
                         </td>
                       </tr>
                     )}
@@ -893,10 +889,10 @@ export default function TalentPoolContent() {
         )}
 
         {filteredCandidates.length === 0 && viewMode === 'grid' && (
-          <Card className="border-border/50">
+          <Card className="border-slate-200">
             <CardContent className="p-8 text-center">
-              <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">{tp.noCandidates}</p>
+              <Users className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-500">{tp.noCandidates}</p>
             </CardContent>
           </Card>
         )}
@@ -904,25 +900,25 @@ export default function TalentPoolContent() {
 
       {/* Recent Nurture Activities */}
       <div>
-        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+        <h2 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+          <Clock className="h-4 w-4 text-blue-600" />
           Recent Nurture Activities
         </h2>
-        <Card className="border-border/50">
+        <Card className="border-slate-200">
           <CardContent className="p-0">
-            <div className="divide-y divide-border/30">
+            <div className="divide-y divide-slate-100">
               {recentActivities.map(activity => (
-                <div key={activity.id} className="flex items-center gap-3 p-3 hover:bg-muted/10 transition-colors">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+                <div key={activity.id} className="flex items-center gap-3 p-3 hover:bg-slate-50 transition-colors">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
                     {activity.type === 'interview' ? <Phone className="h-3.5 w-3.5" /> :
                      activity.type === 'email' ? <Mail className="h-3.5 w-3.5" /> :
                      activity.type === 'offer' ? <Briefcase className="h-3.5 w-3.5" /> :
                      <Users className="h-3.5 w-3.5" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{activity.description}</p>
+                    <p className="text-sm text-slate-700 truncate">{activity.description}</p>
                   </div>
-                  <span className="text-[10px] text-muted-foreground shrink-0">{activity.time}</span>
+                  <span className="text-[10px] text-slate-400 shrink-0">{activity.time}</span>
                 </div>
               ))}
             </div>
@@ -936,14 +932,14 @@ export default function TalentPoolContent() {
       <Dialog open={createPoolOpen} onOpenChange={setCreatePoolOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-teal-600" />
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
+              <Plus className="h-5 w-5 text-blue-600" />
               {tp.createPool}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{tp.poolName}</label>
+              <label className="text-sm font-medium text-slate-700">{tp.poolName}</label>
               <Input
                 value={newPoolName}
                 onChange={(e) => setNewPoolName(e.target.value)}
@@ -951,7 +947,7 @@ export default function TalentPoolContent() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{tp.poolDescription}</label>
+              <label className="text-sm font-medium text-slate-700">{tp.poolDescription}</label>
               <Textarea
                 value={newPoolDescription}
                 onChange={(e) => setNewPoolDescription(e.target.value)}
@@ -960,7 +956,7 @@ export default function TalentPoolContent() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{tp.category}</label>
+              <label className="text-sm font-medium text-slate-700">{tp.category}</label>
               <Select value={newPoolCategory} onValueChange={(v) => setNewPoolCategory(v as PoolCategory)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -979,7 +975,7 @@ export default function TalentPoolContent() {
               <Button variant="outline">{t.common.cancel}</Button>
             </DialogClose>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={handleCreatePool}
               disabled={!newPoolName.trim()}
             >
@@ -993,29 +989,29 @@ export default function TalentPoolContent() {
       <Dialog open={addToPoolOpen} onOpenChange={setAddToPoolOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-teal-600" />
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
+              <UserPlus className="h-5 w-5 text-blue-600" />
               {tp.addToPool}
             </DialogTitle>
           </DialogHeader>
           {selectedCandidateForPool && (
             <div className="space-y-4 py-2">
               {/* Candidate Info */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px]">
+                  <AvatarFallback className="bg-blue-100 text-blue-700 text-[10px]">
                     {getInitials(selectedCandidateForPool.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold text-sm">{selectedCandidateForPool.name}</p>
-                  <p className="text-xs text-muted-foreground">{selectedCandidateForPool.currentTitle}</p>
+                  <p className="font-semibold text-sm text-slate-900">{selectedCandidateForPool.name}</p>
+                  <p className="text-xs text-slate-500">{selectedCandidateForPool.currentTitle}</p>
                 </div>
               </div>
 
               {/* Pool Selection */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">{tp.selectPools}</label>
+                <label className="text-sm font-medium text-slate-700">{tp.selectPools}</label>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {pools.map(pool => {
                     const isSelected = selectedPoolIds.includes(pool.id);
@@ -1025,8 +1021,8 @@ export default function TalentPoolContent() {
                         className={cn(
                           'flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all',
                           isSelected
-                            ? 'border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/30'
-                            : 'border-border/50 hover:border-teal-200 dark:hover:border-teal-800'
+                            ? 'border-blue-300 bg-blue-50'
+                            : 'border-slate-200 hover:border-blue-200'
                         )}
                       >
                         <Checkbox
@@ -1041,12 +1037,12 @@ export default function TalentPoolContent() {
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">{pool.name}</span>
+                            <span className="text-sm font-medium text-slate-900">{pool.name}</span>
                             <Badge className={cn('text-[9px]', categoryColors[pool.category])}>
                               {tp[`category${pool.category}`] || pool.category}
                             </Badge>
                           </div>
-                          <span className="text-[10px] text-muted-foreground">{pool.memberCount} {tp.members}</span>
+                          <span className="text-[10px] text-slate-500">{pool.memberCount} {tp.members}</span>
                         </div>
                       </label>
                     );
@@ -1056,7 +1052,7 @@ export default function TalentPoolContent() {
 
               {/* Notes */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">{tp.notes}</label>
+                <label className="text-sm font-medium text-slate-700">{tp.notes}</label>
                 <Textarea
                   value={addToPoolNotes}
                   onChange={(e) => setAddToPoolNotes(e.target.value)}
@@ -1067,7 +1063,7 @@ export default function TalentPoolContent() {
 
               {/* Tags */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">{tp.tags}</label>
+                <label className="text-sm font-medium text-slate-700">{tp.tags}</label>
                 <Input
                   value={addToPoolTags}
                   onChange={(e) => setAddToPoolTags(e.target.value)}
@@ -1081,7 +1077,7 @@ export default function TalentPoolContent() {
               <Button variant="outline">{t.common.cancel}</Button>
             </DialogClose>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={handleAddToPool}
               disabled={selectedPoolIds.length === 0}
             >
@@ -1096,8 +1092,8 @@ export default function TalentPoolContent() {
       <Dialog open={engageOpen} onOpenChange={setEngageOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-teal-600" />
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
+              <Mail className="h-5 w-5 text-blue-600" />
               {tp.engage} — {engageCandidate?.name}
             </DialogTitle>
           </DialogHeader>
@@ -1108,35 +1104,35 @@ export default function TalentPoolContent() {
                 <div className="grid grid-cols-2 gap-3">
                   <Button
                     variant="outline"
-                    className="h-auto py-4 flex-col gap-2 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950"
+                    className="h-auto py-4 flex-col gap-2 border-blue-200 hover:bg-blue-50"
                     onClick={() => { setEngageAction('email'); setEmailTemplate('general'); setEmailBody(`Dear ${engageCandidate.name},\n\nI hope this message finds you well...`); }}
                   >
-                    <Mail className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                    <span className="text-sm font-medium">{tp.sendEmail}</span>
+                    <Mail className="h-5 w-5 text-blue-600" />
+                    <span className="text-sm font-medium text-slate-700">{tp.sendEmail}</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-auto py-4 flex-col gap-2 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                    className="h-auto py-4 flex-col gap-2 border-emerald-200 hover:bg-emerald-50"
                     onClick={() => { setEngageAction('call'); setCallNotes(''); }}
                   >
-                    <Phone className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                    <span className="text-sm font-medium">{tp.scheduleCall}</span>
+                    <Phone className="h-5 w-5 text-emerald-600" />
+                    <span className="text-sm font-medium text-slate-700">{tp.scheduleCall}</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-auto py-4 flex-col gap-2 border-amber-200 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950"
+                    className="h-auto py-4 flex-col gap-2 border-amber-200 hover:bg-amber-50"
                     onClick={() => { setEngageAction('note'); setNoteText(''); }}
                   >
-                    <StickyNote className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    <span className="text-sm font-medium">{tp.addNote}</span>
+                    <StickyNote className="h-5 w-5 text-amber-600" />
+                    <span className="text-sm font-medium text-slate-700">{tp.addNote}</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-auto py-4 flex-col gap-2 border-cyan-200 dark:border-cyan-800 hover:bg-cyan-50 dark:hover:bg-cyan-950"
+                    className="h-auto py-4 flex-col gap-2 border-slate-200 hover:bg-slate-50"
                     onClick={() => { setEngageAction('job'); setReassignJob(''); }}
                   >
-                    <Briefcase className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                    <span className="text-sm font-medium">{tp.reassignJob}</span>
+                    <Briefcase className="h-5 w-5 text-slate-600" />
+                    <span className="text-sm font-medium text-slate-700">{tp.reassignJob}</span>
                   </Button>
                 </div>
               )}
@@ -1150,7 +1146,7 @@ export default function TalentPoolContent() {
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Template</label>
+                    <label className="text-sm font-medium text-slate-700">Template</label>
                     <Select value={emailTemplate} onValueChange={(v) => {
                       setEmailTemplate(v);
                       const templates: Record<string, string> = {
@@ -1177,7 +1173,7 @@ export default function TalentPoolContent() {
                     className="font-mono text-xs"
                   />
                   <Button
-                    className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={handleEngage}
                   >
                     <Send className="h-3.5 w-3.5 me-1.5" />
@@ -1196,16 +1192,16 @@ export default function TalentPoolContent() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Date</label>
+                      <label className="text-sm font-medium text-slate-700">Date</label>
                       <Input type="date" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Time</label>
+                      <label className="text-sm font-medium text-slate-700">Time</label>
                       <Input type="time" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">{tp.notes}</label>
+                    <label className="text-sm font-medium text-slate-700">{tp.notes}</label>
                     <Textarea
                       value={callNotes}
                       onChange={(e) => setCallNotes(e.target.value)}
@@ -1214,7 +1210,7 @@ export default function TalentPoolContent() {
                     />
                   </div>
                   <Button
-                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                     onClick={handleEngage}
                   >
                     <Calendar className="h-3.5 w-3.5 me-1.5" />
@@ -1232,7 +1228,7 @@ export default function TalentPoolContent() {
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">{tp.addNote}</label>
+                    <label className="text-sm font-medium text-slate-700">{tp.addNote}</label>
                     <Textarea
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
@@ -1241,7 +1237,7 @@ export default function TalentPoolContent() {
                     />
                   </div>
                   <Button
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700"
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white"
                     onClick={handleEngage}
                   >
                     <StickyNote className="h-3.5 w-3.5 me-1.5" />
@@ -1259,7 +1255,7 @@ export default function TalentPoolContent() {
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">{tp.reassignJob}</label>
+                    <label className="text-sm font-medium text-slate-700">{tp.reassignJob}</label>
                     <Select value={reassignJob} onValueChange={setReassignJob}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a job" />
@@ -1274,7 +1270,7 @@ export default function TalentPoolContent() {
                     </Select>
                   </div>
                   <Button
-                    className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white hover:from-cyan-600 hover:to-teal-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={handleEngage}
                   >
                     <Briefcase className="h-3.5 w-3.5 me-1.5" />
@@ -1291,27 +1287,27 @@ export default function TalentPoolContent() {
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-teal-600" />
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
+              <Eye className="h-5 w-5 text-blue-600" />
               {tp.viewProfile}
             </DialogTitle>
           </DialogHeader>
           {profileCandidate && (
             <div className="space-y-6 py-2">
               {/* Candidate Info */}
-              <Card className="border-border/50">
+              <Card className="border-slate-200">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="h-14 w-14">
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-lg">
+                      <AvatarFallback className="bg-blue-100 text-blue-700 text-lg">
                         {getInitials(profileCandidate.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold">{profileCandidate.name}</h3>
-                      <p className="text-sm text-muted-foreground">{profileCandidate.currentTitle}</p>
+                      <h3 className="text-lg font-bold text-slate-900">{profileCandidate.name}</h3>
+                      <p className="text-sm text-slate-500">{profileCandidate.currentTitle}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                        <Badge className="text-[10px] bg-blue-50 text-blue-700 border-0">
                           {profileCandidate.matchScore}% Match
                         </Badge>
                         <Badge variant="outline" className="text-[10px]">{profileCandidate.availability}</Badge>
@@ -1322,7 +1318,7 @@ export default function TalentPoolContent() {
                         <UserPlus className="h-3 w-3 me-1" />
                         {tp.addToPool}
                       </Button>
-                      <Button size="sm" variant="outline" className="text-xs text-teal-600 dark:text-teal-400" onClick={() => { setProfileOpen(false); openEngage(profileCandidate); }}>
+                      <Button size="sm" variant="outline" className="text-xs text-blue-600" onClick={() => { setProfileOpen(false); openEngage(profileCandidate); }}>
                         <Mail className="h-3 w-3 me-1" />
                         {tp.engage}
                       </Button>
@@ -1331,10 +1327,10 @@ export default function TalentPoolContent() {
 
                   {/* Skills */}
                   <div className="mt-4">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">Skills</p>
+                    <p className="text-xs font-medium text-slate-500 mb-2">Skills</p>
                     <div className="flex flex-wrap gap-1">
                       {profileCandidate.skills.map(skill => (
-                        <Badge key={skill} variant="outline" className="text-[10px] px-1.5 py-0 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400">
+                        <Badge key={skill} variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200 text-slate-600">
                           {skill}
                         </Badge>
                       ))}
@@ -1344,7 +1340,7 @@ export default function TalentPoolContent() {
                   {/* Tags */}
                   {profileCandidate.tags.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-xs font-medium text-muted-foreground mb-2">{tp.tags}</p>
+                      <p className="text-xs font-medium text-slate-500 mb-2">{tp.tags}</p>
                       <div className="flex flex-wrap gap-1">
                         {profileCandidate.tags.map(tag => (
                           <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0">
@@ -1358,7 +1354,7 @@ export default function TalentPoolContent() {
 
                   {/* Pools */}
                   <div className="mt-3">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">{tp.activePools}</p>
+                    <p className="text-xs font-medium text-slate-500 mb-2">{tp.activePools}</p>
                     <div className="flex flex-wrap gap-1">
                       {profileCandidate.poolIds.map(pid => {
                         const pool = pools.find(p => p.id === pid);
@@ -1371,7 +1367,7 @@ export default function TalentPoolContent() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-5 w-5 p-0 text-muted-foreground hover:text-red-600"
+                              className="h-5 w-5 p-0 text-slate-400 hover:text-red-600"
                               onClick={() => handleRemoveFromPool(profileCandidate.id, pool.id)}
                             >
                               <X className="h-3 w-3" />
@@ -1383,7 +1379,7 @@ export default function TalentPoolContent() {
                   </div>
 
                   {/* Meta */}
-                  <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
                       <Mail className="h-3 w-3" />
                       {profileCandidate.email}
@@ -1398,8 +1394,8 @@ export default function TalentPoolContent() {
 
               {/* Activity Timeline */}
               <div>
-                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-blue-600" />
                   {tp.activityTimeline}
                 </h3>
                 {profileCandidate.activityTimeline.length > 0 ? (
@@ -1412,15 +1408,15 @@ export default function TalentPoolContent() {
                             <Icon className="h-3.5 w-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm">{entry.description}</p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">{entry.date}</p>
+                            <p className="text-sm text-slate-700">{entry.description}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{entry.date}</p>
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">{tp.noCandidates}</p>
+                  <p className="text-sm text-slate-500">{tp.noCandidates}</p>
                 )}
               </div>
             </div>

@@ -71,9 +71,9 @@ interface FairHiringConfigData {
 
 // Color helpers
 function getImpactColor(rate: number, threshold: number): string {
-  if (rate >= threshold) return 'text-emerald-700 dark:text-emerald-400';
-  if (rate >= threshold * 0.7) return 'text-amber-700 dark:text-amber-400';
-  return 'text-red-700 dark:text-red-400';
+  if (rate >= threshold) return 'text-emerald-700';
+  if (rate >= threshold * 0.7) return 'text-amber-700';
+  return 'text-red-700';
 }
 
 function getImpactBg(rate: number, threshold: number): string {
@@ -85,7 +85,7 @@ function getImpactBg(rate: number, threshold: number): string {
 function getStatusBadge(status: string, t: ReturnType<typeof useI18n>['t']) {
   if (status === 'COMPLETED') {
     return (
-      <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+      <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 bg-emerald-100 text-emerald-700">
         <CheckCircle2 className="w-3 h-3 me-1" />
         {t.fairHiring.completed}
       </Badge>
@@ -93,14 +93,14 @@ function getStatusBadge(status: string, t: ReturnType<typeof useI18n>['t']) {
   }
   if (status === 'FLAGGED') {
     return (
-      <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+      <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 bg-red-100 text-red-700">
         <AlertTriangle className="w-3 h-3 me-1" />
         {t.fairHiring.flagged}
       </Badge>
     );
   }
   return (
-    <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+    <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 bg-amber-100 text-amber-700">
       <Clock className="w-3 h-3 me-1" />
       {t.fairHiring.pending}
     </Badge>
@@ -283,8 +283,8 @@ export default function FairHiringContent() {
       title: t.fairHiring.totalAudits,
       value: totalAudits,
       icon: FileText,
-      bgColor: 'bg-teal-50 dark:bg-teal-950/30',
-      iconColor: 'text-teal-600 dark:text-teal-400',
+      bgColor: 'bg-slate-50',
+      iconColor: 'text-blue-600',
     },
     {
       title: t.fairHiring.lastAudit,
@@ -292,10 +292,10 @@ export default function FairHiringContent() {
       icon: Clock,
       bgColor: lastAuditStatus === 'FLAGGED'
         ? 'bg-red-50 dark:bg-red-950/30'
-        : 'bg-emerald-50 dark:bg-emerald-950/30',
+        : 'bg-emerald-50',
       iconColor: lastAuditStatus === 'FLAGGED'
-        ? 'text-red-600 dark:text-red-400'
-        : 'text-emerald-600 dark:text-emerald-400',
+        ? 'text-red-600'
+        : 'text-emerald-600',
       badge: lastAuditStatus !== '—' ? lastAuditStatus : undefined,
     },
     {
@@ -304,25 +304,25 @@ export default function FairHiringContent() {
       icon: ShieldAlert,
       bgColor: adverseImpactFlags > 0
         ? 'bg-red-50 dark:bg-red-950/30'
-        : 'bg-emerald-50 dark:bg-emerald-950/30',
+        : 'bg-emerald-50',
       iconColor: adverseImpactFlags > 0
-        ? 'text-red-600 dark:text-red-400'
-        : 'text-emerald-600 dark:text-emerald-400',
+        ? 'text-red-600'
+        : 'text-emerald-600',
     },
     {
       title: t.fairHiring.complianceScore,
       value: `${complianceScore}%`,
       icon: ShieldCheck,
       bgColor: complianceScore >= 80
-        ? 'bg-emerald-50 dark:bg-emerald-950/30'
+        ? 'bg-emerald-50'
         : complianceScore >= 50
           ? 'bg-amber-50 dark:bg-amber-950/30'
           : 'bg-red-50 dark:bg-red-950/30',
       iconColor: complianceScore >= 80
-        ? 'text-emerald-600 dark:text-emerald-400'
+        ? 'text-emerald-600'
         : complianceScore >= 50
-          ? 'text-amber-600 dark:text-amber-400'
-          : 'text-red-600 dark:text-red-400',
+          ? 'text-amber-600'
+          : 'text-red-600',
     },
   ];
 
@@ -330,7 +330,7 @@ export default function FairHiringContent() {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="flex items-center gap-3">
-          <Loader2 className="w-6 h-6 text-teal-600 animate-spin" />
+          <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
           <span className="text-muted-foreground">{t.common.loading}</span>
         </div>
       </div>
@@ -343,18 +343,18 @@ export default function FairHiringContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <ShieldCheck className="w-7 h-7 text-teal-600 dark:text-teal-400" />
+            <ShieldCheck className="w-7 h-7 text-blue-600" />
             {t.fairHiring.title}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">{t.fairHiring.subtitle}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+            <Sparkles className="w-3.5 h-3.5 text-blue-500" />
             {t.common.poweredBy}
           </div>
           <Button
-            className="bg-teal-600 hover:bg-teal-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
             onClick={() => setNewAuditOpen(true)}
           >
             <Play className="w-4 h-4 me-1.5" />
@@ -370,7 +370,7 @@ export default function FairHiringContent() {
           return (
             <Card
               key={card.title}
-              className="card-hover-lift animate-fade-in-up relative overflow-hidden border-0 shadow-sm"
+              className="card-animate-fade-in-up relative overflow-hidden border-0 shadow-sm"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/80 to-emerald-50/80 dark:from-teal-950/20 dark:to-emerald-950/20" />
@@ -386,8 +386,8 @@ export default function FairHiringContent() {
                           className={cn(
                             'text-xs px-2 py-0.5 border-0',
                             card.badge === 'FLAGGED'
-                              ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                              : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-emerald-100 text-emerald-700',
                           )}
                         >
                           {card.badge}
@@ -423,11 +423,11 @@ export default function FairHiringContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {complianceScore >= 80 ? (
-                <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
               ) : complianceScore >= 50 ? (
-                <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                <AlertTriangle className="w-6 h-6 text-amber-600" />
               ) : (
-                <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                <XCircle className="w-6 h-6 text-red-600" />
               )}
               <div>
                 <p className="text-sm font-semibold">{t.fairHiring.complianceStatus}</p>
@@ -467,7 +467,7 @@ export default function FairHiringContent() {
           <Card className="animate-fade-in-up border-0 shadow-sm" style={{ animationDelay: '0.2s' }}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <FileText className="w-4 h-4 text-teal-600" />
+                <FileText className="w-4 h-4 text-blue-600" />
                 {t.fairHiring.auditHistory}
               </CardTitle>
             </CardHeader>
@@ -504,7 +504,7 @@ export default function FairHiringContent() {
                             onClick={() => handleViewDetail(audit)}
                           >
                             <td className="p-3">
-                              <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
+                              <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 bg-teal-100 text-blue-700">
                                 {getAuditTypeLabel(audit.auditType, t)}
                               </Badge>
                             </td>
@@ -515,8 +515,8 @@ export default function FairHiringContent() {
                                 className={cn(
                                   'text-xs px-2 py-0.5 border-0',
                                   hasAdverse
-                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+                                    ? 'bg-red-100 text-red-700'
+                                    : 'bg-emerald-100 text-emerald-700',
                                 )}
                               >
                                 {hasAdverse ? t.fairHiring.detected : t.fairHiring.notDetected}
@@ -530,7 +530,7 @@ export default function FairHiringContent() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
+                                className="text-blue-600 hover:text-blue-700 dark:hover:text-blue-300"
                               >
                                 <Eye className="w-4 h-4 me-1" />
                                 {t.fairHiring.viewDetails}
@@ -552,7 +552,7 @@ export default function FairHiringContent() {
           <Card className="animate-fade-in-up border-0 shadow-sm" style={{ animationDelay: '0.3s' }}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <Settings className="w-4 h-4 text-teal-600" />
+                <Settings className="w-4 h-4 text-blue-600" />
                 {t.fairHiring.config}
               </CardTitle>
               <CardDescription className="text-xs">{t.fairHiring.subtitle}</CardDescription>
@@ -638,7 +638,7 @@ export default function FairHiringContent() {
               </div>
 
               <Button
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={handleSaveConfig}
                 disabled={savingConfig}
               >
@@ -661,7 +661,7 @@ export default function FairHiringContent() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Play className="w-5 h-5 text-teal-600" />
+              <Play className="w-5 h-5 text-blue-600" />
               {t.fairHiring.runNewAudit}
             </DialogTitle>
             <DialogDescription>{t.fairHiring.subtitle}</DialogDescription>
@@ -717,7 +717,7 @@ export default function FairHiringContent() {
               {t.common.cancel}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={handleRunAudit}
               disabled={runningAudit}
             >
@@ -742,7 +742,7 @@ export default function FairHiringContent() {
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-glow">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-teal-600" />
+              <ShieldCheck className="w-5 h-5 text-blue-600" />
               {t.fairHiring.viewDetails}
             </DialogTitle>
             <DialogDescription>
@@ -774,9 +774,9 @@ export default function FairHiringContent() {
                 )}>
                   <div className="flex items-center gap-3">
                     {!hasAny ? (
-                      <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                      <CheckCircle2 className="w-6 h-6 text-emerald-600" />
                     ) : (
-                      <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                      <XCircle className="w-6 h-6 text-red-600" />
                     )}
                     <div>
                       <p className="text-sm font-semibold">{t.fairHiring.complianceStatus}</p>
@@ -790,8 +790,8 @@ export default function FairHiringContent() {
                     className={cn(
                       'text-xs px-3 py-1 border-0',
                       !hasAny
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-red-100 text-red-700',
                     )}
                   >
                     {selectedAudit.complianceScore}%
@@ -803,7 +803,7 @@ export default function FairHiringContent() {
                 {/* 4/5ths Rule Analysis per Demographic Group */}
                 <div>
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4 text-teal-600" />
+                    <ShieldAlert className="w-4 h-4 text-blue-600" />
                     {t.fairHiring.fourFifthsRule}
                   </h4>
                   <div className="space-y-4">
@@ -835,8 +835,8 @@ export default function FairHiringContent() {
                               className={cn(
                                 'text-[10px] px-1.5 py-0 border-0',
                                 attrData?.hasAdverseImpact
-                                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                  : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+                                  ? 'bg-red-100 text-red-700'
+                                  : 'bg-emerald-100 text-emerald-700',
                               )}
                             >
                               {attrData?.hasAdverseImpact ? t.fairHiring.failed : t.fairHiring.passed}
@@ -890,7 +890,7 @@ export default function FairHiringContent() {
                 {/* AI Recommendations */}
                 <div>
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-teal-600" />
+                    <Sparkles className="w-4 h-4 text-blue-600" />
                     {t.fairHiring.recommendations}
                   </h4>
                   {recs.length > 0 ? (
@@ -900,7 +900,7 @@ export default function FairHiringContent() {
                           key={i}
                           className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-gradient-to-r from-teal-50/50 to-emerald-50/50 dark:from-teal-950/10 dark:to-emerald-950/10"
                         >
-                          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs font-bold">
+                          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-blue-700 text-xs font-bold">
                             {i + 1}
                           </div>
                           <p className="text-sm leading-relaxed">{rec}</p>
@@ -934,8 +934,8 @@ export default function FairHiringContent() {
                           className={cn(
                             'text-xs px-2 py-0.5 border-0',
                             hasAny
-                              ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                              : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-emerald-100 text-emerald-700',
                           )}
                         >
                           {hasAny ? t.fairHiring.detected : t.fairHiring.notDetected}

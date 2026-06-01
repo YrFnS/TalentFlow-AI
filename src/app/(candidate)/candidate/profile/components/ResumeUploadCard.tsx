@@ -339,8 +339,8 @@ export default function ResumeUploadCard({
 					<div
 						className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 cursor-pointer ${
 							isDragging
-								? "border-teal-400 bg-teal-50 dark:border-teal-600 dark:bg-teal-950/30"
-								: "border-teal-300 dark:border-teal-700 hover:border-teal-400 dark:hover:border-teal-600 hover:bg-teal-50/50 dark:hover:bg-teal-950/20"
+								? "border-teal-400 bg-slate-50 dark:border-teal-600"
+								: "border-slate-300 hover:border-slate-400 hover:bg-slate-50"
 						}`}
 						onDragOver={handleDragOver}
 						onDragLeave={handleDragLeave}
@@ -354,8 +354,8 @@ export default function ResumeUploadCard({
 						aria-label={t.resume.uploadArea}
 					>
 						<div className="flex flex-col items-center gap-3">
-							<div className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-950/50 flex items-center justify-center">
-								<CloudUpload className="w-8 h-8 text-teal-600 dark:text-teal-400" />
+							<div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center">
+								<CloudUpload className="w-8 h-8 text-blue-600" />
 							</div>
 							<div>
 								<p className="text-sm font-medium">{t.resume.uploadArea}</p>
@@ -366,7 +366,7 @@ export default function ResumeUploadCard({
 							<Button
 								variant="outline"
 								size="sm"
-								className="mt-1 border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+								className="mt-1 border-slate-300 text-blue-600 hover:bg-slate-50"
 								onClick={(e) => {
 									e.stopPropagation();
 									handleBrowseClick();
@@ -392,8 +392,8 @@ export default function ResumeUploadCard({
 					<div className="space-y-4">
 						<div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/30 transition-colors">
 							<div className="flex items-center gap-3 min-w-0">
-								<div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-950/50 flex items-center justify-center shrink-0">
-									<FileText className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+								<div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center shrink-0">
+									<FileText className="w-5 h-5 text-blue-600" />
 								</div>
 								<div className="min-w-0">
 									<h4 className="font-semibold text-sm truncate">
@@ -441,7 +441,7 @@ export default function ResumeUploadCard({
 						<div className="flex flex-col sm:flex-row gap-2">
 							<Button
 								variant="outline"
-								className="gap-2 flex-1 border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+								className="gap-2 flex-1 border-slate-300 text-blue-600 hover:bg-slate-50"
 								onClick={handleParseResume}
 								disabled={isParsing || isUploading}
 							>
@@ -464,7 +464,7 @@ export default function ResumeUploadCard({
 								<Separator />
 								<div className="space-y-3">
 									<h3 className="text-sm font-semibold flex items-center gap-2">
-										<Eye className="h-4 w-4 text-teal-600" />
+										<Eye className="h-4 w-4 text-blue-600" />
 										{t.resume.extractedInfo}
 									</h3>
 
@@ -473,7 +473,7 @@ export default function ResumeUploadCard({
 										parsedData.phone) && (
 										<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 											{parsedData.name && (
-												<div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
+												<div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
 													<p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
 														{t.resume.name}
 													</p>
@@ -483,7 +483,7 @@ export default function ResumeUploadCard({
 												</div>
 											)}
 											{parsedData.email && (
-												<div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
+												<div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
 													<p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
 														{t.resume.email}
 													</p>
@@ -493,7 +493,7 @@ export default function ResumeUploadCard({
 												</div>
 											)}
 											{parsedData.phone && (
-												<div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
+												<div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
 													<p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
 														{t.resume.phone}
 													</p>
@@ -515,7 +515,7 @@ export default function ResumeUploadCard({
 													<Badge
 														key={`parsed-skill-${idx}`}
 														variant="secondary"
-														className="text-xs bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300 border-0"
+														className="text-xs bg-slate-50 text-blue-700 dark:bg-teal-950 border-0"
 													>
 														{skill}
 													</Badge>
@@ -598,7 +598,7 @@ export default function ResumeUploadCard({
 														<Badge
 															key={`parsed-cert-${idx}`}
 															variant="outline"
-															className="text-xs border-teal-300 dark:border-teal-700"
+															className="text-xs border-slate-300"
 														>
 															{cert.name}
 														</Badge>
@@ -610,7 +610,7 @@ export default function ResumeUploadCard({
 
 								<div className="pt-2">
 									<Button
-										className="gap-2 bg-teal-600 hover:bg-teal-700 text-white w-full sm:w-auto"
+										className="gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
 										onClick={handleFillProfile}
 									>
 										<Sparkles className="h-4 w-4" />

@@ -80,17 +80,17 @@ export default function AdminHealthPage() {
   }, []);
 
   const statCards = data ? [
-    { title: t.health.systemUptime, value: data.uptime, icon: Activity, gradient: 'from-teal-500 to-emerald-600', change: '' },
+    { title: t.health.systemUptime, value: data.uptime, icon: Activity, gradient: 'bg-blue-600', change: '' },
     { title: t.health.activeUsers, value: String(data.activeUsers), icon: Users, gradient: 'from-emerald-500 to-teal-600', change: '' },
     { title: t.health.apiResponseTime, value: data.apiResponseTime, icon: Clock, gradient: 'from-cyan-500 to-teal-600', change: '' },
     { title: t.health.errorRate, value: data.errorRate, icon: AlertTriangle, gradient: 'from-teal-600 to-emerald-700', change: '' },
   ] : [];
 
   const serverMetrics = data ? [
-    { label: t.health.cpuUsage, value: data.serverMetrics.cpuUsage, icon: Cpu, color: 'bg-teal-500' },
+    { label: t.health.cpuUsage, value: data.serverMetrics.cpuUsage, icon: Cpu, color: 'bg-slate-500' },
     { label: t.health.memoryUsage, value: data.serverMetrics.memoryUsage, icon: MemoryStick, color: 'bg-emerald-500' },
     { label: t.health.diskUsage, value: data.serverMetrics.diskUsage, icon: Disc, color: 'bg-cyan-500' },
-    { label: t.health.networkIO, value: data.serverMetrics.networkIO, icon: Wifi, color: 'bg-teal-600' },
+    { label: t.health.networkIO, value: data.serverMetrics.networkIO, icon: Wifi, color: 'bg-blue-600' },
   ] : [];
 
   // Chart rendering
@@ -112,7 +112,7 @@ export default function AdminHealthPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             {t.health.title}
           </h1>
           <p className="text-muted-foreground mt-1">{t.health.subtitle}</p>
@@ -192,8 +192,8 @@ export default function AdminHealthPage() {
                       <div className="flex items-center gap-3">
                         <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
                           service.status === 'operational'
-                            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400'
-                            : 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
+                            ? 'bg-emerald-50 text-emerald-600'
+                            : 'bg-amber-50 text-amber-600 dark:bg-amber-950/30'
                         }`}>
                           <ServiceIcon className="h-4 w-4" />
                         </div>
@@ -207,8 +207,8 @@ export default function AdminHealthPage() {
                           variant="secondary"
                           className={`text-xs ${
                             service.status === 'operational'
-                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-0'
-                              : 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border-0'
+                              ? 'bg-emerald-50 text-emerald-700 border-0'
+                              : 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 border-0'
                           }`}
                         >
                           {service.status === 'operational' ? t.health.operational : t.health.degradedPerformance}
@@ -314,10 +314,10 @@ export default function AdminHealthPage() {
                   <div key={i} className="relative flex items-start gap-4 pb-6 last:pb-0">
                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-background z-10 ${
                       incident.severity === 'warning'
-                        ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400'
+                        ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/50'
                         : incident.severity === 'info'
-                        ? 'bg-teal-100 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400'
-                        : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'
+                        ? 'bg-teal-100 text-blue-600'
+                        : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50'
                     }`}>
                       {incident.severity === 'warning' ? (
                         <AlertCircle className="h-4 w-4" />
@@ -366,10 +366,10 @@ export default function AdminHealthPage() {
                 <div key={metric.label}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <metric.icon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                      <metric.icon className="h-4 w-4 text-blue-600" />
                       <span className="text-sm font-medium">{metric.label}</span>
                     </div>
-                    <span className="text-sm font-bold text-teal-700 dark:text-teal-400">{metric.value}%</span>
+                    <span className="text-sm font-bold text-blue-700">{metric.value}%</span>
                   </div>
                   <div className="relative h-3 rounded-full bg-muted overflow-hidden">
                     <div
@@ -380,7 +380,7 @@ export default function AdminHealthPage() {
                   <div className="flex justify-between mt-1">
                     <span className="text-[10px] text-muted-foreground">0%</span>
                     <span className={`text-[10px] font-medium ${
-                      metric.value > 70 ? 'text-amber-500' : metric.value > 50 ? 'text-teal-500' : 'text-emerald-500'
+                      metric.value > 70 ? 'text-amber-500' : metric.value > 50 ? 'text-blue-500' : 'text-emerald-500'
                     }`}>
                       {metric.value > 70 ? 'High' : metric.value > 50 ? 'Moderate' : metric.value > 0 ? 'Low' : 'N/A'}
                     </span>

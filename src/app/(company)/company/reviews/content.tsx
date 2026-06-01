@@ -66,16 +66,16 @@ interface EmployeeReview {
 }
 
 const cycleStatusColors: Record<CycleStatus, string> = {
-  Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  Planning: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Completed: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  Planning: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Completed: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
 };
 
 const reviewStatusColors: Record<ReviewStatus, string> = {
-  Pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  'In Progress': 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0',
-  Completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  Overdue: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  Pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  'In Progress': 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0',
+  Completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  Overdue: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 const initialCycles: ReviewCycle[] = [];
@@ -139,17 +139,17 @@ export default function ReviewsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <ClipboardCheck className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.reviews.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.reviews.title}</h1>
             <p className="text-sm text-muted-foreground">{t.reviews.subtitle}</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
               <Plus className="h-4 w-4 me-2" />
               {t.reviews.createReview}
             </Button>
@@ -216,7 +216,7 @@ export default function ReviewsContent() {
               <DialogClose asChild>
                 <Button variant="outline">{t.common.cancel}</Button>
               </DialogClose>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 {t.common.create}
               </Button>
             </DialogFooter>
@@ -226,11 +226,11 @@ export default function ReviewsContent() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <ClipboardCheck className="h-4 w-4" />
               </div>
               <div>
@@ -240,11 +240,11 @@ export default function ReviewsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -254,11 +254,11 @@ export default function ReviewsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -268,11 +268,11 @@ export default function ReviewsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple relative overflow-hidden">
+        <Card className="border-border/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-teal-600 to-emerald-700 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div>
@@ -290,7 +290,7 @@ export default function ReviewsContent() {
       {/* Review Cycles */}
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-3">
-          <Calendar className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <Calendar className="h-5 w-5 text-blue-600" />
           {t.reviews.reviewCycles}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -377,7 +377,7 @@ export default function ReviewsContent() {
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <Users className="h-4 w-4 text-blue-600" />
             {t.reviews.employeeReviews}
           </CardTitle>
         </CardHeader>
@@ -400,7 +400,7 @@ export default function ReviewsContent() {
                     <td className="p-3">
                       <div className="flex items-center gap-2">
                         <Avatar className="h-7 w-7">
-                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[9px]">
+                          <AvatarFallback className="bg-blue-600 text-white text-[9px]">
                             {review.employeeInitials}
                           </AvatarFallback>
                         </Avatar>

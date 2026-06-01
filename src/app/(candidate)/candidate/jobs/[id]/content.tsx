@@ -92,12 +92,12 @@ interface JobData {
 
 function getJobTypeBadge(type: string) {
   const map: Record<string, { label: string; className: string }> = {
-    FULL_TIME: { label: 'Full-time', className: 'bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400' },
-    PART_TIME: { label: 'Part-time', className: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400' },
-    CONTRACT: { label: 'Contract', className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400' },
+    FULL_TIME: { label: 'Full-time', className: 'bg-slate-50 text-blue-700' },
+    PART_TIME: { label: 'Part-time', className: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40' },
+    CONTRACT: { label: 'Contract', className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40' },
     INTERNSHIP: { label: 'Internship', className: 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400' },
-    REMOTE: { label: 'Remote', className: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' },
-    HYBRID: { label: 'Hybrid', className: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-400' },
+    REMOTE: { label: 'Remote', className: 'bg-emerald-50 text-emerald-700' },
+    HYBRID: { label: 'Hybrid', className: 'bg-cyan-50 text-cyan-700' },
   };
   return map[type] || { label: type, className: 'bg-muted text-muted-foreground' };
 }
@@ -260,7 +260,7 @@ export default function JobDetailPage() {
             <Briefcase className="h-12 w-12 mx-auto text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-semibold">Job not found</h3>
             <p className="mt-1 text-sm text-muted-foreground">This job may have been removed or is no longer available.</p>
-            <Button asChild className="mt-4 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white">
+            <Button asChild className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
               <Link href="/candidate/jobs">{t.candidate.searchJobs}</Link>
             </Button>
           </CardContent>
@@ -415,7 +415,7 @@ export default function JobDetailPage() {
             onClick={() => setIsSaved(!isSaved)}
           >
             {isSaved ? (
-              <BookmarkCheck className="h-4 w-4 text-teal-600" />
+              <BookmarkCheck className="h-4 w-4 text-blue-600" />
             ) : (
               <Bookmark className="h-4 w-4" />
             )}
@@ -433,7 +433,7 @@ export default function JobDetailPage() {
         <div className="h-2 bg-gradient-to-r from-teal-500 to-emerald-500" />
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
               <Building2 className="h-7 w-7" />
             </div>
             <div className="flex-1 min-w-0 space-y-2">
@@ -451,7 +451,7 @@ export default function JobDetailPage() {
                   {job.location}
                 </Badge>
                 {job.isRemote && (
-                  <Badge className="border-0 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                  <Badge className="border-0 bg-emerald-50 text-emerald-700">
                     <Globe className="w-3 h-3 me-1" />
                     Remote
                   </Badge>
@@ -484,7 +484,7 @@ export default function JobDetailPage() {
               ) : (
                 <Dialog open={applyDialogOpen} onOpenChange={setApplyDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-md gap-2">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md gap-2">
                       <Send className="h-4 w-4" />
                       {t.jobs.applyNow}
                     </Button>
@@ -506,11 +506,11 @@ export default function JobDetailPage() {
                       <div className="flex items-center gap-2 px-1">
                         <div className={cn(
                           'flex items-center gap-1.5 text-xs font-medium',
-                          applyStep === 'cover' ? 'text-teal-600' : 'text-teal-600'
+                          applyStep === 'cover' ? 'text-blue-600' : 'text-blue-600'
                         )}>
                           <div className={cn(
                             'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold',
-                            applyStep === 'cover' ? 'bg-teal-600 text-white' : 'bg-teal-100 dark:bg-teal-900/30 text-teal-600'
+                            applyStep === 'cover' ? 'bg-blue-600 text-white' : 'bg-teal-100 text-blue-600'
                           )}>
                             {applyStep === 'screening' ? <CheckCircle2 className="w-3 h-3" /> : '1'}
                           </div>
@@ -522,11 +522,11 @@ export default function JobDetailPage() {
                         )} />
                         <div className={cn(
                           'flex items-center gap-1.5 text-xs font-medium',
-                          applyStep === 'screening' ? 'text-teal-600' : 'text-muted-foreground'
+                          applyStep === 'screening' ? 'text-blue-600' : 'text-muted-foreground'
                         )}>
                           <div className={cn(
                             'w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold',
-                            applyStep === 'screening' ? 'bg-teal-600 text-white' : 'bg-muted text-muted-foreground'
+                            applyStep === 'screening' ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'
                           )}>
                             2
                           </div>
@@ -556,7 +556,7 @@ export default function JobDetailPage() {
                         <div className="space-y-5">
                           {screeningLoading ? (
                             <div className="flex items-center justify-center py-8">
-                              <Loader2 className="w-6 h-6 animate-spin text-teal-600" />
+                              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
                             </div>
                           ) : screeningQuestions.length === 0 ? (
                             <div className="text-center py-8 text-muted-foreground text-sm">
@@ -595,7 +595,7 @@ export default function JobDetailPage() {
                       {applyStep === 'cover' && screeningQuestions.length > 0 ? (
                         <Button
                           onClick={() => setApplyStep('screening')}
-                          className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white gap-2"
+                          className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
                         >
                           {t.common.next}
                           <ChevronRight className="w-4 h-4" />
@@ -604,7 +604,7 @@ export default function JobDetailPage() {
                         <Button
                           onClick={handleApply}
                           disabled={isApplying}
-                          className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white gap-2"
+                          className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
                         >
                           {isApplying ? (
                             <>
@@ -623,7 +623,7 @@ export default function JobDetailPage() {
                         <Button
                           onClick={handleApply}
                           disabled={isApplying || !canSubmitScreening()}
-                          className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white gap-2"
+                          className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
                         >
                           {isApplying ? (
                             <>
@@ -674,7 +674,7 @@ export default function JobDetailPage() {
                 <ul className="space-y-2.5">
                   {job.requirements.map((req, i) => (
                     <li key={i} className="flex items-start gap-2.5">
-                      <CheckCircle2 className="h-4 w-4 text-teal-500 dark:text-teal-400 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
                       <span className="text-sm text-muted-foreground">{req}</span>
                     </li>
                   ))}
@@ -692,7 +692,7 @@ export default function JobDetailPage() {
                 <ul className="space-y-2.5">
                   {job.responsibilities.map((resp, i) => (
                     <li key={i} className="flex items-start gap-2.5">
-                      <ChevronRight className="h-4 w-4 text-teal-500 dark:text-teal-400 shrink-0 mt-0.5" />
+                      <ChevronRight className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
                       <span className="text-sm text-muted-foreground">{resp}</span>
                     </li>
                   ))}
@@ -710,7 +710,7 @@ export default function JobDetailPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {job.benefits.map((benefit, i) => (
                     <div key={i} className="flex items-start gap-2.5">
-                      <Star className="h-4 w-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
+                      <Star className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                       <span className="text-sm text-muted-foreground">{benefit}</span>
                     </div>
                   ))}
@@ -739,14 +739,14 @@ export default function JobDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow">
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <p className="font-medium text-sm truncate">{job.company.name}</p>
                       {job.company.verified && (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 shrink-0" />
                       )}
                     </div>
                     {job.company.industry && <p className="text-xs text-muted-foreground">{job.company.industry}</p>}
@@ -779,7 +779,7 @@ export default function JobDetailPage() {
                     <Badge
                       key={skill}
                       variant="secondary"
-                      className="bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400 border-0"
+                      className="bg-slate-50 text-blue-700 border-0"
                     >
                       {skill}
                     </Badge>
@@ -796,7 +796,7 @@ export default function JobDetailPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {job.salaryMin && (
-                  <div className="text-2xl font-bold text-teal-700 dark:text-teal-400">
+                  <div className="text-2xl font-bold text-blue-700">
                     {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency)}
                   </div>
                 )}
@@ -836,11 +836,11 @@ export default function JobDetailPage() {
                     href={`/candidate/jobs/${simJob.id}`}
                     className="group block"
                   >
-                    <div className="rounded-xl border border-border/60 p-4 transition-all duration-200 hover:border-teal-300 hover:shadow-md dark:hover:border-teal-700">
+                    <div className="rounded-xl border border-border/60 p-4 transition-all duration-200 hover:border-slate-300 hover:shadow-md">
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <h3 className="font-medium text-sm group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors truncate">{simJob.title}</h3>
+                            <h3 className="font-medium text-sm group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors truncate">{simJob.title}</h3>
                             <p className="text-xs text-muted-foreground mt-0.5">{simJob.company}</p>
                           </div>
                         </div>
@@ -852,7 +852,7 @@ export default function JobDetailPage() {
                           <Badge className={cn('text-[10px] h-5 border-0', simTypeBadge.className)}>{simTypeBadge.label}</Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-teal-700 dark:text-teal-400">
+                          <span className="text-sm font-semibold text-blue-700">
                             {formatSalary(simJob.salaryMin, simJob.salaryMax, 'USD')}/yr
                           </span>
                           <span className="text-[10px] text-muted-foreground">{daysAgo(simJob.publishedAt)}</span>

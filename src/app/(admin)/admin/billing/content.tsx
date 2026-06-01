@@ -331,10 +331,10 @@ export default function AdminBillingContent() {
 
   const getStatusBadge = (status: string) => {
     const map: Record<string, { class: string; icon: React.ReactNode }> = {
-      ACTIVE: { class: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400', icon: <CheckCircle2 className="w-3 h-3 me-1" /> },
-      PAST_DUE: { class: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400', icon: <Clock className="w-3 h-3 me-1" /> },
-      CANCELED: { class: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400', icon: <XCircle className="w-3 h-3 me-1" /> },
-      TRIALING: { class: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400', icon: <Sparkles className="w-3 h-3 me-1" /> },
+      ACTIVE: { class: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950', icon: <CheckCircle2 className="w-3 h-3 me-1" /> },
+      PAST_DUE: { class: 'bg-amber-50 text-amber-700 dark:bg-amber-950', icon: <Clock className="w-3 h-3 me-1" /> },
+      CANCELED: { class: 'bg-red-50 text-red-700 dark:bg-red-950', icon: <XCircle className="w-3 h-3 me-1" /> },
+      TRIALING: { class: 'bg-slate-50 text-blue-700 dark:bg-teal-950', icon: <Sparkles className="w-3 h-3 me-1" /> },
     };
     const entry = map[status] || map.ACTIVE;
     return (
@@ -347,10 +347,10 @@ export default function AdminBillingContent() {
 
   const getInvoiceStatusBadge = (status: string) => {
     const map: Record<string, { class: string; icon: React.ReactNode }> = {
-      PAID: { class: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400', icon: <CheckCircle2 className="w-3 h-3 me-1" /> },
-      PENDING: { class: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400', icon: <Clock className="w-3 h-3 me-1" /> },
-      FAILED: { class: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400', icon: <XCircle className="w-3 h-3 me-1" /> },
-      REFUNDED: { class: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400', icon: <RefreshCw className="w-3 h-3 me-1" /> },
+      PAID: { class: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950', icon: <CheckCircle2 className="w-3 h-3 me-1" /> },
+      PENDING: { class: 'bg-amber-50 text-amber-700 dark:bg-amber-950', icon: <Clock className="w-3 h-3 me-1" /> },
+      FAILED: { class: 'bg-red-50 text-red-700 dark:bg-red-950', icon: <XCircle className="w-3 h-3 me-1" /> },
+      REFUNDED: { class: 'bg-slate-50 text-blue-700 dark:bg-teal-950', icon: <RefreshCw className="w-3 h-3 me-1" /> },
     };
     const entry = map[status] || map.PENDING;
     return (
@@ -365,7 +365,7 @@ export default function AdminBillingContent() {
     const map: Record<string, string> = {
       FREE: 'from-gray-400 to-gray-500',
       STARTER: 'from-teal-500 to-emerald-500',
-      GROWTH: 'from-teal-500 to-emerald-600',
+      GROWTH: 'bg-blue-600',
       ENTERPRISE: 'from-emerald-600 to-teal-700',
     };
     return map[type] || map.STARTER;
@@ -386,13 +386,13 @@ export default function AdminBillingContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             {t.billing.title}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">{t.billing.subtitle}</p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+          <Sparkles className="w-3.5 h-3.5 text-blue-500" />
           {t.common.poweredBy}
         </div>
       </div>
@@ -401,7 +401,7 @@ export default function AdminBillingContent() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i} className="relative overflow-hidden border-0 shadow-sm card-hover-lift">
+            <Card key={i} className="relative overflow-hidden border-0 shadow-sm card-">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="space-y-3">
@@ -415,7 +415,7 @@ export default function AdminBillingContent() {
           ))
         ) : (
           [
-            { title: 'MRR', value: `$${billingStats.mrr.toLocaleString()}`, icon: DollarSign, gradient: 'from-teal-500 to-emerald-600' },
+            { title: 'MRR', value: `$${billingStats.mrr.toLocaleString()}`, icon: DollarSign, gradient: 'bg-blue-600' },
             { title: t.billing.activeSubscriptions, value: String(billingStats.activeSubscriptions), icon: Users, gradient: 'from-emerald-500 to-teal-600' },
             { title: t.billing.churnRate, value: billingStats.churnRate, icon: TrendingDown, gradient: 'from-cyan-500 to-teal-600' },
             { title: t.billing.mrrGrowth, value: billingStats.mrrGrowth, icon: TrendingUp, gradient: 'from-teal-600 to-emerald-700' },
@@ -423,13 +423,13 @@ export default function AdminBillingContent() {
             const Icon = card.icon;
             const isPositive = card.value.startsWith('+') || card.value.startsWith('$');
             return (
-              <Card key={i} className="relative overflow-hidden border-0 shadow-sm card-hover-lift">
+              <Card key={i} className="relative overflow-hidden border-0 shadow-sm card-">
                 <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-[0.06]`} />
                 <CardContent className="relative p-5">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{card.title}</p>
-                      <p className={`text-3xl font-bold tracking-tight ${isPositive && card.title === t.billing.mrrGrowth ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>{card.value}</p>
+                      <p className={`text-3xl font-bold tracking-tight ${isPositive && card.title === t.billing.mrrGrowth ? 'text-emerald-600' : ''}`}>{card.value}</p>
                     </div>
                     <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} text-white`}>
                       <Icon className="w-5 h-5" />
@@ -445,14 +445,14 @@ export default function AdminBillingContent() {
       {/* Revenue Chart + Plan Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Chart */}
-        <Card className="lg:col-span-2 card-hover-lift animate-fade-in-up">
+        <Card className="lg:col-span-2 card-animate-fade-in-up">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base font-semibold">{t.billing.revenueOverview}</CardTitle>
                 <CardDescription className="text-xs">Last 6 months</CardDescription>
               </div>
-              <Badge variant="secondary" className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+              <Badge variant="secondary" className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                 <BarChart3 className="w-3 h-3 me-1" />
                 MRR
               </Badge>
@@ -470,7 +470,7 @@ export default function AdminBillingContent() {
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t">
               <span className="text-xs text-muted-foreground">Total Revenue</span>
-              <span className="text-sm font-bold text-teal-700 dark:text-teal-400">
+              <span className="text-sm font-bold text-blue-700">
                 ${revenueData.reduce((sum, d) => sum + d.revenue, 0).toLocaleString()}
               </span>
             </div>
@@ -478,7 +478,7 @@ export default function AdminBillingContent() {
         </Card>
 
         {/* Plan Distribution */}
-        <Card className="card-hover-lift animate-fade-in-up">
+        <Card className="card-animate-fade-in-up">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold">Plan Distribution</CardTitle>
             <CardDescription className="text-xs">{billingStats.totalSubscriptions} total subscriptions</CardDescription>
@@ -503,7 +503,7 @@ export default function AdminBillingContent() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-muted-foreground">{pd.count}</span>
-                      <span className="text-xs font-medium text-teal-700 dark:text-teal-400">${pd.revenue}</span>
+                      <span className="text-xs font-medium text-blue-700">${pd.revenue}</span>
                     </div>
                   </div>
                 );
@@ -517,14 +517,14 @@ export default function AdminBillingContent() {
       </div>
 
       {/* Subscription Plans Management */}
-      <Card className="card-hover-lift animate-fade-in-up">
+      <Card className="card-animate-fade-in-up">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-semibold">{t.billing.managePlans}</CardTitle>
               <CardDescription className="text-xs">{plans.length} plans available</CardDescription>
             </div>
-            <Button size="sm" className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md">
+            <Button size="sm" className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md">
               <Plus className="h-4 w-4 me-1" />
               {t.billing.createPlan}
             </Button>
@@ -553,10 +553,10 @@ export default function AdminBillingContent() {
                 return (
                   <div
                     key={plan.id}
-                    className="relative p-4 rounded-xl border border-border/50 hover:border-teal-300 dark:hover:border-teal-700 transition-all card-hover-lift"
+                    className="relative p-4 rounded-xl border border-border/50 hover:border-slate-300 transition-all card-"
                   >
                     {plan.type === 'GROWTH' && (
-                      <div className="absolute top-0 end-0 pricing-ribbon rounded-tr-xl">
+                      <div className="absolute top-0 end-0 border-2 border-blue-500 rounded-tr-xl">
                         {t.billing.mostPopular}
                       </div>
                     )}
@@ -579,7 +579,7 @@ export default function AdminBillingContent() {
                     <div className="space-y-1 mb-3 max-h-24 overflow-y-auto scrollbar-thin">
                       {parsedFeatures.map((feature: string, i: number) => (
                         <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <CheckCircle2 className="w-3 h-3 text-teal-500 shrink-0" />
+                          <CheckCircle2 className="w-3 h-3 text-blue-500 shrink-0" />
                           <span>{feature}</span>
                         </div>
                       ))}
@@ -588,7 +588,7 @@ export default function AdminBillingContent() {
                       <span className="text-xs text-muted-foreground">
                         {t.billing.subscribers}: <span className="font-medium text-foreground">{plan.subscriberCount}</span>
                       </span>
-                      <Badge variant="secondary" className="text-[10px] border-0 bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400">
+                      <Badge variant="secondary" className="text-[10px] border-0 bg-slate-50 text-blue-700 dark:bg-teal-950">
                         {plan.type}
                       </Badge>
                     </div>
@@ -606,10 +606,10 @@ export default function AdminBillingContent() {
       </Card>
 
       {/* Subscriptions Table */}
-      <Card className="card-hover-lift animate-fade-in-up">
+      <Card className="card-animate-fade-in-up">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Users className="h-5 w-5 text-teal-500" />
+            <Users className="h-5 w-5 text-blue-500" />
             {t.billing.activeSubscriptions}
             <Badge variant="secondary" className="ml-2">{subscriptions.length}</Badge>
           </CardTitle>
@@ -640,7 +640,7 @@ export default function AdminBillingContent() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                            <AvatarFallback className="bg-blue-600 text-white text-xs">
                               {getInitials(sub.companyName)}
                             </AvatarFallback>
                           </Avatar>
@@ -648,7 +648,7 @@ export default function AdminBillingContent() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="text-[10px] border-0 bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400">
+                        <Badge variant="secondary" className="text-[10px] border-0 bg-slate-50 text-blue-700 dark:bg-teal-950">
                           {sub.planName}
                         </Badge>
                       </TableCell>
@@ -683,7 +683,7 @@ export default function AdminBillingContent() {
       </Card>
 
       {/* Invoices Table */}
-      <Card className="card-hover-lift animate-fade-in-up">
+      <Card className="card-animate-fade-in-up">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-emerald-500" />
@@ -723,11 +723,11 @@ export default function AdminBillingContent() {
                       <TableCell className="text-xs text-muted-foreground">{inv.date}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="sm" className="h-7 text-teal-600 hover:text-teal-700 dark:text-teal-400">
+                          <Button variant="ghost" size="sm" className="h-7 text-blue-600 hover:text-blue-700">
                             <Eye className="h-3.5 w-3.5 me-1" />
                             {t.billing.view}
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-7 text-teal-600 hover:text-teal-700 dark:text-teal-400">
+                          <Button variant="ghost" size="sm" className="h-7 text-blue-600 hover:text-blue-700">
                             <Download className="h-3.5 w-3.5 me-1" />
                             {t.billing.download}
                           </Button>
@@ -832,7 +832,7 @@ export default function AdminBillingContent() {
               {t.common.cancel}
             </Button>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+              className="bg-gradient-to-r bg-blue-600 text-white"
               onClick={handleSavePlan}
             >
               {t.common.save}

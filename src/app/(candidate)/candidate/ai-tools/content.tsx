@@ -58,8 +58,8 @@ const aiTools: AITool[] = [
     titleKey: 'resumeAnalysis',
     descKey: 'resumeAnalysisDesc',
     icon: FileText,
-    color: 'text-emerald-600',
-    bgColor: 'bg-emerald-50 dark:bg-emerald-950',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
     buttonLabel: 'startAnalysis',
   },
   {
@@ -68,7 +68,7 @@ const aiTools: AITool[] = [
     descKey: 'coverLetterGenDesc',
     icon: MessageSquare,
     color: 'text-blue-600',
-    bgColor: 'bg-blue-50 dark:bg-blue-950',
+    bgColor: 'bg-blue-50',
     buttonLabel: 'generate',
   },
   {
@@ -77,7 +77,7 @@ const aiTools: AITool[] = [
     descKey: 'skillGapAnalysisDesc',
     icon: Target,
     color: 'text-amber-600',
-    bgColor: 'bg-amber-50 dark:bg-amber-950',
+    bgColor: 'bg-amber-50',
     buttonLabel: 'analyzeGap',
   },
   {
@@ -86,25 +86,17 @@ const aiTools: AITool[] = [
     descKey: 'interviewPrepDesc',
     icon: Mic,
     color: 'text-purple-600',
-    bgColor: 'bg-purple-50 dark:bg-purple-950',
+    bgColor: 'bg-purple-50',
     buttonLabel: 'startPrep',
   },
-];
-
-// Animated gradient backgrounds per tool
-const toolGradients = [
-  'from-emerald-500/10 via-teal-500/5 to-cyan-500/10',
-  'from-blue-500/10 via-indigo-500/5 to-violet-500/10',
-  'from-amber-500/10 via-orange-500/5 to-red-500/10',
-  'from-purple-500/10 via-fuchsia-500/5 to-pink-500/10',
 ];
 
 // Score badge component
 function ScoreBadge({ score, label }: { score: number | null; label: string }) {
   if (score === null) return null;
-  const color = score >= 80 ? 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950'
-    : score >= 60 ? 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-950'
-    : 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950';
+  const color = score >= 80 ? 'text-emerald-600 bg-emerald-50'
+    : score >= 60 ? 'text-amber-600 bg-amber-50'
+    : 'text-red-600 bg-red-50';
   return (
     <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold ${color}`}>
       <span>{label}:</span>
@@ -121,7 +113,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
     <div className="space-y-6">
       {/* Powered by AI badge at top */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground pb-2 border-b">
-        <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+        <Sparkles className="w-3.5 h-3.5 text-blue-500" />
         <span className="font-medium">Powered by AI</span>
       </div>
 
@@ -136,7 +128,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
 
       {/* Summary */}
       {analysis.summary && (
-        <div className="p-4 rounded-xl bg-gradient-to-br from-muted/80 to-muted/40 border border-border/50">
+        <div className="p-4 rounded-xl bg-muted border border-border/50">
           <p className="text-sm font-medium leading-relaxed">{analysis.summary as string}</p>
         </div>
       )}
@@ -144,11 +136,11 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Strengths */}
       {Array.isArray(analysis.strengths) && (analysis.strengths as string[]).length > 0 && (
         <div className="pt-2 border-t">
-          <h4 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Strengths</h4>
+          <h4 className="text-sm font-semibold text-emerald-600 mb-2">Strengths</h4>
           <ul className="space-y-2">
             {(analysis.strengths as string[]).map((item, i) => (
               <li key={i} className="text-sm flex items-start gap-2 leading-relaxed">
-                <span className="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                <span className="text-emerald-500 mt-0.5 shrink-0">&check;</span>
                 {item}
               </li>
             ))}
@@ -159,7 +151,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Weaknesses */}
       {Array.isArray(analysis.weaknesses) && (analysis.weaknesses as string[]).length > 0 && (
         <div className="pt-2 border-t">
-          <h4 className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">Areas for Improvement</h4>
+          <h4 className="text-sm font-semibold text-amber-600 mb-2">Areas for Improvement</h4>
           <ul className="space-y-2">
             {(analysis.weaknesses as string[]).map((item, i) => (
               <li key={i} className="text-sm flex items-start gap-2 leading-relaxed">
@@ -171,22 +163,22 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
         </div>
       )}
 
-      {/* Missing Keywords (from /api/ai/analyze-resume) */}
+      {/* Missing Keywords */}
       {Array.isArray(analysis.missingKeywords) && (analysis.missingKeywords as string[]).length > 0 && (
         <div className="pt-2 border-t">
-          <h4 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Missing Keywords</h4>
+          <h4 className="text-sm font-semibold text-red-600 mb-2">Missing Keywords</h4>
           <div className="flex flex-wrap gap-1.5">
             {(analysis.missingKeywords as string[]).map((kw, i) => (
-              <Badge key={i} variant="outline" className="text-xs border-red-300 text-red-700 bg-red-50 dark:border-red-800 dark:text-red-400 dark:bg-red-950">{kw}</Badge>
+              <Badge key={i} variant="outline" className="text-xs border-red-300 text-red-700 bg-red-50">{kw}</Badge>
             ))}
           </div>
         </div>
       )}
 
-      {/* Recommendations (from /api/ai/analyze-resume) */}
+      {/* Recommendations */}
       {Array.isArray(analysis.recommendations) && (analysis.recommendations as string[]).length > 0 && (
         <div className="pt-2 border-t">
-          <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Recommendations</h4>
+          <h4 className="text-sm font-semibold text-blue-600 mb-2">Recommendations</h4>
           <ol className="space-y-2 list-decimal list-inside">
             {(analysis.recommendations as string[]).map((item, i) => (
               <li key={i} className="text-sm leading-relaxed">{item}</li>
@@ -195,10 +187,10 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
         </div>
       )}
 
-      {/* Improvements (from other AI endpoints) */}
+      {/* Improvements */}
       {Array.isArray(analysis.improvements) && (analysis.improvements as string[]).length > 0 && (
         <div className="pt-2 border-t">
-          <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Improvement Suggestions</h4>
+          <h4 className="text-sm font-semibold text-blue-600 mb-2">Improvement Suggestions</h4>
           <ol className="space-y-2 list-decimal list-inside">
             {(analysis.improvements as string[]).map((item, i) => (
               <li key={i} className="text-sm leading-relaxed">{item}</li>
@@ -210,7 +202,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Skills Match */}
       {analysis.skillsMatch && typeof analysis.skillsMatch === 'object' && (
         <div>
-          <h4 className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-2">Skills Match</h4>
+          <h4 className="text-sm font-semibold text-purple-600 mb-2">Skills Match</h4>
           {((analysis.skillsMatch as Record<string, unknown>).matchPercentage != null) && (
             <div className="mb-2">
               <div className="flex items-center justify-between text-xs mb-1">
@@ -225,7 +217,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
               <span className="text-xs font-medium text-muted-foreground">Matched: </span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {((analysis.skillsMatch as Record<string, unknown>).matchedSkills as string[]).map((skill, i) => (
-                  <Badge key={i} variant="secondary" className="text-xs bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                  <Badge key={i} variant="secondary" className="text-xs bg-emerald-50 text-emerald-700">
                     {skill}
                   </Badge>
                 ))}
@@ -237,7 +229,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
               <span className="text-xs font-medium text-muted-foreground">Missing: </span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {((analysis.skillsMatch as Record<string, unknown>).missingSkills as string[]).map((skill, i) => (
-                  <Badge key={i} variant="secondary" className="text-xs bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300">
+                  <Badge key={i} variant="secondary" className="text-xs bg-red-50 text-red-700">
                     {skill}
                   </Badge>
                 ))}
@@ -250,7 +242,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Keyword Analysis */}
       {analysis.keywordAnalysis && typeof analysis.keywordAnalysis === 'object' && (
         <div>
-          <h4 className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 mb-2">Keyword Analysis</h4>
+          <h4 className="text-sm font-semibold text-blue-600 mb-2">Keyword Analysis</h4>
           <div className="grid grid-cols-2 gap-3">
             {Array.isArray((analysis.keywordAnalysis as Record<string, unknown>).found) && (
               <div>
@@ -267,7 +259,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
                 <span className="text-xs font-medium text-muted-foreground">Missing Keywords:</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {((analysis.keywordAnalysis as Record<string, unknown>).missing as string[]).map((kw, i) => (
-                    <Badge key={i} variant="outline" className="text-xs border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">{kw}</Badge>
+                    <Badge key={i} variant="outline" className="text-xs border-amber-300 text-amber-700">{kw}</Badge>
                   ))}
                 </div>
               </div>
@@ -279,7 +271,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Current Skills (skill gap) */}
       {analysis.currentSkills && typeof analysis.currentSkills === 'object' && (
         <div>
-          <h4 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Current Skills</h4>
+          <h4 className="text-sm font-semibold text-emerald-600 mb-2">Current Skills</h4>
           {Array.isArray((analysis.currentSkills as Record<string, unknown>).matched) && (
             <div className="space-y-1">
               {((analysis.currentSkills as Record<string, unknown>).matched as Array<Record<string, string>>).map((item, i) => (
@@ -297,15 +289,15 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Missing Skills (skill gap) */}
       {(analysis.missingSkills && typeof analysis.missingSkills === 'object') && (
         <div>
-          <h4 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Skills to Develop</h4>
+          <h4 className="text-sm font-semibold text-red-600 mb-2">Skills to Develop</h4>
           {Array.isArray((analysis.missingSkills as Record<string, unknown>).critical) && (
             <div className="mb-3">
-              <span className="text-xs font-semibold text-red-600 dark:text-red-400">Critical:</span>
+              <span className="text-xs font-semibold text-red-600">Critical:</span>
               <ul className="space-y-1 mt-1">
                 {((analysis.missingSkills as Record<string, unknown>).critical as Array<Record<string, string>>).map((item, i) => (
                   <li key={i} className="text-sm flex items-start gap-2">
                     <Badge variant="destructive" className="text-[10px] h-5 shrink-0">Critical</Badge>
-                    <span><strong>{item.skill}</strong> — {item.why}</span>
+                    <span><strong>{item.skill}</strong> &mdash; {item.why}</span>
                   </li>
                 ))}
               </ul>
@@ -313,12 +305,12 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
           )}
           {Array.isArray((analysis.missingSkills as Record<string, unknown>).important) && (
             <div className="mb-3">
-              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">Important:</span>
+              <span className="text-xs font-semibold text-amber-600">Important:</span>
               <ul className="space-y-1 mt-1">
                 {((analysis.missingSkills as Record<string, unknown>).important as Array<Record<string, string>>).map((item, i) => (
                   <li key={i} className="text-sm flex items-start gap-2">
-                    <Badge className="text-[10px] h-5 bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 shrink-0">Important</Badge>
-                    <span><strong>{item.skill}</strong> — {item.why}</span>
+                    <Badge className="text-[10px] h-5 bg-amber-100 text-amber-700 shrink-0">Important</Badge>
+                    <span><strong>{item.skill}</strong> &mdash; {item.why}</span>
                   </li>
                 ))}
               </ul>
@@ -326,12 +318,12 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
           )}
           {Array.isArray((analysis.missingSkills as Record<string, unknown>).nice) && (
             <div>
-              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Nice to Have:</span>
+              <span className="text-xs font-semibold text-blue-600">Nice to Have:</span>
               <ul className="space-y-1 mt-1">
                 {((analysis.missingSkills as Record<string, unknown>).nice as Array<Record<string, string>>).map((item, i) => (
                   <li key={i} className="text-sm flex items-start gap-2">
                     <Badge variant="secondary" className="text-[10px] h-5 shrink-0">Nice</Badge>
-                    <span><strong>{item.skill}</strong> — {item.why}</span>
+                    <span><strong>{item.skill}</strong> &mdash; {item.why}</span>
                   </li>
                 ))}
               </ul>
@@ -343,10 +335,10 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Learning Resources (skill gap) */}
       {Array.isArray(analysis.learningResources) && (analysis.learningResources as Array<Record<string, string>>).length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Learning Resources</h4>
+          <h4 className="text-sm font-semibold text-blue-600 mb-2">Learning Resources</h4>
           <div className="space-y-2">
             {(analysis.learningResources as Array<Record<string, string>>).map((item, i) => (
-              <div key={i} className="p-2.5 rounded-lg border bg-card text-sm">
+              <div key={i} className="p-2.5 rounded-lg border border-slate-200 bg-card text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{item.skill}</span>
                   <div className="flex items-center gap-2">
@@ -363,7 +355,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
 
       {/* Market Demand (skill gap) */}
       {analysis.marketDemand && typeof analysis.marketDemand === 'object' && (
-        <div className="p-3 rounded-lg border bg-muted/30">
+        <div className="p-3 rounded-lg border border-slate-200 bg-muted/30">
           <h4 className="text-sm font-semibold mb-2">Market Demand</h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div>
@@ -385,11 +377,11 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Recommended Path (skill gap) */}
       {Array.isArray(analysis.recommendedPath) && (analysis.recommendedPath as Array<Record<string, unknown>>).length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-teal-600 dark:text-teal-400 mb-2">Recommended Path</h4>
+          <h4 className="text-sm font-semibold text-blue-600 mb-2">Recommended Path</h4>
           <div className="space-y-2">
             {(analysis.recommendedPath as Array<Record<string, unknown>>).map((item, i) => (
               <div key={i} className="flex items-start gap-3 text-sm">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300 text-xs font-bold">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
                   {item.step as number || i + 1}
                 </div>
                 <div>
@@ -405,10 +397,10 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Interview Questions */}
       {Array.isArray(analysis.commonQuestions) && (analysis.commonQuestions as Array<Record<string, string>>).length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Common Questions</h4>
+          <h4 className="text-sm font-semibold text-emerald-600 mb-2">Common Questions</h4>
           <div className="space-y-3">
             {(analysis.commonQuestions as Array<Record<string, string>>).map((q, i) => (
-              <div key={i} className="p-3 rounded-lg border bg-card">
+              <div key={i} className="p-3 rounded-lg border border-slate-200 bg-card">
                 <div className="flex items-start gap-2">
                   <Badge variant="secondary" className="text-[10px] shrink-0 mt-0.5">Q{i + 1}</Badge>
                   <div>
@@ -433,10 +425,10 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Behavioral Questions */}
       {Array.isArray(analysis.behavioralQuestions) && (analysis.behavioralQuestions as Array<Record<string, string>>).length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-2">Behavioral Questions</h4>
+          <h4 className="text-sm font-semibold text-purple-600 mb-2">Behavioral Questions</h4>
           <div className="space-y-2">
             {(analysis.behavioralQuestions as Array<Record<string, string>>).map((q, i) => (
-              <div key={i} className="p-2.5 rounded-lg border bg-card text-sm">
+              <div key={i} className="p-2.5 rounded-lg border border-slate-200 bg-card text-sm">
                 <p className="font-medium">{q.question}</p>
                 {q.starExample && (
                   <p className="text-xs text-muted-foreground mt-1"><strong>STAR Example:</strong> {q.starExample}</p>
@@ -450,7 +442,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Tips (interview prep) */}
       {analysis.tips && typeof analysis.tips === 'object' && (
         <div>
-          <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Tips</h4>
+          <h4 className="text-sm font-semibold text-blue-600 mb-2">Tips</h4>
           <div className="grid gap-3">
             {Array.isArray((analysis.tips as Record<string, unknown>).before) && (
               <div>
@@ -458,7 +450,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
                 <ul className="space-y-1 mt-1">
                   {((analysis.tips as Record<string, unknown>).before as string[]).map((tip, i) => (
                     <li key={i} className="text-sm flex items-start gap-1.5">
-                      <span className="text-blue-500 shrink-0">•</span>{tip}
+                      <span className="text-blue-500 shrink-0">&bull;</span>{tip}
                     </li>
                   ))}
                 </ul>
@@ -470,7 +462,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
                 <ul className="space-y-1 mt-1">
                   {((analysis.tips as Record<string, unknown>).during as string[]).map((tip, i) => (
                     <li key={i} className="text-sm flex items-start gap-1.5">
-                      <span className="text-emerald-500 shrink-0">•</span>{tip}
+                      <span className="text-emerald-500 shrink-0">&bull;</span>{tip}
                     </li>
                   ))}
                 </ul>
@@ -482,7 +474,7 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
                 <ul className="space-y-1 mt-1">
                   {((analysis.tips as Record<string, unknown>).after as string[]).map((tip, i) => (
                     <li key={i} className="text-sm flex items-start gap-1.5">
-                      <span className="text-purple-500 shrink-0">•</span>{tip}
+                      <span className="text-purple-500 shrink-0">&bull;</span>{tip}
                     </li>
                   ))}
                 </ul>
@@ -495,11 +487,11 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Questions to Ask */}
       {Array.isArray(analysis.questionsToAsk) && (analysis.questionsToAsk as string[]).length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-teal-600 dark:text-teal-400 mb-2">Questions to Ask the Interviewer</h4>
+          <h4 className="text-sm font-semibold text-blue-600 mb-2">Questions to Ask the Interviewer</h4>
           <ul className="space-y-1">
             {(analysis.questionsToAsk as string[]).map((q, i) => (
               <li key={i} className="text-sm flex items-start gap-1.5">
-                <span className="text-teal-500 shrink-0">❓</span>{q}
+                <span className="text-blue-500 shrink-0">?</span>{q}
               </li>
             ))}
           </ul>
@@ -509,11 +501,11 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
       {/* Red Flags */}
       {Array.isArray(analysis.redFlags) && (analysis.redFlags as string[]).length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Things to Avoid</h4>
+          <h4 className="text-sm font-semibold text-red-600 mb-2">Things to Avoid</h4>
           <ul className="space-y-1">
             {(analysis.redFlags as string[]).map((flag, i) => (
               <li key={i} className="text-sm flex items-start gap-1.5">
-                <span className="text-red-500 shrink-0">✕</span>{flag}
+                <span className="text-red-500 shrink-0">&times;</span>{flag}
               </li>
             ))}
           </ul>
@@ -522,8 +514,8 @@ function AnalysisResultView({ data }: { data: Record<string, unknown> }) {
 
       {/* Practice Exercise */}
       {analysis.practiceExercise && typeof analysis.practiceExercise === 'object' && (
-        <div className="p-3 rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
-          <h4 className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-1">
+        <div className="p-3 rounded-lg border border-purple-200 bg-purple-50/50">
+          <h4 className="text-sm font-semibold text-purple-600 mb-1">
             {(analysis.practiceExercise as Record<string, string>).title}
           </h4>
           <p className="text-sm text-muted-foreground mb-2">{(analysis.practiceExercise as Record<string, string>).description}</p>
@@ -767,11 +759,11 @@ export default function AIToolsPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t.candidate.aiTools}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">{t.candidate.aiTools}</h1>
             <p className="text-muted-foreground">AI-powered tools to boost your job search</p>
           </div>
         </div>
@@ -779,25 +771,19 @@ export default function AIToolsPage() {
 
       {/* Tool Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {aiTools.map((tool, toolIndex) => (
+        {aiTools.map((tool) => (
           <Card
             key={tool.id}
-            className="group border-0 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden relative"
+            className="group border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden relative"
             onClick={() => openTool(tool.id)}
           >
-            {/* Animated gradient background */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${toolGradients[toolIndex]} opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-x`} />
-            {/* Powered by AI watermark */}
-            <div className="absolute top-3 end-3 opacity-5 group-hover:opacity-15 transition-opacity">
-              <Sparkles className="w-16 h-16" />
-            </div>
             <CardContent className="relative p-6">
               <div className="flex items-start gap-4">
-                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${tool.bgColor} ${tool.color} group-hover:scale-110 transition-transform`}>
+                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${tool.bgColor} ${tool.color}`}>
                   <tool.icon className="h-7 w-7" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base">{toolLabelMap[tool.titleKey]}</h3>
+                  <h3 className="font-semibold text-base text-slate-900">{toolLabelMap[tool.titleKey]}</h3>
                   <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                     {toolDescMap[tool.descKey]}
                   </p>
@@ -809,11 +795,11 @@ export default function AIToolsPage() {
                   </div>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t flex items-center justify-between">
+              <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Click to start</span>
                 <Button
                   size="sm"
-                  className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={(e) => {
                     e.stopPropagation();
                     openTool(tool.id);
@@ -835,7 +821,7 @@ export default function AIToolsPage() {
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-emerald-600" />
+              <FileText className="h-5 w-5 text-blue-600" />
               {t.candidate.resumeAnalysis}
             </DialogTitle>
           </DialogHeader>
@@ -865,25 +851,20 @@ export default function AIToolsPage() {
 
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
               <p className="mt-3 text-sm text-muted-foreground">{t.candidate.analyzing}</p>
-              <div className="flex gap-1.5 mt-2 text-teal-500">
-                <span className="thinking-dot" />
-                <span className="thinking-dot" />
-                <span className="thinking-dot" />
-              </div>
             </div>
           )}
 
           {error && (
-            <div className="p-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+            <div className="p-4 rounded-lg border border-red-200 bg-red-50">
               <div className="flex items-start gap-2">
                 <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-red-700 dark:text-red-400">Analysis Failed</p>
-                  <p className="text-xs text-red-600 dark:text-red-300 mt-1">{error}</p>
+                  <p className="text-sm font-medium text-red-700">Analysis Failed</p>
+                  <p className="text-xs text-red-600 mt-1">{error}</p>
                   {error.includes('No active AI provider') && (
-                    <Button variant="outline" size="sm" className="mt-2 text-red-700 border-red-300 hover:bg-red-100 dark:text-red-300 dark:border-red-700 dark:hover:bg-red-900" asChild>
+                    <Button variant="outline" size="sm" className="mt-2 text-red-700 border-red-300 hover:bg-red-100" asChild>
                       <Link href="/candidate/ai-settings">
                         <Settings className="h-3.5 w-3.5 mr-1" />
                         Configure AI
@@ -896,10 +877,10 @@ export default function AIToolsPage() {
           )}
 
           {(result || rawText) && !isLoading && (
-            <div className="space-y-4 overflow-y-auto max-h-[55vh] gradient-border-start pl-4">
+            <div className="space-y-4 overflow-y-auto max-h-[55vh] border-s-2 border-blue-200 pl-4">
               {result && !rawText && <AnalysisResultView data={result} />}
               {rawText && (
-                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm typing-cursor">
+                <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm">
                   <ReactMarkdown>{rawText}</ReactMarkdown>
                 </div>
               )}
@@ -922,7 +903,7 @@ export default function AIToolsPage() {
               <>
                 <Button variant="outline" onClick={closeDialog}>{t.common.cancel}</Button>
                 <Button
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+                  className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
                   onClick={handleAnalyzeResume}
                   disabled={!resumeText.trim() || !jobDescForResume.trim() || isLoading}
                 >
@@ -968,7 +949,7 @@ export default function AIToolsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>{t.common.cancel}</Button>
             <Button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
               onClick={handleGenerateCoverLetter}
               disabled={!coverJobDesc.trim() || isLoading}
             >
@@ -991,14 +972,14 @@ export default function AIToolsPage() {
           {(rawText || result) && !isLoading && (
             <div className="space-y-4 overflow-y-auto max-h-[55vh]">
               {error && (
-                <div className="p-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+                <div className="p-4 rounded-lg border border-red-200 bg-red-50">
                   <div className="flex items-start gap-2">
                     <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-red-700 dark:text-red-400">Generation Failed</p>
-                      <p className="text-xs text-red-600 dark:text-red-300 mt-1">{error}</p>
+                      <p className="text-sm font-medium text-red-700">Generation Failed</p>
+                      <p className="text-xs text-red-600 mt-1">{error}</p>
                       {error.includes('No active AI provider') && (
-                        <Button variant="outline" size="sm" className="mt-2 text-red-700 border-red-300 hover:bg-red-100 dark:text-red-300 dark:border-red-700 dark:hover:bg-red-900" asChild>
+                        <Button variant="outline" size="sm" className="mt-2 text-red-700 border-red-300 hover:bg-red-100" asChild>
                           <Link href="/candidate/ai-settings">
                             <Settings className="h-3.5 w-3.5 mr-1" />
                             Configure AI
@@ -1009,7 +990,7 @@ export default function AIToolsPage() {
                   </div>
                 </div>
               )}
-              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm">
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm">
                 <ReactMarkdown>{rawText || ''}</ReactMarkdown>
               </div>
             </div>
@@ -1059,7 +1040,7 @@ export default function AIToolsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>{t.common.cancel}</Button>
             <Button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
               onClick={handleSkillGapAnalysis}
               disabled={!gapCurrentSkills.trim() || !gapTargetRole.trim() || isLoading}
             >
@@ -1082,14 +1063,14 @@ export default function AIToolsPage() {
           {(result || rawText) && !isLoading && (
             <div className="space-y-4 overflow-y-auto max-h-[55vh]">
               {error && (
-                <div className="p-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+                <div className="p-4 rounded-lg border border-red-200 bg-red-50">
                   <div className="flex items-start gap-2">
                     <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-red-700 dark:text-red-400">Analysis Failed</p>
-                      <p className="text-xs text-red-600 dark:text-red-300 mt-1">{error}</p>
+                      <p className="text-sm font-medium text-red-700">Analysis Failed</p>
+                      <p className="text-xs text-red-600 mt-1">{error}</p>
                       {error.includes('No active AI provider') && (
-                        <Button variant="outline" size="sm" className="mt-2 text-red-700 border-red-300 hover:bg-red-100 dark:text-red-300 dark:border-red-700 dark:hover:bg-red-900" asChild>
+                        <Button variant="outline" size="sm" className="mt-2 text-red-700 border-red-300 hover:bg-red-100" asChild>
                           <Link href="/candidate/ai-settings">
                             <Settings className="h-3.5 w-3.5 mr-1" />
                             Configure AI
@@ -1102,7 +1083,7 @@ export default function AIToolsPage() {
               )}
               {result && !rawText && <AnalysisResultView data={result} />}
               {rawText && (
-                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm">
+                <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm">
                   <ReactMarkdown>{rawText}</ReactMarkdown>
                 </div>
               )}
@@ -1167,7 +1148,7 @@ export default function AIToolsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>{t.common.cancel}</Button>
             <Button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
               onClick={handleInterviewPrep}
               disabled={(!interviewJobDesc.trim() && !interviewTargetRole.trim()) || isLoading}
             >
@@ -1190,14 +1171,14 @@ export default function AIToolsPage() {
           {(result || rawText) && !isLoading && (
             <div className="space-y-4 overflow-y-auto max-h-[55vh]">
               {error && (
-                <div className="p-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+                <div className="p-4 rounded-lg border border-red-200 bg-red-50">
                   <div className="flex items-start gap-2">
                     <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-red-700 dark:text-red-400">Preparation Failed</p>
-                      <p className="text-xs text-red-600 dark:text-red-300 mt-1">{error}</p>
+                      <p className="text-sm font-medium text-red-700">Preparation Failed</p>
+                      <p className="text-xs text-red-600 mt-1">{error}</p>
                       {error.includes('No active AI provider') && (
-                        <Button variant="outline" size="sm" className="mt-2 text-red-700 border-red-300 hover:bg-red-100 dark:text-red-300 dark:border-red-700 dark:hover:bg-red-900" asChild>
+                        <Button variant="outline" size="sm" className="mt-2 text-red-700 border-red-300 hover:bg-red-100" asChild>
                           <Link href="/candidate/ai-settings">
                             <Settings className="h-3.5 w-3.5 mr-1" />
                             Configure AI
@@ -1210,7 +1191,7 @@ export default function AIToolsPage() {
               )}
               {result && !rawText && <AnalysisResultView data={result} />}
               {rawText && (
-                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm">
+                <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm">
                   <ReactMarkdown>{rawText}</ReactMarkdown>
                 </div>
               )}
@@ -1240,7 +1221,7 @@ export default function AIToolsPage() {
           <p className="text-sm text-muted-foreground">{t.candidate.aiNotConfiguredDesc}</p>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>{t.common.close}</Button>
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2" asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2" asChild>
               <Link href="/candidate/ai-settings">
                 <Settings className="h-4 w-4" />
                 {t.candidate.goToAISettings}

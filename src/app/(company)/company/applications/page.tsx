@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import {
   Search,
   FileText,
-  Sparkles,
   Mail,
   MapPin,
   Briefcase,
@@ -95,13 +94,13 @@ interface Application {
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
-  APPLIED: { label: 'Applied', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400', icon: FileText },
-  SCREENING: { label: 'Screening', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400', icon: Search },
-  INTERVIEW: { label: 'Interview', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Calendar },
-  OFFERED: { label: 'Offered', color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400', icon: CheckCircle2 },
-  HIRED: { label: 'Hired', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: CheckCircle2 },
-  REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: XCircle },
-  WITHDRAWN: { label: 'Withdrawn', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400', icon: XCircle },
+  APPLIED: { label: 'Applied', color: 'bg-slate-100 text-slate-700', icon: FileText },
+  SCREENING: { label: 'Screening', color: 'bg-blue-100 text-blue-700', icon: Search },
+  INTERVIEW: { label: 'Interview', color: 'bg-amber-100 text-amber-700', icon: Calendar },
+  OFFERED: { label: 'Offered', color: 'bg-violet-100 text-violet-700', icon: CheckCircle2 },
+  HIRED: { label: 'Hired', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle2 },
+  REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: XCircle },
+  WITHDRAWN: { label: 'Withdrawn', color: 'bg-gray-100 text-gray-700', icon: XCircle },
 };
 
 const sourceLabels: Record<string, string> = {
@@ -113,7 +112,7 @@ const sourceLabels: Record<string, string> = {
 
 const nextActions: Record<string, { label: string; nextStatus: string; color: string }[]> = {
   APPLIED: [
-    { label: 'Move to Screening', nextStatus: 'SCREENING', color: 'text-cyan-600' },
+    { label: 'Move to Screening', nextStatus: 'SCREENING', color: 'text-blue-600' },
     { label: 'Reject', nextStatus: 'REJECTED', color: 'text-destructive' },
   ],
   SCREENING: [
@@ -256,8 +255,8 @@ export default function ApplicationsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.applications.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t.applications.title}</h1>
+          <p className="text-slate-500 text-sm mt-1">
             {applications.length} total applications
           </p>
         </div>
@@ -266,7 +265,7 @@ export default function ApplicationsPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Search applications..."
             value={searchQuery}
@@ -289,7 +288,7 @@ export default function ApplicationsPage() {
         </Select>
         <Select value={jobFilter} onValueChange={setJobFilter}>
           <SelectTrigger className="w-[200px] h-9">
-            <Briefcase className="w-4 h-4 me-2 text-muted-foreground" />
+            <Briefcase className="w-4 h-4 me-2 text-slate-400" />
             <SelectValue placeholder="All Jobs" />
           </SelectTrigger>
           <SelectContent>
@@ -315,7 +314,7 @@ export default function ApplicationsPage() {
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
                 val.color,
-                statusFilter === key ? 'ring-2 ring-offset-1 ring-teal-500' : ''
+                statusFilter === key ? 'ring-2 ring-offset-1 ring-blue-500' : ''
               )}
             >
               {count} {val.label}
@@ -330,19 +329,19 @@ export default function ApplicationsPage() {
           <div className="p-6 space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="flex items-center gap-4 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-muted" />
+                <div className="w-10 h-10 rounded-full bg-slate-200" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded w-1/4" />
-                  <div className="h-3 bg-muted rounded w-1/3" />
+                  <div className="h-4 bg-slate-200 rounded w-1/4" />
+                  <div className="h-3 bg-slate-200 rounded w-1/3" />
                 </div>
               </div>
             ))}
           </div>
         ) : filteredApplications.length === 0 ? (
           <CardContent className="py-12 text-center">
-            <FileText className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-medium">No applications found</h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-900">No applications found</h3>
+            <p className="text-sm text-slate-500 mt-1">
               {searchQuery || statusFilter !== 'all' || jobFilter !== 'all'
                 ? 'Try adjusting your filters'
                 : 'Applications will appear here when candidates apply to your jobs'}
@@ -370,7 +369,7 @@ export default function ApplicationsPage() {
                 return (
                   <TableRow
                     key={app.id}
-                    className="cursor-pointer hover:bg-accent/30"
+                    className="cursor-pointer hover:bg-slate-50"
                     onClick={() => {
                       setSelectedApp(app);
                       setSheetOpen(true);
@@ -379,17 +378,17 @@ export default function ApplicationsPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-9 h-9">
-                          <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs">
+                          <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                             {app.candidate.user.name.split(' ').map((n) => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-sm font-medium">{app.candidate.user.name}</p>
-                          <p className="text-xs text-muted-foreground">{app.candidate.user.email}</p>
+                          <p className="text-sm font-medium text-slate-900">{app.candidate.user.name}</p>
+                          <p className="text-xs text-slate-500">{app.candidate.user.email}</p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{app.job.title}</TableCell>
+                    <TableCell className="text-sm text-slate-700">{app.job.title}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0', status.color)}>
                         {status.label}
@@ -397,30 +396,27 @@ export default function ApplicationsPage() {
                     </TableCell>
                     <TableCell>
                       {app.status === 'REJECTED' && app.notes?.includes('knockout') ? (
-                        <Badge className="text-[10px] px-1.5 py-0 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-0 gap-1">
+                        <Badge className="text-[10px] px-1.5 py-0 bg-red-50 text-red-700 border-0 gap-1">
                           <ShieldAlert className="w-3 h-3" />
                           {t.screening.fail}
                         </Badge>
-                      ) : app.status === 'REJECTED' ? (
-                        <span className="text-xs text-muted-foreground">—</span>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-xs text-slate-400">—</span>
                       )}
                     </TableCell>
                     <TableCell>
                       {app.matchScore ? (
                         <div className="flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-teal-500" />
-                          <span className="text-xs font-semibold">{app.matchScore}%</span>
+                          <span className="text-xs font-semibold text-blue-600">{app.matchScore}%</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-xs text-slate-400">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs">
+                    <TableCell className="text-xs text-slate-600">
                       {sourceLabels[app.source || 'direct'] || app.source}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
+                    <TableCell className="text-xs text-slate-500">
                       {formatRelativeTime(app.appliedAt)}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
@@ -486,13 +482,13 @@ export default function ApplicationsPage() {
                 <SheetTitle>
                   <div className="flex items-center gap-3">
                     <Avatar className="w-11 h-11">
-                      <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                      <AvatarFallback className="bg-blue-100 text-blue-700">
                         {selectedApp.candidate.user.name.split(' ').map((n) => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-start">
-                      <p className="font-semibold">{selectedApp.candidate.user.name}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-semibold text-slate-900">{selectedApp.candidate.user.name}</p>
+                      <p className="text-sm text-slate-500">
                         {selectedApp.candidate.currentTitle || 'No title'} · Applied for {selectedApp.job.title}
                       </p>
                     </div>
@@ -500,13 +496,13 @@ export default function ApplicationsPage() {
                 </SheetTitle>
               </SheetHeader>
 
-              <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <div className="flex-1 overflow-y-auto">
                 <Tabs defaultValue="overview" className="w-full">
                   <TabsList className="w-full justify-start border-b rounded-none px-6 h-10 bg-transparent">
-                    <TabsTrigger value="overview" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none">Overview</TabsTrigger>
-                    <TabsTrigger value="screening" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none">{t.screening.title}</TabsTrigger>
-                    <TabsTrigger value="analysis" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none">AI Analysis</TabsTrigger>
-                    <TabsTrigger value="notes" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none">Notes</TabsTrigger>
+                    <TabsTrigger value="overview" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">Overview</TabsTrigger>
+                    <TabsTrigger value="screening" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">{t.screening.title}</TabsTrigger>
+                    <TabsTrigger value="analysis" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">AI Analysis</TabsTrigger>
+                    <TabsTrigger value="notes" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">Notes</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="overview" className="p-6 space-y-5 mt-0">
@@ -516,8 +512,7 @@ export default function ApplicationsPage() {
                         {statusConfig[selectedApp.status]?.label}
                       </Badge>
                       {selectedApp.matchScore && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 text-xs font-semibold">
-                          <Sparkles className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 text-xs font-semibold">
                           {selectedApp.matchScore}% Match
                         </div>
                       )}
@@ -530,21 +525,21 @@ export default function ApplicationsPage() {
 
                     {/* Candidate Info */}
                     <div className="space-y-3">
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Candidate Information</h4>
+                      <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider">Candidate Information</h4>
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="w-4 h-4 text-muted-foreground" />
+                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                          <Mail className="w-4 h-4 text-slate-400" />
                           <span>{selectedApp.candidate.user.email}</span>
                         </div>
                         {selectedApp.candidate.location && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <MapPin className="w-4 h-4 text-muted-foreground" />
+                          <div className="flex items-center gap-2 text-sm text-slate-700">
+                            <MapPin className="w-4 h-4 text-slate-400" />
                             <span>{selectedApp.candidate.location}</span>
                           </div>
                         )}
                         {selectedApp.candidate.experienceYears && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground" />
+                          <div className="flex items-center gap-2 text-sm text-slate-700">
+                            <Clock className="w-4 h-4 text-slate-400" />
                             <span>{selectedApp.candidate.experienceYears} years experience</span>
                           </div>
                         )}
@@ -556,7 +551,7 @@ export default function ApplicationsPage() {
                     {/* Skills */}
                     {selectedApp.candidate.skills && (
                       <div className="space-y-2">
-                        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Skills</h4>
+                        <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider">Skills</h4>
                         <div className="flex flex-wrap gap-2">
                           {parseSkills(selectedApp.candidate.skills).map((skill) => (
                             <Badge key={skill} variant="secondary" className="text-xs">
@@ -572,8 +567,8 @@ export default function ApplicationsPage() {
                     {/* Cover Letter */}
                     {selectedApp.coverLetter && (
                       <div className="space-y-2">
-                        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.applications.coverLetter}</h4>
-                        <div className="text-sm text-muted-foreground whitespace-pre-wrap p-3 rounded-lg bg-muted/30 border border-border/50">
+                        <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider">{t.applications.coverLetter}</h4>
+                        <div className="text-sm text-slate-600 whitespace-pre-wrap p-3 rounded-lg bg-slate-50 border border-slate-200">
                           {selectedApp.coverLetter}
                         </div>
                       </div>
@@ -581,21 +576,21 @@ export default function ApplicationsPage() {
 
                     {/* Timeline */}
                     <div className="space-y-2">
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.applications.timeline}</h4>
+                      <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider">{t.applications.timeline}</h4>
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 rounded-full bg-teal-500" />
+                          <div className="w-2 h-2 rounded-full bg-blue-600" />
                           <div>
-                            <p className="text-sm font-medium">Application Submitted</p>
-                            <p className="text-xs text-muted-foreground">{formatDate(selectedApp.appliedAt)}</p>
+                            <p className="text-sm font-medium text-slate-900">Application Submitted</p>
+                            <p className="text-xs text-slate-500">{formatDate(selectedApp.appliedAt)}</p>
                           </div>
                         </div>
                         {selectedApp.currentStage && (
                           <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: selectedApp.currentStage.color }} />
                             <div>
-                              <p className="text-sm font-medium">Moved to {selectedApp.currentStage.name}</p>
-                              <p className="text-xs text-muted-foreground">{formatDate(selectedApp.updatedAt)}</p>
+                              <p className="text-sm font-medium text-slate-900">Moved to {selectedApp.currentStage.name}</p>
+                              <p className="text-xs text-slate-500">{formatDate(selectedApp.updatedAt)}</p>
                             </div>
                           </div>
                         )}
@@ -610,19 +605,16 @@ export default function ApplicationsPage() {
                   <TabsContent value="analysis" className="p-6 space-y-5 mt-0">
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-teal-500" />
-                        <h3 className="text-base font-semibold">{t.candidates.aiAnalysis}</h3>
+                        <h3 className="text-base font-semibold text-slate-900">{t.candidates.aiAnalysis}</h3>
                       </div>
                       {selectedApp.aiAnalysis ? (
-                        <div className="text-sm text-muted-foreground whitespace-pre-wrap p-4 rounded-lg bg-muted/30 border border-border/50">
+                        <div className="text-sm text-slate-600 whitespace-pre-wrap p-4 rounded-lg bg-slate-50 border border-slate-200">
                           {selectedApp.aiAnalysis}
                         </div>
                       ) : (
-                        <div className="p-6 rounded-lg border border-dashed border-border text-center">
-                          <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-                          <p className="text-sm text-muted-foreground">AI analysis not yet generated</p>
-                          <Button variant="outline" size="sm" className="mt-3 border-teal-300 dark:border-teal-700 text-teal-600">
-                            <Sparkles className="w-3.5 h-3.5 me-1.5" />
+                        <div className="p-6 rounded-lg border border-dashed border-slate-300 text-center">
+                          <p className="text-sm text-slate-500">AI analysis not yet generated</p>
+                          <Button variant="outline" size="sm" className="mt-3">
                             Generate Analysis
                           </Button>
                         </div>
@@ -632,7 +624,7 @@ export default function ApplicationsPage() {
                     {/* Match Score Breakdown */}
                     {selectedApp.matchScore && (
                       <div className="space-y-3">
-                        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Match Breakdown</h4>
+                        <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider">Match Breakdown</h4>
                         <div className="space-y-2">
                           {[
                             { label: 'Skills Match', value: Math.min(100, (selectedApp.matchScore || 0) + 5) },
@@ -642,12 +634,12 @@ export default function ApplicationsPage() {
                           ].map((item) => (
                             <div key={item.label} className="space-y-1">
                               <div className="flex justify-between text-xs">
-                                <span>{item.label}</span>
-                                <span className="font-medium">{item.value}%</span>
+                                <span className="text-slate-600">{item.label}</span>
+                                <span className="font-medium text-slate-900">{item.value}%</span>
                               </div>
-                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-teal-500 rounded-full"
+                                  className="h-full bg-blue-600 rounded-full"
                                   style={{ width: `${item.value}%` }}
                                 />
                               </div>
@@ -660,19 +652,19 @@ export default function ApplicationsPage() {
 
                   <TabsContent value="notes" className="p-6 space-y-4 mt-0">
                     <div className="space-y-2">
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.applications.addNote}</h4>
+                      <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider">{t.applications.addNote}</h4>
                       <Textarea
                         placeholder="Add a note about this application..."
                         rows={4}
                       />
-                      <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white">
+                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                         Save Note
                       </Button>
                     </div>
                     {selectedApp.notes && (
                       <div className="space-y-2">
-                        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Existing Notes</h4>
-                        <div className="text-sm text-muted-foreground p-3 rounded-lg bg-muted/30 border border-border/50">
+                        <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider">Existing Notes</h4>
+                        <div className="text-sm text-slate-600 p-3 rounded-lg bg-slate-50 border border-slate-200">
                           {selectedApp.notes}
                         </div>
                       </div>
@@ -690,8 +682,8 @@ export default function ApplicationsPage() {
                       size="sm"
                       variant={action.nextStatus === 'REJECTED' ? 'outline' : 'default'}
                       className={cn(
-                        action.nextStatus !== 'REJECTED' && 'bg-teal-600 hover:bg-teal-700 text-white',
-                        action.nextStatus === 'REJECTED' && 'text-destructive border-red-300 dark:border-red-800'
+                        action.nextStatus !== 'REJECTED' && 'bg-blue-600 hover:bg-blue-700 text-white',
+                        action.nextStatus === 'REJECTED' && 'text-destructive border-red-300'
                       )}
                       onClick={() => handleStatusChange(selectedApp.id, action.nextStatus)}
                     >
@@ -711,41 +703,41 @@ export default function ApplicationsPage() {
         <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-teal-600" />
+              <ShieldCheck className="h-5 w-5 text-blue-600" />
               {t.screening.candidateAnswers}
             </DialogTitle>
             <DialogDescription>
               {t.screening.responses}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
+          <div className="space-y-4 max-h-96 overflow-y-auto">
             {screeningDialogData.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-sm">
+              <div className="text-center py-8 text-slate-500 text-sm">
                 {t.screening.noQuestions}
               </div>
             ) : (
               screeningDialogData.map((resp: any, i: number) => (
-                <div key={resp.id || i} className="space-y-1.5 p-3 rounded-lg border border-border/50">
+                <div key={resp.id || i} className="space-y-1.5 p-3 rounded-lg border border-slate-200">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium">
-                      <span className="text-muted-foreground me-1">{i + 1}.</span>
+                    <p className="text-sm font-medium text-slate-900">
+                      <span className="text-slate-400 me-1">{i + 1}.</span>
                       {resp.question?.question || 'Question'}
                     </p>
                     {resp.isKnockout && (
-                      <Badge className="text-[10px] h-5 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-0 gap-1 shrink-0">
+                      <Badge className="text-[10px] h-5 bg-red-50 text-red-700 border-0 gap-1 shrink-0">
                         <AlertTriangle className="w-3 h-3" />
                         {t.screening.knockoutFail}
                       </Badge>
                     )}
                     {!resp.isKnockout && resp.question?.isKnockout && (
-                      <Badge className="text-[10px] h-5 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0">
+                      <Badge className="text-[10px] h-5 bg-emerald-50 text-emerald-700 border-0">
                         {t.screening.pass}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground bg-muted/30 rounded px-2 py-1.5">{resp.answer}</p>
+                  <p className="text-sm text-slate-600 bg-slate-50 rounded px-2 py-1.5">{resp.answer}</p>
                   {resp.question?.isKnockout && resp.question?.knockoutAnswer && (
-                    <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                    <p className="text-[10px] text-amber-600">
                       {t.screening.disqualifyAnswer}: {resp.question.knockoutAnswer}
                     </p>
                   )}
@@ -790,7 +782,7 @@ function ScreeningResponsesTab({ appId }: { appId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-teal-600" />
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -798,8 +790,8 @@ function ScreeningResponsesTab({ appId }: { appId: string }) {
   if (responses.length === 0) {
     return (
       <div className="text-center py-8">
-        <ShieldCheck className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-        <p className="text-sm text-muted-foreground">{t.screening.noQuestions}</p>
+        <ShieldCheck className="h-10 w-10 mx-auto text-slate-300 mb-3" />
+        <p className="text-sm text-slate-500">{t.screening.noQuestions}</p>
       </div>
     );
   }
@@ -810,16 +802,16 @@ function ScreeningResponsesTab({ appId }: { appId: string }) {
     <div className="space-y-4">
       {/* Screening Result Badge */}
       <div className="flex items-center gap-3">
-        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+        <h4 className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
           {t.screening.screeningResult}
         </h4>
         {anyKnockoutFailed ? (
-          <Badge className="bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-0 gap-1.5">
+          <Badge className="bg-red-50 text-red-700 border-0 gap-1.5">
             <ShieldAlert className="w-4 h-4" />
             {t.screening.fail}
           </Badge>
         ) : (
-          <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0 gap-1.5">
+          <Badge className="bg-emerald-50 text-emerald-700 border-0 gap-1.5">
             <ShieldCheck className="w-4 h-4" />
             {t.screening.pass}
           </Badge>
@@ -827,37 +819,37 @@ function ScreeningResponsesTab({ appId }: { appId: string }) {
       </div>
 
       {anyKnockoutFailed && (
-        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 flex items-start gap-2">
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2">
           <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-          <p className="text-xs text-red-700 dark:text-red-400">{t.screening.autoDisqualified}</p>
+          <p className="text-xs text-red-700">{t.screening.autoDisqualified}</p>
         </div>
       )}
 
       <Separator />
 
       {/* Response List */}
-      <div className="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
+      <div className="space-y-3 max-h-80 overflow-y-auto">
         {responses.map((resp: any, i: number) => (
-          <div key={resp.id || i} className="space-y-1.5 p-3 rounded-lg border border-border/50">
+          <div key={resp.id || i} className="space-y-1.5 p-3 rounded-lg border border-slate-200">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-sm font-medium">
-                <span className="text-muted-foreground me-1">{i + 1}.</span>
+              <p className="text-sm font-medium text-slate-900">
+                <span className="text-slate-400 me-1">{i + 1}.</span>
                 {resp.question?.question || 'Question'}
               </p>
               {resp.isKnockout ? (
-                <Badge className="text-[10px] h-5 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-0 gap-1 shrink-0">
+                <Badge className="text-[10px] h-5 bg-red-50 text-red-700 border-0 gap-1 shrink-0">
                   <AlertTriangle className="w-3 h-3" />
                   {t.screening.knockoutFail}
                 </Badge>
               ) : resp.question?.isKnockout ? (
-                <Badge className="text-[10px] h-5 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0">
+                <Badge className="text-[10px] h-5 bg-emerald-50 text-emerald-700 border-0">
                   {t.screening.pass}
                 </Badge>
               ) : null}
             </div>
-            <p className="text-sm text-muted-foreground bg-muted/30 rounded px-2 py-1.5">{resp.answer}</p>
+            <p className="text-sm text-slate-600 bg-slate-50 rounded px-2 py-1.5">{resp.answer}</p>
             {resp.question?.isKnockout && resp.question?.knockoutAnswer && (
-              <p className="text-[10px] text-amber-600 dark:text-amber-400">
+              <p className="text-[10px] text-amber-600">
                 {t.screening.disqualifyAnswer}: {resp.question.knockoutAnswer}
               </p>
             )}

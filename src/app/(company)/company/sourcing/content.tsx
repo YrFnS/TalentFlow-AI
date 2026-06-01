@@ -260,7 +260,7 @@ function CircularProgress({ value, size = 56, strokeWidth = 4 }: { value: number
 
   const getColor = (score: number) => {
     if (score >= 85) return 'text-emerald-500';
-    if (score >= 70) return 'text-teal-500';
+    if (score >= 70) return 'text-blue-500';
     return 'text-amber-500';
   };
 
@@ -294,11 +294,11 @@ function EngagementIcon({ type }: { type: EngagementEventType }) {
 
 function EngagementColor({ type }: { type: EngagementEventType }) {
   switch (type) {
-    case 'EMAIL_SENT': return 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400';
-    case 'EMAIL_OPENED': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400';
-    case 'EMAIL_CLICKED': return 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400';
-    case 'INTERVIEW_SCHEDULED': return 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400';
-    case 'APPLIED': return 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400';
+    case 'EMAIL_SENT': return 'bg-teal-100 text-blue-700 dark:bg-teal-950';
+    case 'EMAIL_OPENED': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950';
+    case 'EMAIL_CLICKED': return 'bg-sky-100 text-sky-700 dark:bg-cyan-950';
+    case 'INTERVIEW_SCHEDULED': return 'bg-amber-100 text-amber-700 dark:bg-amber-950';
+    case 'APPLIED': return 'bg-teal-100 text-blue-700 dark:bg-teal-950';
     case 'VIEWED_PROFILE': return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
   }
 }
@@ -524,16 +524,16 @@ export default function SourcingContent() {
 
   const getAvailabilityBadge = (availability: PastCandidate['availability']) => {
     switch (availability) {
-      case 'available': return <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 text-[10px]">{tr.available}</Badge>;
-      case 'open_to_work': return <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 text-[10px]">{tr.openToWork}</Badge>;
+      case 'available': return <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 text-[10px]">{tr.available}</Badge>;
+      case 'open_to_work': return <Badge className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 text-[10px]">{tr.openToWork}</Badge>;
       case 'not_available': return <Badge className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-0 text-[10px]">{tr.notAvailable}</Badge>;
     }
   };
 
   const statusBadgeClass: Record<CampaignStatus, string> = {
-    ACTIVE: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-    PAUSED: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-    COMPLETED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+    ACTIVE: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+    PAUSED: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+    COMPLETED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   };
 
   // ===== Render =====
@@ -542,11 +542,11 @@ export default function SourcingContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Search className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{tr.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{tr.title}</h1>
             <p className="text-sm text-muted-foreground">{tr.subtitle}</p>
           </div>
         </div>
@@ -572,10 +572,10 @@ export default function SourcingContent() {
         {/* ===== REDISCOVERY TAB ===== */}
         <TabsContent value="rediscovery" className="space-y-6">
           {/* Search Form */}
-          <Card className="border-border/50 card-hover-lift">
+          <Card className="border-border/50 card-">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Search className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Search className="h-4 w-4 text-blue-600" />
                 {tr.searchCandidates}
               </CardTitle>
             </CardHeader>
@@ -634,7 +634,7 @@ export default function SourcingContent() {
                   <Button
                     onClick={handleSearch}
                     disabled={searching}
-                    className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 h-9"
+                    className="w-full bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 h-9"
                   >
                     {searching ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <Search className="h-4 w-4 me-2" />}
                     {searching ? tr.searching : tr.searchBtn}
@@ -648,7 +648,7 @@ export default function SourcingContent() {
           {hasSearched && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold flex items-center gap-2">
-                <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Users className="h-4 w-4 text-blue-600" />
                 {tr.searchResults}
                 <Badge variant="outline" className="text-[10px]">{searchResults.length}</Badge>
               </h3>
@@ -662,12 +662,12 @@ export default function SourcingContent() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {searchResults.map((candidate, idx) => (
-                    <Card key={candidate.id} className="border-border/50 card-hover-lift animate-fade-in-up" style={{ animationDelay: `${idx * 50}ms` }}>
+                    <Card key={candidate.id} className="border-border/50 card-animate-fade-in-up" style={{ animationDelay: `${idx * 50}ms` }}>
                       <CardContent className="p-4 space-y-3">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                              <AvatarFallback className="bg-blue-600 text-white text-xs">
                                 {getInitials(candidate.name)}
                               </AvatarFallback>
                             </Avatar>
@@ -686,7 +686,7 @@ export default function SourcingContent() {
 
                         <div className="flex flex-wrap gap-1">
                           {candidate.matchReasons.map((reason) => (
-                            <Badge key={reason} className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 text-[10px]">
+                            <Badge key={reason} className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 text-[10px]">
                               {reason}
                             </Badge>
                           ))}
@@ -705,7 +705,7 @@ export default function SourcingContent() {
 
                         <Button
                           size="sm"
-                          className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 h-8 text-xs"
+                          className="w-full bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 h-8 text-xs"
                           onClick={() => handleReEngage(candidate)}
                         >
                           <Send className="h-3 w-3 me-1.5" />
@@ -720,10 +720,10 @@ export default function SourcingContent() {
           )}
 
           {/* AI Recommendation Section */}
-          <Card className="border-border/50 card-hover-lift">
+          <Card className="border-border/50 card-">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Sparkles className="h-4 w-4 text-blue-600" />
                 {tr.aiRecommendation}
               </CardTitle>
               <p className="text-xs text-muted-foreground">{tr.aiRecommendationDesc}</p>
@@ -746,7 +746,7 @@ export default function SourcingContent() {
                 <Button
                   onClick={handleRecommend}
                   disabled={recommending}
-                  className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 h-9"
+                  className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 h-9"
                 >
                   {recommending ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <Sparkles className="h-4 w-4 me-2" />}
                   {recommending ? tr.recommending : tr.recommendBtn}
@@ -758,14 +758,14 @@ export default function SourcingContent() {
                   {recommendations.map((rec, idx) => (
                     <div key={rec.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-muted/20 animate-fade-in-up" style={{ animationDelay: `${idx * 75}ms` }}>
                       <Avatar className="h-9 w-9">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px]">
+                        <AvatarFallback className="bg-blue-600 text-white text-[10px]">
                           {getInitials(rec.name)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-medium truncate">{rec.name}</p>
-                          <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 text-[10px]">
+                          <Badge className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 text-[10px]">
                             {rec.matchScore}% {tr.matchScore}
                           </Badge>
                         </div>
@@ -774,7 +774,7 @@ export default function SourcingContent() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950 shrink-0"
+                        className="h-7 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950 shrink-0"
                         onClick={() => handleReEngage(rec)}
                       >
                         <Send className="h-3 w-3 me-1" />
@@ -792,11 +792,11 @@ export default function SourcingContent() {
         <TabsContent value="campaigns" className="space-y-6">
           {/* Stats Row */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+            <Card className="border-border/50 card-relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
               <CardContent className="p-4 relative">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <Target className="h-4 w-4" />
                   </div>
                   <div>
@@ -806,11 +806,11 @@ export default function SourcingContent() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+            <Card className="border-border/50 card-relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
               <CardContent className="p-4 relative">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                     <Users className="h-4 w-4" />
                   </div>
                   <div>
@@ -820,11 +820,11 @@ export default function SourcingContent() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+            <Card className="border-border/50 card-relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
               <CardContent className="p-4 relative">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                     <Send className="h-4 w-4" />
                   </div>
                   <div>
@@ -834,11 +834,11 @@ export default function SourcingContent() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+            <Card className="border-border/50 card-relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-cyan-600 opacity-[0.06]" />
               <CardContent className="p-4 relative">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                     <TrendingUp className="h-4 w-4" />
                   </div>
                   <div>
@@ -854,7 +854,7 @@ export default function SourcingContent() {
           <div className="flex justify-end">
             <Button
               onClick={() => setCreateDialogOpen(true)}
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
             >
               <Plus className="h-4 w-4 me-2" />
               {ts.createCampaign}
@@ -864,7 +864,7 @@ export default function SourcingContent() {
           {/* Campaign Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {campaigns.map((campaign, idx) => (
-              <Card key={campaign.id} className="border-border/50 card-hover-lift animate-fade-in-up" style={{ animationDelay: `${idx * 50}ms` }}>
+              <Card key={campaign.id} className="border-border/50 card-animate-fade-in-up" style={{ animationDelay: `${idx * 50}ms` }}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="min-w-0">
@@ -883,12 +883,12 @@ export default function SourcingContent() {
 
                   <div className="flex flex-wrap gap-1">
                     {campaign.criteria.skills.map((skill) => (
-                      <Badge key={skill} variant="outline" className="text-[10px] border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400">
+                      <Badge key={skill} variant="outline" className="text-[10px] border-slate-200 text-blue-700">
                         {skill}
                       </Badge>
                     ))}
                     {campaign.criteria.experience && (
-                      <Badge variant="outline" className="text-[10px] border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400">
+                      <Badge variant="outline" className="text-[10px] border-amber-200 dark:border-amber-800 text-amber-700">
                         {campaign.criteria.experience}+ yrs
                       </Badge>
                     )}
@@ -901,15 +901,15 @@ export default function SourcingContent() {
 
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="p-2 rounded-lg bg-muted/30">
-                      <p className="text-lg font-bold text-teal-600 dark:text-teal-400">{campaign.matchedCount}</p>
+                      <p className="text-lg font-bold text-blue-600">{campaign.matchedCount}</p>
                       <p className="text-[10px] text-muted-foreground">{ts.matchedCount}</p>
                     </div>
                     <div className="p-2 rounded-lg bg-muted/30">
-                      <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{campaign.contactedCount}</p>
+                      <p className="text-lg font-bold text-amber-600">{campaign.contactedCount}</p>
                       <p className="text-[10px] text-muted-foreground">{ts.contactedCount}</p>
                     </div>
                     <div className="p-2 rounded-lg bg-muted/30">
-                      <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{campaign.respondedCount}</p>
+                      <p className="text-lg font-bold text-emerald-600">{campaign.respondedCount}</p>
                       <p className="text-[10px] text-muted-foreground">{ts.respondedCount}</p>
                     </div>
                   </div>
@@ -919,7 +919,7 @@ export default function SourcingContent() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 text-xs border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950"
+                        className="h-7 text-xs border-amber-200 dark:border-amber-800 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950"
                         onClick={() => handleCampaignAction(campaign.id, 'pause')}
                       >
                         <Pause className="h-3 w-3 me-1" />{ts.pauseCampaign}
@@ -929,7 +929,7 @@ export default function SourcingContent() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                        className="h-7 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                         onClick={() => handleCampaignAction(campaign.id, 'resume')}
                       >
                         <Play className="h-3 w-3 me-1" />{ts.resumeCampaign}
@@ -939,7 +939,7 @@ export default function SourcingContent() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 text-xs border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                        className="h-7 text-xs border-emerald-200 dark:border-emerald-800 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950"
                         onClick={() => handleCampaignAction(campaign.id, 'complete')}
                       >
                         <CheckCircle2 className="h-3 w-3 me-1" />{ts.completeCampaign}
@@ -964,7 +964,7 @@ export default function SourcingContent() {
             <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Plus className="h-5 w-5 text-teal-600" />
+                  <Plus className="h-5 w-5 text-blue-600" />
                   {ts.createCampaign}
                 </DialogTitle>
               </DialogHeader>
@@ -1029,7 +1029,7 @@ export default function SourcingContent() {
                 </DialogClose>
                 <Button
                   size="sm"
-                  className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                  className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
                   onClick={handleCreateCampaign}
                   disabled={creating || !newCampaignName.trim()}
                 >
@@ -1054,7 +1054,7 @@ export default function SourcingContent() {
                 className={cn(
                   'h-7 text-[10px] shrink-0',
                   engagementFilter === type
-                    ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white border-0'
+                    ? 'bg-gradient-to-r bg-blue-600 text-white border-0'
                     : 'border-border/50'
                 )}
                 onClick={() => setEngagementFilter(type)}
@@ -1068,7 +1068,7 @@ export default function SourcingContent() {
           <Card className="border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <TrendingUp className="h-4 w-4 text-blue-600" />
                 {ts.eventTimeline}
               </CardTitle>
             </CardHeader>
@@ -1106,7 +1106,7 @@ export default function SourcingContent() {
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">{event.details}</p>
                         {event.campaignName && (
-                          <p className="text-[10px] text-teal-600 dark:text-teal-400 mt-0.5 flex items-center gap-1">
+                          <p className="text-[10px] text-blue-600 mt-0.5 flex items-center gap-1">
                             <Target className="h-2.5 w-2.5" />{event.campaignName}
                           </p>
                         )}

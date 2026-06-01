@@ -52,7 +52,7 @@ interface CareerPageConfig {
 }
 
 const colorPresets = [
-  { name: 'Teal', value: 'teal', gradient: 'from-teal-500 to-emerald-600', bg: 'bg-teal-500' },
+  { name: 'Teal', value: 'teal', gradient: 'bg-blue-600', bg: 'bg-slate-500' },
   { name: 'Emerald', value: 'emerald', gradient: 'from-emerald-500 to-green-600', bg: 'bg-emerald-500' },
   { name: 'Green', value: 'green', gradient: 'from-green-500 to-lime-600', bg: 'bg-green-500' },
   { name: 'Cyan', value: 'cyan', gradient: 'from-cyan-500 to-teal-600', bg: 'bg-cyan-500' },
@@ -145,8 +145,8 @@ export default function CareerPageSettingsContent() {
           <Badge className={cn(
             'px-3 py-1 text-sm font-medium border-0',
             config.isPublished
-              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
-              : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40'
           )}>
             {config.isPublished ? t.careerPage.published : t.careerPage.draft}
           </Badge>
@@ -164,7 +164,7 @@ export default function CareerPageSettingsContent() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  <Eye className="w-4 h-4 text-blue-600" />
                   Live Preview
                 </CardTitle>
                 <Button variant="outline" size="sm" className="text-xs h-7" asChild>
@@ -223,7 +223,7 @@ export default function CareerPageSettingsContent() {
                 {/* Mini footer */}
                 <div className="p-2 text-center border-t border-border/50">
                   <p className="text-[7px] text-muted-foreground flex items-center justify-center gap-0.5">
-                    <Sparkles className="w-2 h-2 text-teal-500" />
+                    <Sparkles className="w-2 h-2 text-blue-500" />
                     {t.careerPage.poweredBy}
                   </p>
                 </div>
@@ -256,7 +256,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Globe className="w-4 h-4 text-blue-600" />
                     {t.careerPage.pageUrl}
                   </CardTitle>
                 </CardHeader>
@@ -299,7 +299,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Type className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Type className="w-4 h-4 text-blue-600" />
                     {t.careerPage.companyTagline}
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -320,7 +320,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Sparkles className="w-4 h-4 text-blue-600" />
                     {t.careerPage.companyValues}
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -357,7 +357,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Check className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Check className="w-4 h-4 text-blue-600" />
                     {t.careerPage.benefits}
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -394,7 +394,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <FileText className="w-4 h-4 text-blue-600" />
                     {t.careerPage.companyCulture}
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -416,7 +416,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Link2 className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Link2 className="w-4 h-4 text-blue-600" />
                     {t.careerPage.socialLinks}
                   </CardTitle>
                 </CardHeader>
@@ -458,7 +458,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Paintbrush className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Paintbrush className="w-4 h-4 text-blue-600" />
                     {t.careerPage.primaryColor}
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -474,14 +474,14 @@ export default function CareerPageSettingsContent() {
                         className={cn(
                           'flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all',
                           config.primaryColor === preset.value
-                            ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/20 shadow-md'
+                            ? 'border-teal-500 bg-slate-50 shadow-md'
                             : 'border-transparent hover:border-muted-foreground/20 bg-muted/30'
                         )}
                       >
                         <div className={cn('w-10 h-10 rounded-full bg-gradient-to-br shadow-sm', preset.gradient)} />
                         <span className="text-xs font-medium">{preset.name}</span>
                         {config.primaryColor === preset.value && (
-                          <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                          <Check className="w-3.5 h-3.5 text-blue-600" />
                         )}
                       </button>
                     ))}
@@ -493,7 +493,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <ImagePlus className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <ImagePlus className="w-4 h-4 text-blue-600" />
                     {t.careerPage.heroImage}
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -513,8 +513,8 @@ export default function CareerPageSettingsContent() {
                     className={cn(
                       'relative flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer',
                       isHeroDragOver
-                        ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/20'
-                        : 'border-muted-foreground/25 hover:border-teal-400 hover:bg-muted/30'
+                        ? 'border-teal-500 bg-slate-50'
+                        : 'border-muted-foreground/25 hover:border-slate-400 hover:bg-muted/30'
                     )}
                     onClick={() => toast.info('Image upload would open here')}
                   >
@@ -532,7 +532,7 @@ export default function CareerPageSettingsContent() {
                       <div className="flex flex-col items-center gap-2 text-center">
                         <Upload className="w-8 h-8 text-muted-foreground" />
                         <p className="text-sm">
-                          <span className="text-teal-600 dark:text-teal-400">Click to upload</span> or drag and drop
+                          <span className="text-blue-600">Click to upload</span> or drag and drop
                         </p>
                         <p className="text-xs text-muted-foreground">PNG, JPG, WebP (max 5MB, recommended 1200x400px)</p>
                       </div>
@@ -547,7 +547,7 @@ export default function CareerPageSettingsContent() {
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Search className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Search className="w-4 h-4 text-blue-600" />
                     {t.careerPage.seoSettings}
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -596,7 +596,7 @@ export default function CareerPageSettingsContent() {
                   <div className="mt-4 p-4 rounded-lg bg-muted/30 border border-border/50">
                     <p className="text-xs font-medium mb-2 text-muted-foreground">Search Preview</p>
                     <div className="space-y-0.5">
-                      <p className="text-sm text-blue-600 dark:text-blue-400 font-medium truncate">{config.metaTitle}</p>
+                      <p className="text-sm text-blue-600 font-medium truncate">{config.metaTitle}</p>
                       <p className="text-[10px] text-green-700 dark:text-green-400">{careerPageUrl}</p>
                       <p className="text-xs text-muted-foreground line-clamp-2">{config.metaDescription}</p>
                     </div>
@@ -612,7 +612,7 @@ export default function CareerPageSettingsContent() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="min-w-[140px] bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-md"
+              className="min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white shadow-md"
             >
               {saving ? (
                 <span className="flex items-center gap-2">

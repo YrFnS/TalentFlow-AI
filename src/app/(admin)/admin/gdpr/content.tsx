@@ -178,24 +178,24 @@ export default function GdprContent() {
   const getStatusBadge = (status: GdprRequestStatus) => {
     switch (status) {
       case 'pending':
-        return <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0">{t.gdpr.pending}</Badge>;
+        return <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 border-0">{t.gdpr.pending}</Badge>;
       case 'processing':
-        return <Badge className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0">{t.gdpr.processing}</Badge>;
+        return <Badge className="bg-blue-50 text-blue-700 dark:bg-blue-950 border-0">{t.gdpr.processing}</Badge>;
       case 'completed':
-        return <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">{t.gdpr.completed}</Badge>;
+        return <Badge className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">{t.gdpr.completed}</Badge>;
       case 'rejected':
-        return <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0">{t.gdpr.rejected}</Badge>;
+        return <Badge className="bg-red-50 text-red-700 dark:bg-red-950 border-0">{t.gdpr.rejected}</Badge>;
     }
   };
 
   const getTypeBadge = (type: GdprRequestType) => {
     switch (type) {
       case 'export':
-        return <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 gap-1"><FileDown className="h-3 w-3" />{t.gdpr.dataExport}</Badge>;
+        return <Badge className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 gap-1"><FileDown className="h-3 w-3" />{t.gdpr.dataExport}</Badge>;
       case 'deletion':
-        return <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0 gap-1"><Trash2 className="h-3 w-3" />{t.gdpr.dataDeletion}</Badge>;
+        return <Badge className="bg-red-50 text-red-700 dark:bg-red-950 border-0 gap-1"><Trash2 className="h-3 w-3" />{t.gdpr.dataDeletion}</Badge>;
       case 'correction':
-        return <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 gap-1"><Edit3 className="h-3 w-3" />{t.gdpr.dataCorrection}</Badge>;
+        return <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 gap-1"><Edit3 className="h-3 w-3" />{t.gdpr.dataCorrection}</Badge>;
     }
   };
 
@@ -288,28 +288,28 @@ export default function GdprContent() {
   const getComplianceStatusBadge = (status: ComplianceItem['status']) => {
     switch (status) {
       case 'implemented':
-        return <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">{t.gdpr.implemented}</Badge>;
+        return <Badge className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">{t.gdpr.implemented}</Badge>;
       case 'inProgress':
-        return <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0">{t.gdpr.inProgress}</Badge>;
+        return <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 border-0">{t.gdpr.inProgress}</Badge>;
       case 'notImplemented':
-        return <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0">{t.gdpr.notImplemented}</Badge>;
+        return <Badge className="bg-red-50 text-red-700 dark:bg-red-950 border-0">{t.gdpr.notImplemented}</Badge>;
     }
   };
 
   const getComplianceIcon = (status: ComplianceItem['status']) => {
     switch (status) {
       case 'implemented':
-        return <CheckCircle2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />;
+        return <CheckCircle2 className="h-4 w-4 text-blue-600" />;
       case 'inProgress':
-        return <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />;
+        return <Clock className="h-4 w-4 text-amber-600" />;
       case 'notImplemented':
-        return <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />;
+        return <AlertTriangle className="h-4 w-4 text-red-600" />;
     }
   };
 
   const getAuditTypeColor = (type: AuditEntry['type']) => {
     switch (type) {
-      case 'success': return 'bg-teal-500';
+      case 'success': return 'bg-slate-500';
       case 'warning': return 'bg-amber-500';
       case 'error': return 'bg-red-500';
       case 'info': return 'bg-blue-500';
@@ -328,11 +328,11 @@ export default function GdprContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Shield className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.gdpr.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.gdpr.title}</h1>
             <p className="text-sm text-muted-foreground">{t.gdpr.subtitle}</p>
           </div>
         </div>
@@ -343,7 +343,7 @@ export default function GdprContent() {
         {stats.map((stat, index) => {
           const StatIcon = stat.icon;
           return (
-            <Card key={index} className="border-border/50 card-hover-lift animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
+            <Card key={index} className="border-border/50 card-animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br text-white shrink-0', stat.color)}>
@@ -368,7 +368,7 @@ export default function GdprContent() {
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Shield className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Shield className="h-4 w-4 text-blue-600" />
               {t.gdpr.title}
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -418,7 +418,7 @@ export default function GdprContent() {
                       <TableCell className="py-3">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-7 w-7">
-                            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                            <AvatarFallback className="bg-blue-600 text-white text-xs">
                               {getInitials(req.userName)}
                             </AvatarFallback>
                           </Avatar>
@@ -438,7 +438,7 @@ export default function GdprContent() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-7 text-xs gap-1 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800"
+                              className="h-7 text-xs gap-1 hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400 hover:border-slate-200 dark:hover:border-teal-800"
                               onClick={() => handleProcessRequest(req)}
                             >
                               <Play className="h-3 w-3" />
@@ -448,7 +448,7 @@ export default function GdprContent() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-7 text-xs gap-1 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800"
+                            className="h-7 text-xs gap-1 hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400 hover:border-slate-200 dark:hover:border-teal-800"
                             onClick={() => handleViewRequest(req)}
                           >
                             <Eye className="h-3 w-3" />
@@ -458,7 +458,7 @@ export default function GdprContent() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-7 text-xs gap-1 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800"
+                              className="h-7 text-xs gap-1 hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400 hover:border-slate-200 dark:hover:border-teal-800"
                             >
                               <Download className="h-3 w-3" />
                               {t.gdpr.download}
@@ -486,7 +486,7 @@ export default function GdprContent() {
         <Card className="border-border/50 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <CheckCircle2 className="h-4 w-4 text-blue-600" />
               {t.gdpr.complianceChecklist}
             </CardTitle>
           </CardHeader>
@@ -502,15 +502,15 @@ export default function GdprContent() {
                     <div className="flex items-center gap-3 min-w-0">
                       <div className={cn(
                         'flex h-8 w-8 items-center justify-center rounded-lg shrink-0',
-                        item.status === 'implemented' ? 'bg-teal-50 dark:bg-teal-950/50' :
+                        item.status === 'implemented' ? 'bg-slate-50' :
                         item.status === 'inProgress' ? 'bg-amber-50 dark:bg-amber-950/50' :
                         'bg-red-50 dark:bg-red-950/50'
                       )}>
                         <ItemIcon className={cn(
                           'h-4 w-4',
-                          item.status === 'implemented' ? 'text-teal-600 dark:text-teal-400' :
-                          item.status === 'inProgress' ? 'text-amber-600 dark:text-amber-400' :
-                          'text-red-600 dark:text-red-400'
+                          item.status === 'implemented' ? 'text-blue-600' :
+                          item.status === 'inProgress' ? 'text-amber-600' :
+                          'text-red-600'
                         )} />
                       </div>
                       <span className="text-sm font-medium truncate">
@@ -532,7 +532,7 @@ export default function GdprContent() {
         <Card className="border-border/50 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Activity className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Activity className="h-4 w-4 text-blue-600" />
               {t.gdpr.auditTrail}
             </CardTitle>
           </CardHeader>
@@ -580,7 +580,7 @@ export default function GdprContent() {
         <DialogContent className="sm:max-w-lg dialog-content-glow">
           <DialogHeader className="dialog-header-accent">
             <DialogTitle className="flex items-center gap-2 pt-1">
-              <Shield className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Shield className="h-5 w-5 text-blue-600" />
               {t.gdpr.processRequest}
             </DialogTitle>
             <DialogDescription>
@@ -593,7 +593,7 @@ export default function GdprContent() {
               {/* Request Info */}
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                  <AvatarFallback className="bg-blue-600 text-white">
                     {getInitials(selectedRequest.userName)}
                   </AvatarFallback>
                 </Avatar>
@@ -634,7 +634,7 @@ export default function GdprContent() {
                     <Button
                       onClick={handleGenerateExport}
                       disabled={isProcessing}
-                      className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-2"
+                      className="w-full bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-2"
                     >
                       {isProcessing ? (
                         <>
@@ -650,16 +650,16 @@ export default function GdprContent() {
                     </Button>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2 p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
-                        <CheckCircle2 className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                        <CheckCircle2 className="h-5 w-5 text-blue-600 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-teal-700 dark:text-teal-400">{t.gdpr.exportGenerated}</p>
-                          <p className="text-xs text-teal-600/70 dark:text-teal-400/70">{t.gdpr.downloadExpiry}</p>
+                          <p className="text-sm font-medium text-blue-700">{t.gdpr.exportGenerated}</p>
+                          <p className="text-xs text-blue-600/70/70">{t.gdpr.downloadExpiry}</p>
                         </div>
                       </div>
                       <Button
                         variant="outline"
-                        className="w-full gap-2 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800"
+                        className="w-full gap-2 hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400 hover:border-slate-200 dark:hover:border-teal-800"
                       >
                         <Download className="h-4 w-4" />
                         {t.gdpr.download}
@@ -675,9 +675,9 @@ export default function GdprContent() {
                   {/* Warning */}
                   <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
                     <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                      <AlertTriangle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-medium text-red-700 dark:text-red-400">{t.gdpr.deletionWarning}</p>
+                        <p className="text-sm font-medium text-red-700">{t.gdpr.deletionWarning}</p>
                       </div>
                     </div>
                   </div>
@@ -702,10 +702,10 @@ export default function GdprContent() {
 
                   {/* Grace period notice */}
                   <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                    <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <Clock className="h-5 w-5 text-amber-600 shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-amber-700 dark:text-amber-400">{t.gdpr.gracePeriod}</p>
-                      <p className="text-xs text-amber-600/70 dark:text-amber-400/70">{t.gdpr.gracePeriodDesc}</p>
+                      <p className="text-sm font-medium text-amber-700">{t.gdpr.gracePeriod}</p>
+                      <p className="text-xs text-amber-600/70/70">{t.gdpr.gracePeriodDesc}</p>
                     </div>
                   </div>
 
@@ -768,7 +768,7 @@ export default function GdprContent() {
 
                   <Button
                     onClick={handleCorrectData}
-                    className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-2"
+                    className="w-full bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-2"
                   >
                     <Edit3 className="h-4 w-4" />
                     {t.gdpr.correctData}
@@ -799,7 +799,7 @@ export default function GdprContent() {
         <DialogContent className="sm:max-w-md dialog-content-glow">
           <DialogHeader className="dialog-header-accent">
             <DialogTitle className="flex items-center gap-2 pt-1">
-              <Eye className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Eye className="h-5 w-5 text-blue-600" />
               {t.gdpr.view}
             </DialogTitle>
             <DialogDescription>
@@ -810,7 +810,7 @@ export default function GdprContent() {
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Avatar className="h-12 w-12">
-                  <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                  <AvatarFallback className="bg-blue-600 text-white">
                     {getInitials(selectedRequest.userName)}
                   </AvatarFallback>
                 </Avatar>
@@ -844,11 +844,11 @@ export default function GdprContent() {
                 )}
               </div>
               {selectedRequest.type === 'export' && (
-                <div className="p-3 rounded-lg bg-teal-50/50 dark:bg-teal-950/20 border border-teal-200/50 dark:border-teal-800/50">
-                  <p className="text-xs font-medium text-teal-700 dark:text-teal-400 mb-2">{t.gdpr.dataCategories}</p>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200/50/50">
+                  <p className="text-xs font-medium text-blue-700 mb-2">{t.gdpr.dataCategories}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {dataCategories.map((cat) => (
-                      <span key={cat.key} className="inline-flex items-center gap-1 text-xs bg-teal-100/50 dark:bg-teal-900/30 px-2 py-0.5 rounded-full text-teal-700 dark:text-teal-400">
+                      <span key={cat.key} className="inline-flex items-center gap-1 text-xs bg-teal-100/50 px-2 py-0.5 rounded-full text-blue-700">
                         {t.gdpr[cat.key as keyof typeof t.gdpr]}
                       </span>
                     ))}
@@ -858,10 +858,10 @@ export default function GdprContent() {
               {selectedRequest.type === 'deletion' && selectedRequest.status === 'processing' && (
                 <div className="p-3 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/50">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                    <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{t.gdpr.gracePeriod}</p>
+                    <Clock className="h-4 w-4 text-amber-600" />
+                    <p className="text-xs font-medium text-amber-700">{t.gdpr.gracePeriod}</p>
                   </div>
-                  <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">{t.gdpr.gracePeriodDesc}</p>
+                  <p className="text-xs text-amber-600/70/70 mt-1">{t.gdpr.gracePeriodDesc}</p>
                 </div>
               )}
             </div>
@@ -873,17 +873,17 @@ export default function GdprContent() {
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent className="dialog-content-glow">
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
               <AlertTriangle className="h-5 w-5" />
               {t.gdpr.deleteData}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3 pt-2">
               <p>{t.gdpr.deletionWarning}</p>
               <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
-                <p className="text-sm font-medium text-red-700 dark:text-red-400 mb-2">{t.gdpr.dataCategories}:</p>
+                <p className="text-sm font-medium text-red-700 mb-2">{t.gdpr.dataCategories}:</p>
                 <ul className="space-y-1">
                   {dataCategories.map((cat) => (
-                    <li key={cat.key} className="flex items-center gap-1.5 text-xs text-red-600/80 dark:text-red-400/80">
+                    <li key={cat.key} className="flex items-center gap-1.5 text-xs text-red-600/80/80">
                       <ChevronRight className="h-3 w-3" />
                       {t.gdpr[cat.key as keyof typeof t.gdpr]}
                     </li>
@@ -891,8 +891,8 @@ export default function GdprContent() {
                 </ul>
               </div>
               <div className="flex items-center gap-2 p-2 rounded bg-amber-50 dark:bg-amber-950/20">
-                <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                <p className="text-xs text-amber-700 dark:text-amber-400">{t.gdpr.gracePeriodDesc}</p>
+                <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+                <p className="text-xs text-amber-700">{t.gdpr.gracePeriodDesc}</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -923,7 +923,7 @@ export default function GdprContent() {
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent className="sm:max-w-md dialog-content-glow">
           <DialogHeader className="dialog-header-accent">
-            <DialogTitle className="flex items-center gap-2 pt-1 text-red-600 dark:text-red-400">
+            <DialogTitle className="flex items-center gap-2 pt-1 text-red-600">
               <AlertTriangle className="h-5 w-5" />
               {t.gdpr.confirmReject}
             </DialogTitle>

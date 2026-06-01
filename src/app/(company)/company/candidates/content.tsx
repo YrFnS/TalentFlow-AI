@@ -138,16 +138,16 @@ export default function CandidatesPage() {
 
   const getScoreColor = (score: number | null) => {
     if (!score) return '';
-    if (score >= 85) return 'text-emerald-600 dark:text-emerald-400';
-    if (score >= 70) return 'text-teal-600 dark:text-teal-400';
-    if (score >= 50) return 'text-amber-600 dark:text-amber-400';
-    return 'text-red-600 dark:text-red-400';
+    if (score >= 85) return 'text-emerald-600';
+    if (score >= 70) return 'text-blue-600';
+    if (score >= 50) return 'text-amber-600';
+    return 'text-red-600';
   };
 
   const getScoreBg = (score: number | null) => {
     if (!score) return '';
-    if (score >= 85) return 'bg-emerald-50 dark:bg-emerald-950/30';
-    if (score >= 70) return 'bg-teal-50 dark:bg-teal-950/30';
+    if (score >= 85) return 'bg-emerald-50';
+    if (score >= 70) return 'bg-slate-50';
     if (score >= 50) return 'bg-amber-50 dark:bg-amber-950/30';
     return 'bg-red-50 dark:bg-red-950/30';
   };
@@ -178,8 +178,8 @@ export default function CandidatesPage() {
   };
 
   const availabilityColors: Record<string, string> = {
-    open: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    employed: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+    open: 'bg-emerald-100 text-emerald-700',
+    employed: 'bg-teal-100 text-blue-700',
     not_looking: 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400',
   };
 
@@ -307,7 +307,7 @@ export default function CandidatesPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-9 h-9">
-                          <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs">
+                          <AvatarFallback className="bg-teal-100 text-blue-700 text-xs">
                             {candidate.user.name.split(' ').map((n) => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
@@ -396,7 +396,7 @@ export default function CandidatesPage() {
               <SheetHeader className="p-6 pb-4 border-b">
                 <SheetTitle className="flex items-center gap-3">
                   <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                    <AvatarFallback className="bg-teal-100 text-blue-700">
                       {selectedCandidate.user.name.split(' ').map((n) => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
@@ -437,13 +437,13 @@ export default function CandidatesPage() {
                 {getMatchScore(selectedCandidate) && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-teal-500" />
+                      <Sparkles className="w-4 h-4 text-blue-500" />
                       <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.aiMatchScore}</h4>
                     </div>
-                    <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/30">
+                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200/30">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{getMatchScore(selectedCandidate)}%</span>
-                        <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">High Match</Badge>
+                        <span className="text-2xl font-bold text-blue-600">{getMatchScore(selectedCandidate)}%</span>
+                        <Badge className="bg-teal-100 text-blue-700">High Match</Badge>
                       </div>
                       <Progress value={getMatchScore(selectedCandidate)!} className="h-1.5" />
                     </div>
@@ -513,7 +513,7 @@ export default function CandidatesPage() {
 
               {/* Actions */}
               <div className="p-4 border-t flex gap-2">
-                <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white" size="sm">
+                <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" size="sm">
                   <CheckCircle2 className="w-4 h-4 me-2" />
                   {t.candidates.shortlist}
                 </Button>

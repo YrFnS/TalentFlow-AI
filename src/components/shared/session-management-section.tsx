@@ -110,7 +110,7 @@ export default function SessionManagementSection() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Monitor className="h-5 w-5 text-teal-600" />
+                <Monitor className="h-5 w-5 text-blue-600" />
                 {sm.title || 'Active Sessions'}
               </CardTitle>
               <CardDescription className="mt-1">
@@ -121,7 +121,7 @@ export default function SessionManagementSection() {
               <Button
                 variant="outline"
                 size="sm"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
                 onClick={() => setShowRevokeAllDialog(true)}
               >
                 <LogOut className="h-4 w-4 me-1" />
@@ -133,7 +133,7 @@ export default function SessionManagementSection() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
             </div>
           ) : sessions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -145,12 +145,12 @@ export default function SessionManagementSection() {
               {sessions.map((session, index) => (
                 <div
                   key={session.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border/50 hover:border-teal-200 dark:hover:border-teal-800 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-lg border border-border/50 hover:border-slate-200 dark:hover:border-teal-800 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                       {index === 0 ? (
-                        <Monitor className="h-5 w-5 text-teal-600" />
+                        <Monitor className="h-5 w-5 text-blue-600" />
                       ) : (
                         <Smartphone className="h-5 w-5 text-muted-foreground" />
                       )}
@@ -161,7 +161,7 @@ export default function SessionManagementSection() {
                           {session.device || (index === 0 ? 'Current Browser' : 'Other Device')}
                         </p>
                         {index === 0 && (
-                          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 text-xs">
+                          <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 dark:border-emerald-800 text-xs">
                             {sm.current || 'Current'}
                           </Badge>
                         )}

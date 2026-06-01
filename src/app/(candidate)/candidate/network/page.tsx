@@ -103,7 +103,7 @@ export default function NetworkPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Users className="h-5 w-5" />
           </div>
           <div>
@@ -115,10 +115,10 @@ export default function NetworkPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Users className="h-4 w-4" />
               </div>
               <div>
@@ -128,10 +128,10 @@ export default function NetworkPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <UserPlus className="h-4 w-4" />
               </div>
               <div>
@@ -141,10 +141,10 @@ export default function NetworkPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-950 text-violet-600">
                 <Sparkles className="h-4 w-4" />
               </div>
               <div>
@@ -154,10 +154,10 @@ export default function NetworkPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
                 <Eye className="h-4 w-4" />
               </div>
               <div>
@@ -210,7 +210,7 @@ export default function NetworkPage() {
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-10 w-10 shrink-0">
-                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                          <AvatarFallback className="bg-blue-600 text-white text-xs">
                             {person.avatar}
                           </AvatarFallback>
                         </Avatar>
@@ -218,7 +218,7 @@ export default function NetworkPage() {
                           <p className="text-sm font-semibold truncate">{person.name}</p>
                           <p className="text-xs text-muted-foreground truncate">{person.title}</p>
                           <p className="text-xs text-muted-foreground truncate">{person.company}</p>
-                          <p className="text-[10px] text-teal-600 dark:text-teal-400 mt-1">
+                          <p className="text-[10px] text-blue-600 mt-1">
                             {person.mutualConnections} {t.network.mutualConnections}
                           </p>
                         </div>
@@ -226,7 +226,7 @@ export default function NetworkPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="w-full mt-3 border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-400 dark:hover:bg-teal-950/30"
+                        className="w-full mt-3 border-slate-300 text-blue-700 hover:bg-slate-50"
                       >
                         <UserPlus className="h-3.5 w-3.5 me-1.5" />
                         {t.network.connect}
@@ -256,7 +256,7 @@ export default function NetworkPage() {
                     <CardContent className="p-3">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9 shrink-0">
-                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                          <AvatarFallback className="bg-blue-600 text-white text-xs">
                             {person.avatar}
                           </AvatarFallback>
                         </Avatar>
@@ -265,11 +265,11 @@ export default function NetworkPage() {
                           <p className="text-xs text-muted-foreground">{person.title}</p>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/30">
+                          <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:hover:bg-emerald-950/30">
                             <CheckCircle2 className="h-3 w-3 me-1" />
                             {t.network.accept}
                           </Button>
-                          <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/30">
+                          <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-950/30">
                             <XCircle className="h-3 w-3 me-1" />
                             {t.network.decline}
                           </Button>
@@ -301,7 +301,7 @@ export default function NetworkPage() {
                     <CardContent className="p-3">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9 shrink-0">
-                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                          <AvatarFallback className="bg-blue-600 text-white text-xs">
                             {person.avatar}
                           </AvatarFallback>
                         </Avatar>
@@ -334,7 +334,7 @@ export default function NetworkPage() {
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <Avatar className="h-10 w-10 shrink-0">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                        <AvatarFallback className="bg-blue-600 text-white text-xs">
                           {person.avatar}
                         </AvatarFallback>
                       </Avatar>
@@ -342,7 +342,7 @@ export default function NetworkPage() {
                         <p className="text-sm font-semibold truncate">{person.name}</p>
                         <p className="text-xs text-muted-foreground truncate">{person.title}</p>
                         <p className="text-xs text-muted-foreground truncate">{person.company}</p>
-                        <p className="text-[10px] text-teal-600 dark:text-teal-400 mt-1">
+                        <p className="text-[10px] text-blue-600 mt-1">
                           {person.mutualConnections} {t.network.mutualConnections}
                         </p>
                       </div>
@@ -350,7 +350,7 @@ export default function NetworkPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="w-full mt-3 border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-400 dark:hover:bg-teal-950/30"
+                      className="w-full mt-3 border-slate-300 text-blue-700 hover:bg-slate-50"
                     >
                       <UserPlus className="h-3.5 w-3.5 me-1.5" />
                       {t.network.connect}
@@ -376,7 +376,7 @@ export default function NetworkPage() {
                   <CardContent className="p-3">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9 shrink-0">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                        <AvatarFallback className="bg-blue-600 text-white text-xs">
                           {person.avatar}
                         </AvatarFallback>
                       </Avatar>
@@ -385,11 +385,11 @@ export default function NetworkPage() {
                         <p className="text-xs text-muted-foreground">{person.title}</p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/30">
+                        <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:hover:bg-emerald-950/30">
                           <CheckCircle2 className="h-3 w-3 me-1" />
                           {t.network.accept}
                         </Button>
-                        <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/30">
+                        <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-950/30">
                           <XCircle className="h-3 w-3 me-1" />
                           {t.network.decline}
                         </Button>
@@ -416,7 +416,7 @@ export default function NetworkPage() {
                   <CardContent className="p-3">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9 shrink-0">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                        <AvatarFallback className="bg-blue-600 text-white text-xs">
                           {person.avatar}
                         </AvatarFallback>
                       </Avatar>

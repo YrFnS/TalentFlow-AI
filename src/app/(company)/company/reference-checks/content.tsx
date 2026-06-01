@@ -89,11 +89,11 @@ interface MockApplication {
 
 // Status color mapping
 const statusColors: Record<ReferenceCheckStatus, string> = {
-  Pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Sent: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  Completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+  Pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Sent: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  Completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   Expired: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-0',
-  Declined: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  Declined: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 const statusIcons: Record<ReferenceCheckStatus, React.ElementType> = {
@@ -358,7 +358,7 @@ function StatusTimeline({ status, t }: { status: ReferenceCheckStatus; t: Record
               className={cn(
                 'flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold transition-colors',
                 step.completed
-                  ? 'bg-teal-500 text-white'
+                  ? 'bg-slate-500 text-white'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
               )}
             >
@@ -375,7 +375,7 @@ function StatusTimeline({ status, t }: { status: ReferenceCheckStatus; t: Record
               className={cn(
                 'h-0.5 flex-1 min-w-[24px] mt-[-16px]',
                 steps[i + 1].completed
-                  ? 'bg-teal-500'
+                  ? 'bg-slate-500'
                   : 'bg-gray-200 dark:bg-gray-700'
               )}
             />
@@ -559,16 +559,16 @@ export default function ReferenceChecksContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <ShieldCheck className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{rt.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{rt.title}</h1>
             <p className="text-sm text-muted-foreground">{rt.subtitle}</p>
           </div>
         </div>
         <Button
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
           onClick={() => {
             resetForm();
             setCreateOpen(true);
@@ -581,11 +581,11 @@ export default function ReferenceChecksContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 card-relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <ShieldCheck className="h-4 w-4" />
               </div>
               <div>
@@ -595,11 +595,11 @@ export default function ReferenceChecksContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -609,11 +609,11 @@ export default function ReferenceChecksContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -623,11 +623,11 @@ export default function ReferenceChecksContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600">
                 <Star className="h-4 w-4" />
               </div>
               <div>
@@ -663,7 +663,7 @@ export default function ReferenceChecksContent() {
             placeholder={rt.searchPlaceholder || 'Search candidate or reference...'}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+            className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-blue-500/50"
           />
         </div>
       </div>
@@ -672,7 +672,7 @@ export default function ReferenceChecksContent() {
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <ShieldCheck className="h-4 w-4 text-blue-600" />
             {rt.title}
           </CardTitle>
         </CardHeader>
@@ -704,7 +704,7 @@ export default function ReferenceChecksContent() {
                       <td className="p-3">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-7 w-7">
-                            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[9px]">
+                            <AvatarFallback className="bg-blue-600 text-white text-[9px]">
                               {getInitials(rc.candidateName)}
                             </AvatarFallback>
                           </Avatar>
@@ -756,7 +756,7 @@ export default function ReferenceChecksContent() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 px-2 text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700"
+                              className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700"
                               onClick={() => handleSendReminder(rc)}
                             >
                               <RefreshCw className="h-3 w-3 me-1" />
@@ -786,7 +786,7 @@ export default function ReferenceChecksContent() {
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-teal-600" />
+              <ShieldCheck className="h-5 w-5 text-blue-600" />
               {rt.viewDetails}
             </DialogTitle>
           </DialogHeader>
@@ -801,14 +801,14 @@ export default function ReferenceChecksContent() {
               <Card className="border-border/50">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <User className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <User className="h-4 w-4 text-blue-600" />
                     {rt.candidateName}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                      <AvatarFallback className="bg-blue-600 text-white">
                         {getInitials(selectedCheck.candidateName)}
                       </AvatarFallback>
                     </Avatar>
@@ -833,7 +833,7 @@ export default function ReferenceChecksContent() {
               <Card className="border-border/50">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <User className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <User className="h-4 w-4 text-blue-600" />
                     {rt.referenceName}
                   </CardTitle>
                 </CardHeader>
@@ -897,7 +897,7 @@ export default function ReferenceChecksContent() {
                   <CardContent className="p-4 pt-0">
                     <div className="flex items-center gap-3">
                       <StarRating rating={selectedCheck.rating} size="lg" />
-                      <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{selectedCheck.rating}/5</span>
+                      <span className="text-2xl font-bold text-blue-600">{selectedCheck.rating}/5</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -906,14 +906,14 @@ export default function ReferenceChecksContent() {
               {/* Questions & Responses */}
               <div>
                 <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <AlertCircle className="h-4 w-4 text-blue-600" />
                   {rt.questions} & {rt.responses}
                 </h3>
                 <div className="space-y-3">
                   {(selectedCheck.responses || selectedCheck.questions).map((item, i) => (
                     <Card key={item.id} className="border-border/50">
                       <CardContent className="p-4">
-                        <p className="text-sm font-medium text-teal-700 dark:text-teal-400 mb-1">
+                        <p className="text-sm font-medium text-blue-700 mb-1">
                           {i + 1}. {item.question}
                         </p>
                         {item.response ? (
@@ -935,7 +935,7 @@ export default function ReferenceChecksContent() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-1.5 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                    className="gap-1.5 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                     onClick={() => handleResendRequest(selectedCheck)}
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
@@ -964,7 +964,7 @@ export default function ReferenceChecksContent() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-teal-600" />
+              <Plus className="h-5 w-5 text-blue-600" />
               {rt.requestReference}
             </DialogTitle>
           </DialogHeader>
@@ -992,7 +992,7 @@ export default function ReferenceChecksContent() {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs">
+                      <AvatarFallback className="bg-blue-600 text-white text-xs">
                         {getInitials(selectedApplication.candidateName)}
                       </AvatarFallback>
                     </Avatar>
@@ -1068,13 +1068,13 @@ export default function ReferenceChecksContent() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <AlertCircle className="h-4 w-4 text-blue-600" />
                   {rt.questions}
                 </h3>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5 text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                  className="gap-1.5 text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                   onClick={addQuestion}
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -1124,7 +1124,7 @@ export default function ReferenceChecksContent() {
               <Button variant="outline">{t.common.cancel}</Button>
             </DialogClose>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               onClick={handleSendRequest}
             >
               <Send className="h-3.5 w-3.5 me-1.5" />

@@ -199,7 +199,7 @@ export default function WorkflowsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <GitMerge className="h-5 w-5" />
           </div>
           <div>
@@ -210,14 +210,14 @@ export default function WorkflowsContent() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            className="border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400"
+            className="border-slate-200 text-blue-700"
             onClick={() => { fetchTemplates(); setTemplateOpen(true); }}
           >
             <LayoutTemplate className="h-4 w-4 me-2" />
             {t.workflows.useTemplate}
           </Button>
           <Button
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white"
+            className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white"
             onClick={openCreate}
           >
             <Plus className="h-4 w-4 me-2" />
@@ -253,7 +253,7 @@ export default function WorkflowsContent() {
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <GitMerge className="h-5 w-5 text-teal-600" />
+              <GitMerge className="h-5 w-5 text-blue-600" />
               {t.workflows.createWorkflow}
             </DialogTitle>
           </DialogHeader>
@@ -277,7 +277,7 @@ export default function WorkflowsContent() {
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <GitMerge className="h-5 w-5 text-teal-600" />
+              <GitMerge className="h-5 w-5 text-blue-600" />
               {t.workflows.editWorkflow}
             </DialogTitle>
           </DialogHeader>
@@ -302,7 +302,7 @@ export default function WorkflowsContent() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <LayoutTemplate className="h-5 w-5 text-teal-600" />
+              <LayoutTemplate className="h-5 w-5 text-blue-600" />
               {t.workflows.selectTemplate}
             </DialogTitle>
           </DialogHeader>
@@ -315,7 +315,7 @@ export default function WorkflowsContent() {
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-teal-600" />
+              <Clock className="h-5 w-5 text-blue-600" />
               {t.workflows.executionHistory}
               {selectedWorkflow && (
                 <span className="text-sm font-normal text-muted-foreground">— {selectedWorkflow.name}</span>

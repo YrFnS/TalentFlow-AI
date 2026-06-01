@@ -89,7 +89,7 @@ export default function ForgotPasswordContent() {
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
                 <Brain className="w-6 h-6" />
               </div>
               <span className="text-2xl font-bold">TalentFlow AI</span>
@@ -104,7 +104,7 @@ export default function ForgotPasswordContent() {
 
           {/* Info card */}
           <div className="space-y-3 mt-6">
-            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
+            <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
               <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
                 <Mail className="w-5 h-5" />
               </div>
@@ -122,10 +122,10 @@ export default function ForgotPasswordContent() {
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br bg-blue-600">
               <Brain className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent lg:hidden">
+            <span className="text-lg font-bold bg-blue-600 bg-clip-text text-transparent lg:hidden">
               {t.common.appName}
             </span>
           </Link>
@@ -159,7 +159,7 @@ export default function ForgotPasswordContent() {
 
             <Card className="relative border-border/50 shadow-xl shadow-teal-500/5 animate-scale-in">
               <CardHeader className="text-center pb-2">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-lg shadow-teal-500/20">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br bg-blue-600 shadow-lg shadow-teal-500/20">
                   {isSuccess ? (
                     <CheckCircle2 className="h-7 w-7 text-white" />
                   ) : (
@@ -173,14 +173,14 @@ export default function ForgotPasswordContent() {
               <CardContent>
                 {isSuccess ? (
                   <div className="space-y-4 animate-fade-in-up">
-                    <div className="bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg p-4">
-                      <p className="text-sm text-teal-800 dark:text-teal-200">
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                      <p className="text-sm text-slate-800 dark:text-teal-200">
                         {t.auth.resetLinkSent}
                       </p>
                     </div>
                     <Button
                       asChild
-                      className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       size="lg"
                     >
                       <Link href="/auth/login">
@@ -207,7 +207,7 @@ export default function ForgotPasswordContent() {
 
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 transition-shadow"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 transition-shadow"
                       size="lg"
                       disabled={isLoading}
                     >
@@ -225,7 +225,7 @@ export default function ForgotPasswordContent() {
               {!isSuccess && (
                 <CardFooter className="flex flex-col gap-4">
                   <div className="text-sm text-muted-foreground text-center">
-                    <Link href="/auth/login" className="font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 inline-flex items-center gap-1">
+                    <Link href="/auth/login" className="font-semibold text-blue-600 hover:text-blue-700 dark:hover:text-blue-300 inline-flex items-center gap-1">
                       <ArrowLeft className="h-3.5 w-3.5" />
                       {t.auth.backToLogin}
                     </Link>

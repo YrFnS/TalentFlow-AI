@@ -55,16 +55,16 @@ interface Announcement {
 // No mock data - announcements come from user creation only
 
 const typeConfig: Record<AnnouncementType, { icon: React.ElementType; color: string; bg: string }> = {
-  system: { icon: Info, color: 'text-teal-700 dark:text-teal-400', bg: 'bg-teal-50 dark:bg-teal-950/30' },
-  update: { icon: CheckCircle2, color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30' },
-  maintenance: { icon: Clock, color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/30' },
-  critical: { icon: AlertTriangle, color: 'text-red-700 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-950/30' },
+  system: { icon: Info, color: 'text-blue-700', bg: 'bg-slate-50' },
+  update: { icon: CheckCircle2, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+  maintenance: { icon: Clock, color: 'text-amber-700', bg: 'bg-amber-50 dark:bg-amber-950/30' },
+  critical: { icon: AlertTriangle, color: 'text-red-700', bg: 'bg-red-50 dark:bg-red-950/30' },
 };
 
 const statusConfig: Record<AnnouncementStatus, { label: string; color: string }> = {
-  active: { label: 'Active', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0' },
+  active: { label: 'Active', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0' },
   draft: { label: 'Draft', color: 'bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border-0' },
-  expired: { label: 'Expired', color: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0' },
+  expired: { label: 'Expired', color: 'bg-red-50 text-red-700 dark:bg-red-950 border-0' },
 };
 
 const audienceConfig: Record<Audience, { label: string; icon: React.ElementType }> = {
@@ -131,7 +131,7 @@ export default function AnnouncementsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Megaphone className="h-5 w-5" />
           </div>
           <div>
@@ -140,7 +140,7 @@ export default function AnnouncementsPage() {
           </div>
         </div>
         <Button
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white"
+          className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white"
           onClick={() => setCreateOpen(true)}
         >
           <Plus className="h-4 w-4 me-2" />
@@ -158,7 +158,7 @@ export default function AnnouncementsPage() {
             className={cn(
               'px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors',
               filterTab === tab.key
-                ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400'
+                ? 'bg-slate-50 text-blue-700'
                 : 'text-muted-foreground hover:bg-muted/50'
             )}
           >
@@ -235,7 +235,7 @@ export default function AnnouncementsPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Megaphone className="h-5 w-5 text-teal-600" />
+              <Megaphone className="h-5 w-5 text-blue-600" />
               {t.announcements.create}
             </DialogTitle>
           </DialogHeader>
@@ -301,7 +301,7 @@ export default function AnnouncementsPage() {
                 onClick={() => setNewPriority(!newPriority)}
                 className={cn(
                   'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                  newPriority ? 'bg-teal-600' : 'bg-muted'
+                  newPriority ? 'bg-blue-600' : 'bg-muted'
                 )}
               >
                 <span
@@ -319,7 +319,7 @@ export default function AnnouncementsPage() {
               {t.common.cancel}
             </Button>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+              className="bg-gradient-to-r bg-blue-600 text-white"
               onClick={handleCreate}
               disabled={!newTitle.trim() || !newMessage.trim()}
             >

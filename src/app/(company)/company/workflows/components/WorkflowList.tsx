@@ -80,7 +80,7 @@ export default function WorkflowList({
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-teal-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
         </CardContent>
       </Card>
     );
@@ -90,15 +90,15 @@ export default function WorkflowList({
     return (
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/30 mb-4">
-            <GitMerge className="w-8 h-8 text-teal-500" />
+          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4">
+            <GitMerge className="w-8 h-8 text-blue-500" />
           </div>
           <h3 className="text-lg font-semibold mb-1">{t.workflows.emptyTitle}</h3>
           <p className="text-sm text-muted-foreground max-w-sm">{t.workflows.noWorkflows}</p>
           <div className="flex gap-2 mt-4">
             <Button
               variant="outline"
-              className="border-teal-200 dark:border-teal-800"
+              className="border-slate-200"
               onClick={() => {
                 fetchTemplates();
                 setTemplateOpen(true);
@@ -108,7 +108,7 @@ export default function WorkflowList({
               {t.workflows.useTemplate}
             </Button>
             <Button
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white"
+              className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white"
               onClick={openCreate}
             >
               <Plus className="w-4 h-4 me-2" />
@@ -128,7 +128,7 @@ export default function WorkflowList({
         const execCount = workflow._count?.executions || 0;
 
         return (
-          <Card key={workflow.id} className="border-border/50 hover:shadow-md transition-shadow card-hover-lift animate-fade-in-up">
+          <Card key={workflow.id} className="border-border/50 hover:shadow-md transition-shadow card-animate-fade-in-up">
             <CardContent className="p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -147,7 +147,7 @@ export default function WorkflowList({
 
                   {/* Trigger + Steps Preview */}
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <Badge variant="outline" className="text-[10px] text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800">
+                    <Badge variant="outline" className="text-[10px] text-blue-700 border-slate-200">
                       <Zap className="h-2.5 w-2.5 me-1" />
                       {getTriggerLabel(workflow.trigger, t)}
                     </Badge>
@@ -183,7 +183,7 @@ export default function WorkflowList({
                     onClick={() => toggleWorkflow(workflow)}
                     className={cn(
                       'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors mt-1',
-                      workflow.status === 'ACTIVE' ? 'bg-teal-600' : 'bg-muted'
+                      workflow.status === 'ACTIVE' ? 'bg-blue-600' : 'bg-muted'
                     )}
                     title={t.workflows.toggleActive}
                   >

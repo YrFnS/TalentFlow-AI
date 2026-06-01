@@ -173,10 +173,10 @@ export default function TakeAssessmentContent() {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'TECHNICAL': return 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400';
-      case 'SOFT_SKILL': return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400';
-      case 'DOMAIN': return 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400';
-      case 'TOOL': return 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400';
+      case 'TECHNICAL': return 'bg-slate-50 text-blue-700 dark:bg-teal-950';
+      case 'SOFT_SKILL': return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950';
+      case 'DOMAIN': return 'bg-amber-50 text-amber-700 dark:bg-amber-950';
+      case 'TOOL': return 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950';
       case 'CERTIFICATION': return 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400';
       default: return 'bg-gray-50 text-gray-700';
     }
@@ -184,10 +184,10 @@ export default function TakeAssessmentContent() {
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'EXPERT': return 'text-teal-600 dark:text-teal-400';
-      case 'ADVANCED': return 'text-emerald-600 dark:text-emerald-400';
-      case 'INTERMEDIATE': return 'text-amber-600 dark:text-amber-400';
-      case 'BEGINNER': return 'text-red-600 dark:text-red-400';
+      case 'EXPERT': return 'text-blue-600';
+      case 'ADVANCED': return 'text-emerald-600';
+      case 'INTERMEDIATE': return 'text-amber-600';
+      case 'BEGINNER': return 'text-red-600';
       default: return 'text-muted-foreground';
     }
   };
@@ -196,7 +196,7 @@ export default function TakeAssessmentContent() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-teal-500 mx-auto mb-4" />
+          <Loader2 className="h-10 w-10 animate-spin text-blue-500 mx-auto mb-4" />
           <p className="text-muted-foreground">Loading assessment...</p>
         </div>
       </div>
@@ -240,9 +240,9 @@ export default function TakeAssessmentContent() {
                 : 'bg-red-50 dark:bg-red-950/50'
             }`}>
               {result.passed ? (
-                <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
               ) : (
-                <XCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+                <XCircle className="h-8 w-8 text-red-600" />
               )}
             </div>
             <h2 className="text-2xl font-bold">
@@ -251,7 +251,7 @@ export default function TakeAssessmentContent() {
             <p className="text-muted-foreground mt-1">{sa.assessmentCompleted}</p>
             <div className="mt-4 flex items-center justify-center gap-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-teal-600 dark:text-teal-400">{result.score}%</p>
+                <p className="text-3xl font-bold text-blue-600">{result.score}%</p>
                 <p className="text-xs text-muted-foreground">{sa.yourScore}</p>
               </div>
               <div className="text-center">
@@ -273,7 +273,7 @@ export default function TakeAssessmentContent() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Target className="h-5 w-5 text-teal-500" />
+                <Target className="h-5 w-5 text-blue-500" />
                 {sa.skillBreakdown}
               </CardTitle>
             </CardHeader>
@@ -299,14 +299,14 @@ export default function TakeAssessmentContent() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-teal-500" />
+                <Sparkles className="h-5 w-5 text-blue-500" />
                 {sa.aiFeedback}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {Object.entries(result.aiFeedback).map(([skill, feedback], idx) => (
-                <div key={idx} className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30">
-                  <p className="text-sm font-medium text-teal-700 dark:text-teal-400">{skill}</p>
+                <div key={idx} className="p-3 rounded-lg bg-slate-50">
+                  <p className="text-sm font-medium text-blue-700">{skill}</p>
                   <p className="text-sm text-muted-foreground mt-1">{feedback}</p>
                 </div>
               ))}
@@ -359,8 +359,8 @@ export default function TakeAssessmentContent() {
         {timeLeft !== null && (
           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
             timeLeft < 60
-              ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400'
-              : 'bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400'
+              ? 'bg-red-50 dark:bg-red-950/30 text-red-700'
+              : 'bg-slate-50 text-blue-700'
           }`}>
             <Clock className="h-4 w-4" />
             <span className="font-mono font-semibold">{formatTime(timeLeft)}</span>
@@ -388,10 +388,10 @@ export default function TakeAssessmentContent() {
             onClick={() => setCurrentQuestion(idx)}
             className={`h-7 w-7 rounded-full text-xs font-medium transition-all ${
               idx === currentQuestion
-                ? 'bg-teal-600 text-white'
+                ? 'bg-blue-600 text-white'
                 : answers[idx] !== undefined
                 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300'
-                : 'bg-muted text-muted-foreground hover:bg-teal-50 dark:hover:bg-teal-950/30'
+                : 'bg-muted text-muted-foreground hover:bg-slate-50'
             }`}
           >
             {idx + 1}
@@ -431,8 +431,8 @@ export default function TakeAssessmentContent() {
                       htmlFor={`option-${idx}`}
                       className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                         answers[currentQuestion] === option
-                          ? 'border-teal-400 bg-teal-50 dark:bg-teal-950/30 dark:border-teal-700'
-                          : 'hover:border-teal-200 dark:hover:border-teal-800'
+                          ? 'border-teal-400 bg-slate-50'
+                          : 'hover:border-slate-200 dark:hover:border-teal-800'
                       }`}
                     >
                       <RadioGroupItem value={option} id={`option-${idx}`} />
@@ -478,7 +478,7 @@ export default function TakeAssessmentContent() {
           {currentQuestion < questions.length - 1 ? (
             <Button
               onClick={() => setCurrentQuestion(currentQuestion + 1)}
-              className="gap-2 bg-teal-600 hover:bg-teal-700"
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
             >
               {sa.nextQuestion}
               <ChevronRight className="h-4 w-4" />
@@ -486,7 +486,7 @@ export default function TakeAssessmentContent() {
           ) : (
             <Button
               onClick={() => setShowSubmitConfirm(true)}
-              className="gap-2 bg-teal-600 hover:bg-teal-700"
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
               disabled={submitting}
             >
               {submitting ? (
@@ -509,12 +509,12 @@ export default function TakeAssessmentContent() {
           </DialogHeader>
           <div className="py-2">
             <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-start gap-2">
-              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+              <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="text-sm">
-                <p className="font-medium text-amber-800 dark:text-amber-300">
+                <p className="font-medium text-amber-800">
                   {answeredCount}/{questions.length} questions answered
                 </p>
-                <p className="text-amber-700 dark:text-amber-400 mt-0.5">
+                <p className="text-amber-700 mt-0.5">
                   {questions.length - answeredCount} questions are still unanswered.
                 </p>
               </div>
@@ -529,7 +529,7 @@ export default function TakeAssessmentContent() {
                 setShowSubmitConfirm(false);
                 handleSubmit();
               }}
-              className="bg-teal-600 hover:bg-teal-700"
+              className="bg-blue-600 hover:bg-blue-700"
               disabled={submitting}
             >
               {submitting ? (

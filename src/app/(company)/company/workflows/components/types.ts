@@ -129,9 +129,9 @@ export function getActionLabel(action: string, t: TranslationKeys): string {
 export function getStatusConfig(status: string, t: TranslationKeys) {
   switch (status) {
     case 'ACTIVE':
-      return { label: t.workflows.active, color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: 'Play' as const };
+      return { label: t.workflows.active, color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: 'Play' as const };
     case 'PAUSED':
-      return { label: t.workflows.paused, color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: 'Pause' as const };
+      return { label: t.workflows.paused, color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: 'Pause' as const };
     case 'DRAFT':
       return { label: t.workflows.draft, color: 'bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-400 border-0', icon: 'FileText' as const };
     case 'ARCHIVED':
@@ -145,13 +145,13 @@ export function getStatusConfig(status: string, t: TranslationKeys) {
 export function getExecStatusConfig(status: string, t: TranslationKeys) {
   switch (status) {
     case 'RUNNING':
-      return { label: t.workflows.running, color: 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0', icon: 'Loader2' as const };
+      return { label: t.workflows.running, color: 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0', icon: 'Loader2' as const };
     case 'COMPLETED':
-      return { label: t.workflows.completed, color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: 'CheckCircle2' as const };
+      return { label: t.workflows.completed, color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: 'CheckCircle2' as const };
     case 'FAILED':
-      return { label: t.workflows.failed, color: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0', icon: 'AlertCircle' as const };
+      return { label: t.workflows.failed, color: 'bg-red-50 text-red-700 dark:bg-red-950 border-0', icon: 'AlertCircle' as const };
     case 'PAUSED':
-      return { label: t.workflows.paused, color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: 'Pause' as const };
+      return { label: t.workflows.paused, color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: 'Pause' as const };
     default:
       return { label: status, color: 'bg-slate-50 text-slate-700 border-0', icon: 'FileText' as const };
   }

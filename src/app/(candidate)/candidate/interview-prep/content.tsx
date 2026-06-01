@@ -64,7 +64,7 @@ export default function InterviewPrepPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white">
           <Sparkles className="w-5 h-5" />
         </div>
         <div>
@@ -100,7 +100,7 @@ export default function InterviewPrepPage() {
                         {interview.company}
                       </p>
                     </div>
-                    <Badge variant="secondary" className="text-[10px] border-0 bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400">
+                    <Badge variant="secondary" className="text-[10px] border-0 bg-slate-50 text-blue-700 dark:bg-teal-950">
                       {interview.type}
                     </Badge>
                   </div>
@@ -108,7 +108,7 @@ export default function InterviewPrepPage() {
                     <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{interview.date}</span>
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{interview.time}</span>
                   </div>
-                  <Button size="sm" className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs h-8">
+                  <Button size="sm" className="w-full bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs h-8">
                     <Play className="w-3 h-3 me-1" />{t.interviewPrep.startPrep}
                   </Button>
                 </CardContent>
@@ -120,9 +120,9 @@ export default function InterviewPrepPage() {
 
       {/* AI Mock Interview */}
       <Card className="border-border/50 overflow-hidden">
-        <div className="bg-gradient-to-r from-teal-500/10 to-emerald-500/10 dark:from-teal-950/30 dark:to-emerald-950/30 p-6">
+        <div className="bg-gradient-to-r from-blue-50 to-emerald-500/10 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
@@ -156,7 +156,7 @@ export default function InterviewPrepPage() {
               </Select>
             </div>
           </div>
-          <Button size="lg" className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-lg">
+          <Button size="lg" className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-lg">
             <Sparkles className="w-4 h-4 me-2" />{t.interviewPrep.startMock}
           </Button>
         </div>
@@ -169,7 +169,7 @@ export default function InterviewPrepPage() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-teal-500" />
+                <MessageSquare className="w-4 h-4 text-blue-500" />
                 <CardTitle className="text-sm font-semibold">{t.interviewPrep.behavioral}</CardTitle>
               </div>
             </CardHeader>
@@ -187,7 +187,7 @@ export default function InterviewPrepPage() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
-                <Code className="w-4 h-4 text-teal-500" />
+                <Code className="w-4 h-4 text-blue-500" />
                 <CardTitle className="text-sm font-semibold">{t.interviewPrep.technical}</CardTitle>
               </div>
             </CardHeader>

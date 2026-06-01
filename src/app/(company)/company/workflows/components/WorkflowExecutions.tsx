@@ -66,7 +66,7 @@ export default function WorkflowExecutions({
             <ChevronLeft className="h-4 w-4 me-1" />
             {t.workflows.previous}
           </Button>
-          <Card className="border-teal-200 dark:border-teal-800">
+          <Card className="border-slate-200">
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <ExecBadge status={executionDetail.status} t={t} />
@@ -78,7 +78,7 @@ export default function WorkflowExecutions({
                 {t.workflows.stepProgress} {executionDetail.currentStep} {t.workflows.of} {parseStepsJson(selectedWorkflow?.steps || '[]').length}
               </div>
               {executionDetail.error && (
-                <div className="p-2 rounded bg-red-50 dark:bg-red-950 text-xs text-red-700 dark:text-red-400">
+                <div className="p-2 rounded bg-red-50 dark:bg-red-950 text-xs text-red-700">
                   {executionDetail.error}
                 </div>
               )}

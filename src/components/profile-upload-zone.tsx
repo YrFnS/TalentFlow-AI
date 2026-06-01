@@ -74,13 +74,13 @@ export default function ProfileUploadZone({ name, initials, role }: ProfileUploa
                 {preview ? (
                   <img src={preview} alt="Profile" className="w-full h-full object-cover rounded-full" />
                 ) : (
-                  <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-lg font-bold">
+                  <AvatarFallback className="bg-blue-600 text-white text-lg font-bold">
                     {initials}
                   </AvatarFallback>
                 )}
               </Avatar>
               <button
-                className="absolute -bottom-1 -end-1 w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-md hover:bg-teal-700 transition-colors"
+                className="absolute -bottom-1 -end-1 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md hover:bg-blue-700 transition-colors"
                 onClick={() => setUploadOpen(true)}
                 aria-label="Change photo"
               >
@@ -94,7 +94,7 @@ export default function ProfileUploadZone({ name, initials, role }: ProfileUploa
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-2 text-xs border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                className="mt-2 text-xs border-slate-300 text-slate-600 hover:bg-slate-50"
                 onClick={() => setUploadOpen(true)}
               >
                 <Upload className="w-3 h-3 me-1.5" />
@@ -117,8 +117,8 @@ export default function ProfileUploadZone({ name, initials, role }: ProfileUploa
               className={cn(
                 'border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer',
                 isDragging
-                  ? 'border-teal-400 bg-teal-50 dark:border-teal-600 dark:bg-teal-950/30'
-                  : 'border-muted-foreground/25 hover:border-teal-400 dark:hover:border-teal-600'
+                  ? 'border-blue-400 bg-blue-50'
+                  : 'border-muted-foreground/25 hover:border-blue-400'
               )}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -161,7 +161,7 @@ export default function ProfileUploadZone({ name, initials, role }: ProfileUploa
               {t.common.cancel || 'Cancel'}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={() => { setUploadOpen(false); }}
               disabled={!preview}
             >

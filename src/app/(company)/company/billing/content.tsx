@@ -335,7 +335,7 @@ export default function CompanyBillingContent() {
     const map: Record<string, string> = {
       FREE: 'from-gray-400 to-gray-500',
       STARTER: 'from-teal-500 to-emerald-500',
-      GROWTH: 'from-teal-500 to-emerald-600',
+      GROWTH: 'bg-blue-600',
       ENTERPRISE: 'from-emerald-600 to-teal-700',
     };
     return map[type] || map.STARTER;
@@ -343,10 +343,10 @@ export default function CompanyBillingContent() {
 
   const getInvoiceStatusBadge = (status: string) => {
     const map: Record<string, { class: string; icon: React.ReactNode }> = {
-      PAID: { class: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400', icon: <CheckCircle2 className="w-3 h-3 me-1" /> },
-      PENDING: { class: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400', icon: <Calendar className="w-3 h-3 me-1" /> },
-      FAILED: { class: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400', icon: <XCircle className="w-3 h-3 me-1" /> },
-      REFUNDED: { class: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400', icon: <RefreshCw className="w-3 h-3 me-1" /> },
+      PAID: { class: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950', icon: <CheckCircle2 className="w-3 h-3 me-1" /> },
+      PENDING: { class: 'bg-amber-50 text-amber-700 dark:bg-amber-950', icon: <Calendar className="w-3 h-3 me-1" /> },
+      FAILED: { class: 'bg-red-50 text-red-700 dark:bg-red-950', icon: <XCircle className="w-3 h-3 me-1" /> },
+      REFUNDED: { class: 'bg-slate-50 text-blue-700 dark:bg-teal-950', icon: <RefreshCw className="w-3 h-3 me-1" /> },
     };
     const entry = map[status] || map.PENDING;
     return (
@@ -406,7 +406,7 @@ export default function CompanyBillingContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
             {t.billing.title}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">{t.billing.subtitle}</p>
@@ -417,7 +417,7 @@ export default function CompanyBillingContent() {
             {t.stripe.manageBilling}
           </Button>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+            <Sparkles className="w-3.5 h-3.5 text-blue-500" />
             {t.common.poweredBy}
           </div>
         </div>
@@ -426,17 +426,17 @@ export default function CompanyBillingContent() {
       {/* Current Plan Card + Usage */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Current Plan Card */}
-        <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.08]" />
+        <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.08]" />
           <CardHeader className="relative pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold">{t.billing.currentPlan}</CardTitle>
               <Badge className={
                 currentPlan.status === 'ACTIVE'
-                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0'
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0'
                   : currentPlan.status === 'TRIALING'
-                    ? 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0'
-                    : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0'
+                    ? 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0'
+                    : 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0'
               }>
                 <CheckCircle2 className="w-3 h-3 me-1" />
                 {currentPlan.status === 'ACTIVE' ? t.billing.currentPlanBadge : currentPlan.status === 'TRIALING' ? t.billing.trialEnds : currentPlan.status}
@@ -445,13 +445,13 @@ export default function CompanyBillingContent() {
           </CardHeader>
           <CardContent className="relative space-y-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
                 {React.createElement(getPlanIcon(currentPlan.planType), { className: 'w-7 h-7' })}
               </div>
               <div>
                 <h3 className="text-xl font-bold">{currentPlan.planName}</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-2xl font-bold text-teal-700 dark:text-teal-400">
+                  <span className="text-2xl font-bold text-blue-700">
                     {currentPlan.price === 0 ? t.billing.free : `$${currentPlan.price}`}
                   </span>
                   {currentPlan.price > 0 && (
@@ -503,14 +503,14 @@ export default function CompanyBillingContent() {
         {/* Payment Method + Quick Actions */}
         <div className="space-y-6">
           {/* Payment Method */}
-          <Card className="card-hover-lift animate-fade-in-up">
+          <Card className="card-animate-fade-in-up">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold">{t.billing.paymentMethod}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {paymentMethod ? (
                 <div className="flex items-center gap-4 p-4 rounded-xl border border-border/50 bg-muted/30">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xl">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white text-xl">
                     {getCardBrandIcon(paymentMethod.brand)}
                   </div>
                   <div className="flex-1">
@@ -563,7 +563,7 @@ export default function CompanyBillingContent() {
           </Card>
 
           {/* Invoices Quick View */}
-          <Card className="card-hover-lift animate-fade-in-up">
+          <Card className="card-animate-fade-in-up">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">{t.billing.billingHistory}</CardTitle>
@@ -595,7 +595,7 @@ export default function CompanyBillingContent() {
       </div>
 
       {/* Plan Comparison */}
-      <Card className="card-hover-lift animate-fade-in-up">
+      <Card className="card-animate-fade-in-up">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold">{t.billing.planComparison}</CardTitle>
           <CardDescription className="text-xs">{t.billing.features}</CardDescription>
@@ -616,14 +616,14 @@ export default function CompanyBillingContent() {
               return (
                 <div
                   key={plan.id}
-                  className={`relative p-5 rounded-xl border transition-all card-hover-lift ${
+                  className={`relative p-5 rounded-xl border transition-all card-${
                     isCurrentPlan
                       ? 'border-teal-400 dark:border-teal-600 shadow-lg shadow-teal-500/10'
-                      : 'border-border/50 hover:border-teal-300 dark:hover:border-teal-700'
+                      : 'border-border/50 hover:border-slate-300'
                   }`}
                 >
                   {plan.type === 'GROWTH' && !isCurrentPlan && (
-                    <div className="absolute top-0 end-0 pricing-ribbon rounded-tr-xl">
+                    <div className="absolute top-0 end-0 border-2 border-blue-500 rounded-tr-xl">
                       {t.billing.mostPopular}
                     </div>
                   )}
@@ -647,7 +647,7 @@ export default function CompanyBillingContent() {
                   <div className="space-y-2 mb-4 min-h-[120px] max-h-[160px] overflow-y-auto scrollbar-thin">
                     {parsedFeatures.map((feature: string, i: number) => (
                       <div key={i} className="flex items-center gap-2 text-xs">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                         <span className="text-muted-foreground">{feature}</span>
                       </div>
                     ))}
@@ -660,7 +660,7 @@ export default function CompanyBillingContent() {
                       </Button>
                     ) : plan.type === 'ENTERPRISE' ? (
                       <Button
-                        className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white"
+                        className="w-full bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white"
                         onClick={() => handleUpgradeClick(plan)}
                       >
                         <Crown className="h-4 w-4 me-1" />
@@ -694,7 +694,7 @@ export default function CompanyBillingContent() {
       </Card>
 
       {/* Full Invoice History */}
-      <Card className="card-hover-lift animate-fade-in-up">
+      <Card className="card-animate-fade-in-up">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold">{t.billing.billingHistory}</CardTitle>
           <CardDescription className="text-xs">{invoices.length} {t.billing.billingHistory.toLowerCase()}</CardDescription>
@@ -730,11 +730,11 @@ export default function CompanyBillingContent() {
                       <TableCell className="text-xs text-muted-foreground">{formatDate(inv.date)}</TableCell>
                       <TableCell className="text-end">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="sm" className="h-7 text-teal-600 hover:text-teal-700 dark:text-teal-400">
+                          <Button variant="ghost" size="sm" className="h-7 text-blue-600 hover:text-blue-700">
                             <Eye className="h-3.5 w-3.5 me-1" />
                             {t.billing.view}
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-7 text-teal-600 hover:text-teal-700 dark:text-teal-400">
+                          <Button variant="ghost" size="sm" className="h-7 text-blue-600 hover:text-blue-700">
                             <Download className="h-3.5 w-3.5 me-1" />
                             {t.billing.download}
                           </Button>
@@ -755,7 +755,7 @@ export default function CompanyBillingContent() {
       }}>
         <DialogContent className="sm:max-w-lg p-0 overflow-hidden">
           {/* Stripe-like header */}
-          <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-5 text-white">
+          <div className="bg-blue-600 p-5 text-white">
             <div className="flex items-center gap-3 mb-2">
               <Lock className="w-5 h-5" />
               <span className="text-sm font-medium opacity-90">{t.stripe.simulateCheckout}</span>
@@ -788,7 +788,7 @@ export default function CompanyBillingContent() {
                   <Separator className="my-3" />
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold">{t.stripe.totalToday}</span>
-                    <span className="text-lg font-bold text-teal-700 dark:text-teal-400">${checkoutPlan.price}.00</span>
+                    <span className="text-lg font-bold text-blue-700">${checkoutPlan.price}.00</span>
                   </div>
                 </div>
               </div>
@@ -847,7 +847,7 @@ export default function CompanyBillingContent() {
                   {t.stripe.securePayment}
                 </div>
                 <Button
-                  className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white h-12 text-base font-semibold"
+                  className="w-full bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white h-12 text-base font-semibold"
                   onClick={handleSubscribe}
                   disabled={cardNumber.replace(/\s/g, '').length < 16}
                 >
@@ -862,8 +862,8 @@ export default function CompanyBillingContent() {
 
           {paymentStep === 'processing' && (
             <div className="p-8 text-center space-y-4">
-              <div className="mx-auto w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+              <div className="mx-auto w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
               </div>
               <h3 className="text-lg font-semibold">{t.stripe.processing}</h3>
               <p className="text-sm text-muted-foreground">{t.stripe.securePayment}</p>
@@ -872,10 +872,10 @@ export default function CompanyBillingContent() {
 
           {paymentStep === 'success' && (
             <div className="p-8 text-center space-y-4">
-              <div className="mx-auto w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
+              <div className="mx-auto w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center">
                 <Check className="h-8 w-8 text-emerald-600" />
               </div>
-              <h3 className="text-lg font-semibold text-emerald-700 dark:text-emerald-400">{t.stripe.paymentSuccess}</h3>
+              <h3 className="text-lg font-semibold text-emerald-700">{t.stripe.paymentSuccess}</h3>
               <p className="text-sm text-muted-foreground">{t.stripe.paymentSuccessDesc}</p>
             </div>
           )}
@@ -885,7 +885,7 @@ export default function CompanyBillingContent() {
               <div className="mx-auto w-16 h-16 rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
                 <XCircle className="h-8 w-8 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-red-700 dark:text-red-400">{t.stripe.paymentFailed}</h3>
+              <h3 className="text-lg font-semibold text-red-700">{t.stripe.paymentFailed}</h3>
               <p className="text-sm text-muted-foreground">{t.stripe.paymentFailedDesc}</p>
               <Button variant="outline" onClick={() => setPaymentStep('form')}>
                 {t.common.back}
@@ -900,7 +900,7 @@ export default function CompanyBillingContent() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader className="dialog-header-accent">
             <DialogTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-teal-500" />
+              <Building2 className="h-5 w-5 text-blue-500" />
               {t.stripe.billingPortal}
             </DialogTitle>
             <DialogDescription>{t.stripe.billingPortalDesc}</DialogDescription>
@@ -911,7 +911,7 @@ export default function CompanyBillingContent() {
               <h4 className="text-sm font-semibold">{t.billing.currentPlan}</h4>
               <div className="flex items-center justify-between">
                 <span className="text-sm">{currentPlan.planName}</span>
-                <Badge variant="secondary" className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                <Badge variant="secondary" className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                   {currentPlan.status}
                 </Badge>
               </div>
@@ -977,8 +977,8 @@ export default function CompanyBillingContent() {
           </DialogHeader>
           <div className="py-4">
             <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900">
-              <h4 className="text-sm font-medium text-red-700 dark:text-red-400 mb-2">{t.billing.cancelSubscription}</h4>
-              <ul className="space-y-1.5 text-xs text-red-600 dark:text-red-400">
+              <h4 className="text-sm font-medium text-red-700 mb-2">{t.billing.cancelSubscription}</h4>
+              <ul className="space-y-1.5 text-xs text-red-600">
                 {(() => {
                   try {
                     const currentPlanFeatures = JSON.parse(plans.find(p => p.type === 'FREE')?.features || '[]');

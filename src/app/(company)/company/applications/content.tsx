@@ -83,12 +83,12 @@ interface Application {
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
-  APPLIED: { label: 'Applied', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400', icon: FileText },
-  SCREENING: { label: 'Screening', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400', icon: Search },
-  INTERVIEW: { label: 'Interview', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Calendar },
-  OFFERED: { label: 'Offered', color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400', icon: CheckCircle2 },
-  HIRED: { label: 'Hired', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: CheckCircle2 },
-  REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: XCircle },
+  APPLIED: { label: 'Applied', color: 'bg-teal-100 text-blue-700', icon: FileText },
+  SCREENING: { label: 'Screening', color: 'bg-sky-100 text-sky-700', icon: Search },
+  INTERVIEW: { label: 'Interview', color: 'bg-amber-100 text-amber-700', icon: Calendar },
+  OFFERED: { label: 'Offered', color: 'bg-violet-100 text-violet-700', icon: CheckCircle2 },
+  HIRED: { label: 'Hired', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle2 },
+  REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: XCircle },
   WITHDRAWN: { label: 'Withdrawn', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400', icon: XCircle },
 };
 
@@ -303,7 +303,7 @@ export default function ApplicationsPage() {
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
                 val.color,
-                statusFilter === key ? 'ring-2 ring-offset-1 ring-teal-500' : ''
+                statusFilter === key ? 'ring-2 ring-offset-1 ring-blue-500' : ''
               )}
             >
               {count} {val.label}
@@ -366,7 +366,7 @@ export default function ApplicationsPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-9 h-9">
-                          <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs">
+                          <AvatarFallback className="bg-teal-100 text-blue-700 text-xs">
                             {app.candidate.user.name.split(' ').map((n) => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
@@ -385,7 +385,7 @@ export default function ApplicationsPage() {
                     <TableCell>
                       {app.matchScore ? (
                         <div className="flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-teal-500" />
+                          <Sparkles className="w-3 h-3 text-blue-500" />
                           <span className="text-xs font-semibold">{app.matchScore}%</span>
                         </div>
                       ) : (
@@ -461,7 +461,7 @@ export default function ApplicationsPage() {
                 <SheetTitle>
                   <div className="flex items-center gap-3">
                     <Avatar className="w-11 h-11">
-                      <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                      <AvatarFallback className="bg-teal-100 text-blue-700">
                         {selectedApp.candidate.user.name.split(' ').map((n) => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
@@ -490,7 +490,7 @@ export default function ApplicationsPage() {
                         {statusConfig[selectedApp.status]?.label}
                       </Badge>
                       {selectedApp.matchScore && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 text-xs font-semibold">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-blue-600 text-xs font-semibold">
                           <Sparkles className="w-3.5 h-3.5" />
                           {selectedApp.matchScore}% Match
                         </div>
@@ -558,7 +558,7 @@ export default function ApplicationsPage() {
                       <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.applications.timeline}</h4>
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 rounded-full bg-teal-500" />
+                          <div className="w-2 h-2 rounded-full bg-slate-500" />
                           <div>
                             <p className="text-sm font-medium">Application Submitted</p>
                             <p className="text-xs text-muted-foreground">{formatDate(selectedApp.appliedAt)}</p>
@@ -580,7 +580,7 @@ export default function ApplicationsPage() {
                   <TabsContent value="analysis" className="p-6 space-y-5 mt-0">
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-teal-500" />
+                        <Sparkles className="w-5 h-5 text-blue-500" />
                         <h3 className="text-base font-semibold">{t.candidates.aiAnalysis}</h3>
                       </div>
                       {selectedApp.aiAnalysis ? (
@@ -591,7 +591,7 @@ export default function ApplicationsPage() {
                         <div className="p-6 rounded-lg border border-dashed border-border text-center">
                           <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
                           <p className="text-sm text-muted-foreground">AI analysis not yet generated</p>
-                          <Button variant="outline" size="sm" className="mt-3 border-teal-300 dark:border-teal-700 text-teal-600">
+                          <Button variant="outline" size="sm" className="mt-3 border-slate-300 text-blue-600">
                             <Sparkles className="w-3.5 h-3.5 me-1.5" />
                             Generate Analysis
                           </Button>
@@ -616,7 +616,7 @@ export default function ApplicationsPage() {
                               </div>
                               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-teal-500 rounded-full"
+                                  className="h-full bg-slate-500 rounded-full"
                                   style={{ width: `${item.value}%` }}
                                 />
                               </div>
@@ -634,7 +634,7 @@ export default function ApplicationsPage() {
                         placeholder="Add a note about this application..."
                         rows={4}
                       />
-                      <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white">
+                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                         Save Note
                       </Button>
                     </div>
@@ -659,7 +659,7 @@ export default function ApplicationsPage() {
                       size="sm"
                       variant={action.nextStatus === 'REJECTED' ? 'outline' : 'default'}
                       className={cn(
-                        action.nextStatus !== 'REJECTED' && 'bg-teal-600 hover:bg-teal-700 text-white',
+                        action.nextStatus !== 'REJECTED' && 'bg-blue-600 hover:bg-blue-700 text-white',
                         action.nextStatus === 'REJECTED' && 'text-destructive border-red-300 dark:border-red-800'
                       )}
                       onClick={() => handleStatusChange(selectedApp.id, action.nextStatus)}

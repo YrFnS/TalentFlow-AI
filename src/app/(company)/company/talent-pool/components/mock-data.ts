@@ -5,9 +5,9 @@ import type { Pool, Candidate, RecentActivity } from './types';
 
 export const categoryColors: Record<string, string> = {
   Silver: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-0',
-  Gold: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Platinum: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border-0',
-  General: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
+  Gold: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Platinum: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 border-0',
+  General: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
 };
 
 export const categoryIcons: Record<string, string> = {

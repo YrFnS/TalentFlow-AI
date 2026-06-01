@@ -69,11 +69,11 @@ interface EmailTemplate {
 }
 
 const categoryColors: Record<TemplateCategory, string> = {
-  Interview: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  Rejection: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
-  Offer: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+  Interview: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  Rejection: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
+  Offer: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   General: 'bg-slate-50 text-slate-700 dark:bg-slate-950 dark:text-slate-400 border-0',
-  'Follow-up': 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
+  'Follow-up': 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
 };
 
 const categoryIcons: Record<TemplateCategory, string> = {
@@ -270,17 +270,17 @@ export default function EmailTemplatesContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Mail className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.emailTemplates.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.emailTemplates.title}</h1>
             <p className="text-sm text-muted-foreground">{t.emailTemplates.subtitle}</p>
           </div>
         </div>
         <Button
           onClick={openCreateDialog}
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
         >
           <Plus className="h-4 w-4 me-2" />
           {t.emailTemplates.createTemplate}
@@ -289,11 +289,11 @@ export default function EmailTemplatesContent() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 card-relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <FileText className="h-4 w-4" />
               </div>
               <div>
@@ -303,11 +303,11 @@ export default function EmailTemplatesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -317,11 +317,11 @@ export default function EmailTemplatesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <Star className="h-4 w-4" />
               </div>
               <div>
@@ -331,11 +331,11 @@ export default function EmailTemplatesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-teal-600 to-emerald-700 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                 <Tags className="h-4 w-4" />
               </div>
               <div>
@@ -389,7 +389,7 @@ export default function EmailTemplatesContent() {
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="icon"
-                  className={cn('h-8 w-8', viewMode === 'grid' && 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400')}
+                  className={cn('h-8 w-8', viewMode === 'grid' && 'bg-slate-50 text-blue-700 dark:bg-teal-950')}
                   onClick={() => setViewMode('grid')}
                 >
                   <LayoutGrid className="h-4 w-4" />
@@ -402,7 +402,7 @@ export default function EmailTemplatesContent() {
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="icon"
-                  className={cn('h-8 w-8', viewMode === 'list' && 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400')}
+                  className={cn('h-8 w-8', viewMode === 'list' && 'bg-slate-50 text-blue-700 dark:bg-teal-950')}
                   onClick={() => setViewMode('list')}
                 >
                   <List className="h-4 w-4" />
@@ -425,8 +425,8 @@ export default function EmailTemplatesContent() {
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredTemplates.map((tpl) => (
-            <Card key={tpl.id} className="border-border/50 card-hover-lift relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-0 group-hover:opacity-[0.03] transition-opacity" />
+            <Card key={tpl.id} className="border-border/50 card-relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-0 group-hover:opacity-[0.03] transition-opacity" />
               <CardContent className="p-4 relative space-y-3">
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-2">
@@ -434,7 +434,7 @@ export default function EmailTemplatesContent() {
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-semibold truncate">{getTemplateName(tpl)}</h3>
                       {tpl.isDefault && (
-                        <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0 text-[9px] shrink-0">
+                        <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 border-0 text-[9px] shrink-0">
                           <Star className="h-2.5 w-2.5 me-0.5" />
                           {t.emailTemplates.defaultTemplate}
                         </Badge>
@@ -471,7 +471,7 @@ export default function EmailTemplatesContent() {
                   <Badge className={cn(
                     'text-[10px] border-0',
                     tpl.isActive
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
                       : 'bg-slate-50 text-slate-500 dark:bg-slate-950 dark:text-slate-400'
                   )}>
                     {tpl.isActive ? t.emailTemplates.activeStatus : t.emailTemplates.inactiveStatus}
@@ -546,7 +546,7 @@ export default function EmailTemplatesContent() {
                     <tr key={tpl.id} className="border-b border-border/30 hover:bg-muted/10 transition-colors">
                       <td className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs shrink-0">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white text-xs shrink-0">
                             <Mail className="h-4 w-4" />
                           </div>
                           <span className="text-sm font-medium">{getTemplateName(tpl)}</span>
@@ -570,7 +570,7 @@ export default function EmailTemplatesContent() {
                           <Badge className={cn(
                             'text-[10px] border-0',
                             tpl.isActive
-                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
                               : 'bg-slate-50 text-slate-500 dark:bg-slate-950 dark:text-slate-400'
                           )}>
                             {tpl.isActive ? t.emailTemplates.activeStatus : t.emailTemplates.inactiveStatus}
@@ -579,7 +579,7 @@ export default function EmailTemplatesContent() {
                       </td>
                       <td className="p-3 hidden md:table-cell">
                         {tpl.isDefault ? (
-                          <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0 text-[10px]">
+                          <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 border-0 text-[10px]">
                             <Star className="h-2.5 w-2.5 me-0.5" />
                             {t.emailTemplates.defaultTemplate}
                           </Badge>
@@ -639,7 +639,7 @@ export default function EmailTemplatesContent() {
         <DialogContent className="max-w-2xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Mail className="h-5 w-5 text-blue-600" />
               {editingTemplate ? t.emailTemplates.editTemplate : t.emailTemplates.createTemplate}
             </DialogTitle>
           </DialogHeader>
@@ -681,7 +681,7 @@ export default function EmailTemplatesContent() {
                       key={v.key}
                       variant="ghost"
                       size="sm"
-                      className="h-6 text-[10px] px-1.5 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                      className="h-6 text-[10px] px-1.5 text-blue-600 hover:bg-slate-50 dark:hover:bg-teal-950"
                       onClick={() => insertVariable(v.key, 'subject')}
                     >
                       {`{{${v.key}}}`}
@@ -712,7 +712,7 @@ export default function EmailTemplatesContent() {
             {/* Variable Insert Buttons */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Variable className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Variable className="h-4 w-4 text-blue-600" />
                 <label className="text-sm font-medium">{t.emailTemplates.availableVariables}</label>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -723,10 +723,10 @@ export default function EmailTemplatesContent() {
                       key={v.key}
                       variant="outline"
                       size="sm"
-                      className="h-7 text-[10px] gap-1 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950"
+                      className="h-7 text-[10px] gap-1 border-slate-200 hover:bg-slate-50 dark:hover:bg-teal-950"
                       onClick={() => insertVariable(v.key, 'body')}
                     >
-                      <span className="font-mono text-teal-600 dark:text-teal-400">{`{{${v.key}}}`}</span>
+                      <span className="font-mono text-blue-600">{`{{${v.key}}}`}</span>
                       <span className="text-muted-foreground">— {t.emailTemplates[labelKey]}</span>
                     </Button>
                   );
@@ -749,7 +749,7 @@ export default function EmailTemplatesContent() {
             </div>
 
             {previewWithSample && (formSubject || formBody) && (
-              <Card className="border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/30">
+              <Card className="border-slate-200 bg-slate-50">
                 <CardContent className="p-4 space-y-3">
                   {formSubject && (
                     <div>
@@ -789,7 +789,7 @@ export default function EmailTemplatesContent() {
             </DialogClose>
             <Button
               onClick={handleSave}
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               disabled={!formName || !formSubject || !formBody}
             >
               {t.emailTemplates.saveTemplate}
@@ -803,7 +803,7 @@ export default function EmailTemplatesContent() {
         <DialogContent className="max-w-2xl max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Send className="h-5 w-5 text-blue-600" />
               {t.emailTemplates.previewTemplate}
             </DialogTitle>
           </DialogHeader>
@@ -816,7 +816,7 @@ export default function EmailTemplatesContent() {
                     {categoryIcons[previewTemplate.category]} {getCategoryLabel(previewTemplate.category)}
                   </Badge>
                   {previewTemplate.isDefault && (
-                    <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0 text-[10px]">
+                    <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 border-0 text-[10px]">
                       <Star className="h-2.5 w-2.5 me-0.5" />
                       {t.emailTemplates.defaultTemplate}
                     </Badge>
@@ -830,7 +830,7 @@ export default function EmailTemplatesContent() {
 
               {/* Email Preview Card */}
               <Card className="border-border/50 overflow-hidden">
-                <div className="bg-gradient-to-r from-teal-500 to-emerald-600 p-3 flex items-center gap-3">
+                <div className="bg-gradient-to-r bg-blue-600 p-3 flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white text-xs font-bold">
                     TV
                   </div>
@@ -877,7 +877,7 @@ export default function EmailTemplatesContent() {
                   setPreviewDialogOpen(false);
                   openEditDialog(previewTemplate);
                 }}
-                className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
               >
                 <Pencil className="h-4 w-4 me-2" />
                 {t.common.edit}

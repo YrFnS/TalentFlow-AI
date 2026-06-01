@@ -45,7 +45,7 @@ const gradientPairs: Record<string, string> = {
   Engineering: 'from-teal-400 to-cyan-500',
   Design: 'from-emerald-400 to-teal-500',
   Marketing: 'from-cyan-400 to-emerald-500',
-  Sales: 'from-teal-500 to-emerald-600',
+  Sales: 'bg-blue-600',
   HR: 'from-emerald-500 to-teal-600',
   Operations: 'from-cyan-500 to-teal-600',
 };
@@ -87,7 +87,7 @@ export default function DirectoryPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Users className="h-5 w-5" />
           </div>
           <div>
@@ -95,7 +95,7 @@ export default function DirectoryPage() {
             <p className="text-sm text-muted-foreground">{t.directory.subtitle}</p>
           </div>
         </div>
-        <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white">
+        <Button className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white">
           <Plus className="h-4 w-4 me-2" />
           {t.directory.addEmployee}
         </Button>
@@ -116,7 +116,7 @@ export default function DirectoryPage() {
           <Button
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="sm"
-            className={cn('h-8 px-3', viewMode === 'grid' && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white')}
+            className={cn('h-8 px-3', viewMode === 'grid' && 'bg-gradient-to-r bg-blue-600 text-white')}
             onClick={() => setViewMode('grid')}
           >
             <Grid3X3 className="h-4 w-4 me-1.5" />
@@ -125,7 +125,7 @@ export default function DirectoryPage() {
           <Button
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
-            className={cn('h-8 px-3', viewMode === 'list' && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white')}
+            className={cn('h-8 px-3', viewMode === 'list' && 'bg-gradient-to-r bg-blue-600 text-white')}
             onClick={() => setViewMode('list')}
           >
             <List className="h-4 w-4 me-1.5" />
@@ -141,8 +141,8 @@ export default function DirectoryPage() {
           className={cn(
             'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
             selectedDept === 'All'
-              ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
-              : 'bg-muted text-muted-foreground hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400'
+              ? 'bg-gradient-to-r bg-blue-600 text-white'
+              : 'bg-muted text-muted-foreground hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400'
           )}
         >
           {t.directory.allDepartments}
@@ -155,8 +155,8 @@ export default function DirectoryPage() {
             className={cn(
               'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
               selectedDept === dept
-                ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
-                : 'bg-muted text-muted-foreground hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400'
+                ? 'bg-gradient-to-r bg-blue-600 text-white'
+                : 'bg-muted text-muted-foreground hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400'
             )}
           >
             {dept}
@@ -181,7 +181,7 @@ export default function DirectoryPage() {
           {filteredEmployees.map((emp) => (
             <Card
               key={emp.id}
-              className="border-border/50 hover:shadow-md transition-shadow cursor-pointer hover:border-teal-200 dark:hover:border-teal-800"
+              className="border-border/50 hover:shadow-md transition-shadow cursor-pointer hover:border-slate-200 dark:hover:border-teal-800"
               onClick={() => openDetail(emp)}
             >
               <CardContent className="p-5">
@@ -194,7 +194,7 @@ export default function DirectoryPage() {
                   </div>
                   <h3 className="mt-3 font-semibold text-sm">{emp.name}</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">{emp.role}</p>
-                  <Badge className="mt-2 text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                  <Badge className="mt-2 text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                     {emp.department}
                   </Badge>
                   <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
@@ -215,7 +215,7 @@ export default function DirectoryPage() {
           {filteredEmployees.map((emp) => (
             <Card
               key={emp.id}
-              className="border-border/50 hover:shadow-md transition-shadow cursor-pointer hover:border-teal-200 dark:hover:border-teal-800"
+              className="border-border/50 hover:shadow-md transition-shadow cursor-pointer hover:border-slate-200 dark:hover:border-teal-800"
               onClick={() => openDetail(emp)}
             >
               <CardContent className="p-4">
@@ -229,7 +229,7 @@ export default function DirectoryPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-sm">{emp.name}</h3>
-                      <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                      <Badge className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                         {emp.department}
                       </Badge>
                     </div>
@@ -263,25 +263,25 @@ export default function DirectoryPage() {
                 </div>
                 <h3 className="mt-3 text-lg font-bold">{selectedEmployee.name}</h3>
                 <p className="text-sm text-muted-foreground">{selectedEmployee.role}</p>
-                <Badge className="mt-2 text-xs bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                <Badge className="mt-2 text-xs bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                   {selectedEmployee.department}
                 </Badge>
               </div>
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-3 text-sm">
-                  <Mail className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <Mail className="h-4 w-4 text-blue-600 shrink-0" />
                   <span>{selectedEmployee.email}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Phone className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <Phone className="h-4 w-4 text-blue-600 shrink-0" />
                   <span>{selectedEmployee.phone}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <MapPin className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <MapPin className="h-4 w-4 text-blue-600 shrink-0" />
                   <span>{selectedEmployee.location}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <Calendar className="h-4 w-4 text-blue-600 shrink-0" />
                   <span>{t.directory.joinedOn} {selectedEmployee.joinDate}</span>
                 </div>
               </div>

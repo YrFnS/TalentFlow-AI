@@ -61,7 +61,7 @@ export default function EngageDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-teal-600" />
+            <Mail className="h-5 w-5 text-blue-600" />
             {t.engage} — {candidate.name}
           </DialogTitle>
         </DialogHeader>
@@ -71,10 +71,10 @@ export default function EngageDialog({
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
-                className="h-auto py-4 flex-col gap-2 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950"
+                className="h-auto py-4 flex-col gap-2 border-slate-200 hover:bg-slate-50 dark:hover:bg-teal-950"
                 onClick={() => { onEngageActionChange('email'); onEmailTemplateChange('general'); onEmailBodyChange(`Dear ${candidate.name},\n\nI hope this message finds you well...`); }}
               >
-                <Mail className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                <Mail className="h-5 w-5 text-blue-600" />
                 <span className="text-sm font-medium">{t.sendEmail}</span>
               </Button>
               <Button
@@ -82,7 +82,7 @@ export default function EngageDialog({
                 className="h-auto py-4 flex-col gap-2 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950"
                 onClick={() => { onEngageActionChange('call'); onCallNotesChange(''); }}
               >
-                <Phone className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <Phone className="h-5 w-5 text-emerald-600" />
                 <span className="text-sm font-medium">{t.scheduleCall}</span>
               </Button>
               <Button
@@ -90,7 +90,7 @@ export default function EngageDialog({
                 className="h-auto py-4 flex-col gap-2 border-amber-200 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950"
                 onClick={() => { onEngageActionChange('note'); onNoteTextChange(''); }}
               >
-                <StickyNote className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <StickyNote className="h-5 w-5 text-amber-600" />
                 <span className="text-sm font-medium">{t.addNote}</span>
               </Button>
               <Button
@@ -98,7 +98,7 @@ export default function EngageDialog({
                 className="h-auto py-4 flex-col gap-2 border-cyan-200 dark:border-cyan-800 hover:bg-cyan-50 dark:hover:bg-cyan-950"
                 onClick={() => { onEngageActionChange('job'); onReassignJobChange(''); }}
               >
-                <Briefcase className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                <Briefcase className="h-5 w-5 text-cyan-600" />
                 <span className="text-sm font-medium">{t.reassignJob}</span>
               </Button>
             </div>
@@ -140,7 +140,7 @@ export default function EngageDialog({
                 className="font-mono text-xs"
               />
               <Button
-                className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                className="w-full bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
                 onClick={onConfirm}
               >
                 <Send className="h-3.5 w-3.5 me-1.5" />

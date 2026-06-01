@@ -103,7 +103,7 @@ export default function SalaryPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <DollarSign className="h-5 w-5" />
           </div>
           <div>
@@ -119,10 +119,10 @@ export default function SalaryPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <DollarSign className="h-4 w-4" />
               </div>
               <div>
@@ -132,10 +132,10 @@ export default function SalaryPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <BarChart3 className="h-4 w-4" />
               </div>
               <div>
@@ -145,10 +145,10 @@ export default function SalaryPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600">
                 <Users className="h-4 w-4" />
               </div>
               <div>
@@ -158,7 +158,7 @@ export default function SalaryPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400">
@@ -166,7 +166,7 @@ export default function SalaryPage() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{t.salary.marketBenchmark}</p>
-                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{salaryStats.marketBenchmark != null ? `+${salaryStats.marketBenchmark}%` : '—'}</p>
+                <p className="text-xl font-bold text-emerald-600">{salaryStats.marketBenchmark != null ? `+${salaryStats.marketBenchmark}%` : '—'}</p>
               </div>
             </div>
           </CardContent>
@@ -178,7 +178,7 @@ export default function SalaryPage() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <BarChart3 className="h-4 w-4 text-blue-600" />
               {t.salary.departmentComparison}
             </CardTitle>
           </CardHeader>
@@ -209,7 +209,7 @@ export default function SalaryPage() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <DollarSign className="h-4 w-4 text-blue-600" />
               {t.salary.distribution}
             </CardTitle>
           </CardHeader>
@@ -238,7 +238,7 @@ export default function SalaryPage() {
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <DollarSign className="h-4 w-4 text-blue-600" />
               {t.salary.roleBasedSalary}
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -278,7 +278,7 @@ export default function SalaryPage() {
                   <TableRow key={role.id} className="gradient-border-start">
                     <TableCell className="text-sm font-medium py-3">{role.role}</TableCell>
                     <TableCell className="text-sm py-3">
-                      <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                      <Badge className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                         {role.department}
                       </Badge>
                     </TableCell>
@@ -288,8 +288,8 @@ export default function SalaryPage() {
                     <TableCell className="py-3">
                       <div className={cn('flex items-center gap-1 text-sm font-medium',
                         role.marketDelta >= 0
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-red-600 dark:text-red-400'
+                          ? 'text-emerald-600'
+                          : 'text-red-600'
                       )}>
                         {role.marketDelta >= 0 ? (
                           <ArrowUpRight className="h-3.5 w-3.5" />

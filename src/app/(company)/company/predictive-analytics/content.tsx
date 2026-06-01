@@ -402,8 +402,8 @@ export default function PredictiveAnalyticsContent() {
       trendText: t.predictiveAnalytics.trendDown,
       sub: `24-32 ${t.predictiveAnalytics.confidenceInterval}`,
       icon: Clock,
-      color: 'text-teal-600 dark:text-teal-400',
-      bgColor: 'bg-teal-50 dark:bg-teal-950/30',
+      color: 'text-blue-600',
+      bgColor: 'bg-slate-50',
     },
     {
       title: t.predictiveAnalytics.dropoffRisk,
@@ -413,7 +413,7 @@ export default function PredictiveAnalyticsContent() {
       trendText: t.predictiveAnalytics.trendUp,
       sub: `${Math.round((atRiskCount / dropoffCandidates.length) * 100)}% ${t.predictiveAnalytics.atRiskCandidates}`,
       icon: AlertTriangle,
-      color: 'text-amber-600 dark:text-amber-400',
+      color: 'text-amber-600',
       bgColor: 'bg-amber-50 dark:bg-amber-950/30',
     },
     {
@@ -424,8 +424,8 @@ export default function PredictiveAnalyticsContent() {
       trendText: t.predictiveAnalytics.trendUp,
       sub: '',
       icon: Target,
-      color: 'text-emerald-600 dark:text-emerald-400',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-950/30',
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-50',
     },
     {
       title: t.predictiveAnalytics.hiringVelocity,
@@ -435,21 +435,21 @@ export default function PredictiveAnalyticsContent() {
       trendText: t.predictiveAnalytics.trendUp,
       sub: '+0.8 vs last quarter',
       icon: BarChart3,
-      color: 'text-teal-600 dark:text-teal-400',
-      bgColor: 'bg-teal-50 dark:bg-teal-950/30',
+      color: 'text-blue-600',
+      bgColor: 'bg-slate-50',
     },
   ];
 
   const riskBadgeConfig: Record<string, { color: string; bg: string }> = {
-    High: { color: 'text-red-700 dark:text-red-400', bg: 'bg-red-100 dark:bg-red-900/30' },
-    Medium: { color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30' },
-    Low: { color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+    High: { color: 'text-red-700', bg: 'bg-red-100 dark:bg-red-900/30' },
+    Medium: { color: 'text-amber-700', bg: 'bg-amber-100 dark:bg-amber-900/30' },
+    Low: { color: 'text-emerald-700', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
   };
 
   const priorityBadgeConfig: Record<string, { color: string; bg: string }> = {
-    High: { color: 'text-red-700 dark:text-red-400', bg: 'bg-red-100 dark:bg-red-900/30' },
-    Medium: { color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30' },
-    Low: { color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+    High: { color: 'text-red-700', bg: 'bg-red-100 dark:bg-red-900/30' },
+    Medium: { color: 'text-amber-700', bg: 'bg-amber-100 dark:bg-amber-900/30' },
+    Low: { color: 'text-emerald-700', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
   };
 
   const actionIconMap: Record<string, React.ElementType> = {
@@ -468,11 +468,11 @@ export default function PredictiveAnalyticsContent() {
     <div className="space-y-6">
       {/* ── AI Predictions Banner ── */}
       <div className="relative rounded-xl overflow-hidden animate-fade-in-up">
-        <div className="absolute inset-0 bg-gradient-to-r from-teal-600 to-emerald-600" />
+        <div className="absolute inset-0 bg-blue-600" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent)]" />
         <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
               <Brain className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -487,7 +487,7 @@ export default function PredictiveAnalyticsContent() {
             <Button
               variant="secondary"
               size="sm"
-              className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm"
+              className="bg-white/20 hover:bg-white/30 text-white border-0"
               onClick={handleRefresh}
               disabled={refreshing}
             >
@@ -514,7 +514,7 @@ export default function PredictiveAnalyticsContent() {
           return (
             <Card
               key={card.title}
-              className="card-hover-lift animate-fade-in-up relative overflow-hidden border-0 shadow-sm"
+              className="card-animate-fade-in-up relative overflow-hidden border-0 shadow-sm"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/80 to-emerald-50/80 dark:from-teal-950/20 dark:to-emerald-950/20" />
@@ -536,7 +536,7 @@ export default function PredictiveAnalyticsContent() {
                   ) : (
                     <ArrowUpRight className="w-3.5 h-3.5 text-emerald-500" />
                   )}
-                  <span className="text-xs text-emerald-600 dark:text-emerald-400">{card.trendText}</span>
+                  <span className="text-xs text-emerald-600">{card.trendText}</span>
                 </div>
                 {card.sub && (
                   <p className="text-xs text-muted-foreground mt-1">{card.sub}</p>
@@ -555,7 +555,7 @@ export default function PredictiveAnalyticsContent() {
       <Card className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <TrendingDown className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <TrendingDown className="w-5 h-5 text-blue-600" />
             {t.predictiveAnalytics.timeToFillChart}
           </CardTitle>
           <CardDescription className="text-xs">
@@ -611,7 +611,7 @@ export default function PredictiveAnalyticsContent() {
                       <td className="p-3">
                         <div className="flex items-center gap-2">
                           <Avatar className="w-7 h-7">
-                            <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-[10px]">
+                            <AvatarFallback className="bg-teal-100 text-blue-700 text-[10px]">
                               {getInitials(c.candidateName)}
                             </AvatarFallback>
                           </Avatar>
@@ -628,7 +628,7 @@ export default function PredictiveAnalyticsContent() {
                       </td>
                       <td className="p-3 text-xs text-muted-foreground">{c.predictedDropoffDate}</td>
                       <td className="p-3">
-                        <Button variant="ghost" size="sm" className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 h-7 px-2 text-xs">
+                        <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 dark:hover:text-blue-300 h-7 px-2 text-xs">
                           <ActionIcon className="w-3.5 h-3.5 me-1" />
                           {getActionKey(c.recommendedAction)}
                         </Button>
@@ -647,7 +647,7 @@ export default function PredictiveAnalyticsContent() {
         <CardHeader className="pb-2">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+              <BarChart3 className="w-5 h-5 text-blue-600" />
               {t.predictiveAnalytics.funnelForecast}
             </CardTitle>
             <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
@@ -656,7 +656,7 @@ export default function PredictiveAnalyticsContent() {
                 size="sm"
                 className={cn(
                   'h-7 px-3 text-xs',
-                  funnelMode === 'actual' && 'bg-teal-600 hover:bg-teal-700 text-white'
+                  funnelMode === 'actual' && 'bg-blue-600 hover:bg-blue-700 text-white'
                 )}
                 onClick={() => setFunnelMode('actual')}
               >
@@ -667,7 +667,7 @@ export default function PredictiveAnalyticsContent() {
                 size="sm"
                 className={cn(
                   'h-7 px-3 text-xs',
-                  funnelMode === 'predicted' && 'bg-teal-600 hover:bg-teal-700 text-white'
+                  funnelMode === 'predicted' && 'bg-blue-600 hover:bg-blue-700 text-white'
                 )}
                 onClick={() => setFunnelMode('predicted')}
               >
@@ -680,7 +680,7 @@ export default function PredictiveAnalyticsContent() {
           <HiringFunnelSVG stages={funnelStages} showActual={funnelMode === 'actual'} />
           <div className="grid grid-cols-5 gap-2 mt-4">
             {funnelStages.map((stage, i) => {
-              const colors = ['bg-teal-500', 'bg-teal-600', 'bg-teal-700', 'bg-emerald-500', 'bg-emerald-600'];
+              const colors = ['bg-slate-500', 'bg-blue-600', 'bg-blue-700', 'bg-emerald-500', 'bg-emerald-600'];
               return (
                 <div key={stage.label} className="text-center">
                   <div className={cn('h-2 rounded-full mx-auto mb-1.5', colors[i])} style={{ width: `${stage.predicted}%` }} />
@@ -698,17 +698,17 @@ export default function PredictiveAnalyticsContent() {
       {/* ── Department Insights ── */}
       <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
         <h2 className="text-base font-semibold mb-4 flex items-center gap-2">
-          <Briefcase className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+          <Briefcase className="w-5 h-5 text-blue-600" />
           {t.predictiveAnalytics.departmentInsights}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {departmentInsights.map((dept, i) => (
-            <Card key={dept.name} className="card-hover-lift border-0 shadow-sm">
+            <Card key={dept.name} className="card-border-0 shadow-sm">
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-emerald-50/50 dark:from-teal-950/10 dark:to-emerald-950/10 rounded-lg" />
               <CardContent className="relative p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold">{dept.name}</h3>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-0 bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-0 bg-teal-100 text-blue-700">
                     {dept.openPositions} {t.predictiveAnalytics.openPositions}
                   </Badge>
                 </div>
@@ -724,7 +724,7 @@ export default function PredictiveAnalyticsContent() {
                       <span className="text-muted-foreground">{t.predictiveAnalytics.talentAvailability}</span>
                       <span className={cn(
                         'font-medium',
-                        dept.talentAvailability >= 70 ? 'text-emerald-600 dark:text-emerald-400' : dept.talentAvailability >= 50 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
+                        dept.talentAvailability >= 70 ? 'text-emerald-600' : dept.talentAvailability >= 50 ? 'text-amber-600' : 'text-red-600'
                       )}>
                         {dept.talentAvailability}%
                       </span>
@@ -775,8 +775,8 @@ export default function PredictiveAnalyticsContent() {
                   key={rec.id}
                   className="flex items-start gap-3 p-3 rounded-lg border border-border/50 hover:bg-accent/20 transition-colors"
                 >
-                  <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 bg-teal-50 dark:bg-teal-950/30')}>
-                    <Icon className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 bg-slate-50')}>
+                    <Icon className="w-4 h-4 text-blue-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -790,7 +790,7 @@ export default function PredictiveAnalyticsContent() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-shrink-0 text-xs h-7 border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-400 dark:hover:bg-teal-950/30"
+                    className="flex-shrink-0 text-xs h-7 border-slate-200 text-blue-700 hover:bg-slate-50"
                   >
                     <Sparkles className="w-3 h-3 me-1" />
                     {t.predictiveAnalytics.takeAction}

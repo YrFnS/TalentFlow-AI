@@ -188,14 +188,14 @@ function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: boolean
   return (
     <div className={cn('flex flex-col h-full', collapsed && 'w-16')}>
       {/* Logo */}
-      <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-border/50', collapsed && 'justify-center px-2')}>
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+      <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-slate-200', collapsed && 'justify-center px-2')}>
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
           <Sparkles className="w-4 h-4 text-white" />
         </div>
         {!collapsed && (
           <div className="flex flex-col">
-            <span className="text-sm font-bold tracking-tight">TalentFlow AI</span>
-            <span className="text-[10px] text-muted-foreground leading-tight">HR & ATS Platform</span>
+            <span className="text-sm font-bold tracking-tight text-slate-900">TalentFlow AI</span>
+            <span className="text-[10px] text-slate-500 leading-tight">HR & ATS Platform</span>
           </div>
         )}
       </div>
@@ -203,16 +203,16 @@ function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: boolean
       {/* Company Badge */}
       {!collapsed && (
         <div className="px-3 py-3">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-teal-50 dark:bg-teal-950/30">
-            <Building2 className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-            <span className="text-xs font-medium truncate">{user?.companyName || 'TechVision Inc.'}</span>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100">
+            <Building2 className="w-4 h-4 text-slate-600" />
+            <span className="text-xs font-medium truncate text-slate-700">{user?.companyName || 'TechVision Inc.'}</span>
           </div>
         </div>
       )}
 
       {/* Navigation */}
       <ScrollArea className="flex-1 px-3">
-        <nav className="flex flex-col gap-1 py-2 stagger-children">
+        <nav className="flex flex-col gap-1 py-2">
           {navItems.map((item) => {
             const active = isActive(item.href);
             const Icon = item.icon;
@@ -224,14 +224,14 @@ function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: boolean
                       href={item.href}
                       onClick={onNavigate}
                       className={cn(
-                        'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                        'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                         active
-                          ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 sidebar-active-indicator nav-item-active'
-                          : 'text-muted-foreground hover:text-teal-700 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30',
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100',
                         collapsed && 'justify-center px-2'
                       )}
                     >
-                      <Icon className={cn('w-4 h-4 flex-shrink-0', active && 'text-teal-600 dark:text-teal-400')} />
+                      <Icon className={cn('w-4 h-4 flex-shrink-0', active && 'text-blue-600')} />
                       {!collapsed && <span>{t.nav[item.labelKey]}</span>}
                     </Link>
                   </TooltipTrigger>
@@ -249,9 +249,9 @@ function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: boolean
 
       {/* Footer branding */}
       {!collapsed && (
-        <div className="border-t border-border/50 p-4">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap min-w-0 px-2">
-            <Sparkles className="h-3 w-3 text-teal-500 shrink-0" />
+        <div className="border-t border-slate-200 p-4">
+          <div className="flex items-center gap-2 text-xs text-slate-400 whitespace-nowrap min-w-0 px-2">
+            <Sparkles className="h-3 w-3 text-blue-600 shrink-0" />
             <span className="truncate">Powered by TalentFlow AI</span>
           </div>
         </div>
@@ -270,17 +270,17 @@ function Breadcrumb() {
   });
 
   return (
-    <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-      <Link href="/company" className="hover:text-foreground transition-colors">
+    <nav className="flex items-center gap-1.5 text-sm text-slate-500">
+      <Link href="/company" className="hover:text-slate-900 transition-colors">
         <Home className="h-3.5 w-3.5" />
       </Link>
       {crumbs.map((crumb, i) => (
         <React.Fragment key={crumb.href}>
           <ChevronRight className="h-3 w-3" />
           {i === crumbs.length - 1 ? (
-            <span className="font-medium text-foreground">{crumb.label}</span>
+            <span className="font-medium text-slate-900">{crumb.label}</span>
           ) : (
-            <Link href={crumb.href} className="hover:text-foreground transition-colors">{crumb.label}</Link>
+            <Link href={crumb.href} className="hover:text-slate-900 transition-colors">{crumb.label}</Link>
           )}
         </React.Fragment>
       ))}
@@ -308,33 +308,33 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   }, [dir, locale]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background" dir={dir}>
+    <div className="min-h-screen flex flex-col bg-slate-50" dir={dir}>
       {/* Mobile Header */}
-      <header className="lg:hidden flex items-center justify-between h-14 px-4 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
+      <header className="lg:hidden flex items-center justify-between h-14 px-4 border-b border-slate-200 bg-white sticky top-0 z-40">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Open menu">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side={dir === 'rtl' ? 'right' : 'left'} className="w-64 p-0 bg-background">
+          <SheetContent side={dir === 'rtl' ? 'right' : 'left'} className="w-64 p-0 bg-white">
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             <SidebarContent onNavigate={() => setMobileOpen(false)} />
           </SheetContent>
         </Sheet>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-600">
             <Sparkles className="w-3.5 h-3.5 text-white" />
           </div>
-          <span className="text-sm font-bold">TalentFlow AI</span>
+          <span className="text-sm font-bold text-slate-900">TalentFlow AI</span>
         </div>
 
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-8 w-8 relative" aria-label="Notifications">
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <Badge className="absolute -top-0.5 -end-0.5 h-4 w-4 p-0 flex items-center justify-center text-[9px] bg-teal-500 notification-dot">
+              <Badge className="absolute -top-0.5 -end-0.5 h-4 w-4 p-0 flex items-center justify-center text-[9px] bg-blue-600 text-white">
                 {unreadCount}
               </Badge>
             )}
@@ -344,21 +344,21 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
 
       <div className="flex flex-1">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex flex-col h-screen sticky top-0 border-e border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <aside className="hidden lg:flex flex-col h-screen sticky top-0 border-e border-slate-200 bg-white">
           <SidebarContent />
         </aside>
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Desktop Top Bar */}
-          <header className="hidden lg:flex items-center justify-between h-14 px-6 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-30">
+          <header className="hidden lg:flex items-center justify-between h-14 px-6 border-b border-slate-200 bg-white sticky top-0 z-30">
             <div className="flex items-center gap-3">
               <Breadcrumb />
               <div className="relative flex-1 max-w-xs ms-4">
-                <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   placeholder={t.common.search}
-                  className="ps-9 h-9 bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+                  className="ps-9 h-9 bg-slate-50 border-slate-200 focus-visible:ring-1 focus-visible:ring-blue-500/50"
                 />
               </div>
             </div>
@@ -374,11 +374,11 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setLocale('en')}>
                     <span className="me-2">🇺🇸</span> English
-                    {locale === 'en' && <span className="ms-auto text-teal-600">✓</span>}
+                    {locale === 'en' && <span className="ms-auto text-blue-600">✓</span>}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLocale('ar')}>
                     <span className="me-2">🇸🇦</span> العربية
-                    {locale === 'ar' && <span className="ms-auto text-teal-600">✓</span>}
+                    {locale === 'ar' && <span className="ms-auto text-blue-600">✓</span>}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -392,7 +392,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                   aria-label="Toggle theme"
                 >
-                  {theme === 'dark' ? <Sun className="h-4 h-4" /> : <Moon className="h-4 h-4" />}
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
               )}
 
@@ -402,7 +402,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                   <Button variant="ghost" size="icon" className="h-8 w-8 relative" aria-label="Notifications">
                     <Bell className="h-4 w-4" />
                     {unreadCount > 0 && (
-                      <Badge className="absolute -top-0.5 -end-0.5 h-4 w-4 p-0 flex items-center justify-center text-[9px] bg-teal-500 notification-dot">
+                      <Badge className="absolute -top-0.5 -end-0.5 h-4 w-4 p-0 flex items-center justify-center text-[9px] bg-blue-600 text-white">
                         {unreadCount}
                       </Badge>
                     )}
@@ -411,41 +411,41 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                 <DropdownMenuContent align="end" className="w-80">
                   <DropdownMenuLabel className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span>{t.common.notifications}</span>
-                      <span className="flex items-center gap-1 text-[10px] text-teal-600 dark:text-teal-400 font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 notification-dot" />
+                      <span className="text-slate-900 font-medium">{t.common.notifications}</span>
+                      <span className="flex items-center gap-1 text-[10px] text-blue-600 font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
                         {t.notifEnhanced?.live || 'Live'}
                       </span>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-teal-600">
+                    <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-blue-600">
                       {t.common.markAllRead}
                     </Button>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <div className="max-h-72 overflow-y-auto scrollbar-thin">
+                  <div className="max-h-72 overflow-y-auto">
                     {notifications.length > 0 ? notifications.map((n) => (
                       <DropdownMenuItem key={n.id} className="flex items-start gap-3 p-3 cursor-pointer">
                         <div className={cn(
                           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-                          n.read ? 'bg-muted text-muted-foreground' : 'bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400'
+                          n.read ? 'bg-slate-100 text-slate-400' : 'bg-blue-50 text-blue-600'
                         )}>
                           <n.icon className="h-4 w-4" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-sm font-medium">{n.title}</span>
-                            {!n.read && <div className="w-2 h-2 rounded-full bg-teal-500 shrink-0 notification-dot" />}
+                            <span className="text-sm font-medium text-slate-900">{n.title}</span>
+                            {!n.read && <div className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />}
                           </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">{n.desc}</p>
-                          <p className="text-[10px] text-teal-600 dark:text-teal-400 mt-0.5">{n.time}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{n.desc}</p>
+                          <p className="text-[10px] text-blue-600 mt-0.5">{n.time}</p>
                         </div>
                       </DropdownMenuItem>
                     )) : (
-                      <div className="flex flex-col items-center justify-center py-8 text-muted-foreground/60 gap-3">
-                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                      <div className="flex flex-col items-center justify-center py-8 text-slate-400 gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
                           <Bell className="w-5 h-5" />
                         </div>
-                        <p className="text-sm font-medium">{t.notifEnhanced?.noNotifications || 'No notifications yet'}</p>
+                        <p className="text-sm font-medium text-slate-500">{t.notifEnhanced?.noNotifications || 'No notifications yet'}</p>
                       </div>
                     )}
                   </div>
@@ -460,20 +460,20 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                   <Button variant="ghost" className="flex items-center gap-2 h-8 px-2">
                     <Avatar className="w-7 h-7">
                       <AvatarImage src={user?.image} />
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px]">
+                      <AvatarFallback className="bg-blue-100 text-blue-700 text-[10px]">
                         {user?.name?.split(' ').map(n => n[0]).join('') || 'SC'}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium hidden xl:inline-block">{user?.name || 'Sarah Chen'}</span>
-                    <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-sm font-medium hidden xl:inline-block text-slate-700">{user?.name || 'Sarah Chen'}</span>
+                    <ChevronDown className="h-3 w-3 text-slate-400" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
                     <div className="flex flex-col gap-1">
-                      <span className="text-sm font-medium">{user?.name || 'Sarah Chen'}</span>
-                      <span className="text-xs text-muted-foreground">{user?.email || 'sarah@techvision.com'}</span>
-                      <Badge className="w-fit text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 mt-1">
+                      <span className="text-sm font-medium text-slate-900">{user?.name || 'Sarah Chen'}</span>
+                      <span className="text-xs text-slate-500">{user?.email || 'sarah@techvision.com'}</span>
+                      <Badge className="w-fit text-[10px] bg-blue-50 text-blue-700 border-0 mt-1">
                         <Building2 className="w-3 h-3 me-1" />
                         HR Manager
                       </Badge>

@@ -77,7 +77,7 @@ interface RoleDistribution {
 }
 
 const gradientColors = [
-  'from-teal-500 to-emerald-600',
+  'bg-blue-600',
   'from-cyan-500 to-teal-600',
   'from-emerald-500 to-cyan-600',
   'from-amber-500 to-orange-600',
@@ -202,10 +202,10 @@ function ActivityIcon({ type }: { type: ActivityItem['type'] }) {
     system: <Activity className="h-4 w-4" />,
   };
   const colorMap = {
-    company: 'bg-teal-100 text-teal-600 dark:bg-teal-950 dark:text-teal-400',
-    user: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400',
-    job: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-950 dark:text-cyan-400',
-    system: 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400',
+    company: 'bg-teal-100 text-blue-600 dark:bg-teal-950',
+    user: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950',
+    job: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-950',
+    system: 'bg-amber-100 text-amber-600 dark:bg-amber-950',
   };
   return (
     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${colorMap[type]}`}>
@@ -267,7 +267,7 @@ export default function AdminDashboardPage() {
   ] : [];
 
   const quickActions = [
-    { icon: Building2, label: t.admin.manageCompanies, href: '/admin/companies', color: 'text-teal-600 bg-teal-50 dark:bg-teal-950/50 hover:border-teal-300 dark:hover:border-teal-700' },
+    { icon: Building2, label: t.admin.manageCompanies, href: '/admin/companies', color: 'text-blue-600 bg-slate-50 hover:border-slate-300' },
     { icon: Users, label: t.admin.manageUsers, href: '/admin/users', color: 'text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 hover:border-cyan-300 dark:hover:border-cyan-700' },
     { icon: ScrollText, label: t.nav.auditLogs, href: '/admin/audit-logs', color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/50 hover:border-amber-300 dark:hover:border-amber-700' },
     { icon: Brain, label: t.nav.aiSettings, href: '/admin/ai-settings', color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 hover:border-emerald-300 dark:hover:border-emerald-700' },
@@ -284,11 +284,11 @@ export default function AdminDashboardPage() {
             <p className="text-muted-foreground text-sm">{t.dashboard.welcome}, Admin</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2 border-teal-300 dark:border-teal-700 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30" onClick={fetchAllData} disabled={loading}>
+            <Button variant="outline" size="sm" className="gap-2 border-slate-300 text-blue-700 hover:bg-slate-50" onClick={fetchAllData} disabled={loading}>
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               {t.admin.refreshData}
             </Button>
-            <Button variant="outline" size="sm" className="gap-2 border-teal-300 dark:border-teal-700 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30">
+            <Button variant="outline" size="sm" className="gap-2 border-slate-300 text-blue-700 hover:bg-slate-50">
               <FileText className="h-4 w-4" />
               {t.admin.exportData}
             </Button>
@@ -316,8 +316,8 @@ export default function AdminDashboardPage() {
         ) : statCards.map((card, i) => {
           const Icon = card.icon;
           return (
-            <Card key={i} className="relative overflow-hidden border-0 shadow-sm group gradient-border-animated card-hover-lift animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-950/30 dark:to-emerald-950/30" />
+            <Card key={i} className="relative overflow-hidden border-0 shadow-sm group gradient-border-animated card-animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
+              <div className="absolute inset-0 bg-slate-50" />
               <CardContent className="relative p-5">
                 <div className="flex items-start justify-between">
                   <div>
@@ -336,7 +336,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 dark:bg-teal-900/50 text-blue-600">
                       <Icon className="h-5 w-5" />
                     </div>
                   </div>
@@ -350,7 +350,7 @@ export default function AdminDashboardPage() {
       {/* Charts & Activity */}
       <div className="grid gap-6 lg:grid-cols-7">
         {/* User Growth Chart */}
-        <Card className="lg:col-span-4 glow-teal">
+        <Card className="lg:col-span-4 ">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -358,7 +358,7 @@ export default function AdminDashboardPage() {
                 <CardDescription>{t.admin.newThisMonth}</CardDescription>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
                 {t.common.poweredBy}
               </div>
             </div>
@@ -391,7 +391,7 @@ export default function AdminDashboardPage() {
                 <span className="text-xs text-muted-foreground">Users</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded bg-teal-500" />
+                <div className="w-3 h-3 rounded bg-slate-500" />
                 <span className="text-xs text-muted-foreground">Companies</span>
               </div>
             </div>
@@ -399,7 +399,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* User Role Distribution Donut Chart */}
-        <Card className="lg:col-span-3 glow-teal">
+        <Card className="lg:col-span-3 ">
           <CardHeader>
             <CardTitle>User Role Distribution</CardTitle>
             <CardDescription>Breakdown by user type</CardDescription>
@@ -440,12 +440,12 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CardTitle>{t.admin.verificationRequests}</CardTitle>
-                <Badge className="bg-teal-100 text-teal-700 hover:bg-teal-100 dark:bg-teal-950 dark:text-teal-300">
+                <Badge className="bg-teal-100 text-blue-700 hover:bg-teal-100 dark:bg-teal-950">
                   {displayStats?.pendingVerifications || 0}
                 </Badge>
               </div>
               <Link href="/admin/companies">
-                <Button variant="ghost" size="sm" className="text-teal-600 hover:text-teal-700">
+                <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
                   {t.common.viewAll}
                   <ArrowUpRight className="h-3 w-3 ms-1" />
                 </Button>
@@ -477,7 +477,7 @@ export default function AdminDashboardPage() {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <Avatar className="h-10 w-10 rounded-lg">
-                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs rounded-lg">
+                        <AvatarFallback className="bg-blue-600 text-white text-xs rounded-lg">
                           {getInitials(req.name)}
                         </AvatarFallback>
                       </Avatar>
@@ -489,7 +489,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center gap-2 shrink-0">
                       <Badge variant="outline" className="text-xs">{req.members} {t.admin.members}</Badge>
                       <span className="text-[10px] text-muted-foreground">{req.submittedAt}</span>
-                      <Button size="sm" className="bg-teal-600 hover:bg-teal-700 h-7 text-white">
+                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-7 text-white">
                         <ShieldCheck className="h-3 w-3 me-1" />
                         {t.admin.approve}
                       </Button>
@@ -511,7 +511,7 @@ export default function AdminDashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>{t.dashboard.recentActivity}</CardTitle>
-              <Button variant="ghost" size="sm" className="text-teal-600 hover:text-teal-700">
+              <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
                 {t.common.viewAll}
               </Button>
             </div>
@@ -559,7 +559,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {quickActions.map((action) => (
           <Link key={action.label} href={action.href}>
-            <Card className="h-full hover:shadow-md transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer border-dashed glass-card-hover">
+            <Card className="h-full hover:shadow-md transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer border-dashed ">
               <CardContent className="p-5 flex flex-col items-center gap-3 text-center">
                 <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${action.color}`}>
                   <action.icon className="h-6 w-6" />

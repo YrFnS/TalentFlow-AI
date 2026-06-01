@@ -51,7 +51,7 @@ export default function AddToPoolDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5 text-teal-600" />
+            <UserPlus className="h-5 w-5 text-blue-600" />
             {t.addToPool}
           </DialogTitle>
         </DialogHeader>
@@ -59,7 +59,7 @@ export default function AddToPoolDialog({
           {/* Candidate Info */}
           <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
             <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px]">
+              <AvatarFallback className="bg-blue-600 text-white text-[10px]">
                 {getInitials(candidate.name)}
               </AvatarFallback>
             </Avatar>
@@ -81,8 +81,8 @@ export default function AddToPoolDialog({
                     className={cn(
                       'flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all',
                       isSelected
-                        ? 'border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/30'
-                        : 'border-border/50 hover:border-teal-200 dark:hover:border-teal-800'
+                        ? 'border-slate-300 bg-slate-50'
+                        : 'border-border/50 hover:border-slate-200 dark:hover:border-teal-800'
                     )}
                   >
                     <Checkbox
@@ -136,7 +136,7 @@ export default function AddToPoolDialog({
             <Button variant="outline">{t.cancel || 'Cancel'}</Button>
           </DialogClose>
           <Button
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+            className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
             onClick={onConfirm}
             disabled={selectedPoolIds.length === 0}
           >

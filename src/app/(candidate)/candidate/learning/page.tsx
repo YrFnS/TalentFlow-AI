@@ -60,14 +60,14 @@ interface LearningPath {
 }
 
 const difficultyConfig: Record<Difficulty, { color: string }> = {
-  Beginner: { color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0' },
-  Intermediate: { color: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0' },
-  Advanced: { color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0' },
+  Beginner: { color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0' },
+  Intermediate: { color: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0' },
+  Advanced: { color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0' },
 };
 
 const statusBtnConfig: Record<CourseStatus, { label: string; variant: 'default' | 'outline'; color: string }> = {
-  'not-started': { label: 'Start', variant: 'default', color: 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700' },
-  'in-progress': { label: 'Continue', variant: 'default', color: 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700' },
+  'not-started': { label: 'Start', variant: 'default', color: 'bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700' },
+  'in-progress': { label: 'Continue', variant: 'default', color: 'bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700' },
   'completed': { label: 'Completed', variant: 'outline', color: '' },
 };
 
@@ -149,11 +149,11 @@ export default function LearningPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.learning.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.learning.title}</h1>
             <p className="text-sm text-muted-foreground">{t.learning.subtitle}</p>
           </div>
         </div>
@@ -165,10 +165,10 @@ export default function LearningPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <BookOpen className="h-4 w-4" />
               </div>
               <div>
@@ -178,10 +178,10 @@ export default function LearningPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -191,10 +191,10 @@ export default function LearningPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -204,10 +204,10 @@ export default function LearningPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600">
                 <Award className="h-4 w-4" />
               </div>
               <div>
@@ -223,7 +223,7 @@ export default function LearningPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+            <BookOpen className="h-5 w-5 text-blue-600" />
             {t.learning.featuredCourses}
           </h2>
           <div className="flex items-center gap-2">
@@ -332,7 +332,7 @@ export default function LearningPage() {
       {/* My Learning Paths */}
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
-          <GraduationCap className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <GraduationCap className="h-5 w-5 text-blue-600" />
           {t.learning.myLearningPaths}
         </h2>
         {learningPaths.length === 0 ? (
@@ -369,7 +369,7 @@ export default function LearningPage() {
                     {path.courses.map((course, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs">
                         {course.completed ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                         ) : (
                           <div className="h-3.5 w-3.5 rounded-full border border-border/50 shrink-0" />
                         )}
@@ -388,7 +388,7 @@ export default function LearningPage() {
       {recommendedCourses.length > 0 && (
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
-            <Sparkles className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+            <Sparkles className="h-5 w-5 text-blue-600" />
             {t.learning.recommendedForYou}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -398,7 +398,7 @@ export default function LearningPage() {
                 <Card key={course.id} className="border-border/50 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 group">
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 gap-1">
+                      <Badge className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 gap-1">
                         <Sparkles className="h-3 w-3" />
                         {course.match}% {t.learning.match}
                       </Badge>
@@ -408,7 +408,7 @@ export default function LearningPage() {
                       <h3 className="text-sm font-semibold line-clamp-1">{course.title}</h3>
                       <p className="text-xs text-muted-foreground mt-0.5">{course.provider}</p>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full h-8 text-xs gap-1 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800">
+                    <Button variant="outline" size="sm" className="w-full h-8 text-xs gap-1 hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400 hover:border-slate-200 dark:hover:border-teal-800">
                       {t.learning.startCourse}
                       <ArrowRight className="h-3 w-3" />
                     </Button>

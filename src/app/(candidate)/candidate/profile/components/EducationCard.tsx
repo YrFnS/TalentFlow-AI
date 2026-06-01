@@ -58,7 +58,7 @@ export default function EducationCard({
 
   return (
     <>
-      <Card className="border-0 shadow-sm card-hover-lift">
+      <Card className="border-0 shadow-sm card-">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">

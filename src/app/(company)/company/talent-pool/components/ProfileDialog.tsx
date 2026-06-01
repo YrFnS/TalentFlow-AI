@@ -30,11 +30,11 @@ function ActivityIcon({ type }: { type: string }) {
     pool: Users,
   };
   const colorMap: Record<string, string> = {
-    email: 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950',
-    call: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950',
-    note: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950',
-    job: 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950',
-    pool: 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950',
+    email: 'text-blue-600 bg-slate-50 dark:bg-teal-950',
+    call: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950',
+    note: 'text-amber-600 bg-amber-50 dark:bg-amber-950',
+    job: 'text-cyan-600 bg-cyan-50 dark:bg-cyan-950',
+    pool: 'text-blue-600 bg-slate-50 dark:bg-teal-950',
   };
   const Icon = iconMap[type] || FileText;
   const color = colorMap[type] || 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-950';
@@ -68,7 +68,7 @@ export default function ProfileDialog({
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5 text-teal-600" />
+            <Eye className="h-5 w-5 text-blue-600" />
             {t.viewProfile}
           </DialogTitle>
         </DialogHeader>
@@ -78,7 +78,7 @@ export default function ProfileDialog({
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
                 <Avatar className="h-14 w-14">
-                  <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-lg">
+                  <AvatarFallback className="bg-blue-600 text-white text-lg">
                     {getInitials(candidate.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -86,7 +86,7 @@ export default function ProfileDialog({
                   <h3 className="text-lg font-bold">{candidate.name}</h3>
                   <p className="text-sm text-muted-foreground">{candidate.currentTitle}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                    <Badge className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                       {candidate.matchScore}% Match
                     </Badge>
                     <Badge variant="outline" className="text-[10px]">{candidate.availability}</Badge>
@@ -97,7 +97,7 @@ export default function ProfileDialog({
                     <UserPlus className="h-3 w-3 me-1" />
                     {t.addToPool}
                   </Button>
-                  <Button size="sm" variant="outline" className="text-xs text-teal-600 dark:text-teal-400" onClick={() => { onOpenChange(false); onEngage(candidate); }}>
+                  <Button size="sm" variant="outline" className="text-xs text-blue-600" onClick={() => { onOpenChange(false); onEngage(candidate); }}>
                     <Mail className="h-3 w-3 me-1" />
                     {t.engage}
                   </Button>
@@ -109,7 +109,7 @@ export default function ProfileDialog({
                 <p className="text-xs font-medium text-muted-foreground mb-2">Skills</p>
                 <div className="flex flex-wrap gap-1">
                   {candidate.skills.map(skill => (
-                    <Badge key={skill} variant="outline" className="text-[10px] px-1.5 py-0 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400">
+                    <Badge key={skill} variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200 text-blue-700">
                       {skill}
                     </Badge>
                   ))}
@@ -174,7 +174,7 @@ export default function ProfileDialog({
           {/* Activity Timeline */}
           <div>
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Clock className="h-4 w-4 text-blue-600" />
               {t.activityTimeline}
             </h3>
             {candidate.activityTimeline.length > 0 ? (

@@ -65,9 +65,9 @@ interface RecommendedCert {
 }
 
 const statusConfig: Record<CertStatus, { label: string; color: string; icon: React.ElementType }> = {
-  active: { label: 'Active', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: CheckCircle2 },
-  expiring: { label: 'Expiring Soon', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: AlertTriangle },
-  expired: { label: 'Expired', color: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0', icon: Clock },
+  active: { label: 'Active', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: CheckCircle2 },
+  expiring: { label: 'Expiring Soon', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: AlertTriangle },
+  expired: { label: 'Expired', color: 'bg-red-50 text-red-700 dark:bg-red-950 border-0', icon: Clock },
 };
 
 
@@ -123,7 +123,7 @@ export default function CertificationsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Award className="h-5 w-5" />
           </div>
           <div>
@@ -133,7 +133,7 @@ export default function CertificationsPage() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
               <Plus className="h-4 w-4 me-2" />
               {t.certifications.addCert}
             </Button>
@@ -167,7 +167,7 @@ export default function CertificationsPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t.certifications.uploadBadge}</label>
-                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-teal-400 transition-colors cursor-pointer">
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-slate-400 transition-colors cursor-pointer">
                   <Upload className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
                   <p className="text-xs text-muted-foreground">{t.certifications.uploadBadgeDesc}</p>
                 </div>
@@ -177,7 +177,7 @@ export default function CertificationsPage() {
               <DialogClose asChild>
                 <Button variant="outline">{t.common.cancel}</Button>
               </DialogClose>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 {t.common.save}
               </Button>
             </DialogFooter>
@@ -187,10 +187,10 @@ export default function CertificationsPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Award className="h-4 w-4" />
               </div>
               <div>
@@ -200,10 +200,10 @@ export default function CertificationsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -213,10 +213,10 @@ export default function CertificationsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div>
@@ -226,10 +226,10 @@ export default function CertificationsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600">
                 <Sparkles className="h-4 w-4" />
               </div>
               <div>
@@ -266,7 +266,7 @@ export default function CertificationsPage() {
                 const ProviderIcon = cert.providerIcon;
                 const timeRemaining = getTimeRemaining(cert.expiryDate, cert.issueDate);
                 return (
-                  <Card key={cert.id} className="border-border/50 hover:border-teal-200 dark:hover:border-teal-800 transition-colors animate-scale-in-card">
+                  <Card key={cert.id} className="border-border/50 hover:border-slate-200 dark:hover:border-teal-800 transition-colors animate-scale-in-card">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg shrink-0', cert.providerColor)}>
@@ -297,11 +297,11 @@ export default function CertificationsPage() {
                           <div className="flex items-center justify-between mt-3">
                             <span className="text-[10px] text-muted-foreground font-mono">{cert.credentialId}</span>
                             <div className="flex items-center gap-1.5">
-                              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1 text-teal-600 dark:text-teal-400">
+                              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1 text-blue-600">
                                 <ExternalLink className="h-3 w-3" />
                                 {t.certifications.verify}
                               </Button>
-                              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1 text-emerald-600 dark:text-emerald-400">
+                              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1 text-emerald-600">
                                 <Share2 className="h-3 w-3" />
                                 {t.certifications.share}
                               </Button>
@@ -323,21 +323,21 @@ export default function CertificationsPage() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Sparkles className="h-4 w-4 text-blue-600" />
               {t.certifications.recommended}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {recommendedCerts.map((cert) => (
-                <div key={cert.id} className="p-4 rounded-lg border border-border/50 hover:border-teal-200 dark:hover:border-teal-800 transition-colors bg-muted/10">
+                <div key={cert.id} className="p-4 rounded-lg border border-border/50 hover:border-slate-200 dark:hover:border-teal-800 transition-colors bg-muted/10">
                   <div className={cn('inline-flex items-center justify-center h-8 w-8 rounded-lg mb-3', cert.providerColor)}>
                     <Award className="h-4 w-4" />
                   </div>
                   <h4 className="text-sm font-semibold">{cert.name}</h4>
                   <p className="text-xs text-muted-foreground mt-0.5">{cert.provider}</p>
                   <p className="text-xs text-muted-foreground mt-2">{cert.reason}</p>
-                  <Button size="sm" className="mt-3 h-7 text-xs bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 w-full">
+                  <Button size="sm" className="mt-3 h-7 text-xs bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 w-full">
                     {t.certifications.earnThis}
                   </Button>
                 </div>

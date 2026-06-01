@@ -75,19 +75,19 @@ interface TeamMember {
 
 const roleConfig: Record<string, { color: string; bgColor: string; borderColor: string; icon: React.ElementType }> = {
   COMPANY_ADMIN: {
-    color: 'text-teal-700 dark:text-teal-400',
-    bgColor: 'bg-teal-100 dark:bg-teal-900/30',
-    borderColor: 'border-teal-200 dark:border-teal-800/30',
+    color: 'text-blue-700',
+    bgColor: 'bg-teal-100',
+    borderColor: 'border-slate-200/30',
     icon: Shield,
   },
   HR_MANAGER: {
-    color: 'text-cyan-700 dark:text-cyan-400',
+    color: 'text-cyan-700',
     bgColor: 'bg-cyan-100 dark:bg-cyan-900/30',
     borderColor: 'border-cyan-200 dark:border-cyan-800/30',
     icon: UserCog,
   },
   RECRUITER: {
-    color: 'text-amber-700 dark:text-amber-400',
+    color: 'text-amber-700',
     bgColor: 'bg-amber-100 dark:bg-amber-900/30',
     borderColor: 'border-amber-200 dark:border-amber-800/30',
     icon: UserPlus,
@@ -249,7 +249,7 @@ export default function TeamPage() {
         </div>
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               <Plus className="w-4 h-4 me-2" />
               {t.company.inviteMember}
             </Button>
@@ -311,7 +311,7 @@ export default function TeamPage() {
                 {t.common.cancel}
               </Button>
               <Button
-                className="bg-teal-600 hover:bg-teal-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={handleInvite}
                 disabled={!inviteEmail || submitting}
               >
@@ -457,7 +457,7 @@ export default function TeamPage() {
                               <RIcon className={cn('w-4 h-4 me-2', roleCfg.color)} />
                               {getRoleLabel(role)}
                               {member.role === role && (
-                                <span className="ms-auto text-teal-600 text-xs">✓</span>
+                                <span className="ms-auto text-blue-600 text-xs">✓</span>
                               )}
                             </DropdownMenuItem>
                           );

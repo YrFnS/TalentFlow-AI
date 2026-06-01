@@ -126,7 +126,7 @@ export default function CandidateSkillsPage() {
 
   const getProficiencyColor = (value: number) => {
     if (value >= 85) return 'bg-emerald-500';
-    if (value >= 70) return 'bg-teal-500';
+    if (value >= 70) return 'bg-slate-500';
     if (value >= 50) return 'bg-cyan-500';
     return 'bg-slate-400';
   };
@@ -152,14 +152,14 @@ export default function CandidateSkillsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
             {t.skillsAssessment.title}
           </h1>
           <p className="text-muted-foreground mt-1">{t.skillsAssessment.subtitle}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-lg">
+            <Button className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-lg">
               <Plus className="h-4 w-4 me-2" />
               {t.skillsAssessment.addNewSkill}
             </Button>
@@ -208,7 +208,7 @@ export default function CandidateSkillsPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>{t.common.cancel}</Button>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white" onClick={() => setDialogOpen(false)}>{t.skillsAssessment.addSkill}</Button>
+              <Button className="bg-gradient-to-r bg-blue-600 text-white" onClick={() => setDialogOpen(false)}>{t.skillsAssessment.addSkill}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -219,7 +219,7 @@ export default function CandidateSkillsPage() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-12 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-950/50 dark:to-emerald-950/50 mx-auto mb-4">
-              <Sparkles className="h-8 w-8 text-teal-500/60" />
+              <Sparkles className="h-8 w-8 text-blue-500/60" />
             </div>
             <h3 className="text-lg font-semibold">No skills added yet</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
@@ -227,7 +227,7 @@ export default function CandidateSkillsPage() {
               You can also upload your resume to auto-detect skills.
             </p>
             <div className="flex items-center justify-center gap-3 mt-6">
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white" onClick={() => setDialogOpen(true)}>
+              <Button className="bg-gradient-to-r bg-blue-600 text-white" onClick={() => setDialogOpen(true)}>
                 <Plus className="h-4 w-4 me-2" />
                 Add Skills
               </Button>
@@ -293,7 +293,7 @@ export default function CandidateSkillsPage() {
                   <div className="grid grid-cols-3 gap-3 mt-4 w-full">
                     {radarSkills.map((skill) => (
                       <div key={skill.key} className="text-center p-2 rounded-lg bg-muted/50">
-                        <p className="text-lg font-bold text-teal-600 dark:text-teal-400">{skill.value}</p>
+                        <p className="text-lg font-bold text-blue-600">{skill.value}</p>
                         <p className="text-[10px] text-muted-foreground truncate">{skill.label}</p>
                       </div>
                     ))}
@@ -309,7 +309,7 @@ export default function CandidateSkillsPage() {
           <Card className="border-0 shadow-md">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Target className="h-5 w-5 text-teal-600" />
+                <Target className="h-5 w-5 text-blue-600" />
                 {t.skillsAssessment.skillMatch}
               </CardTitle>
               <CardDescription>How your skills match applied positions</CardDescription>
@@ -361,7 +361,7 @@ export default function CandidateSkillsPage() {
                     className="flex items-center justify-between w-full p-4 hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow">
                         <category.icon className="h-5 w-5" />
                       </div>
                       <div className="text-start">
@@ -389,7 +389,7 @@ export default function CandidateSkillsPage() {
                           </div>
                           <div className="flex justify-between mt-1">
                             <span className="text-[10px] text-muted-foreground">{t.skillsAssessment.beginner}</span>
-                            <span className="text-xs font-bold text-teal-600 dark:text-teal-400">{skill.proficiency}%</span>
+                            <span className="text-xs font-bold text-blue-600">{skill.proficiency}%</span>
                             <span className="text-[10px] text-muted-foreground">{t.skillsAssessment.expert}</span>
                           </div>
                         </div>

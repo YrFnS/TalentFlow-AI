@@ -37,7 +37,7 @@ export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: Pers
   const { t } = useI18n();
 
   return (
-    <Card className="border-0 shadow-sm card-hover-lift">
+    <Card className="border-0 shadow-sm card-">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <User className="h-5 w-5 text-emerald-600" />

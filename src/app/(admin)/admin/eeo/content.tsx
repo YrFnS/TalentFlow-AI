@@ -172,7 +172,7 @@ export default function EEOContent() {
   };
 
   const statCards = [
-    { title: t.eeo.totalResponses, value: totalResponses, icon: Users, gradient: 'from-teal-500 to-emerald-600' },
+    { title: t.eeo.totalResponses, value: totalResponses, icon: Users, gradient: 'bg-blue-600' },
     { title: t.eeo.declinedToIdentify, value: declinedCount, icon: EyeOff, gradient: 'from-emerald-500 to-teal-600' },
     { title: t.eeo.genderDiversity, value: `${genderDiversityPercent}%`, icon: TrendingUp, gradient: 'from-cyan-500 to-teal-600' },
     { title: t.eeo.ethnicDiversity, value: `${ethnicDiversityIndex}%`, icon: BarChart3, gradient: 'from-teal-600 to-emerald-700' },
@@ -183,7 +183,7 @@ export default function EEOContent() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
             {t.eeo.title}
           </h1>
           <p className="text-muted-foreground mt-1">{t.eeo.subtitle}</p>
@@ -196,7 +196,7 @@ export default function EEOContent() {
           <Button
             onClick={handleExportCSV}
             disabled={filteredApplicants.length === 0}
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-2"
+            className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-2"
           >
             <Download className="h-4 w-4" />
             {t.eeo.exportReport}
@@ -207,7 +207,7 @@ export default function EEOContent() {
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, i) => (
-          <Card key={i} className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
+          <Card key={i} className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-10`} />
             <CardContent className="p-6 relative">
               <div className="flex items-center justify-between">
@@ -228,7 +228,7 @@ export default function EEOContent() {
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Filter className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <Filter className="h-4 w-4 text-blue-600" />
             {t.eeo.filters}
           </CardTitle>
         </CardHeader>
@@ -290,9 +290,9 @@ export default function EEOContent() {
       <Card className="border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <ShieldCheck className="h-4 w-4 text-blue-600" />
             {t.eeo.eeoReport}
-            <Badge variant="secondary" className="ml-2 bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+            <Badge variant="secondary" className="ml-2 bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
               {filteredApplicants.length}
             </Badge>
           </CardTitle>
@@ -325,7 +325,7 @@ export default function EEOContent() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-teal-100 text-teal-700 text-xs dark:bg-teal-950 dark:text-teal-400">
+                            <AvatarFallback className="bg-teal-100 text-blue-700 text-xs dark:bg-teal-950">
                               {getInitials(applicant.name)}
                             </AvatarFallback>
                           </Avatar>
@@ -334,7 +334,7 @@ export default function EEOContent() {
                       </TableCell>
                       <TableCell className="text-sm">{applicant.job}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400">
+                        <Badge variant="outline" className="text-xs border-slate-200 text-blue-700">
                           {applicant.gender}
                         </Badge>
                       </TableCell>
@@ -343,7 +343,7 @@ export default function EEOContent() {
                       <TableCell className="text-sm">{applicant.disabilityStatus}</TableCell>
                       <TableCell>
                         {applicant.selfIdentified ? (
-                          <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 text-xs">
+                          <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 text-xs">
                             {t.eeo.yes}
                           </Badge>
                         ) : (
@@ -376,7 +376,7 @@ export default function EEOContent() {
             <Card className="border-border/50 animate-fade-in-up">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <BarChart3 className="h-4 w-4 text-blue-600" />
                   {t.eeo.genderDistribution}
                 </CardTitle>
               </CardHeader>
@@ -407,7 +407,7 @@ export default function EEOContent() {
             <Card className="border-border/50 animate-fade-in-up">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <BarChart3 className="h-4 w-4 text-emerald-600" />
                   {t.eeo.ethnicityDistribution}
                 </CardTitle>
               </CardHeader>
@@ -459,7 +459,7 @@ export default function EEOContent() {
                   </svg>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-teal-500" />
+                      <div className="w-3 h-3 rounded-full bg-slate-500" />
                       <span className="text-sm">{t.eeo.yes} ({veteranYes})</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -480,7 +480,7 @@ export default function EEOContent() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">{t.eeo.yes}</span>
-                    <span className="text-sm font-bold text-teal-700 dark:text-teal-400">{disabilityYesPct}%</span>
+                    <span className="text-sm font-bold text-blue-700">{disabilityYesPct}%</span>
                   </div>
                   <div className="relative h-4 rounded-full bg-muted overflow-hidden">
                     <div
@@ -493,7 +493,7 @@ export default function EEOContent() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">{t.eeo.no}</span>
-                    <span className="text-sm font-bold text-teal-700 dark:text-teal-400">{disabilityNoPct}%</span>
+                    <span className="text-sm font-bold text-blue-700">{disabilityNoPct}%</span>
                   </div>
                   <div className="relative h-4 rounded-full bg-muted overflow-hidden">
                     <div

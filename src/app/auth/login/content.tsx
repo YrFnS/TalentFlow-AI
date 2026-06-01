@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Brain, Eye, EyeOff, Sun, Moon, Globe, ArrowRight, Loader2, Sparkles, Users, Briefcase, GitBranch } from 'lucide-react';
+import { Brain, Eye, EyeOff, Globe, ArrowRight, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,7 +63,6 @@ export default function LoginPage() {
       if (result?.error) {
         toast.error(t.socialLogin.socialLoginError);
       } else if (result?.ok) {
-        // Fetch the session to get user data
         const sessionRes = await fetch('/api/auth/session');
         const session = await sessionRes.json();
 
@@ -102,7 +101,6 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        // Fetch the session to get user data
         const sessionRes = await fetch('/api/auth/session');
         const session = await sessionRes.json();
 
@@ -134,59 +132,51 @@ export default function LoginPage() {
   return (
     <div dir={dir} className="min-h-screen flex">
       {/* Left side - Branding / Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-teal-600 via-emerald-600 to-cyan-700 animate-gradient-x" style={{ backgroundSize: '200% 200%' }}>
-        {/* Animated background shapes */}
-        <div className="absolute inset-0">
-          <div className="absolute top-[10%] start-[10%] w-64 h-64 bg-white/10 rounded-full blur-2xl animate-pulse" />
-          <div className="absolute bottom-[20%] end-[15%] w-80 h-80 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-[50%] start-[40%] w-40 h-40 bg-white/10 rounded-full blur-xl animate-float" />
-        </div>
-        {/* Dot grid */}
-        <div className="absolute inset-0 dot-grid opacity-20" />
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-900">
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                <Brain className="w-6 h-6" />
               </div>
               <span className="text-2xl font-bold">TalentFlow AI</span>
             </div>
             <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
               {t.auth.hireSmarter}<br />
-              <span className="text-white/80">{t.auth.withAI}</span>
+              <span className="text-white/70">{t.auth.withAI}</span>
             </h1>
-            <p className="text-lg text-white/70 max-w-md">
+            <p className="text-lg text-white/60 max-w-md">
               {t.auth.landingDesc}
             </p>
           </div>
           {/* Feature highlights */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                 <Brain className="w-5 h-5" />
               </div>
               <div>
                 <p className="font-medium text-sm">{t.auth.featureAIScreening}</p>
-                <p className="text-xs text-white/60">{t.auth.featureAIScreeningDesc}</p>
+                <p className="text-xs text-white/50">{t.auth.featureAIScreeningDesc}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                 <GitBranch className="w-5 h-5" />
               </div>
               <div>
                 <p className="font-medium text-sm">{t.auth.featureSmartPipeline}</p>
-                <p className="text-xs text-white/60">{t.auth.featureSmartPipelineDesc}</p>
+                <p className="text-xs text-white/50">{t.auth.featureSmartPipelineDesc}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                 <Users className="w-5 h-5" />
               </div>
               <div>
                 <p className="font-medium text-sm">{t.auth.featureAIMatching}</p>
-                <p className="text-xs text-white/60">{t.auth.featureAIMatchingDesc}</p>
+                <p className="text-xs text-white/50">{t.auth.featureAIMatchingDesc}</p>
               </div>
             </div>
           </div>
@@ -198,10 +188,10 @@ export default function LoginPage() {
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
               <Brain className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent lg:hidden">
+            <span className="text-lg font-bold text-slate-900 lg:hidden">
               {t.common.appName}
             </span>
           </Link>
@@ -221,25 +211,18 @@ export default function LoginPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
           </div>
         </div>
 
         {/* Main content */}
         <div className="flex-1 flex items-center justify-center px-4 py-8">
           <div className="w-full max-w-md">
-            <div className="fixed top-0 end-0 w-96 h-96 bg-gradient-to-bl from-teal-200/20 to-transparent rounded-full blur-3xl dark:from-teal-800/10 lg:hidden" />
-            <div className="fixed bottom-0 start-0 w-96 h-96 bg-gradient-to-tr from-emerald-200/20 to-transparent rounded-full blur-3xl dark:from-emerald-800/10 lg:hidden" />
-
-            <Card className="relative border-border/50 shadow-xl shadow-teal-500/5 animate-scale-in">
+            <Card className="relative border-border/50 shadow-lg">
               <CardHeader className="text-center pb-2">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-lg shadow-teal-500/20">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600">
                   <Brain className="h-7 w-7 text-white" />
                 </div>
-                <CardTitle className="text-2xl font-bold">{t.auth.signIn}</CardTitle>
+                <CardTitle className="text-2xl font-bold text-slate-900">{t.auth.signIn}</CardTitle>
                 <CardDescription>{t.auth.signInSubtitle}</CardDescription>
               </CardHeader>
 
@@ -249,7 +232,7 @@ export default function LoginPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <Button
                       type="button"
-                      className="h-11 gap-2 bg-[#4285F4] hover:bg-[#3574d4] text-white font-medium transition-all hover:scale-[1.02] hover:shadow-md"
+                      className="h-11 gap-2 bg-[#4285F4] hover:bg-[#3574d4] text-white font-medium"
                       onClick={() => handleSocialLogin('google')}
                       disabled={socialLoading !== null}
                     >
@@ -262,7 +245,7 @@ export default function LoginPage() {
                     </Button>
                     <Button
                       type="button"
-                      className="h-11 gap-2 bg-[#0A66C2] hover:bg-[#0856a5] text-white font-medium transition-all hover:scale-[1.02] hover:shadow-md"
+                      className="h-11 gap-2 bg-[#0A66C2] hover:bg-[#0856a5] text-white font-medium"
                       onClick={() => handleSocialLogin('linkedin')}
                       disabled={socialLoading !== null}
                     >
@@ -288,10 +271,10 @@ export default function LoginPage() {
                       placeholder={t.auth.enterEmail}
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: undefined })); }}
-                      className={`transition-all duration-200 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : 'focus-visible:ring-teal-500 focus-visible:ring-offset-2'}`}
+                      className={`transition-all duration-200 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                       autoComplete="email"
                     />
-                    {errors.email && <p className="text-sm text-destructive animate-slide-in-from-top">{errors.email}</p>}
+                    {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -308,7 +291,7 @@ export default function LoginPage() {
                         placeholder={t.auth.enterPassword}
                         value={password}
                         onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: undefined })); }}
-                        className={`transition-all duration-200 ${errors.password ? 'border-destructive pe-10' : 'pe-10 focus-visible:ring-teal-500 focus-visible:ring-offset-2'}`}
+                        className={`transition-all duration-200 ${errors.password ? 'border-destructive pe-10' : 'pe-10'}`}
                         autoComplete="current-password"
                       />
                       <Button
@@ -322,7 +305,7 @@ export default function LoginPage() {
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">{t.auth.passwordRequirement}</p>
-                    {errors.password && <p className="text-sm text-destructive animate-slide-in-from-top">{errors.password}</p>}
+                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   </div>
 
                   {/* Remember me */}
@@ -331,7 +314,6 @@ export default function LoginPage() {
                       id="remember"
                       checked={rememberMe}
                       onCheckedChange={(checked) => setRememberMe(checked === true)}
-                      className="data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
                     />
                     <Label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
                       {t.auth.rememberMe}
@@ -340,7 +322,7 @@ export default function LoginPage() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 transition-shadow"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     size="lg"
                     disabled={isLoading}
                   >
@@ -357,7 +339,7 @@ export default function LoginPage() {
               <CardFooter className="flex flex-col gap-4">
                 <div className="text-sm text-muted-foreground text-center">
                   {t.auth.noAccount}{' '}
-                  <Link href="/auth/register" className="font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300">
+                  <Link href="/auth/register" className="font-semibold text-blue-600 hover:text-blue-700">
                     {t.auth.signUp}
                   </Link>
                 </div>

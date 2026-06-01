@@ -161,7 +161,7 @@ function TagInput({ tags, onTagsChange, placeholder }: { tags: string[]; onTagsC
             <Badge
               key={index}
               variant="secondary"
-              className="bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 text-xs gap-1 pr-1"
+              className="bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 text-xs gap-1 pr-1"
             >
               {tag}
               <button
@@ -181,17 +181,17 @@ function TagInput({ tags, onTagsChange, placeholder }: { tags: string[]; onTagsC
 }
 
 const departmentColors: Record<string, string> = {
-  engineering: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  design: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  marketing: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
+  engineering: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  design: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  marketing: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
   sales: 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400 border-0',
   hr: 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400 border-0',
 };
 
 const jobTypeColors: Record<string, string> = {
-  'full-time': 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  'part-time': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  contract: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
+  'full-time': 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  'part-time': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  contract: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
   internship: 'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-400 border-0',
 };
 
@@ -605,7 +605,7 @@ export default function JobTemplatesContent() {
           <Button
             onClick={onSubmit}
             disabled={saving || !formData.name.trim() || !formData.title.trim()}
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white h-9"
+            className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white h-9"
           >
             {saving && <Loader2 className="w-4 h-4 me-1 animate-spin" />}
             {isEdit ? t.jobTemplates.updateTemplate : t.jobTemplates.saveTemplate}
@@ -621,7 +621,7 @@ export default function JobTemplatesContent() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in-up">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br bg-blue-600">
               <Copy className="w-4 h-4 text-white" />
             </div>
             {t.jobTemplates.title}
@@ -633,7 +633,7 @@ export default function JobTemplatesContent() {
             setFormData(emptyForm);
             setCreateDialogOpen(true);
           }}
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md h-9"
+          className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md h-9"
         >
           <Plus className="w-4 h-4 me-2" />
           {t.jobTemplates.createTemplate}
@@ -642,11 +642,11 @@ export default function JobTemplatesContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
-        <Card className="card-hover-lift stat-card-shine">
+        <Card className="card-">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/30">
-                <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50">
+                <FileText className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{totalTemplates}</p>
@@ -655,11 +655,11 @@ export default function JobTemplatesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-hover-lift stat-card-shine">
+        <Card className="card-">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{activeTemplates}</p>
@@ -668,11 +668,11 @@ export default function JobTemplatesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-hover-lift stat-card-shine">
+        <Card className="card-">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/30">
-                <TrendingUp className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold truncate">{mostUsedTemplate?.title || '-'}</p>
@@ -681,11 +681,11 @@ export default function JobTemplatesContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-hover-lift stat-card-shine">
+        <Card className="card-">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30">
-                <Calendar className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50">
+                <Calendar className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{createdThisMonth}</p>
@@ -770,11 +770,11 @@ export default function JobTemplatesContent() {
           {filteredTemplates.map((template) => (
             <Card
               key={template.id}
-              className="group card-hover-lift border-border/50"
+              className="group card-border-border/50"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shrink-0">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white shrink-0">
                     <span className="text-xs font-bold">{getInitials(template.title)}</span>
                   </div>
                   <div className="min-w-0 flex-1">
@@ -810,12 +810,12 @@ export default function JobTemplatesContent() {
                 {(template.salaryMin || template.salaryMax) && (
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <DollarSign className="w-3 h-3 text-teal-500" />
+                      <DollarSign className="w-3 h-3 text-blue-500" />
                       {formatSalary(template.salaryMin, template.salaryMax)}
                     </span>
                     {template.location && (
                       <span className="flex items-center gap-1 truncate">
-                        <MapPin className="w-3 h-3 text-teal-500" />
+                        <MapPin className="w-3 h-3 text-blue-500" />
                         {template.location}
                       </span>
                     )}
@@ -824,7 +824,7 @@ export default function JobTemplatesContent() {
 
                 {/* Remote badge */}
                 {template.remote && (
-                  <Badge variant="outline" className="text-[10px] border-teal-200 text-teal-700 dark:border-teal-800 dark:text-teal-400">
+                  <Badge variant="outline" className="text-[10px] border-slate-200 text-blue-700">
                     {t.jobTemplates.remote}
                   </Badge>
                 )}
@@ -836,7 +836,7 @@ export default function JobTemplatesContent() {
                       <Badge
                         key={idx}
                         variant="secondary"
-                        className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0"
+                        className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0"
                       >
                         {skill}
                       </Badge>
@@ -865,7 +865,7 @@ export default function JobTemplatesContent() {
                 <div className="flex gap-2 pt-1">
                   <Button
                     size="sm"
-                    className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs h-8"
+                    className="flex-1 bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs h-8"
                     onClick={() => openUseDialog(template)}
                   >
                     <Copy className="w-3 h-3 me-1" />
@@ -911,13 +911,13 @@ export default function JobTemplatesContent() {
       ) : (
         <Card className="border-dashed animate-fade-in-up">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/30 mb-4">
-              <FileText className="w-8 h-8 text-teal-500" />
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4">
+              <FileText className="w-8 h-8 text-blue-500" />
             </div>
             <h3 className="text-lg font-semibold mb-1">{t.jobTemplates.noTemplates}</h3>
             <p className="text-sm text-muted-foreground max-w-sm">{t.jobTemplates.subtitle}</p>
             <Button
-              className="mt-4 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white h-9"
+              className="mt-4 bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white h-9"
               onClick={() => {
                 setFormData(emptyForm);
                 setCreateDialogOpen(true);
@@ -952,7 +952,7 @@ export default function JobTemplatesContent() {
         <DialogContent className="sm:max-w-md dialog-content-glow">
           <DialogHeader className="dialog-header-accent pt-2">
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-teal-500" />
+              <Sparkles className="w-5 h-5 text-blue-500" />
               {t.jobTemplates.useTemplate}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
@@ -961,10 +961,10 @@ export default function JobTemplatesContent() {
           </DialogHeader>
           {selectedTemplate && (
             <div className="space-y-3 py-2">
-              <Card className="border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20">
+              <Card className="border-slate-200 bg-slate-50">
                 <CardContent className="p-4 space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white shrink-0">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white shrink-0">
                       <span className="text-[10px] font-bold">{getInitials(selectedTemplate.title)}</span>
                     </div>
                     <div className="min-w-0">
@@ -975,7 +975,7 @@ export default function JobTemplatesContent() {
                   {selectedTemplate.skills.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {selectedTemplate.skills.slice(0, 5).map((skill, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                        <Badge key={idx} variant="secondary" className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                           {skill}
                         </Badge>
                       ))}
@@ -997,7 +997,7 @@ export default function JobTemplatesContent() {
             </DialogClose>
             <Button
               onClick={handleUseTemplate}
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white h-9"
+              className="bg-gradient-to-r bg-blue-600 hover:from-teal-600 hover:to-emerald-700 text-white h-9"
             >
               <Copy className="w-4 h-4 me-1" />
               {t.jobTemplates.useTemplate}

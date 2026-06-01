@@ -27,9 +27,6 @@ import {
   ShieldCheck,
   Sparkles,
   Check,
-  Briefcase,
-  GitBranch,
-  Users,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -66,8 +63,8 @@ function PasswordStrength({ password, t }: { password: string; t: Record<string,
   }, [password]);
 
   const labels = ['', t.strengthWeak, t.strengthFair, t.strengthGood, t.strengthStrong, t.strengthExcellent];
-  const colors = ['', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500', 'bg-teal-500'];
-  const textColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-500', 'text-emerald-500', 'text-teal-500'];
+  const colors = ['', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-blue-600'];
+  const textColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-500', 'text-blue-500', 'text-blue-600'];
 
   if (!password) return null;
 
@@ -102,10 +99,6 @@ export default function RegisterPage() {
   const [socialLoading, setSocialLoading] = useState<'google' | 'linkedin' | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Progress steps
-  const currentStep = roleCategory === 'company' && !companyName.trim() ? 1 : !name.trim() ? 1 : !email.trim() ? 2 : !password.trim() ? 3 : password !== confirmPassword ? 3 : 4;
-  const totalSteps = 4;
-
   const handleRoleCategoryChange = (cat: RoleCategory) => {
     setRoleCategory(cat);
     if (cat === 'candidate') {
@@ -128,7 +121,6 @@ export default function RegisterPage() {
       if (result?.error) {
         toast.error(t.socialLogin.socialLoginError);
       } else if (result?.ok) {
-        // Fetch the session to get user data
         const sessionRes = await fetch('/api/auth/session');
         const session = await sessionRes.json();
 
@@ -208,7 +200,6 @@ export default function RegisterPage() {
 
       if (res.ok) {
         toast.success(t.auth.accountCreated);
-        // Auto sign in after registration
         const signInRes = await fetch('/api/auth/callback/credentials', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -242,39 +233,32 @@ export default function RegisterPage() {
     }
   };
 
-  const roleCategories: { key: RoleCategory; icon: typeof User; label: string; desc: string; color: string }[] = [
-    { key: 'candidate', icon: User, label: t.auth.candidateAccount, desc: t.auth.candidateDesc, color: 'from-teal-500 to-emerald-600' },
-    { key: 'company', icon: Building2, label: t.auth.companyAccount, desc: t.auth.companyDesc, color: 'from-teal-500 to-emerald-600' },
-    { key: 'admin', icon: ShieldCheck, label: t.auth.adminAccount, desc: t.auth.adminDesc, color: 'from-teal-500 to-emerald-600' },
+  const roleCategories: { key: RoleCategory; icon: typeof User; label: string; desc: string }[] = [
+    { key: 'candidate', icon: User, label: t.auth.candidateAccount, desc: t.auth.candidateDesc },
+    { key: 'company', icon: Building2, label: t.auth.companyAccount, desc: t.auth.companyDesc },
+    { key: 'admin', icon: ShieldCheck, label: t.auth.adminAccount, desc: t.auth.adminDesc },
   ];
 
   return (
     <div dir={dir} className="min-h-screen flex">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 animate-gradient-x" style={{ backgroundSize: '200% 200%' }}>
-        <div className="absolute inset-0">
-          <div className="absolute top-[15%] start-[15%] w-56 h-56 bg-white/10 rounded-full blur-2xl animate-pulse" />
-          <div className="absolute bottom-[25%] end-[10%] w-72 h-72 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-[60%] start-[30%] w-32 h-32 bg-white/10 rounded-full blur-xl animate-float" />
-        </div>
-        <div className="absolute inset-0 dot-grid opacity-20" />
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-900">
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                <Brain className="w-6 h-6" />
               </div>
               <span className="text-2xl font-bold">TalentFlow AI</span>
             </div>
             <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
               {t.auth.startYour}<br />
-              <span className="text-white/80">{t.auth.journeyToday}</span>
+              <span className="text-white/70">{t.auth.journeyToday}</span>
             </h1>
-            <p className="text-lg text-white/70 max-w-md">
+            <p className="text-lg text-white/60 max-w-md">
               {t.auth.registerLandingDesc}
             </p>
           </div>
-          {/* Stats - fetched from platform */}
         </div>
       </div>
 
@@ -283,10 +267,10 @@ export default function RegisterPage() {
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
               <Brain className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent lg:hidden">
+            <span className="text-lg font-bold text-slate-900 lg:hidden">
               {t.common.appName}
             </span>
           </Link>
@@ -306,48 +290,28 @@ export default function RegisterPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
           </div>
         </div>
 
         {/* Main content */}
         <div className="flex-1 flex items-center justify-center px-4 py-6">
           <div className="w-full max-w-lg">
-            <div className="fixed top-0 end-0 w-96 h-96 bg-gradient-to-bl from-teal-200/20 to-transparent rounded-full blur-3xl dark:from-teal-800/10 lg:hidden" />
-            <div className="fixed bottom-0 start-0 w-96 h-96 bg-gradient-to-tr from-emerald-200/20 to-transparent rounded-full blur-3xl dark:from-emerald-800/10 lg:hidden" />
-
-            <Card className="relative border-border/50 shadow-xl shadow-teal-500/5 animate-scale-in">
+            <Card className="relative border-border/50 shadow-lg">
               <CardHeader className="text-center pb-2">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-lg shadow-teal-500/20">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600">
                   <Brain className="h-7 w-7 text-white" />
                 </div>
-                <CardTitle className="text-2xl font-bold">{t.auth.signUp}</CardTitle>
+                <CardTitle className="text-2xl font-bold text-slate-900">{t.auth.signUp}</CardTitle>
                 <CardDescription>{t.auth.signUpSubtitle}</CardDescription>
               </CardHeader>
 
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Progress Indicator */}
-                  <div className="flex items-center gap-1.5">
-                    {Array.from({ length: totalSteps }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
-                          i + 1 <= currentStep ? 'bg-gradient-to-r from-teal-500 to-emerald-500 scale-y-110' : 'bg-muted'
-                        }`}
-                        style={{ animationDelay: `${i * 0.1}s` }}
-                      />
-                    ))}
-                  </div>
-
                   {/* Social Signup Buttons */}
                   <div className="grid grid-cols-2 gap-3">
                     <Button
                       type="button"
-                      className="h-11 gap-2 bg-[#4285F4] hover:bg-[#3574d4] text-white font-medium transition-all hover:scale-[1.02] hover:shadow-md"
+                      className="h-11 gap-2 bg-[#4285F4] hover:bg-[#3574d4] text-white font-medium"
                       onClick={() => handleSocialLogin('google')}
                       disabled={socialLoading !== null}
                     >
@@ -360,7 +324,7 @@ export default function RegisterPage() {
                     </Button>
                     <Button
                       type="button"
-                      className="h-11 gap-2 bg-[#0A66C2] hover:bg-[#0856a5] text-white font-medium transition-all hover:scale-[1.02] hover:shadow-md"
+                      className="h-11 gap-2 bg-[#0A66C2] hover:bg-[#0856a5] text-white font-medium"
                       onClick={() => handleSocialLogin('linkedin')}
                       disabled={socialLoading !== null}
                     >
@@ -378,7 +342,7 @@ export default function RegisterPage() {
                     <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground/70">{t.socialLogin.orSignUpWith}</span></div>
                   </div>
 
-                  {/* Role Selection - Visual Cards */}
+                  {/* Role Selection */}
                   <div className="space-y-2">
                     <Label>{t.auth.selectRole}</Label>
                     <div className="grid grid-cols-3 gap-3">
@@ -389,16 +353,16 @@ export default function RegisterPage() {
                             key={cat.key}
                             type="button"
                             onClick={() => handleRoleCategoryChange(cat.key)}
-                            className={`flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all text-center group min-w-[100px] min-h-[110px] ${
+                            className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
                               roleCategory === cat.key
-                                ? 'border-teal-500 bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-950/30 dark:to-emerald-950/30 shadow-sm ring-2 ring-teal-500/30 scale-[1.02]'
-                                : 'border-border hover:border-teal-300 dark:hover:border-teal-700 hover:scale-[1.02]'
+                                ? 'border-blue-500 bg-blue-50 shadow-sm'
+                                : 'border-border hover:border-slate-300'
                             }`}
                           >
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br ${cat.color} text-white group-hover:scale-110 transition-transform`}>
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${roleCategory === cat.key ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
                               <Icon className="h-5 w-5" />
                             </div>
-                            <span className={`text-xs font-medium whitespace-nowrap ${roleCategory === cat.key ? 'text-teal-700 dark:text-teal-300' : 'text-muted-foreground'}`}>
+                            <span className={`text-xs font-medium whitespace-nowrap ${roleCategory === cat.key ? 'text-blue-700' : 'text-muted-foreground'}`}>
                               {cat.label}
                             </span>
                             <span className="text-[10px] text-muted-foreground leading-tight line-clamp-2">{cat.desc}</span>
@@ -410,7 +374,7 @@ export default function RegisterPage() {
 
                   {/* Sub-role selection for company/admin */}
                   {roleCategory === 'company' && (
-                    <div className="space-y-2 animate-slide-in-from-top">
+                    <div className="space-y-2">
                       <Label>{t.auth.signUpAs}</Label>
                       <div className="grid grid-cols-2 gap-2">
                         {companySubRoles.map((role) => (
@@ -420,8 +384,8 @@ export default function RegisterPage() {
                             onClick={() => setSubRole(role.value)}
                             className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all ${
                               subRole === role.value
-                                ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-300 dark:border-teal-400'
-                                : 'border-border text-muted-foreground hover:border-teal-300 dark:hover:border-teal-700'
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-border text-muted-foreground hover:border-slate-300'
                             }`}
                           >
                             {t.auth[role.key]}
@@ -432,7 +396,7 @@ export default function RegisterPage() {
                   )}
 
                   {roleCategory === 'admin' && (
-                    <div className="space-y-2 animate-slide-in-from-top">
+                    <div className="space-y-2">
                       <Label>{t.auth.signUpAs}</Label>
                       <div className="grid grid-cols-3 gap-2">
                         {adminSubRoles.map((role) => (
@@ -442,8 +406,8 @@ export default function RegisterPage() {
                             onClick={() => setSubRole(role.value)}
                             className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all ${
                               subRole === role.value
-                                ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-300 dark:border-teal-400'
-                                : 'border-border text-muted-foreground hover:border-teal-300 dark:hover:border-teal-700'
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-border text-muted-foreground hover:border-slate-300'
                             }`}
                           >
                             {t.auth[role.key]}
@@ -462,7 +426,7 @@ export default function RegisterPage() {
                         placeholder={t.auth.enterCompanyName}
                         value={companyName}
                         onChange={(e) => { setCompanyName(e.target.value); setErrors((p) => ({ ...p, companyName: undefined })); }}
-                        className={`transition-colors ${errors.companyName ? 'border-destructive' : 'focus-visible:ring-teal-500'}`}
+                        className={`transition-colors ${errors.companyName ? 'border-destructive' : ''}`}
                       />
                       {errors.companyName && <p className="text-sm text-destructive">{errors.companyName}</p>}
                     </div>
@@ -476,7 +440,7 @@ export default function RegisterPage() {
                       placeholder={t.auth.enterFullName}
                       value={name}
                       onChange={(e) => { setName(e.target.value); setErrors((p) => ({ ...p, name: undefined })); }}
-                      className={`transition-colors ${errors.name ? 'border-destructive' : 'focus-visible:ring-teal-500'}`}
+                      className={`transition-colors ${errors.name ? 'border-destructive' : ''}`}
                       autoComplete="name"
                     />
                     {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
@@ -491,7 +455,7 @@ export default function RegisterPage() {
                       placeholder="name@example.com"
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: undefined })); }}
-                      className={`transition-colors ${errors.email ? 'border-destructive' : 'focus-visible:ring-teal-500'}`}
+                      className={`transition-colors ${errors.email ? 'border-destructive' : ''}`}
                       autoComplete="email"
                     />
                     {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
@@ -507,7 +471,7 @@ export default function RegisterPage() {
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: undefined })); }}
-                        className={`transition-colors ${errors.password ? 'border-destructive pe-10' : 'pe-10 focus-visible:ring-teal-500'}`}
+                        className={`transition-colors ${errors.password ? 'border-destructive pe-10' : 'pe-10'}`}
                         autoComplete="new-password"
                       />
                       <Button
@@ -534,7 +498,7 @@ export default function RegisterPage() {
                         placeholder="••••••••"
                         value={confirmPassword}
                         onChange={(e) => { setConfirmPassword(e.target.value); setErrors((p) => ({ ...p, confirmPassword: undefined })); }}
-                        className={`transition-colors ${errors.confirmPassword ? 'border-destructive pe-10' : 'pe-10 focus-visible:ring-teal-500'}`}
+                        className={`transition-colors ${errors.confirmPassword ? 'border-destructive pe-10' : 'pe-10'}`}
                         autoComplete="new-password"
                       />
                       <Button
@@ -548,7 +512,7 @@ export default function RegisterPage() {
                       </Button>
                     </div>
                     {confirmPassword && password === confirmPassword && (
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <p className="text-xs text-blue-600 flex items-center gap-1">
                         <Check className="w-3 h-3" /> {t.auth.passwordsMatch}
                       </p>
                     )}
@@ -558,7 +522,7 @@ export default function RegisterPage() {
                   {/* Submit */}
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 transition-shadow"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     size="lg"
                     disabled={isLoading}
                   >
@@ -575,7 +539,7 @@ export default function RegisterPage() {
               <CardFooter className="flex flex-col gap-4">
                 <div className="text-sm text-muted-foreground text-center">
                   {t.auth.hasAccount}{' '}
-                  <Link href="/auth/login" className="font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300">
+                  <Link href="/auth/login" className="font-semibold text-blue-600 hover:text-blue-700">
                     {t.auth.signIn}
                   </Link>
                 </div>

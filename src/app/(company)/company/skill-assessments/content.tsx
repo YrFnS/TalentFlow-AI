@@ -297,10 +297,10 @@ export default function SkillAssessmentsContent() {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'TECHNICAL': return 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400';
-      case 'SOFT_SKILL': return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400';
-      case 'DOMAIN': return 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400';
-      case 'TOOL': return 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400';
+      case 'TECHNICAL': return 'bg-slate-50 text-blue-700 dark:bg-teal-950';
+      case 'SOFT_SKILL': return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950';
+      case 'DOMAIN': return 'bg-amber-50 text-amber-700 dark:bg-amber-950';
+      case 'TOOL': return 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950';
       case 'CERTIFICATION': return 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-400';
       default: return 'bg-gray-50 text-gray-700';
     }
@@ -319,8 +319,8 @@ export default function SkillAssessmentsContent() {
 
   const getTypeBadge = (type: string) => {
     switch (type) {
-      case 'CODING': return { label: sa.coding, color: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300' };
-      case 'SITUATIONAL': return { label: sa.situational, color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300' };
+      case 'CODING': return { label: sa.coding, color: 'bg-teal-100 text-slate-800 dark:bg-teal-900' };
+      case 'SITUATIONAL': return { label: sa.situational, color: 'bg-amber-100 text-amber-800 dark:bg-amber-900' };
       case 'BEHAVIORAL': return { label: sa.behavioral, color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300' };
       default: return { label: sa.custom, color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300' };
     }
@@ -346,7 +346,7 @@ export default function SkillAssessmentsContent() {
               setShowGenerateDialog(true);
             }}
             variant="outline"
-            className="gap-2 border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-400 dark:hover:bg-teal-950"
+            className="gap-2 border-slate-300 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
           >
             <Sparkles className="h-4 w-4" />
             {sa.generateWithAI}
@@ -356,7 +356,7 @@ export default function SkillAssessmentsContent() {
               resetForm();
               setShowCreateDialog(true);
             }}
-            className="gap-2 bg-teal-600 hover:bg-teal-700"
+            className="gap-2 bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
             {sa.createAssessment}
@@ -366,11 +366,11 @@ export default function SkillAssessmentsContent() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/50">
-                <BookOpen className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50">
+                <BookOpen className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{sa.totalAssessments}</p>
@@ -379,11 +379,11 @@ export default function SkillAssessmentsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/50">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{sa.activeAssessments}</p>
@@ -392,11 +392,11 @@ export default function SkillAssessmentsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/50">
-                <TrendingUp className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <TrendingUp className="h-5 w-5 text-amber-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{sa.avgScore}</p>
@@ -405,11 +405,11 @@ export default function SkillAssessmentsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-50 dark:bg-cyan-950/50">
-                <Target className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                <Target className="h-5 w-5 text-cyan-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{sa.skillsCovered}</p>
@@ -449,7 +449,7 @@ export default function SkillAssessmentsContent() {
       {/* Assessments List */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
         </div>
       ) : filtered.length === 0 ? (
         <Card>
@@ -462,7 +462,7 @@ export default function SkillAssessmentsContent() {
                 resetForm();
                 setShowCreateDialog(true);
               }}
-              className="mt-4 gap-2 bg-teal-600 hover:bg-teal-700"
+              className="mt-4 gap-2 bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="h-4 w-4" />
               {sa.createAssessment}
@@ -476,7 +476,7 @@ export default function SkillAssessmentsContent() {
             return (
               <Card
                 key={assessment.id}
-                className="card-hover-lift cursor-pointer transition-all hover:shadow-md"
+                className="card-cursor-pointer transition-all hover:shadow-md"
                 onClick={() => handleViewDetail(assessment)}
               >
                 <CardContent className="p-4">
@@ -491,7 +491,7 @@ export default function SkillAssessmentsContent() {
                           variant="outline"
                           className={
                             assessment.isActive
-                              ? 'border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-400'
+                              ? 'border-emerald-300 text-emerald-700 dark:border-emerald-700'
                               : 'border-gray-300 text-gray-500'
                           }
                         >
@@ -667,8 +667,8 @@ export default function SkillAssessmentsContent() {
                             variant={formSkillIds.includes(skill.id) ? 'default' : 'outline'}
                             className={`cursor-pointer text-xs transition-all ${
                               formSkillIds.includes(skill.id)
-                                ? 'bg-teal-600 text-white hover:bg-teal-700'
-                                : 'hover:border-teal-400'
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'hover:border-slate-400'
                             }`}
                             onClick={() => toggleSkill(skill.id)}
                           >
@@ -696,7 +696,7 @@ export default function SkillAssessmentsContent() {
             </Button>
             <Button
               onClick={handleCreateAssessment}
-              className="bg-teal-600 hover:bg-teal-700"
+              className="bg-blue-600 hover:bg-blue-700"
               disabled={formSkillIds.length === 0 || !formTitle.trim()}
             >
               {sa.saveAssessment}
@@ -710,7 +710,7 @@ export default function SkillAssessmentsContent() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-teal-500" />
+              <Sparkles className="h-5 w-5 text-blue-500" />
               {sa.generateWithAI}
             </DialogTitle>
             <DialogDescription>
@@ -783,8 +783,8 @@ export default function SkillAssessmentsContent() {
                             variant={formSkillIds.includes(skill.id) ? 'default' : 'outline'}
                             className={`cursor-pointer text-xs transition-all ${
                               formSkillIds.includes(skill.id)
-                                ? 'bg-teal-600 text-white hover:bg-teal-700'
-                                : 'hover:border-teal-400'
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'hover:border-slate-400'
                             }`}
                             onClick={() => toggleSkill(skill.id)}
                           >
@@ -838,7 +838,7 @@ export default function SkillAssessmentsContent() {
               variant="outline"
               onClick={handleGenerateQuestions}
               disabled={generating || formSkillIds.length === 0}
-              className="gap-2 border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-400"
+              className="gap-2 border-slate-300 text-blue-700 hover:bg-slate-50"
             >
               {generating ? (
                 <>
@@ -854,7 +854,7 @@ export default function SkillAssessmentsContent() {
             </Button>
             <Button
               onClick={handleCreateAssessment}
-              className="bg-teal-600 hover:bg-teal-700"
+              className="bg-blue-600 hover:bg-blue-700"
               disabled={formSkillIds.length === 0 || !formTitle.trim() || formQuestions.length === 0}
             >
               {sa.saveAssessment}
@@ -870,7 +870,7 @@ export default function SkillAssessmentsContent() {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-teal-500" />
+                  <Brain className="h-5 w-5 text-blue-500" />
                   {selectedAssessment.title}
                 </DialogTitle>
                 <DialogDescription>{selectedAssessment.description || sa.subtitle}</DialogDescription>
@@ -878,26 +878,26 @@ export default function SkillAssessmentsContent() {
               <div className="space-y-4 py-2">
                 {/* Assessment Info */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="text-center p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30">
-                    <p className="text-2xl font-bold text-teal-700 dark:text-teal-400">
+                  <div className="text-center p-3 rounded-lg bg-slate-50">
+                    <p className="text-2xl font-bold text-blue-700">
                       {selectedAssessment.questions?.length || 0}
                     </p>
                     <p className="text-xs text-muted-foreground">{sa.questions}</p>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
-                    <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
+                  <div className="text-center p-3 rounded-lg bg-emerald-50">
+                    <p className="text-2xl font-bold text-emerald-700">
                       {selectedAssessment.passingScore}%
                     </p>
                     <p className="text-xs text-muted-foreground">{sa.passingScore}</p>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30">
-                    <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">
+                    <p className="text-2xl font-bold text-amber-700">
                       {selectedAssessment.timeLimitMinutes || '—'}
                     </p>
                     <p className="text-xs text-muted-foreground">{sa.timeLimit}</p>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-cyan-50 dark:bg-cyan-950/30">
-                    <p className="text-2xl font-bold text-cyan-700 dark:text-cyan-400">
+                  <div className="text-center p-3 rounded-lg bg-cyan-50">
+                    <p className="text-2xl font-bold text-cyan-700">
                       {selectedAssessment.totalResults}
                     </p>
                     <p className="text-xs text-muted-foreground">{sa.totalResults}</p>
@@ -959,7 +959,7 @@ export default function SkillAssessmentsContent() {
                                   {sa.passed}
                                 </Badge>
                               ) : result.score !== null ? (
-                                <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 text-[10px]">
+                                <Badge className="bg-red-100 text-red-800 dark:bg-red-900 text-[10px]">
                                   {sa.failed}
                                 </Badge>
                               ) : '—'}

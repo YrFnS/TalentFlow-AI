@@ -115,10 +115,10 @@ function replaceVariables(text: string): string {
 
 const statusColors: Record<CampaignStatus, string> = {
   draft: 'bg-slate-50 text-slate-700 dark:bg-slate-950 dark:text-slate-400 border-0',
-  scheduled: 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0',
-  sending: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  sent: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
-  failed: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  scheduled: 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0',
+  sending: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  sent: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
+  failed: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 const statusIcons: Record<CampaignStatus, React.ReactNode> = {
@@ -131,11 +131,11 @@ const statusIcons: Record<CampaignStatus, React.ReactNode> = {
 
 const emailStatusColors: Record<string, string> = {
   pending: 'bg-slate-50 text-slate-600 dark:bg-slate-950 dark:text-slate-400',
-  sent: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400',
-  opened: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400',
+  sent: 'bg-slate-50 text-blue-700 dark:bg-teal-950',
+  opened: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950',
   clicked: 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400',
-  bounced: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
-  failed: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400',
+  bounced: 'bg-amber-50 text-amber-700 dark:bg-amber-950',
+  failed: 'bg-red-50 text-red-700 dark:bg-red-950',
 };
 
 export default function BulkEmailContent() {
@@ -438,17 +438,17 @@ export default function BulkEmailContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Megaphone className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.bulkEmail.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.bulkEmail.title}</h1>
             <p className="text-sm text-muted-foreground">{t.bulkEmail.subtitle}</p>
           </div>
         </div>
         <Button
           onClick={openCreateDialog}
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
         >
           <Plus className="h-4 w-4 me-2" />
           {t.bulkEmail.createCampaign}
@@ -457,11 +457,11 @@ export default function BulkEmailContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden animate-fade-in-up">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 card-relative overflow-hidden animate-fade-in-up">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Mail className="h-4 w-4" />
               </div>
               <div>
@@ -471,11 +471,11 @@ export default function BulkEmailContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden animate-fade-in-up">
+        <Card className="border-border/50 card-relative overflow-hidden animate-fade-in-up">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <Send className="h-4 w-4" />
               </div>
               <div>
@@ -485,11 +485,11 @@ export default function BulkEmailContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden animate-fade-in-up">
+        <Card className="border-border/50 card-relative overflow-hidden animate-fade-in-up">
           <div className="absolute inset-0 bg-gradient-to-br from-teal-600 to-emerald-700 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                 <BarChart3 className="h-4 w-4" />
               </div>
               <div>
@@ -499,11 +499,11 @@ export default function BulkEmailContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-hover-lift relative overflow-hidden animate-fade-in-up">
+        <Card className="border-border/50 card-relative overflow-hidden animate-fade-in-up">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-teal-700 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div>
@@ -549,7 +549,7 @@ export default function BulkEmailContent() {
                       <tr key={campaign.id} className="border-b border-border/30 hover:bg-muted/10 transition-colors table-row-accent">
                         <td className="p-3">
                           <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs shrink-0">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white text-xs shrink-0">
                               <Mail className="h-4 w-4" />
                             </div>
                             <span className="text-sm font-medium truncate max-w-[200px]">{campaign.name}</span>
@@ -571,16 +571,16 @@ export default function BulkEmailContent() {
                           <span className="text-sm">{campaign.sent}</span>
                         </td>
                         <td className="p-3 hidden lg:table-cell">
-                          <span className="text-sm text-emerald-600 dark:text-emerald-400">{campaign.opened}</span>
+                          <span className="text-sm text-emerald-600">{campaign.opened}</span>
                         </td>
                         <td className="p-3 hidden lg:table-cell">
                           <span className="text-sm">{campaign.clicked}</span>
                         </td>
                         <td className="p-3 hidden lg:table-cell">
-                          <span className="text-sm text-amber-600 dark:text-amber-400">{campaign.bounced}</span>
+                          <span className="text-sm text-amber-600">{campaign.bounced}</span>
                         </td>
                         <td className="p-3 hidden md:table-cell">
-                          <span className="text-sm font-medium text-teal-600 dark:text-teal-400">{openRate}%</span>
+                          <span className="text-sm font-medium text-blue-600">{openRate}%</span>
                         </td>
                         <td className="p-3">
                           <div className="flex items-center justify-end gap-1">
@@ -591,7 +591,7 @@ export default function BulkEmailContent() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                                className="h-7 w-7 text-blue-600 hover:bg-slate-50 dark:hover:bg-teal-950"
                                 onClick={() => handleSendCampaign(campaign)}
                               >
                                 <Send className="h-3.5 w-3.5" />
@@ -613,7 +613,7 @@ export default function BulkEmailContent() {
       <Card className="border-border/50 animate-fade-in-up">
         <CardContent className="p-4">
           <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <BarChart3 className="h-4 w-4 text-blue-600" />
             {t.bulkEmail.openRate}
           </h3>
           <div className="space-y-3">
@@ -623,7 +623,7 @@ export default function BulkEmailContent() {
                 <div key={campaign.id} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground truncate max-w-[200px]">{campaign.name}</span>
-                    <span className="font-medium text-teal-600 dark:text-teal-400">{rate.toFixed(1)}%</span>
+                    <span className="font-medium text-blue-600">{rate.toFixed(1)}%</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
@@ -643,7 +643,7 @@ export default function BulkEmailContent() {
         <DialogContent className="max-w-3xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Megaphone className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Megaphone className="h-5 w-5 text-blue-600" />
               {t.bulkEmail.createCampaign}
             </DialogTitle>
           </DialogHeader>
@@ -701,7 +701,7 @@ export default function BulkEmailContent() {
                       variant={formEmailMode === 'template' ? 'default' : 'outline'}
                       size="sm"
                       className={cn(
-                        formEmailMode === 'template' && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
+                        formEmailMode === 'template' && 'bg-gradient-to-r bg-blue-600 text-white'
                       )}
                       onClick={() => setFormEmailMode('template')}
                     >
@@ -712,7 +712,7 @@ export default function BulkEmailContent() {
                       variant={formEmailMode === 'custom' ? 'default' : 'outline'}
                       size="sm"
                       className={cn(
-                        formEmailMode === 'custom' && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
+                        formEmailMode === 'custom' && 'bg-gradient-to-r bg-blue-600 text-white'
                       )}
                       onClick={() => setFormEmailMode('custom')}
                     >
@@ -765,7 +765,7 @@ export default function BulkEmailContent() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Variable className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <Variable className="h-4 w-4 text-blue-600" />
                     <label className="text-sm font-medium">{t.bulkEmail.insertVariable}</label>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -774,10 +774,10 @@ export default function BulkEmailContent() {
                         key={v.key}
                         variant="outline"
                         size="sm"
-                        className="h-7 text-[10px] gap-1 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950"
+                        className="h-7 text-[10px] gap-1 border-slate-200 hover:bg-slate-50 dark:hover:bg-teal-950"
                         onClick={() => insertVariable(v.key)}
                       >
-                        <span className="font-mono text-teal-600 dark:text-teal-400">{`{{${v.key}}}`}</span>
+                        <span className="font-mono text-blue-600">{`{{${v.key}}}`}</span>
                         <span className="text-muted-foreground">— {t.bulkEmail[v.labelKey]}</span>
                       </Button>
                     ))}
@@ -801,7 +801,7 @@ export default function BulkEmailContent() {
                     {formSelectedRecipients.size} {t.bulkEmail.selectedRecipients}
                   </p>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="h-7 text-xs text-teal-600 dark:text-teal-400" onClick={selectAllVisible}>
+                    <Button variant="ghost" size="sm" className="h-7 text-xs text-blue-600" onClick={selectAllVisible}>
                       {t.bulkEmail.selectAll}
                     </Button>
                     <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={deselectAllVisible}>
@@ -863,7 +863,7 @@ export default function BulkEmailContent() {
                         key={r.id}
                         className={cn(
                           'flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors hover:bg-muted/50',
-                          formSelectedRecipients.has(r.id) && 'bg-teal-50/50 dark:bg-teal-950/30'
+                          formSelectedRecipients.has(r.id) && 'bg-slate-50'
                         )}
                       >
                         <Checkbox
@@ -871,7 +871,7 @@ export default function BulkEmailContent() {
                           onCheckedChange={() => toggleRecipient(r.id)}
                         />
                         <Avatar className="h-7 w-7">
-                          <AvatarFallback className="text-[10px] bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                          <AvatarFallback className="text-[10px] bg-blue-600 text-white">
                             {getInitials(r.name)}
                           </AvatarFallback>
                         </Avatar>
@@ -897,7 +897,7 @@ export default function BulkEmailContent() {
               <div className="space-y-4 animate-fade-in">
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <CheckCircle2 className="h-4 w-4 text-blue-600" />
                     {t.bulkEmail.campaignSummary}
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
@@ -929,7 +929,7 @@ export default function BulkEmailContent() {
                 {/* Email Preview */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold flex items-center gap-2">
-                    <Eye className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <Eye className="h-4 w-4 text-blue-600" />
                     {t.bulkEmail.preview}
                   </h3>
                   <div className="rounded-lg border border-border/50 p-3 bg-muted/20 max-h-40 overflow-y-auto scrollbar-thin">
@@ -945,7 +945,7 @@ export default function BulkEmailContent() {
                 {/* Schedule Options */}
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <Calendar className="h-4 w-4 text-blue-600" />
                     {t.bulkEmail.scheduleLater}
                   </h3>
                   <div className="flex gap-2">
@@ -953,7 +953,7 @@ export default function BulkEmailContent() {
                       variant={formSendMode === 'now' ? 'default' : 'outline'}
                       size="sm"
                       className={cn(
-                        formSendMode === 'now' && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
+                        formSendMode === 'now' && 'bg-gradient-to-r bg-blue-600 text-white'
                       )}
                       onClick={() => setFormSendMode('now')}
                     >
@@ -964,7 +964,7 @@ export default function BulkEmailContent() {
                       variant={formSendMode === 'later' ? 'default' : 'outline'}
                       size="sm"
                       className={cn(
-                        formSendMode === 'later' && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
+                        formSendMode === 'later' && 'bg-gradient-to-r bg-blue-600 text-white'
                       )}
                       onClick={() => setFormSendMode('later')}
                     >
@@ -1002,7 +1002,7 @@ export default function BulkEmailContent() {
               </DialogClose>
               {step < 4 ? (
                 <Button
-                  className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                  className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
                   disabled={!canGoNext()}
                   onClick={() => setStep(s => s + 1)}
                 >
@@ -1011,7 +1011,7 @@ export default function BulkEmailContent() {
                 </Button>
               ) : (
                 <Button
-                  className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                  className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
                   disabled={isSending}
                   onClick={handleCreateCampaign}
                 >
@@ -1035,7 +1035,7 @@ export default function BulkEmailContent() {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                  <Mail className="h-5 w-5 text-blue-600" />
                   {t.bulkEmail.campaignDetails}
                 </DialogTitle>
               </DialogHeader>
@@ -1057,13 +1057,13 @@ export default function BulkEmailContent() {
                 {/* Performance Metrics */}
                 <div>
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <BarChart3 className="h-4 w-4 text-blue-600" />
                     {t.bulkEmail.performanceMetrics}
                   </h4>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="rounded-lg border border-border/50 p-3 text-center bg-muted/20">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t.bulkEmail.sent}</p>
-                      <p className="text-xl font-bold text-teal-600 dark:text-teal-400">{selectedCampaign.sent}</p>
+                      <p className="text-xl font-bold text-blue-600">{selectedCampaign.sent}</p>
                       <p className="text-[10px] text-muted-foreground">
                         {selectedCampaign.recipients.length > 0
                           ? ((selectedCampaign.sent / selectedCampaign.recipients.length) * 100).toFixed(0)
@@ -1072,7 +1072,7 @@ export default function BulkEmailContent() {
                     </div>
                     <div className="rounded-lg border border-border/50 p-3 text-center bg-muted/20">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t.bulkEmail.opened}</p>
-                      <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{selectedCampaign.opened}</p>
+                      <p className="text-xl font-bold text-emerald-600">{selectedCampaign.opened}</p>
                       <p className="text-[10px] text-muted-foreground">
                         {selectedCampaign.sent > 0 ? ((selectedCampaign.opened / selectedCampaign.sent) * 100).toFixed(0) : 0}% {t.bulkEmail.openRate}
                       </p>
@@ -1086,7 +1086,7 @@ export default function BulkEmailContent() {
                     </div>
                     <div className="rounded-lg border border-border/50 p-3 text-center bg-muted/20">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t.bulkEmail.bounced}</p>
-                      <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{selectedCampaign.bounced}</p>
+                      <p className="text-xl font-bold text-amber-600">{selectedCampaign.bounced}</p>
                       <p className="text-[10px] text-muted-foreground">
                         {selectedCampaign.sent > 0 ? ((selectedCampaign.bounced / selectedCampaign.sent) * 100).toFixed(0) : 0}% {t.bulkEmail.bounceRate}
                       </p>
@@ -1099,7 +1099,7 @@ export default function BulkEmailContent() {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">{t.bulkEmail.openRate}</span>
-                      <span className="font-medium text-teal-600 dark:text-teal-400">
+                      <span className="font-medium text-blue-600">
                         {((selectedCampaign.opened / selectedCampaign.sent) * 100).toFixed(1)}%
                       </span>
                     </div>
@@ -1118,7 +1118,7 @@ export default function BulkEmailContent() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-sm font-semibold flex items-center gap-2">
-                      <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                      <Users className="h-4 w-4 text-blue-600" />
                       {t.bulkEmail.recipientList}
                     </h4>
                     {(selectedCampaign.status === 'sent' || selectedCampaign.status === 'failed') &&
@@ -1126,7 +1126,7 @@ export default function BulkEmailContent() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 text-xs border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                        className="h-7 text-xs border-slate-200 text-blue-600 hover:bg-slate-50 dark:hover:bg-teal-950"
                         onClick={() => handleResendFailed(selectedCampaign)}
                         disabled={isSending}
                       >
@@ -1140,7 +1140,7 @@ export default function BulkEmailContent() {
                       {selectedCampaign.recipients.map(r => (
                         <div key={r.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30 transition-colors">
                           <Avatar className="h-7 w-7">
-                            <AvatarFallback className="text-[10px] bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                            <AvatarFallback className="text-[10px] bg-blue-600 text-white">
                               {getInitials(r.name)}
                             </AvatarFallback>
                           </Avatar>
@@ -1179,7 +1179,7 @@ export default function BulkEmailContent() {
             <AlertDialogAction
               onClick={confirmSendCampaign}
               disabled={isSending}
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+              className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
             >
               {isSending ? (
                 <Loader2 className="h-4 w-4 animate-spin me-1" />

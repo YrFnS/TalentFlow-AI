@@ -29,7 +29,7 @@ export default function CareerPathPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
           <Route className="h-5 w-5" />
         </div>
         <div>
@@ -40,15 +40,15 @@ export default function CareerPathPage() {
 
       {/* Current Position */}
       <Card className="border-0 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-teal-500/10 to-emerald-500/10 dark:from-teal-950/30 dark:to-emerald-950/30 p-5">
+        <div className="bg-gradient-to-r from-blue-50 to-emerald-500/10 p-5">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
               <Briefcase className="h-6 w-6" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="font-bold text-lg">{t.careerPath.currentPosition}</h2>
-                <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">Current</Badge>
+                <Badge className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">Current</Badge>
               </div>
               <p className="text-sm text-muted-foreground">Update your profile to see your current position details.</p>
             </div>
@@ -78,7 +78,7 @@ export default function CareerPathPage() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Target className="h-4 w-4 text-teal-600" />
+              <Target className="h-4 w-4 text-blue-600" />
               {t.careerPath.shortTermGoals}
             </CardTitle>
             <CardDescription className="text-xs">1-2 {t.careerPath.years}</CardDescription>
@@ -129,9 +129,9 @@ export default function CareerPathPage() {
 
       {/* AI Career Insights */}
       <Card className="border-border/50 overflow-hidden">
-        <div className="bg-gradient-to-r from-teal-500/10 to-emerald-500/10 dark:from-teal-950/30 dark:to-emerald-950/30 p-6">
+        <div className="bg-gradient-to-r from-blue-50 to-emerald-500/10 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>

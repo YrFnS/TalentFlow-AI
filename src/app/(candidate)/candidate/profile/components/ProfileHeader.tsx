@@ -16,7 +16,7 @@ export default function ProfileHeader() {
       </div>
       <div className="flex items-center gap-2">
         <Button variant="outline" className="gap-2" onClick={() => {}}>
-          <Sparkles className="h-4 w-4 text-teal-600" />
+          <Sparkles className="h-4 w-4 text-blue-600" />
           {t.candidate.aiAnalyzeResume}
         </Button>
         <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">

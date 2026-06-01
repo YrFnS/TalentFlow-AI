@@ -123,8 +123,8 @@ export default function CompanyProfilePage() {
             className={cn(
               'px-3 py-1 text-sm font-medium border-0',
               formData.verified
-                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
-                : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40'
             )}
           >
             {formData.verified ? (
@@ -141,7 +141,7 @@ export default function CompanyProfilePage() {
       <Card className="border-border/60">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <Building2 className="w-5 h-5 text-blue-600" />
             {t.company.companyLogo}
           </CardTitle>
           <CardDescription>
@@ -156,17 +156,17 @@ export default function CompanyProfilePage() {
             className={cn(
               'relative flex flex-col items-center justify-center w-full h-48 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer',
               isDragOver
-                ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/20'
-                : 'border-muted-foreground/25 hover:border-teal-400 hover:bg-muted/30'
+                ? 'border-teal-500 bg-slate-50'
+                : 'border-muted-foreground/25 hover:border-slate-400 hover:bg-muted/30'
             )}
           >
             <div className="flex flex-col items-center gap-3 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
                 <Building2 className="h-8 w-8" />
               </div>
               <div>
                 <p className="text-sm font-medium">
-                  <span className="text-teal-600 dark:text-teal-400 hover:text-teal-700">
+                  <span className="text-blue-600 hover:text-blue-700">
                     Click to upload
                   </span>{' '}
                   or drag and drop
@@ -189,7 +189,7 @@ export default function CompanyProfilePage() {
       <Card className="border-border/60">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <Building2 className="w-5 h-5 text-blue-600" />
             {t.company.profile}
           </CardTitle>
           <CardDescription>
@@ -302,7 +302,7 @@ export default function CompanyProfilePage() {
       <Card className="border-border/60">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
-            <ExternalLink className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <ExternalLink className="w-5 h-5 text-blue-600" />
             {t.company.socialLinks}
           </CardTitle>
           <CardDescription>
@@ -343,9 +343,9 @@ export default function CompanyProfilePage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
             {formData.verified ? (
-              <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
             ) : (
-              <ShieldX className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              <ShieldX className="w-5 h-5 text-amber-600" />
             )}
             {t.company.verificationStatus}
           </CardTitle>
@@ -361,9 +361,9 @@ export default function CompanyProfilePage() {
               )}
             >
               {formData.verified ? (
-                <ShieldCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                <ShieldCheck className="h-6 w-6 text-emerald-600" />
               ) : (
-                <ShieldX className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                <ShieldX className="h-6 w-6 text-amber-600" />
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -377,7 +377,7 @@ export default function CompanyProfilePage() {
               </p>
             </div>
             {!formData.verified && (
-              <Button variant="outline" size="sm" className="shrink-0 border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-400 dark:hover:bg-teal-950/30">
+              <Button variant="outline" size="sm" className="shrink-0 border-slate-300 text-blue-700 hover:bg-slate-50">
                 Request Verification
               </Button>
             )}
@@ -395,7 +395,7 @@ export default function CompanyProfilePage() {
         <Button
           onClick={handleSave}
           disabled={isSaving}
-          className="min-w-[140px] bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-md"
+          className="min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white shadow-md"
         >
           {isSaving ? (
             <span className="flex items-center gap-2">

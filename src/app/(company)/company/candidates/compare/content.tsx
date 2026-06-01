@@ -95,9 +95,9 @@ const initialJobs: JobData[] = [];
 // Color map for candidates in comparison
 // ============================================
 const candidateColors = [
-  { stroke: '#14b8a6', fill: 'rgba(20, 184, 166, 0.15)', bg: 'bg-teal-500', text: 'text-teal-600 dark:text-teal-400', border: 'border-teal-500' },
-  { stroke: '#10b981', fill: 'rgba(16, 185, 129, 0.15)', bg: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-500' },
-  { stroke: '#06b6d4', fill: 'rgba(6, 182, 212, 0.15)', bg: 'bg-cyan-500', text: 'text-cyan-600 dark:text-cyan-400', border: 'border-cyan-500' },
+  { stroke: '#14b8a6', fill: 'rgba(20, 184, 166, 0.15)', bg: 'bg-slate-500', text: 'text-blue-600', border: 'border-teal-500' },
+  { stroke: '#10b981', fill: 'rgba(16, 185, 129, 0.15)', bg: 'bg-emerald-500', text: 'text-emerald-600', border: 'border-emerald-500' },
+  { stroke: '#06b6d4', fill: 'rgba(6, 182, 212, 0.15)', bg: 'bg-cyan-500', text: 'text-cyan-600', border: 'border-cyan-500' },
 ];
 
 // ============================================
@@ -364,8 +364,8 @@ export default function CompareContent() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Interview': return 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400';
-      case 'Screening': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+      case 'Interview': return 'bg-teal-100 text-blue-700';
+      case 'Screening': return 'bg-amber-100 text-amber-700';
       case 'Applied': return 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400';
       default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400';
     }
@@ -377,7 +377,7 @@ export default function CompareContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <ArrowLeftRight className="w-6 h-6 text-teal-500" />
+            <ArrowLeftRight className="w-6 h-6 text-blue-500" />
             {t.comparison.title}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">{t.comparison.subtitle}</p>
@@ -385,7 +385,7 @@ export default function CompareContent() {
       </div>
 
       {/* Job Selection */}
-      <Card className="card-hover-lift">
+      <Card className="card-">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex-1">
@@ -407,8 +407,8 @@ export default function CompareContent() {
               </Select>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-center px-4 py-2 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/30">
-                <p className="text-2xl font-bold text-teal-600 dark:text-teal-400">{currentJob?.candidates.length || 0}</p>
+              <div className="text-center px-4 py-2 rounded-lg bg-slate-50 border border-slate-200/30">
+                <p className="text-2xl font-bold text-blue-600">{currentJob?.candidates.length || 0}</p>
                 <p className="text-xs text-muted-foreground">{t.comparison.totalApplicants}</p>
               </div>
               <p className="text-sm text-muted-foreground">{t.comparison.selectInstruction}</p>
@@ -418,14 +418,14 @@ export default function CompareContent() {
       </Card>
 
       {/* Candidate Selector */}
-      <Card className="card-hover-lift">
+      <Card className="card-">
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Users className="w-4 h-4 text-teal-500" />
+              <Users className="w-4 h-4 text-blue-500" />
               {t.nav.candidates}
               {selectedCandidateIds.size > 0 && (
-                <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
+                <Badge className="bg-teal-100 text-blue-700">
                   {selectedCandidateIds.size} / 3
                 </Badge>
               )}
@@ -443,7 +443,7 @@ export default function CompareContent() {
               {selectedCandidateIds.size >= 2 && (
                 <Button
                   onClick={handleCompare}
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                   size="sm"
                 >
                   {t.comparison.compareNow}
@@ -466,21 +466,21 @@ export default function CompareContent() {
                   key={candidate.id}
                   onClick={() => toggleCandidateSelection(candidate.id)}
                   className={cn(
-                    'relative p-3 rounded-lg border-2 text-start transition-all card-hover-lift',
+                    'relative p-3 rounded-lg border-2 text-start transition-all card-',
                     isSelected
-                      ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/20 shadow-md shadow-teal-500/10'
-                      : 'border-border hover:border-teal-300 dark:hover:border-teal-700'
+                      ? 'border-teal-500 bg-slate-50 shadow-md shadow-teal-500/10'
+                      : 'border-border hover:border-slate-300'
                   )}
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative">
                       <Avatar className="w-10 h-10">
-                        <AvatarFallback className={cn('text-xs font-semibold', isSelected ? 'bg-teal-500 text-white' : 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400')}>
+                        <AvatarFallback className={cn('text-xs font-semibold', isSelected ? 'bg-slate-500 text-white' : 'bg-teal-100 text-blue-700')}>
                           {getInitials(candidate.name)}
                         </AvatarFallback>
                       </Avatar>
                       {isSelected && (
-                        <div className="absolute -top-1 -end-1 w-5 h-5 rounded-full bg-teal-500 text-white flex items-center justify-center">
+                        <div className="absolute -top-1 -end-1 w-5 h-5 rounded-full bg-slate-500 text-white flex items-center justify-center">
                           <CheckCircle2 className="w-3 h-3" />
                         </div>
                       )}
@@ -491,7 +491,7 @@ export default function CompareContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
-                    <div className={cn('flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold', 'bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400')}>
+                    <div className={cn('flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold', 'bg-slate-50 text-blue-600')}>
                       <Sparkles className="w-2.5 h-2.5" />
                       {candidate.matchScore}%
                     </div>
@@ -513,10 +513,10 @@ export default function CompareContent() {
       {showComparison && selectedCandidates.length >= 2 && (
         <div className="space-y-6 animate-fade-in-up">
           {/* Profile Comparison */}
-          <Card className="card-hover-lift">
+          <Card className="card-">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Users className="w-4 h-4 text-teal-500" />
+                <Users className="w-4 h-4 text-blue-500" />
                 {t.comparison.profile}
               </CardTitle>
             </CardHeader>
@@ -537,7 +537,7 @@ export default function CompareContent() {
                         <p className="font-semibold">{candidate.name}</p>
                         <p className="text-xs text-muted-foreground">{candidate.currentTitle}</p>
                       </div>
-                      <div className={cn('flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold', 'bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400')}>
+                      <div className={cn('flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold', 'bg-slate-50 text-blue-600')}>
                         <Sparkles className="w-3 h-3" />
                         {t.comparison.matchScore}: {candidate.matchScore}%
                       </div>
@@ -560,10 +560,10 @@ export default function CompareContent() {
           </Card>
 
           {/* Skills Match */}
-          <Card className="card-hover-lift">
+          <Card className="card-">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Star className="w-4 h-4 text-teal-500" />
+                <Star className="w-4 h-4 text-blue-500" />
                 {t.comparison.skillsMatch}
               </CardTitle>
             </CardHeader>
@@ -583,13 +583,13 @@ export default function CompareContent() {
                       </div>
                       {/* Matched Skills */}
                       <div>
-                        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-1">
+                        <p className="text-xs font-semibold text-emerald-600 mb-1 flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" />
                           {t.comparison.matched} ({matched.length})
                         </p>
                         <div className="flex flex-wrap gap-1">
                           {matched.map((s) => (
-                            <Badge key={s} className="text-[10px] px-1.5 py-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0">
+                            <Badge key={s} className="text-[10px] px-1.5 py-0 bg-emerald-100 text-emerald-700 border-0">
                               {s}
                             </Badge>
                           ))}
@@ -598,13 +598,13 @@ export default function CompareContent() {
                       {/* Missing Skills */}
                       {missing.length > 0 && (
                         <div>
-                          <p className="text-xs font-semibold text-red-500 dark:text-red-400 mb-1 flex items-center gap-1">
+                          <p className="text-xs font-semibold text-red-500 mb-1 flex items-center gap-1">
                             <XCircle className="w-3 h-3" />
                             {t.comparison.missing} ({missing.length})
                           </p>
                           <div className="flex flex-wrap gap-1">
                             {missing.map((s) => (
-                              <Badge key={s} variant="outline" className="text-[10px] px-1.5 py-0 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800">
+                              <Badge key={s} variant="outline" className="text-[10px] px-1.5 py-0 text-red-600 border-red-200 dark:border-red-800">
                                 {s}
                               </Badge>
                             ))}
@@ -614,13 +614,13 @@ export default function CompareContent() {
                       {/* Extra Skills */}
                       {extra.length > 0 && (
                         <div>
-                          <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 mb-1 flex items-center gap-1">
+                          <p className="text-xs font-semibold text-cyan-600 mb-1 flex items-center gap-1">
                             <Sparkles className="w-3 h-3" />
                             {t.comparison.extra} ({extra.length})
                           </p>
                           <div className="flex flex-wrap gap-1">
                             {extra.slice(0, 5).map((s) => (
-                              <Badge key={s} variant="secondary" className="text-[10px] px-1.5 py-0 bg-cyan-50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400">
+                              <Badge key={s} variant="secondary" className="text-[10px] px-1.5 py-0 bg-cyan-50 text-cyan-700">
                                 {s}
                               </Badge>
                             ))}
@@ -638,10 +638,10 @@ export default function CompareContent() {
           </Card>
 
           {/* Score Comparison - Radar Chart */}
-          <Card className="card-hover-lift">
+          <Card className="card-">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-teal-500" />
+                <Sparkles className="w-4 h-4 text-blue-500" />
                 {t.comparison.scoreComparison}
               </CardTitle>
             </CardHeader>
@@ -688,7 +688,7 @@ export default function CompareContent() {
                               <td key={candidate.id} className="py-2 px-3 text-center">
                                 <span className={cn(
                                   'font-semibold',
-                                  candidate.scores[key] === maxScore ? 'text-teal-600 dark:text-teal-400' : ''
+                                  candidate.scores[key] === maxScore ? 'text-blue-600' : ''
                                 )}>
                                   {candidate.scores[key]}
                                 </span>
@@ -705,10 +705,10 @@ export default function CompareContent() {
           </Card>
 
           {/* Experience Timeline */}
-          <Card className="card-hover-lift">
+          <Card className="card-">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <Clock className="w-4 h-4 text-teal-500" />
+                <Clock className="w-4 h-4 text-blue-500" />
                 {t.comparison.experienceTimeline}
               </CardTitle>
             </CardHeader>
@@ -751,17 +751,17 @@ export default function CompareContent() {
           </Card>
 
           {/* AI Insights */}
-          <Card className="card-hover-lift border-teal-200/50 dark:border-teal-800/50">
+          <Card className="card-border-slate-200/50/50">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-teal-500" />
+                  <Sparkles className="w-4 h-4 text-blue-500" />
                   {t.comparison.aiInsights}
                 </CardTitle>
                 <Button
                   onClick={handleGenerateAI}
                   disabled={isGenerating}
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                   size="sm"
                 >
                   {isGenerating ? (
@@ -798,13 +798,13 @@ export default function CompareContent() {
                       </div>
                       {/* Strengths */}
                       <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30">
-                        <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-2 flex items-center gap-1">
+                        <p className="text-xs font-semibold text-emerald-700 mb-2 flex items-center gap-1">
                           <ThumbsUp className="w-3 h-3" />
                           {t.comparison.pros}
                         </p>
                         <ul className="space-y-1">
                           {insight.pros.map((pro, i) => (
-                            <li key={i} className="text-xs text-emerald-600 dark:text-emerald-400/80 flex items-start gap-1.5">
+                            <li key={i} className="text-xs text-emerald-600/80 flex items-start gap-1.5">
                               <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
                               {pro}
                             </li>
@@ -813,13 +813,13 @@ export default function CompareContent() {
                       </div>
                       {/* Concerns */}
                       <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30">
-                        <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2 flex items-center gap-1">
+                        <p className="text-xs font-semibold text-amber-700 mb-2 flex items-center gap-1">
                           <Minus className="w-3 h-3" />
                           {t.comparison.cons}
                         </p>
                         <ul className="space-y-1">
                           {insight.cons.map((con, i) => (
-                            <li key={i} className="text-xs text-amber-600 dark:text-amber-400/80 flex items-start gap-1.5">
+                            <li key={i} className="text-xs text-amber-600/80 flex items-start gap-1.5">
                               <XCircle className="w-3 h-3 mt-0.5 shrink-0" />
                               {con}
                             </li>
@@ -827,18 +827,18 @@ export default function CompareContent() {
                         </ul>
                       </div>
                       {/* Recommendation */}
-                      <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/30">
-                        <p className="text-xs font-semibold text-teal-700 dark:text-teal-400 mb-1">{t.comparison.recommendation}</p>
+                      <div className="p-3 rounded-lg bg-slate-50 border border-slate-200/30">
+                        <p className="text-xs font-semibold text-blue-700 mb-1">{t.comparison.recommendation}</p>
                         <p className="text-sm font-medium">{insight.recommendation}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-xs text-muted-foreground">{t.comparison.confidence}:</span>
                           <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-teal-500 transition-all duration-500"
+                              className="h-full rounded-full bg-slate-500 transition-all duration-500"
                               style={{ width: `${insight.confidence}%` }}
                             />
                           </div>
-                          <span className="text-xs font-semibold text-teal-600 dark:text-teal-400">{insight.confidence}%</span>
+                          <span className="text-xs font-semibold text-blue-600">{insight.confidence}%</span>
                         </div>
                       </div>
                     </div>
@@ -849,10 +849,10 @@ export default function CompareContent() {
           </Card>
 
           {/* Hiring Decision */}
-          <Card className="card-hover-lift">
+          <Card className="card-">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
-                <FileText className="w-4 h-4 text-teal-500" />
+                <FileText className="w-4 h-4 text-blue-500" />
                 {t.comparison.hiringDecision}
               </CardTitle>
             </CardHeader>
@@ -876,8 +876,8 @@ export default function CompareContent() {
                         className={cn(
                           'flex-1 text-xs',
                           hiringDecisions[candidate.id] === 'strong_recommend'
-                            ? 'bg-teal-600 hover:bg-teal-700 text-white'
-                            : 'border-teal-300 dark:border-teal-700 text-teal-600 dark:text-teal-400'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                            : 'border-slate-300 text-blue-600'
                         )}
                         onClick={() => handleHiringDecision(candidate.id, 'strong_recommend')}
                       >
@@ -891,7 +891,7 @@ export default function CompareContent() {
                           'flex-1 text-xs',
                           hiringDecisions[candidate.id] === 'recommend'
                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                            : 'border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400'
+                            : 'border-emerald-300 dark:border-emerald-700 text-emerald-600'
                         )}
                         onClick={() => handleHiringDecision(candidate.id, 'recommend')}
                       >
@@ -930,7 +930,7 @@ export default function CompareContent() {
 
       {/* Empty state when no comparison is shown */}
       {!showComparison && (
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="py-12 text-center">
             <ArrowLeftRight className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
             <h3 className="text-lg font-medium">{t.comparison.noCandidatesSelected}</h3>

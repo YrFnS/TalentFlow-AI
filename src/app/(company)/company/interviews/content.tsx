@@ -133,16 +133,16 @@ interface SchedulingSlot {
 
 // ─── Config maps ────────────────────────────────────────────────
 const statusConfig: Record<string, { color: string; bgColor: string; borderColor: string; icon: React.ElementType }> = {
-  SCHEDULED: { color: 'text-amber-700 dark:text-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-900/30', borderColor: 'border-amber-200 dark:border-amber-800/30', icon: Calendar },
-  IN_PROGRESS: { color: 'text-teal-700 dark:text-teal-400', bgColor: 'bg-teal-100 dark:bg-teal-900/30', borderColor: 'border-teal-200 dark:border-teal-800/30', icon: PlayCircle },
-  COMPLETED: { color: 'text-emerald-700 dark:text-emerald-400', bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', borderColor: 'border-emerald-200 dark:border-emerald-800/30', icon: CheckCircle2 },
-  CANCELLED: { color: 'text-red-700 dark:text-red-400', bgColor: 'bg-red-100 dark:bg-red-900/30', borderColor: 'border-red-200 dark:border-red-800/30', icon: XCircle },
+  SCHEDULED: { color: 'text-amber-700', bgColor: 'bg-amber-100 dark:bg-amber-900/30', borderColor: 'border-amber-200 dark:border-amber-800/30', icon: Calendar },
+  IN_PROGRESS: { color: 'text-blue-700', bgColor: 'bg-teal-100', borderColor: 'border-slate-200/30', icon: PlayCircle },
+  COMPLETED: { color: 'text-emerald-700', bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', borderColor: 'border-emerald-200 dark:border-emerald-800/30', icon: CheckCircle2 },
+  CANCELLED: { color: 'text-red-700', bgColor: 'bg-red-100 dark:bg-red-900/30', borderColor: 'border-red-200 dark:border-red-800/30', icon: XCircle },
 };
 
 const typeConfig: Record<string, { color: string; bgColor: string; icon: React.ElementType }> = {
-  PHONE: { color: 'text-cyan-600 dark:text-cyan-400', bgColor: 'bg-cyan-50 dark:bg-cyan-950/30', icon: Phone },
-  VIDEO: { color: 'text-teal-600 dark:text-teal-400', bgColor: 'bg-teal-50 dark:bg-teal-950/30', icon: Video },
-  ON_SITE: { color: 'text-amber-600 dark:text-amber-400', bgColor: 'bg-amber-50 dark:bg-amber-950/30', icon: MapPin },
+  PHONE: { color: 'text-cyan-600', bgColor: 'bg-cyan-50', icon: Phone },
+  VIDEO: { color: 'text-blue-600', bgColor: 'bg-slate-50', icon: Video },
+  ON_SITE: { color: 'text-amber-600', bgColor: 'bg-amber-50 dark:bg-amber-950/30', icon: MapPin },
   ASYNC_VIDEO: { color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-50 dark:bg-purple-950/30', icon: Video },
 };
 
@@ -528,7 +528,7 @@ export default function InterviewsPage() {
         <div className="flex items-center gap-2">
           <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Plus className="w-4 h-4 me-2" />
                 {t.interviews.schedule}
               </Button>
@@ -593,7 +593,7 @@ export default function InterviewsPage() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setScheduleOpen(false)}>{t.common.cancel}</Button>
-                <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSchedule} disabled={!formDate || !formTime || submitting}>
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleSchedule} disabled={!formDate || !formTime || submitting}>
                   {submitting ? t.common.loading : t.interviews.schedule}
                 </Button>
               </DialogFooter>
@@ -601,7 +601,7 @@ export default function InterviewsPage() {
           </Dialog>
           <Button
             variant="outline"
-            className="border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+            className="border-slate-300 text-blue-600 hover:bg-slate-50"
             onClick={() => { setAiQuestionsOpen(true); setAiQuestions([]); setAiQuestionsError(null); }}
           >
             <Sparkles className="w-4 h-4 me-2" />
@@ -635,7 +635,7 @@ export default function InterviewsPage() {
             ].map((stat) => {
               const Icon = stat.icon;
               return (
-                <Card key={stat.label} className={cn('border card-hover-lift', stat.borderColor)}>
+                <Card key={stat.label} className={cn('border card-', stat.borderColor)}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div className={cn('p-2 rounded-lg', stat.bgColor)}><Icon className={cn('w-4 h-4', stat.color)} /></div>
@@ -697,7 +697,7 @@ export default function InterviewsPage() {
               {Object.entries(groupedByDate).map(([date, dateInterviews]) => (
                 <div key={date}>
                   <div className="flex items-center gap-2 mb-3">
-                    <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Calendar className="w-4 h-4 text-blue-600" />
                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{date}</h3>
                     <Separator className="flex-1" />
                   </div>
@@ -711,7 +711,7 @@ export default function InterviewsPage() {
                       return (
                         <Card
                           key={interview.id}
-                          className={cn('border cursor-pointer transition-all duration-200 hover:shadow-md hover:border-teal-300 dark:hover:border-teal-700 card-hover-lift', sConfig.borderColor)}
+                          className={cn('border cursor-pointer transition-all duration-200 hover:shadow-md hover:border-slate-300 card-', sConfig.borderColor)}
                           onClick={() => { setSelectedInterview(interview); setDetailsOpen(true); }}
                         >
                           <CardContent className="p-4">
@@ -730,7 +730,7 @@ export default function InterviewsPage() {
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
                                 <Avatar className="w-8 h-8">
-                                  <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-[10px]">
+                                  <AvatarFallback className="bg-teal-100 text-blue-700 text-[10px]">
                                     {getInitials(interview.application.candidate.user.name)}
                                   </AvatarFallback>
                                 </Avatar>
@@ -766,10 +766,10 @@ export default function InterviewsPage() {
         <TabsContent value="self-scheduling" className="space-y-6">
           {/* Self-Scheduling Stats */}
           <div className="grid grid-cols-3 gap-3">
-            <Card className="border border-teal-200 dark:border-teal-800/30 card-hover-lift">
+            <Card className="border border-slate-200/30 card-">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30"><CalendarClock className="w-4 h-4 text-teal-700 dark:text-teal-400" /></div>
+                  <div className="p-2 rounded-lg bg-teal-100"><CalendarClock className="w-4 h-4 text-blue-700" /></div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t.selfScheduling.totalSlots}</p>
                     <p className="text-xl font-bold">{ssStats.total}</p>
@@ -777,10 +777,10 @@ export default function InterviewsPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border border-emerald-200 dark:border-emerald-800/30 card-hover-lift">
+            <Card className="border border-emerald-200 dark:border-emerald-800/30 card-">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30"><CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" /></div>
+                  <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30"><CheckCircle2 className="w-4 h-4 text-emerald-700" /></div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t.selfScheduling.availableSlots}</p>
                     <p className="text-xl font-bold text-emerald-600">{ssStats.available}</p>
@@ -788,10 +788,10 @@ export default function InterviewsPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border border-amber-200 dark:border-amber-800/30 card-hover-lift">
+            <Card className="border border-amber-200 dark:border-amber-800/30 card-">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30"><Calendar className="w-4 h-4 text-amber-700 dark:text-amber-400" /></div>
+                  <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30"><Calendar className="w-4 h-4 text-amber-700" /></div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t.selfScheduling.bookedSlots}</p>
                     <p className="text-xl font-bold text-amber-600">{ssStats.booked}</p>
@@ -866,13 +866,13 @@ export default function InterviewsPage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold">{t.selfScheduling.dayOfWeek}</h4>
-                      <Button size="sm" variant="outline" className="text-teal-600 border-teal-300 dark:border-teal-700" onClick={addAvailabilitySlot}>
+                      <Button size="sm" variant="outline" className="text-blue-600 border-slate-300" onClick={addAvailabilitySlot}>
                         <Plus className="w-3 h-3 me-1" />{t.common.create}
                       </Button>
                     </div>
                     <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
                       {availability.slots.map((slot, idx) => (
-                        <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:border-teal-300 dark:hover:border-teal-700 transition-colors animate-fade-in-up">
+                        <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:border-slate-300 transition-colors animate-fade-in-up">
                           <Select value={String(slot.dayOfWeek)} onValueChange={(v) => updateAvailabilitySlot(idx, 'dayOfWeek', parseInt(v))}>
                             <SelectTrigger className="w-[130px] h-8"><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -897,7 +897,7 @@ export default function InterviewsPage() {
 
                   {/* Save Button */}
                   <div className="flex justify-end pt-2">
-                    <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSaveAvailability} disabled={savingAvailability}>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleSaveAvailability} disabled={savingAvailability}>
                       {savingAvailability ? <Loader2 className="w-4 h-4 me-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 me-2" />}
                       {t.selfScheduling.saveAvailability}
                     </Button>
@@ -906,12 +906,12 @@ export default function InterviewsPage() {
               </Card>
 
               {/* Generate Slots Card */}
-              <Card className="border-teal-200 dark:border-teal-800/30">
+              <Card className="border-slate-200/30">
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/30">
-                        <Zap className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                      <div className="p-3 rounded-lg bg-slate-50">
+                        <Zap className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold">{t.selfScheduling.generateSlots}</h3>
@@ -923,7 +923,7 @@ export default function InterviewsPage() {
                         <Label className="text-xs whitespace-nowrap">{t.selfScheduling.daysToGenerate}</Label>
                         <Input type="number" min={1} max={30} value={daysToGenerate} onChange={(e) => setDaysToGenerate(e.target.value)} className="h-8 w-16" />
                       </div>
-                      <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleGenerateSlots} disabled={generatingSlots}>
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleGenerateSlots} disabled={generatingSlots}>
                         {generatingSlots ? <Loader2 className="w-4 h-4 me-2 animate-spin" /> : <Zap className="w-4 h-4 me-2" />}
                         {generatingSlots ? t.selfScheduling.generating : t.selfScheduling.generateSlots}
                       </Button>
@@ -954,7 +954,7 @@ export default function InterviewsPage() {
                   {Object.entries(groupedSlots).map(([date, dateSlots]) => (
                     <div key={date}>
                       <div className="flex items-center gap-2 mb-3">
-                        <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                        <Calendar className="w-4 h-4 text-blue-600" />
                         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{date}</h3>
                         <Separator className="flex-1" />
                       </div>
@@ -965,16 +965,16 @@ export default function InterviewsPage() {
                             <Card
                               key={slot.id}
                               className={cn(
-                                'border transition-all duration-200 card-hover-lift animate-fade-in-up',
+                                'border transition-all duration-200 card-animate-fade-in-up',
                                 isAvailable
-                                  ? 'border-teal-200 dark:border-teal-800/30 hover:border-teal-400 dark:hover:border-teal-600'
+                                  ? 'border-slate-200/30 hover:border-slate-400'
                                   : 'border-amber-200 dark:border-amber-800/30'
                               )}
                             >
                               <CardContent className="p-4">
                                 <div className="flex items-start justify-between gap-2 mb-2">
                                   <div className="flex items-center gap-2">
-                                    <Clock className={cn('w-4 h-4', isAvailable ? 'text-teal-600 dark:text-teal-400' : 'text-amber-600 dark:text-amber-400')} />
+                                    <Clock className={cn('w-4 h-4', isAvailable ? 'text-blue-600' : 'text-amber-600')} />
                                     <span className="text-sm font-medium">
                                       {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
                                     </span>
@@ -984,8 +984,8 @@ export default function InterviewsPage() {
                                     className={cn(
                                       'text-[10px] px-1.5 py-0 font-medium',
                                       isAvailable
-                                        ? 'text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 border-teal-200 dark:border-teal-800/30'
-                                        : 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/30'
+                                        ? 'text-blue-700 bg-slate-50 border-slate-200/30'
+                                        : 'text-amber-700 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/30'
                                     )}
                                   >
                                     {isAvailable ? t.selfScheduling.available : t.selfScheduling.booked}
@@ -998,8 +998,8 @@ export default function InterviewsPage() {
                                 </div>
                                 {slot.bookedBy && (
                                   <div className="mt-2 p-2 rounded bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
-                                    <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{t.selfScheduling.bookedBy}</p>
-                                    <p className="text-xs text-amber-600 dark:text-amber-300">{slot.bookedBy.name}</p>
+                                    <p className="text-xs font-medium text-amber-700">{t.selfScheduling.bookedBy}</p>
+                                    <p className="text-xs text-amber-600">{slot.bookedBy.name}</p>
                                     <p className="text-[10px] text-amber-500">{slot.bookedBy.email}</p>
                                   </div>
                                 )}
@@ -1008,7 +1008,7 @@ export default function InterviewsPage() {
                                     <Button
                                       size="sm"
                                       variant="ghost"
-                                      className="h-7 text-xs text-teal-600 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                                      className="h-7 text-xs text-blue-600 hover:text-blue-700 hover:bg-slate-50"
                                       onClick={() => handleCopySchedulingLink(slot.token)}
                                     >
                                       {copiedLink === slot.token ? (
@@ -1040,9 +1040,9 @@ export default function InterviewsPage() {
             <div className="flex flex-col h-full">
               <SheetHeader className="p-6 pb-4 border-b">
                 <SheetTitle className="flex items-center gap-3">
-                  <div className={cn('p-2 rounded-lg', typeConfig[selectedInterview.type]?.bgColor || 'bg-teal-50')}>
+                  <div className={cn('p-2 rounded-lg', typeConfig[selectedInterview.type]?.bgColor || 'bg-slate-50')}>
                     {React.createElement(typeConfig[selectedInterview.type]?.icon || Video, {
-                      className: cn('w-5 h-5', typeConfig[selectedInterview.type]?.color || 'text-teal-600'),
+                      className: cn('w-5 h-5', typeConfig[selectedInterview.type]?.color || 'text-blue-600'),
                     })}
                   </div>
                   <div className="text-start">
@@ -1055,7 +1055,7 @@ export default function InterviewsPage() {
                 <div className="space-y-2">
                   <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.interviews.candidateName}</h4>
                   <div className="flex items-center gap-3 p-3 rounded-lg border border-border/50">
-                    <Avatar className="w-10 h-10"><AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">{getInitials(selectedInterview.application.candidate.user.name)}</AvatarFallback></Avatar>
+                    <Avatar className="w-10 h-10"><AvatarFallback className="bg-teal-100 text-blue-700">{getInitials(selectedInterview.application.candidate.user.name)}</AvatarFallback></Avatar>
                     <div>
                       <p className="text-sm font-medium">{selectedInterview.application.candidate.user.name}</p>
                       <p className="text-xs text-muted-foreground">{selectedInterview.application.job.title}</p>
@@ -1087,7 +1087,7 @@ export default function InterviewsPage() {
                       {selectedInterview.assignments.map((assignment, idx) => (
                         <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border/50">
                           <div className="flex items-center gap-2">
-                            <Avatar className="w-7 h-7"><AvatarFallback className="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-[10px]">{getInitials(assignment.interviewer.name)}</AvatarFallback></Avatar>
+                            <Avatar className="w-7 h-7"><AvatarFallback className="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 text-[10px]">{getInitials(assignment.interviewer.name)}</AvatarFallback></Avatar>
                             <span className="text-sm">{assignment.interviewer.name}</span>
                           </div>
                           {assignment.rating && renderStars(assignment.rating)}
@@ -1105,7 +1105,7 @@ export default function InterviewsPage() {
                       {selectedInterview.meetingLink && (
                         <div className="flex items-center gap-2 text-sm">
                           <Video className="w-4 h-4 text-muted-foreground" />
-                          <a href={selectedInterview.meetingLink} target="_blank" rel="noopener noreferrer" className="text-teal-600 dark:text-teal-400 hover:underline">{selectedInterview.meetingLink}</a>
+                          <a href={selectedInterview.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{selectedInterview.meetingLink}</a>
                         </div>
                       )}
                     </div>
@@ -1119,8 +1119,8 @@ export default function InterviewsPage() {
                       {selectedInterview.rating && (
                         <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-amber-700 dark:text-amber-400">{t.interviews.rating}</span>
-                            <span className="text-lg font-bold text-amber-600 dark:text-amber-400">{selectedInterview.rating}/5</span>
+                            <span className="text-xs font-medium text-amber-700">{t.interviews.rating}</span>
+                            <span className="text-lg font-bold text-amber-600">{selectedInterview.rating}/5</span>
                           </div>
                           {renderStars(selectedInterview.rating)}
                         </div>
@@ -1168,7 +1168,7 @@ export default function InterviewsPage() {
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-teal-600" />
+              <Sparkles className="h-5 w-5 text-blue-600" />
               AI Generate Interview Questions
             </DialogTitle>
             <DialogDescription>Let AI generate tailored interview questions for any role and level.</DialogDescription>
@@ -1208,19 +1208,19 @@ export default function InterviewsPage() {
                 <label className="text-sm font-medium">Number of Questions</label>
                 <Input type="number" min={1} max={20} value={aiQuestionForm.count} onChange={(e) => setAiQuestionForm((prev) => ({ ...prev, count: parseInt(e.target.value) || 5 }))} />
               </div>
-              <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white" onClick={handleAiGenerateQuestions} disabled={!aiQuestionForm.role.trim()}>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={handleAiGenerateQuestions} disabled={!aiQuestionForm.role.trim()}>
                 <Sparkles className="w-4 h-4 me-2" />Generate Questions
               </Button>
             </div>
           )}
           {aiQuestionsLoading && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
               <p className="mt-3 text-sm text-muted-foreground">Generating questions...</p>
             </div>
           )}
           {aiQuestionsError && (
-            <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 text-sm text-red-700 dark:text-red-400">{aiQuestionsError}</div>
+            <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 text-sm text-red-700">{aiQuestionsError}</div>
           )}
           {aiQuestions.length > 0 && (
             <div className="space-y-3">
@@ -1236,7 +1236,7 @@ export default function InterviewsPage() {
                         </div>
                         {q.evaluationCriteria && <p className="text-xs text-muted-foreground mt-1">{q.evaluationCriteria}</p>}
                       </div>
-                      <Button size="sm" variant="ghost" className="text-teal-600 h-8" onClick={() => handleAddToKit(q)}>Add to Kit</Button>
+                      <Button size="sm" variant="ghost" className="text-blue-600 h-8" onClick={() => handleAddToKit(q)}>Add to Kit</Button>
                     </div>
                   </CardContent>
                 </Card>

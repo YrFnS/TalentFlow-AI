@@ -111,7 +111,7 @@ const BOARD_COLORS: Record<string, string> = {
   Bayt: 'bg-amber-600',
   NaukriGulf: 'bg-cyan-600',
   Dice: 'bg-red-600',
-  Monster: 'bg-teal-600',
+  Monster: 'bg-blue-600',
   SimplyHired: 'bg-orange-600',
 };
 
@@ -145,21 +145,21 @@ function getStatusBadge(status: string, t: Record<string, string>) {
   switch (status) {
     case 'POSTED':
       return (
-        <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0">
+        <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 border-0">
           <CheckCircle2 className="w-3 h-3 me-1" />
           {t.posted}
         </Badge>
       );
     case 'PENDING':
       return (
-        <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0">
+        <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 border-0">
           <Clock className="w-3 h-3 me-1" />
           {t.pending}
         </Badge>
       );
     case 'FAILED':
       return (
-        <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 border-0">
+        <Badge className="bg-red-100 text-red-700 dark:bg-red-950 border-0">
           <XCircle className="w-3 h-3 me-1" />
           {t.failed}
         </Badge>
@@ -385,7 +385,7 @@ export default function JobBoardsContent() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
           <p className="text-muted-foreground">{t.common.loading}</p>
         </div>
       </div>
@@ -404,7 +404,7 @@ export default function JobBoardsContent() {
         </div>
         <Button
           onClick={() => setDialogOpen(true)}
-          className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
         >
           <Globe className="w-4 h-4" />
           {jt.postToBoards}
@@ -413,11 +413,11 @@ export default function JobBoardsContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="card-hover-lift animate-fade-in-up">
+        <Card className="card-animate-fade-in-up">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-950">
-                <Globe className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                <Globe className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{jt.activeBoards}</p>
@@ -427,11 +427,11 @@ export default function JobBoardsContent() {
           </CardContent>
         </Card>
 
-        <Card className="card-hover-lift animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
+        <Card className="card-animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-950">
-                <Briefcase className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <Briefcase className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{jt.totalPostings}</p>
@@ -441,11 +441,11 @@ export default function JobBoardsContent() {
           </CardContent>
         </Card>
 
-        <Card className="card-hover-lift animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <Card className="card-animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-950">
-                <Eye className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                <Eye className="w-5 h-5 text-cyan-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{jt.totalViews}</p>
@@ -455,11 +455,11 @@ export default function JobBoardsContent() {
           </CardContent>
         </Card>
 
-        <Card className="card-hover-lift animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+        <Card className="card-animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-950">
-                <Users className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                <Users className="w-5 h-5 text-amber-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{jt.totalApplications}</p>
@@ -484,7 +484,7 @@ export default function JobBoardsContent() {
             return (
               <Card
                 key={board.id}
-                className="card-hover-lift animate-fade-in-up cursor-pointer transition-all"
+                className="card-animate-fade-in-up cursor-pointer transition-all"
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
@@ -657,7 +657,7 @@ export default function JobBoardsContent() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Globe className="w-5 h-5 text-teal-600" />
+              <Globe className="w-5 h-5 text-blue-600" />
               {jt.postToBoards}
             </DialogTitle>
           </DialogHeader>
@@ -701,8 +701,8 @@ export default function JobBoardsContent() {
                       onClick={() => toggleBoardSelection(board.id)}
                       className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
                         isSelected
-                          ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/30'
-                          : 'border-border hover:border-teal-300'
+                          ? 'border-teal-500 bg-slate-50'
+                          : 'border-border hover:border-slate-300'
                       }`}
                     >
                       <Checkbox
@@ -725,7 +725,7 @@ export default function JobBoardsContent() {
                 })}
               </div>
               {selectedBoardIds.length > 0 && (
-                <p className="text-xs text-teal-600 dark:text-teal-400">
+                <p className="text-xs text-blue-600">
                   {selectedBoardIds.length} board(s) selected
                 </p>
               )}
@@ -735,7 +735,7 @@ export default function JobBoardsContent() {
             {posting && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin text-teal-600" />
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                   {jt.posting}
                 </div>
                 <Progress value={postingProgress} className="h-2" />
@@ -754,7 +754,7 @@ export default function JobBoardsContent() {
             <Button
               onClick={handlePostToBoards}
               disabled={posting || !selectedJob || selectedBoardIds.length === 0}
-              className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
             >
               {posting ? (
                 <>

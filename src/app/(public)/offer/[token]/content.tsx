@@ -58,12 +58,12 @@ interface OfferData {
 }
 
 const signingStatusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  PENDING: { label: 'Pending', color: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400', icon: Clock },
-  SENT: { label: 'Sent for Signature', color: 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400', icon: FileCheck },
-  CANDIDATE_SIGNED: { label: 'Candidate Signed', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400', icon: CheckCircle2 },
-  COMPLETED: { label: 'Completed', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400', icon: CheckCircle2 },
+  PENDING: { label: 'Pending', color: 'bg-amber-100 text-amber-700 dark:bg-amber-950', icon: Clock },
+  SENT: { label: 'Sent for Signature', color: 'bg-teal-100 text-blue-700 dark:bg-teal-950', icon: FileCheck },
+  CANDIDATE_SIGNED: { label: 'Candidate Signed', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950', icon: CheckCircle2 },
+  COMPLETED: { label: 'Completed', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950', icon: CheckCircle2 },
   EXPIRED: { label: 'Expired', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400', icon: AlertTriangle },
-  DECLINED: { label: 'Declined', color: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400', icon: XCircle },
+  DECLINED: { label: 'Declined', color: 'bg-red-100 text-red-700 dark:bg-red-950', icon: XCircle },
 };
 
 export default function OfferSignContent() {
@@ -186,7 +186,7 @@ export default function OfferSignContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
           <p className="text-sm text-muted-foreground">{t.common.loading}</p>
         </div>
       </div>
@@ -217,7 +217,7 @@ export default function OfferSignContent() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
               <Building2 className="h-5 w-5" />
             </div>
             <div>
@@ -236,7 +236,7 @@ export default function OfferSignContent() {
           <Card className="border-amber-200 dark:border-amber-800">
             <CardContent className="p-4 flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-700 dark:text-amber-400">{est.expiredMessage}</p>
+              <p className="text-sm text-amber-700">{est.expiredMessage}</p>
             </CardContent>
           </Card>
         )}
@@ -246,7 +246,7 @@ export default function OfferSignContent() {
           <Card className="border-red-200 dark:border-red-800">
             <CardContent className="p-4 flex items-start gap-3">
               <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700 dark:text-red-400">{est.declinedMessage}</p>
+              <p className="text-sm text-red-700">{est.declinedMessage}</p>
             </CardContent>
           </Card>
         )}
@@ -257,7 +257,7 @@ export default function OfferSignContent() {
             <CardContent className="p-4 flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">{est.offerSigned}</p>
+                <p className="text-sm font-medium text-emerald-700">{est.offerSigned}</p>
                 {offer.candidateSignedAt && (
                   <p className="text-xs text-emerald-600 dark:text-emerald-500 mt-1">
                     {est.signedOn}: {new Date(offer.candidateSignedAt).toLocaleDateString()}
@@ -272,7 +272,7 @@ export default function OfferSignContent() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Briefcase className="h-4 w-4 text-blue-600" />
               {est.position}
             </CardTitle>
           </CardHeader>
@@ -315,7 +315,7 @@ export default function OfferSignContent() {
           <Card className="border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Gift className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Gift className="h-4 w-4 text-blue-600" />
                 {est.benefits}
               </CardTitle>
             </CardHeader>
@@ -345,7 +345,7 @@ export default function OfferSignContent() {
           <Card className="border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <FileCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <FileCheck className="h-4 w-4 text-blue-600" />
                 {est.offerLetter}
               </CardTitle>
             </CardHeader>
@@ -359,10 +359,10 @@ export default function OfferSignContent() {
 
         {/* Signature Section */}
         {canSign && (
-          <Card className="border-teal-200 dark:border-teal-800">
+          <Card className="border-slate-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <PenTool className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <PenTool className="h-4 w-4 text-blue-600" />
                 {est.signOffer}
               </CardTitle>
             </CardHeader>
@@ -374,7 +374,7 @@ export default function OfferSignContent() {
                   size="sm"
                   className={cn(
                     'text-xs',
-                    signatureMode === 'type' && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
+                    signatureMode === 'type' && 'bg-gradient-to-r bg-blue-600 text-white'
                   )}
                   onClick={() => setSignatureMode('type')}
                 >
@@ -386,7 +386,7 @@ export default function OfferSignContent() {
                   size="sm"
                   className={cn(
                     'text-xs',
-                    signatureMode === 'draw' && 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white'
+                    signatureMode === 'draw' && 'bg-gradient-to-r bg-blue-600 text-white'
                   )}
                   onClick={() => setSignatureMode('draw')}
                 >
@@ -444,7 +444,7 @@ export default function OfferSignContent() {
               {/* Action Buttons */}
               <div className="flex items-center gap-3 pt-2">
                 <Button
-                  className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                  className="flex-1 bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
                   onClick={handleSign}
                   disabled={submitting || !agreedToTerms || (signatureMode === 'type' ? !typedSignature.trim() : !drawnSignature)}
                 >
@@ -473,7 +473,7 @@ export default function OfferSignContent() {
         {signed && offer.candidateSignature && (
           <Card className="border-emerald-200 dark:border-emerald-800">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 text-emerald-700">
                 <Shield className="h-4 w-4" />
                 {est.offerSigned}
               </CardTitle>
@@ -499,7 +499,7 @@ export default function OfferSignContent() {
               )}
               <Button
                 variant="outline"
-                className="w-full border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400"
+                className="w-full border-slate-200 text-blue-700"
                 onClick={() => {
                   toast.success('PDF download simulated');
                 }}
@@ -514,7 +514,7 @@ export default function OfferSignContent() {
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground py-4">
           <div className="flex items-center justify-center gap-1.5">
-            <Shield className="h-3 w-3 text-teal-500" />
+            <Shield className="h-3 w-3 text-blue-500" />
             <span>Secured by TalentFlow AI E-Signatures</span>
           </div>
         </div>

@@ -175,9 +175,9 @@ function CircularScore({ score }: { score: number }) {
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   const getColor = () => {
-    if (score > 70) return { stroke: '#14b8a6', text: 'text-teal-600 dark:text-teal-400', label: t.security.scoreExcellent };
-    if (score > 40) return { stroke: '#f59e0b', text: 'text-amber-600 dark:text-amber-400', label: t.security.scoreGood };
-    return { stroke: '#ef4444', text: 'text-red-600 dark:text-red-400', label: t.security.scorePoor };
+    if (score > 70) return { stroke: '#14b8a6', text: 'text-blue-600', label: t.security.scoreExcellent };
+    if (score > 40) return { stroke: '#f59e0b', text: 'text-amber-600', label: t.security.scoreGood };
+    return { stroke: '#ef4444', text: 'text-red-600', label: t.security.scorePoor };
   };
 
   const colorInfo = getColor();
@@ -214,7 +214,7 @@ function CircularScore({ score }: { score: number }) {
       </div>
       <div className="text-center">
         <p className="text-sm font-semibold">{t.security.score}</p>
-        <Badge className={`mt-1 ${score > 70 ? 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0' : score > 40 ? 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0' : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0'}`}>
+        <Badge className={`mt-1 ${score > 70 ? 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0' : score > 40 ? 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0' : 'bg-red-50 text-red-700 dark:bg-red-950 border-0'}`}>
           {colorInfo.label}
         </Badge>
       </div>
@@ -226,9 +226,9 @@ function CircularScore({ score }: { score: number }) {
 function StatusBadge({ status }: { status: 'pass' | 'warn' | 'fail' }) {
   const { t } = useI18n();
   const config = {
-    pass: { className: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: <CheckCircle2 className="h-3 w-3 me-1" /> },
-    warn: { className: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: <AlertTriangle className="h-3 w-3 me-1" /> },
-    fail: { className: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0', icon: <XCircle className="h-3 w-3 me-1" /> },
+    pass: { className: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: <CheckCircle2 className="h-3 w-3 me-1" /> },
+    warn: { className: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: <AlertTriangle className="h-3 w-3 me-1" /> },
+    fail: { className: 'bg-red-50 text-red-700 dark:bg-red-950 border-0', icon: <XCircle className="h-3 w-3 me-1" /> },
   };
   const c = config[status];
   return (
@@ -242,11 +242,11 @@ function StatusBadge({ status }: { status: 'pass' | 'warn' | 'fail' }) {
 // Event action badge
 function ActionBadge({ action }: { action: string }) {
   const config: Record<string, { label: string; className: string }> = {
-    LOGIN_SUCCESS: { label: 'Login ✓', className: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0' },
-    LOGIN_FAILURE: { label: 'Login ✗', className: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0' },
-    ACCOUNT_LOCKED: { label: 'Locked', className: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0' },
-    SUSPICIOUS_ACTIVITY: { label: 'Suspicious', className: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0' },
-    PASSWORD_CHANGE: { label: 'Pw Change', className: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0' },
+    LOGIN_SUCCESS: { label: 'Login ✓', className: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0' },
+    LOGIN_FAILURE: { label: 'Login ✗', className: 'bg-red-50 text-red-700 dark:bg-red-950 border-0' },
+    ACCOUNT_LOCKED: { label: 'Locked', className: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0' },
+    SUSPICIOUS_ACTIVITY: { label: 'Suspicious', className: 'bg-red-50 text-red-700 dark:bg-red-950 border-0' },
+    PASSWORD_CHANGE: { label: 'Pw Change', className: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0' },
   };
   const c = config[action] || { label: action, className: 'bg-muted text-muted-foreground border-0' };
   return <Badge className={`text-xs ${c.className}`}>{c.label}</Badge>;
@@ -301,7 +301,7 @@ export default function SecurityDashboardContent() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-blue-600 bg-clip-text text-transparent">
             {t.security.title}
           </h1>
           <p className="text-muted-foreground mt-1">{t.security.subtitle}</p>
@@ -342,7 +342,7 @@ export default function SecurityDashboardContent() {
             <CardHeader className="pb-2 cursor-pointer" onClick={() => toggleSection('scoreBreakdown')}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                  <Shield className="h-5 w-5 text-blue-600" />
                   <CardTitle className="text-lg font-semibold">{t.security.scoreBreakdown}</CardTitle>
                 </div>
                 {expandedSections.scoreBreakdown ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -385,14 +385,14 @@ export default function SecurityDashboardContent() {
 
           {/* Auth Stats Quick View */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-950/30 dark:to-emerald-950/30 opacity-60" />
+            <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <div className="absolute inset-0 bg-slate-50 opacity-60" />
               <CardContent className="relative p-5">
                 {loading ? <Skeleton /> : (
                   <>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                        <LogIn className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                        <LogIn className="h-4 w-4 text-blue-600" />
                       </div>
                       <span className="text-xs text-muted-foreground">{t.security.loginSuccess}</span>
                     </div>
@@ -403,20 +403,20 @@ export default function SecurityDashboardContent() {
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
               <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 opacity-60" />
               <CardContent className="relative p-5">
                 {loading ? <Skeleton /> : (
                   <>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/50">
-                        <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        <AlertTriangle className="h-4 w-4 text-red-600" />
                       </div>
                       <span className="text-xs text-muted-foreground">{t.security.loginFailures}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <p className="text-2xl font-bold">{data?.authStats.loginFailures24h ?? 0}</p>
-                      <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0 text-xs">
+                      <Badge className="bg-red-50 text-red-700 dark:bg-red-950 border-0 text-xs">
                         {data?.authStats.failureRate ?? 0}%
                       </Badge>
                     </div>
@@ -426,14 +426,14 @@ export default function SecurityDashboardContent() {
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 opacity-60" />
               <CardContent className="relative p-5">
                 {loading ? <Skeleton /> : (
                   <>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/50">
-                        <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <Lock className="h-4 w-4 text-amber-600" />
                       </div>
                       <span className="text-xs text-muted-foreground">{t.security.accountLockouts}</span>
                     </div>
@@ -444,14 +444,14 @@ export default function SecurityDashboardContent() {
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden border-0 shadow-md card-hover-lift animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+            <Card className="relative overflow-hidden border-0 shadow-md card-animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 opacity-60" />
               <CardContent className="relative p-5">
                 {loading ? <Skeleton /> : (
                   <>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
-                        <ShieldAlert className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <ShieldAlert className="h-4 w-4 text-emerald-600" />
                       </div>
                       <span className="text-xs text-muted-foreground">{t.security.suspiciousActivity24h}</span>
                     </div>
@@ -473,7 +473,7 @@ export default function SecurityDashboardContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                <Server className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Server className="h-4 w-4 text-blue-600" />
               </div>
               <div>
                 <CardTitle className="text-lg font-semibold">{t.security.rateLimitingStatus}</CardTitle>
@@ -481,7 +481,7 @@ export default function SecurityDashboardContent() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 text-xs">
+              <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 text-xs">
                 {data?.rateLimiting.enabled ? t.security.enabled : t.security.disabled}
               </Badge>
               {expandedSections.rateLimiting ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -533,12 +533,12 @@ export default function SecurityDashboardContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
                 </div>
                 <CardTitle className="text-lg font-semibold">{t.security.csrfProtection}</CardTitle>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className={data?.securityConfig.csrf.enabled ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 text-xs' : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0 text-xs'}>
+                <Badge className={data?.securityConfig.csrf.enabled ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 text-xs' : 'bg-red-50 text-red-700 dark:bg-red-950 border-0 text-xs'}>
                   {data?.securityConfig.csrf.enabled ? t.security.enabled : t.security.disabled}
                 </Badge>
                 {expandedSections.csrf ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -567,7 +567,7 @@ export default function SecurityDashboardContent() {
                     <span className="text-sm text-muted-foreground block mb-2">{t.security.csrfExemptPaths}</span>
                     <div className="flex flex-wrap gap-1.5">
                       {(data?.securityConfig.csrf.exemptPaths ?? []).map((path) => (
-                        <Badge key={path} variant="secondary" className="text-xs font-mono bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border-0">
+                        <Badge key={path} variant="secondary" className="text-xs font-mono bg-amber-50 text-amber-700 dark:bg-amber-950/30 border-0">
                           {path}
                         </Badge>
                       ))}
@@ -585,12 +585,12 @@ export default function SecurityDashboardContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                  <LockKeyhole className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <LockKeyhole className="h-4 w-4 text-blue-600" />
                 </div>
                 <CardTitle className="text-lg font-semibold">{t.security.cspConfiguration}</CardTitle>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className={data?.securityConfig.csp.nonceBased ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 text-xs' : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0 text-xs'}>
+                <Badge className={data?.securityConfig.csp.nonceBased ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 text-xs' : 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0 text-xs'}>
                   {data?.securityConfig.csp.nonceBased ? t.security.nonceBasedCSP : 'unsafe-inline'}
                 </Badge>
                 {expandedSections.csp ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -609,7 +609,7 @@ export default function SecurityDashboardContent() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                     <span className="text-sm text-muted-foreground">{t.security.cspNonceBased}</span>
-                    <Badge className={data?.securityConfig.csp.nonceBased ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0' : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0'}>
+                    <Badge className={data?.securityConfig.csp.nonceBased ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0' : 'bg-red-50 text-red-700 dark:bg-red-950 border-0'}>
                       {data?.securityConfig.csp.nonceBased ? t.security.yes : t.security.no}
                     </Badge>
                   </div>
@@ -622,7 +622,7 @@ export default function SecurityDashboardContent() {
                     <div className="space-y-1.5 max-h-48 overflow-y-auto scrollbar-thin">
                       {Object.entries(data?.securityConfig.csp.directives ?? {}).map(([key, value]) => (
                         <div key={key} className="flex items-start gap-2 text-xs">
-                          <span className="font-mono text-teal-600 dark:text-teal-400 shrink-0">{key}:</span>
+                          <span className="font-mono text-blue-600 shrink-0">{key}:</span>
                           <span className="font-mono text-muted-foreground break-all">{String(value)}</span>
                         </div>
                       ))}
@@ -643,7 +643,7 @@ export default function SecurityDashboardContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Users className="h-4 w-4 text-blue-600" />
               </div>
               <CardTitle className="text-lg font-semibold">{t.security.authStats}</CardTitle>
             </div>
@@ -720,7 +720,7 @@ export default function SecurityDashboardContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                  <Key className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <Key className="h-4 w-4 text-blue-600" />
                 </div>
                 <CardTitle className="text-base font-semibold">{t.security.encryptionStatus}</CardTitle>
               </div>
@@ -739,7 +739,7 @@ export default function SecurityDashboardContent() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                     <span className="text-sm text-muted-foreground">{t.security.encryptionConfigured}</span>
-                    <Badge className={data?.encryptionStatus.configured ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0' : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0'}>
+                    <Badge className={data?.encryptionStatus.configured ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0' : 'bg-red-50 text-red-700 dark:bg-red-950 border-0'}>
                       {data?.encryptionStatus.configured ? t.security.yes : t.security.no}
                     </Badge>
                   </div>
@@ -753,8 +753,8 @@ export default function SecurityDashboardContent() {
                   </div>
                   {data?.encryptionStatus.warning && (
                     <Alert className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30">
-                      <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                      <AlertTitle className="text-amber-700 dark:text-amber-400 text-sm">{t.security.encryptionWarning}</AlertTitle>
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      <AlertTitle className="text-amber-700 text-sm">{t.security.encryptionWarning}</AlertTitle>
                       <AlertDescription className="text-amber-600 dark:text-amber-500 text-xs">
                         {data.encryptionStatus.warning}
                       </AlertDescription>
@@ -772,7 +772,7 @@ export default function SecurityDashboardContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                  <Upload className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <Upload className="h-4 w-4 text-blue-600" />
                 </div>
                 <CardTitle className="text-base font-semibold">{t.security.fileUploadSecurity}</CardTitle>
               </div>
@@ -797,7 +797,7 @@ export default function SecurityDashboardContent() {
                     <span className="text-sm text-muted-foreground block mb-2">{t.security.allowedResumeTypes}</span>
                     <div className="flex flex-wrap gap-1.5">
                       {(data?.fileUploadConfig.allowedResumeTypes ?? []).map((type) => (
-                        <Badge key={type} variant="secondary" className="text-xs font-mono bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 border-0">
+                        <Badge key={type} variant="secondary" className="text-xs font-mono bg-slate-50 text-blue-700 border-0">
                           {type.replace('application/', '').replace('vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx').replace('msword', 'doc')}
                         </Badge>
                       ))}
@@ -807,7 +807,7 @@ export default function SecurityDashboardContent() {
                     <span className="text-sm text-muted-foreground block mb-2">{t.security.allowedImageTypes}</span>
                     <div className="flex flex-wrap gap-1.5">
                       {(data?.fileUploadConfig.allowedImageTypes ?? []).map((type) => (
-                        <Badge key={type} variant="secondary" className="text-xs font-mono bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-0">
+                        <Badge key={type} variant="secondary" className="text-xs font-mono bg-emerald-50 text-emerald-700 border-0">
                           {type.replace('image/', '')}
                         </Badge>
                       ))}
@@ -829,7 +829,7 @@ export default function SecurityDashboardContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                  <Bug className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <Bug className="h-4 w-4 text-blue-600" />
                 </div>
                 <CardTitle className="text-base font-semibold">{t.security.depVulnerabilities}</CardTitle>
               </div>
@@ -847,10 +847,10 @@ export default function SecurityDashboardContent() {
               ) : (
                 <div className="space-y-3">
                   {[
-                    { label: t.security.vulnCritical, count: data?.vulnerabilities.critical ?? 0, color: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0' },
-                    { label: t.security.vulnHigh, count: data?.vulnerabilities.high ?? 0, color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0' },
+                    { label: t.security.vulnCritical, count: data?.vulnerabilities.critical ?? 0, color: 'bg-red-50 text-red-700 dark:bg-red-950 border-0' },
+                    { label: t.security.vulnHigh, count: data?.vulnerabilities.high ?? 0, color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0' },
                     { label: t.security.vulnModerate, count: data?.vulnerabilities.moderate ?? 0, color: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400 border-0' },
-                    { label: t.security.vulnLow, count: data?.vulnerabilities.low ?? 0, color: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0' },
+                    { label: t.security.vulnLow, count: data?.vulnerabilities.low ?? 0, color: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0' },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                       <span className="text-sm text-muted-foreground">{item.label}</span>
@@ -873,7 +873,7 @@ export default function SecurityDashboardContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                <Globe className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Globe className="h-4 w-4 text-blue-600" />
               </div>
               <CardTitle className="text-lg font-semibold">{t.security.corsConfiguration}</CardTitle>
             </div>
@@ -899,7 +899,7 @@ export default function SecurityDashboardContent() {
                     <div className="flex flex-wrap gap-1.5">
                       {(data?.corsConfig.allowedOrigins ?? []).length > 0 ? (
                         data!.corsConfig.allowedOrigins.map((origin) => (
-                          <Badge key={origin} variant="secondary" className="text-xs font-mono bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 border-0">
+                          <Badge key={origin} variant="secondary" className="text-xs font-mono bg-slate-50 text-blue-700 border-0">
                             {origin}
                           </Badge>
                         ))
@@ -910,7 +910,7 @@ export default function SecurityDashboardContent() {
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                     <span className="text-sm text-muted-foreground">{t.security.corsAllowCredentials}</span>
-                    <Badge className={data?.corsConfig.allowCredentials ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0' : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0'}>
+                    <Badge className={data?.corsConfig.allowCredentials ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0' : 'bg-red-50 text-red-700 dark:bg-red-950 border-0'}>
                       {data?.corsConfig.allowCredentials ? t.security.yes : t.security.no}
                     </Badge>
                   </div>
@@ -920,7 +920,7 @@ export default function SecurityDashboardContent() {
                     <span className="text-sm text-muted-foreground block mb-2">{t.security.corsAllowedMethods}</span>
                     <div className="flex flex-wrap gap-1.5">
                       {(data?.corsConfig.allowedMethods ?? []).map((method) => (
-                        <Badge key={method} variant="secondary" className="text-xs font-mono bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-0">
+                        <Badge key={method} variant="secondary" className="text-xs font-mono bg-emerald-50 text-emerald-700 border-0">
                           {method}
                         </Badge>
                       ))}
@@ -949,12 +949,12 @@ export default function SecurityDashboardContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/50">
-                <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <FileText className="h-4 w-4 text-blue-600" />
               </div>
               <CardTitle className="text-lg font-semibold">{t.security.securityHeaders}</CardTitle>
             </div>
             <div className="flex items-center gap-2">
-              <Badge className={data?.headersConfig.applied ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 text-xs' : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0 text-xs'}>
+              <Badge className={data?.headersConfig.applied ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 text-xs' : 'bg-red-50 text-red-700 dark:bg-red-950 border-0 text-xs'}>
                 {data?.headersConfig.applied ? t.security.enabled : t.security.disabled}
               </Badge>
               {expandedSections.headers ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -972,12 +972,12 @@ export default function SecurityDashboardContent() {
             ) : (
               <div className="space-y-2">
                 {/* Nonce CSP Info */}
-                <div className="flex items-center justify-between p-3 rounded-lg bg-teal-50/50 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-teal-100 dark:border-teal-900">
                   <div className="flex items-center gap-2">
-                    <Fingerprint className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <Fingerprint className="h-4 w-4 text-blue-600" />
                     <span className="text-sm font-medium">{t.security.nonceBasedCSP}</span>
                   </div>
-                  <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 text-xs">
+                  <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 text-xs">
                     {data?.headersConfig.nonceBasedCSP.enabled ? t.security.enabled : t.security.disabled}
                   </Badge>
                 </div>
@@ -995,7 +995,7 @@ export default function SecurityDashboardContent() {
                       {(data?.headersConfig.headers ?? []).map((header, idx) => (
                         <tr key={idx} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
                           <td className="py-2.5 pe-4">
-                            <code className="text-xs font-mono text-teal-600 dark:text-teal-400">{header.name}</code>
+                            <code className="text-xs font-mono text-blue-600">{header.name}</code>
                           </td>
                           <td className="py-2.5">
                             <code className="text-xs font-mono text-muted-foreground break-all">{header.value}</code>
@@ -1038,7 +1038,7 @@ export default function SecurityDashboardContent() {
             </Button>
             <Button
               variant="outline"
-              className="h-auto py-4 flex flex-col items-center gap-2 border-teal-200 dark:border-teal-800 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 transition-all"
+              className="h-auto py-4 flex flex-col items-center gap-2 border-slate-200 text-blue-600 hover:bg-slate-50 hover:text-blue-700 transition-all"
               onClick={() => toast.success(t.security.actionCompleted, { description: t.security.exportReport })}
             >
               <FileText className="h-5 w-5" />
@@ -1046,7 +1046,7 @@ export default function SecurityDashboardContent() {
             </Button>
             <Button
               variant="outline"
-              className="h-auto py-4 flex flex-col items-center gap-2 border-teal-200 dark:border-teal-800 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 transition-all"
+              className="h-auto py-4 flex flex-col items-center gap-2 border-slate-200 text-blue-600 hover:bg-slate-50 hover:text-blue-700 transition-all"
               onClick={() => toast.success(t.security.actionCompleted, { description: t.security.clearRateLimits })}
             >
               <RefreshCw className="h-5 w-5" />

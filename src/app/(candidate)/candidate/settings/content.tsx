@@ -37,7 +37,7 @@ export default function CandidateSettingsContent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-teal-600" />
+              <Globe className="h-5 w-5 text-blue-600" />
               {t.settings.languageAppearance}
             </CardTitle>
           </CardHeader>
@@ -48,10 +48,10 @@ export default function CandidateSettingsContent() {
                 <p className="text-sm text-muted-foreground">{t.settings.choosePreferredLanguage}</p>
               </div>
               <div className="flex gap-2">
-                <Button variant={locale === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLocale('en')} className={locale === 'en' ? 'bg-teal-600' : ''}>
+                <Button variant={locale === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLocale('en')} className={locale === 'en' ? 'bg-blue-600' : ''}>
                   English
                 </Button>
-                <Button variant={locale === 'ar' ? 'default' : 'outline'} size="sm" onClick={() => setLocale('ar')} className={locale === 'ar' ? 'bg-teal-600' : ''}>
+                <Button variant={locale === 'ar' ? 'default' : 'outline'} size="sm" onClick={() => setLocale('ar')} className={locale === 'ar' ? 'bg-blue-600' : ''}>
                   العربية
                 </Button>
               </div>
@@ -73,7 +73,7 @@ export default function CandidateSettingsContent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-teal-600" />
+              <Bell className="h-5 w-5 text-blue-600" />
               {t.settings.notifications}
             </CardTitle>
           </CardHeader>
@@ -108,7 +108,7 @@ export default function CandidateSettingsContent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-teal-600" />
+              <Shield className="h-5 w-5 text-blue-600" />
               {t.settings.security}
             </CardTitle>
           </CardHeader>
@@ -126,7 +126,7 @@ export default function CandidateSettingsContent() {
                 <Label htmlFor="confirm-password">{t.settings.confirmPassword}</Label>
                 <Input id="confirm-password" type="password" placeholder={t.settings.confirmPasswordPlaceholder} className="focus-ring" />
               </div>
-              <Button className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white w-fit btn-save-success">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white w-fit btn-save-success">
                 {t.settings.updatePassword}
               </Button>
             </div>
@@ -143,7 +143,7 @@ export default function CandidateSettingsContent() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-teal-600" />
+              <User className="h-5 w-5 text-blue-600" />
               {t.settings.profileVisibility}
             </CardTitle>
           </CardHeader>

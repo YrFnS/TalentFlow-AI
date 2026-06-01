@@ -95,7 +95,7 @@ export default function EEOSurvey({ onSubmit, onSave }: EEOSurveyProps) {
     <Card className="border-border/50 max-w-2xl mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
             <ShieldCheck className="h-4 w-4" />
           </div>
           {t.eeo.voluntarySurvey}
@@ -104,9 +104,9 @@ export default function EEOSurvey({ onSubmit, onSave }: EEOSurveyProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Disclaimer */}
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/30">
-          <Info className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
-          <p className="text-sm text-teal-700 dark:text-teal-400">{t.eeo.voluntaryDisclaimer}</p>
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+          <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-slate-700">{t.eeo.voluntaryDisclaimer}</p>
         </div>
 
         {/* Decline checkbox */}
@@ -193,7 +193,7 @@ export default function EEOSurvey({ onSubmit, onSave }: EEOSurveyProps) {
           <Button
             onClick={handleSubmit}
             disabled={!isFormValid || isSubmitting}
-            className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 gap-2"
+            className="flex-1 bg-blue-600 text-white hover:bg-blue-700 gap-2"
           >
             <Send className="h-4 w-4" />
             {isSubmitting ? '...' : t.eeo.submitSurvey}

@@ -65,15 +65,15 @@ interface ComplianceEvent {
 }
 
 const levelConfig: Record<ComplianceLevel, { color: string; dotColor: string }> = {
-  green: { color: 'text-emerald-600 dark:text-emerald-400', dotColor: 'bg-emerald-500' },
-  yellow: { color: 'text-amber-600 dark:text-amber-400', dotColor: 'bg-amber-500' },
-  red: { color: 'text-red-600 dark:text-red-400', dotColor: 'bg-red-500' },
+  green: { color: 'text-emerald-600', dotColor: 'bg-emerald-500' },
+  yellow: { color: 'text-amber-600', dotColor: 'bg-amber-500' },
+  red: { color: 'text-red-600', dotColor: 'bg-red-500' },
 };
 
 const eventStatusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  compliant: { label: 'Compliant', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: CheckCircle2 },
-  warning: { label: 'Warning', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: AlertTriangle },
-  violation: { label: 'Violation', color: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0', icon: AlertCircle },
+  compliant: { label: 'Compliant', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: CheckCircle2 },
+  warning: { label: 'Warning', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: AlertTriangle },
+  violation: { label: 'Violation', color: 'bg-red-50 text-red-700 dark:bg-red-950 border-0', icon: AlertCircle },
 };
 
 const policyCategories: PolicyCategory[] = [
@@ -117,7 +117,7 @@ export default function CompliancePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Shield className="h-5 w-5" />
           </div>
           <div>
@@ -127,7 +127,7 @@ export default function CompliancePage() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
               <Plus className="h-4 w-4 me-2" />
               {t.compliance.createPolicy}
             </Button>
@@ -172,7 +172,7 @@ export default function CompliancePage() {
               <DialogClose asChild>
                 <Button variant="outline">{t.common.cancel}</Button>
               </DialogClose>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 {t.common.create}
               </Button>
             </DialogFooter>
@@ -182,10 +182,10 @@ export default function CompliancePage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Shield className="h-4 w-4" />
               </div>
               <div>
@@ -195,10 +195,10 @@ export default function CompliancePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <FileText className="h-4 w-4" />
               </div>
               <div>
@@ -208,10 +208,10 @@ export default function CompliancePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div>
@@ -221,10 +221,10 @@ export default function CompliancePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-950 text-cyan-600">
                 <Clock className="h-4 w-4" />
               </div>
               <div>
@@ -241,7 +241,7 @@ export default function CompliancePage() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Shield className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Shield className="h-4 w-4 text-blue-600" />
               {t.compliance.scoreOverview}
             </CardTitle>
           </CardHeader>
@@ -279,7 +279,7 @@ export default function CompliancePage() {
         <Card className="border-border/50 lg:col-span-2">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <FileText className="h-4 w-4 text-blue-600" />
               {t.compliance.policyCategories}
             </CardTitle>
           </CardHeader>
@@ -289,9 +289,9 @@ export default function CompliancePage() {
                 const CatIcon = cat.icon;
                 const level = levelConfig[cat.level];
                 return (
-                  <div key={cat.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:border-teal-200 dark:hover:border-teal-800 transition-colors bg-muted/10">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/30">
-                      <CatIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                  <div key={cat.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:border-slate-200 dark:hover:border-teal-800 transition-colors bg-muted/10">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50">
+                      <CatIcon className="h-5 w-5 text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
@@ -317,14 +317,14 @@ export default function CompliancePage() {
       {overdueReviews.length > 0 && (
         <Card className="border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/20">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-amber-700 dark:text-amber-400">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-amber-700">
               <AlertTriangle className="h-4 w-4" />
               {t.compliance.overdueAlert}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {overdueReviews.map((review) => (
-              <div key={review.id} className="flex items-center justify-between p-2.5 rounded-lg bg-white/60 dark:bg-background/40 border border-amber-200/50 dark:border-amber-900/30">
+              <div key={review.id} className="flex items-center justify-between p-2.5 rounded-lg bg-white/60/40 border border-amber-200/50 dark:border-amber-900/30">
                 <div className="flex items-center gap-3 min-w-0">
                   <AlertCircle className={cn('h-4 w-4 shrink-0', review.status === 'violation' ? 'text-red-500' : 'text-amber-500')} />
                   <div className="min-w-0">
@@ -346,7 +346,7 @@ export default function CompliancePage() {
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Clock className="h-4 w-4 text-blue-600" />
               {t.compliance.recentEvents}
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -398,7 +398,7 @@ export default function CompliancePage() {
                       <TableCell className="text-sm py-3 text-muted-foreground">{evt.date}</TableCell>
                       <TableCell className="text-sm font-medium py-3">{evt.event}</TableCell>
                       <TableCell className="text-sm py-3">
-                        <Badge className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                        <Badge className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                           {evt.category}
                         </Badge>
                       </TableCell>
@@ -410,7 +410,7 @@ export default function CompliancePage() {
                       </TableCell>
                       <TableCell className="py-3">
                         {evt.actionRequired ? (
-                          <Button size="sm" variant="outline" className="h-7 text-xs gap-1 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900">
+                          <Button size="sm" variant="outline" className="h-7 text-xs gap-1 text-amber-600 border-amber-200 dark:border-amber-900">
                             <AlertTriangle className="h-3 w-3" />
                             {evt.actionText || t.compliance.reviewNow}
                           </Button>

@@ -73,11 +73,11 @@ interface UserItem {
 }
 
 const roleColors: Record<string, string> = {
-  SUPER_ADMIN: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+  SUPER_ADMIN: 'bg-red-100 text-red-700 dark:bg-red-950',
   ADMIN: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
-  MODERATOR: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
-  COMPANY_ADMIN: 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300',
-  HR_MANAGER: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300',
+  MODERATOR: 'bg-amber-100 text-amber-700 dark:bg-amber-950',
+  COMPANY_ADMIN: 'bg-teal-100 text-blue-700 dark:bg-teal-950',
+  HR_MANAGER: 'bg-sky-100 text-sky-700 dark:bg-cyan-950',
   RECRUITER: 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
   REVIEWER: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
   CANDIDATE: 'bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-300',
@@ -332,7 +332,7 @@ export default function UsersPage() {
                   users.map((user) => {
                     const userStatus = getUserStatus(user);
                     return (
-                      <TableRow key={user.id} className={cn('group', selectedUsers.has(user.id) && 'bg-teal-50/50 dark:bg-teal-950/20')}>
+                      <TableRow key={user.id} className={cn('group', selectedUsers.has(user.id) && 'bg-slate-50')}>
                         <TableCell>
                           <Checkbox
                             checked={selectedUsers.has(user.id)}
@@ -436,9 +436,9 @@ export default function UsersPage() {
       {/* Bulk Actions Bar */}
       {selectedUsers.size > 0 && (
         <div className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:max-w-lg z-50 animate-fade-in-up">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-background border shadow-lg border-teal-200 dark:border-teal-800">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-background border shadow-lg border-slate-200">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 shrink-0">
+              <Badge className="bg-teal-100 text-blue-700 dark:bg-teal-950 border-0 shrink-0">
                 {selectedUsers.size}
               </Badge>
               <span className="text-sm text-muted-foreground truncate">
@@ -451,11 +451,11 @@ export default function UsersPage() {
                 <UserX className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">{t.bulkActions?.deactivate || 'Deactivate'}</span>
               </Button>
-              <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 hover:text-teal-600" onClick={() => handleBulkAction('changeRole')}>
+              <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 hover:text-blue-600" onClick={() => handleBulkAction('changeRole')}>
                 <Shield className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">{t.bulkActions?.changeRole || 'Role'}</span>
               </Button>
-              <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 hover:text-teal-600" onClick={() => handleBulkAction('export')}>
+              <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 hover:text-blue-600" onClick={() => handleBulkAction('export')}>
                 <Download className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">{t.bulkActions?.export || 'Export'}</span>
               </Button>
@@ -466,7 +466,7 @@ export default function UsersPage() {
             </div>
             <Separator orientation="vertical" className="h-6" />
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" className="h-8 text-xs text-teal-600" onClick={toggleAll}>
+              <Button variant="ghost" size="sm" className="h-8 text-xs text-blue-600" onClick={toggleAll}>
                 {t.bulkActions?.selectAll || 'All'}
               </Button>
               <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setSelectedUsers(new Set())}>

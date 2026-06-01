@@ -63,11 +63,11 @@ interface Application {
 
 const statusConfig: Record<AppStatus, { label: string; color: string; bgColor: string; icon: React.ElementType; timelineColor: string }> = {
   APPLIED: { label: 'Applied', color: 'text-gray-700 dark:text-gray-400', bgColor: 'bg-gray-100 dark:bg-gray-950', icon: Send, timelineColor: 'bg-gray-400' },
-  SCREENING: { label: 'Screening', color: 'text-amber-700 dark:text-amber-400', bgColor: 'bg-amber-100 dark:bg-amber-950', icon: Eye, timelineColor: 'bg-amber-500' },
-  INTERVIEW: { label: 'Interview', color: 'text-teal-700 dark:text-teal-400', bgColor: 'bg-teal-100 dark:bg-teal-950', icon: Calendar, timelineColor: 'bg-teal-500' },
-  OFFERED: { label: 'Offered', color: 'text-emerald-700 dark:text-emerald-400', bgColor: 'bg-emerald-100 dark:bg-emerald-950', icon: CheckCircle2, timelineColor: 'bg-emerald-500' },
+  SCREENING: { label: 'Screening', color: 'text-amber-700', bgColor: 'bg-amber-100 dark:bg-amber-950', icon: Eye, timelineColor: 'bg-amber-500' },
+  INTERVIEW: { label: 'Interview', color: 'text-blue-700', bgColor: 'bg-teal-100 dark:bg-teal-950', icon: Calendar, timelineColor: 'bg-slate-500' },
+  OFFERED: { label: 'Offered', color: 'text-emerald-700', bgColor: 'bg-emerald-100 dark:bg-emerald-950', icon: CheckCircle2, timelineColor: 'bg-emerald-500' },
   HIRED: { label: 'Hired', color: 'text-green-700 dark:text-green-400', bgColor: 'bg-green-100 dark:bg-green-950', icon: CheckCircle2, timelineColor: 'bg-green-500' },
-  REJECTED: { label: 'Rejected', color: 'text-red-700 dark:text-red-400', bgColor: 'bg-red-100 dark:bg-red-950', icon: XCircle, timelineColor: 'bg-red-500' },
+  REJECTED: { label: 'Rejected', color: 'text-red-700', bgColor: 'bg-red-100 dark:bg-red-950', icon: XCircle, timelineColor: 'bg-red-500' },
   WITHDRAWN: { label: 'Withdrawn', color: 'text-gray-700 dark:text-gray-400', bgColor: 'bg-gray-100 dark:bg-gray-950', icon: AlertCircle, timelineColor: 'bg-gray-400' },
 };
 
@@ -163,7 +163,7 @@ export default function MyApplicationsPage() {
                           <Clock className="h-3 w-3" />
                           Applied {app.appliedAt}
                         </span>
-                        <span className="flex items-center gap-0.5 font-medium text-emerald-600 dark:text-emerald-400">
+                        <span className="flex items-center gap-0.5 font-medium text-emerald-600">
                           {app.matchScore}% match
                         </span>
                       </div>
@@ -232,13 +232,13 @@ export default function MyApplicationsPage() {
             </div>
             
             {/* Cards */}
-            <div className="space-y-2 min-h-[120px] p-2 rounded-lg bg-muted/30 border-2 border-dashed border-teal-200/40 dark:border-teal-800/40">
+            <div className="space-y-2 min-h-[120px] p-2 rounded-lg bg-muted/30 border-2 border-dashed border-slate-200/40/40">
               {columnApps.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-24 text-muted-foreground/50 gap-2">
-                  <div className="w-8 h-8 rounded-full border-2 border-dashed border-teal-300/50 dark:border-teal-700/50 flex items-center justify-center">
-                    <FileText className="w-3 h-3 text-teal-400/60" />
+                  <div className="w-8 h-8 rounded-full border-2 border-dashed border-slate-300/50/50 flex items-center justify-center">
+                    <FileText className="w-3 h-3 text-blue-400/60" />
                   </div>
-                  <p className="text-[10px] font-medium text-teal-600/60 dark:text-teal-400/60">{t.appView?.noApps || 'No applications'}</p>
+                  <p className="text-[10px] font-medium text-blue-600/60/60">{t.appView?.noApps || 'No applications'}</p>
                 </div>
               ) : (
                 columnApps.map((app) => (
@@ -258,7 +258,7 @@ export default function MyApplicationsPage() {
                       <span className="text-[10px] text-muted-foreground">
                         {app.appliedAt}
                       </span>
-                      <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                      <span className="text-[10px] font-medium text-emerald-600">
                         {app.matchScore}%
                       </span>
                     </div>
@@ -321,7 +321,7 @@ export default function MyApplicationsPage() {
                       <Clock className="h-3 w-3" />
                       Applied {app.appliedAt}
                     </span>
-                    <span className="flex items-center gap-0.5 font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="flex items-center gap-0.5 font-medium text-emerald-600">
                       {app.matchScore}% match
                     </span>
                   </div>

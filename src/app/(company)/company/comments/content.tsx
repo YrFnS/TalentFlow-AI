@@ -427,10 +427,10 @@ export default function CommentsContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center">
+              <MessageSquare className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{totalComments}</p>
@@ -439,10 +439,10 @@ export default function CommentsContent() {
           </CardContent>
         </Card>
 
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
-              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              <AlertCircle className="w-5 h-5 text-amber-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{unresolvedThreads}</p>
@@ -451,10 +451,10 @@ export default function CommentsContent() {
           </CardContent>
         </Card>
 
-        <Card className="card-hover-lift">
+        <Card className="card-">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
-              <AtSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <AtSign className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{myMentionsCount}</p>
@@ -471,7 +471,7 @@ export default function CommentsContent() {
           <TabsTrigger value="mentions">
             {t.comments.myMentions}
             {myMentionsCount > 0 && (
-              <Badge className="ms-2 h-5 px-1.5 text-[10px] bg-teal-500 text-white">{myMentionsCount}</Badge>
+              <Badge className="ms-2 h-5 px-1.5 text-[10px] bg-slate-500 text-white">{myMentionsCount}</Badge>
             )}
           </TabsTrigger>
         </TabsList>
@@ -543,7 +543,7 @@ export default function CommentsContent() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  {React.createElement(ENTITY_TYPE_ICONS[selectedEntityType] || FileText, { className: 'w-4 h-4 text-teal-600 dark:text-teal-400' })}
+                  {React.createElement(ENTITY_TYPE_ICONS[selectedEntityType] || FileText, { className: 'w-4 h-4 text-blue-600' })}
                   {selectedEntityType === 'APPLICATION' && 'Application'}
                   {selectedEntityType === 'CANDIDATE' && 'Candidate'}
                   {selectedEntityType === 'JOB' && 'Job'}
@@ -584,7 +584,7 @@ export default function CommentsContent() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <AtSign className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <AtSign className="w-4 h-4 text-blue-600" />
                 {t.comments.myMentions}
               </CardTitle>
               <CardDescription>
@@ -599,7 +599,7 @@ export default function CommentsContent() {
                     return (
                       <div key={mention.id} className="flex gap-3 p-3 rounded-lg hover:bg-accent/50 transition-colors">
                         <Avatar className="w-8 h-8 shrink-0">
-                          <AvatarFallback className="text-xs bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300">
+                          <AvatarFallback className="text-xs bg-teal-100 text-blue-700 dark:bg-teal-900">
                             {getInitials(mention.author.name)}
                           </AvatarFallback>
                         </Avatar>

@@ -100,25 +100,25 @@ interface VideoInterview {
 
 const statusConfig: Record<string, { color: string; bgColor: string; borderColor: string; icon: React.ElementType }> = {
   PENDING: {
-    color: 'text-amber-700 dark:text-amber-400',
+    color: 'text-amber-700',
     bgColor: 'bg-amber-100 dark:bg-amber-900/30',
     borderColor: 'border-amber-200 dark:border-amber-800/30',
     icon: Clock,
   },
   IN_PROGRESS: {
-    color: 'text-teal-700 dark:text-teal-400',
-    bgColor: 'bg-teal-100 dark:bg-teal-900/30',
-    borderColor: 'border-teal-200 dark:border-teal-800/30',
+    color: 'text-blue-700',
+    bgColor: 'bg-teal-100',
+    borderColor: 'border-slate-200/30',
     icon: Play,
   },
   COMPLETED: {
-    color: 'text-emerald-700 dark:text-emerald-400',
+    color: 'text-emerald-700',
     bgColor: 'bg-emerald-100 dark:bg-emerald-900/30',
     borderColor: 'border-emerald-200 dark:border-emerald-800/30',
     icon: CheckCircle2,
   },
   EXPIRED: {
-    color: 'text-red-700 dark:text-red-400',
+    color: 'text-red-700',
     bgColor: 'bg-red-100 dark:bg-red-900/30',
     borderColor: 'border-red-200 dark:border-red-800/30',
     icon: AlertCircle,
@@ -429,7 +429,7 @@ export default function VideoInterviewsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Video className="h-5 w-5" />
           </div>
           <div>
@@ -438,7 +438,7 @@ export default function VideoInterviewsContent() {
           </div>
         </div>
         <Button
-          className="bg-teal-600 hover:bg-teal-700 text-white"
+          className="bg-blue-600 hover:bg-blue-700 text-white"
           onClick={() => { resetCreateForm(); setCreateOpen(true); }}
         >
           <Plus className="w-4 h-4 me-2" />
@@ -449,14 +449,14 @@ export default function VideoInterviewsContent() {
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: t.asyncInterview.totalInterviews, value: stats.total, icon: Video, gradient: 'from-teal-500 to-emerald-600' },
+          { label: t.asyncInterview.totalInterviews, value: stats.total, icon: Video, gradient: 'bg-blue-600' },
           { label: t.asyncInterview.pendingResponses, value: stats.pending, icon: Clock, gradient: 'from-amber-500 to-orange-600' },
           { label: t.asyncInterview.completed, value: stats.completed, icon: CheckCircle2, gradient: 'from-emerald-500 to-teal-600' },
           { label: t.asyncInterview.avgAIScore, value: stats.avgScore > 0 ? `${stats.avgScore}%` : '-', icon: Brain, gradient: 'from-teal-600 to-emerald-700' },
         ].map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.label} className="card-hover-lift border-border/50 relative overflow-hidden">
+            <Card key={stat.label} className="card-border-border/50 relative overflow-hidden">
               <div className={cn('absolute inset-0 bg-gradient-to-br opacity-[0.06]', stat.gradient)} />
               <CardContent className="p-4 relative">
                 <div className="flex items-center gap-3">
@@ -564,7 +564,7 @@ export default function VideoInterviewsContent() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Avatar className="w-8 h-8">
-                              <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-[10px]">
+                              <AvatarFallback className="bg-teal-100 text-blue-700 text-[10px]">
                                 {getInitials(vi.application.candidate.user.name)}
                               </AvatarFallback>
                             </Avatar>
@@ -584,7 +584,7 @@ export default function VideoInterviewsContent() {
                           <div className="text-sm">
                             {formatDate(vi.responseDeadline)}
                             {isDeadlinePassed && (
-                              <p className="text-xs text-red-500 dark:text-red-400">{t.asyncInterview.deadlinePassed}</p>
+                              <p className="text-xs text-red-500">{t.asyncInterview.deadlinePassed}</p>
                             )}
                           </div>
                         </TableCell>
@@ -606,9 +606,9 @@ export default function VideoInterviewsContent() {
                           {avgScore !== null ? (
                             <span className={cn(
                               'text-sm font-bold',
-                              avgScore >= 85 ? 'text-emerald-600 dark:text-emerald-400' :
-                              avgScore >= 70 ? 'text-teal-600 dark:text-teal-400' :
-                              'text-amber-600 dark:text-amber-400'
+                              avgScore >= 85 ? 'text-emerald-600' :
+                              avgScore >= 70 ? 'text-blue-600' :
+                              'text-amber-600'
                             )}>
                               {avgScore}%
                             </span>
@@ -622,7 +622,7 @@ export default function VideoInterviewsContent() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-7 px-2 text-xs text-teal-600 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                                className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-slate-50"
                                 onClick={() => openResponsesDialog(vi)}
                               >
                                 <Eye className="w-3 h-3 me-1" />
@@ -646,7 +646,7 @@ export default function VideoInterviewsContent() {
         <DialogContent className="sm:max-w-[640px] max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Video className="h-5 w-5 text-teal-600" />
+              <Video className="h-5 w-5 text-blue-600" />
               {t.asyncInterview.createInterview}
             </DialogTitle>
             <DialogDescription>
@@ -700,7 +700,7 @@ export default function VideoInterviewsContent() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-7 text-xs border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                      className="h-7 text-xs border-slate-300 text-blue-600 hover:bg-slate-50"
                       onClick={handleGenerateQuestions}
                       disabled={generatingAI}
                     >
@@ -822,7 +822,7 @@ export default function VideoInterviewsContent() {
               {t.common.cancel}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={handleCreate}
               disabled={createSubmitting || !createForm.title || createForm.questions.some((q) => !q.text.trim())}
             >
@@ -838,7 +838,7 @@ export default function VideoInterviewsContent() {
         <DialogContent className="sm:max-w-[640px] max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-teal-600" />
+              <Eye className="h-5 w-5 text-blue-600" />
               {t.asyncInterview.viewResponses}
             </DialogTitle>
             <DialogDescription>
@@ -855,7 +855,7 @@ export default function VideoInterviewsContent() {
                       <CardContent className="p-4 space-y-3">
                         {/* Question */}
                         <div className="flex items-start gap-2">
-                          <Badge variant="outline" className="text-[10px] bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800/30 shrink-0">
+                          <Badge variant="outline" className="text-[10px] bg-slate-50 text-blue-700 border-slate-200/30 shrink-0">
                             {getQuestionTypeLabel(question.type)}
                           </Badge>
                           <p className="text-sm font-medium">{question.text}</p>
@@ -866,7 +866,7 @@ export default function VideoInterviewsContent() {
                           <div className="relative rounded-lg overflow-hidden bg-gradient-to-br from-teal-900/80 to-emerald-900/80 dark:from-teal-950 dark:to-emerald-950 aspect-video flex items-center justify-center">
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                             <div className="relative flex flex-col items-center gap-2">
-                              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
                                 <Play className="w-5 h-5 text-white ms-0.5" />
                               </div>
                               {response.duration && (
@@ -898,9 +898,9 @@ export default function VideoInterviewsContent() {
                                 {response.aiScore !== null ? (
                                   <span className={cn(
                                     'text-sm font-bold',
-                                    response.aiScore >= 85 ? 'text-emerald-600 dark:text-emerald-400' :
-                                    response.aiScore >= 70 ? 'text-teal-600 dark:text-teal-400' :
-                                    'text-amber-600 dark:text-amber-400'
+                                    response.aiScore >= 85 ? 'text-emerald-600' :
+                                    response.aiScore >= 70 ? 'text-blue-600' :
+                                    'text-amber-600'
                                   )}>
                                     {response.aiScore}%
                                   </span>
@@ -912,7 +912,7 @@ export default function VideoInterviewsContent() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="h-6 px-2 text-[10px] border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                                  className="h-6 px-2 text-[10px] border-slate-300 text-blue-600 hover:bg-slate-50"
                                   onClick={() => handleAnalyze(selectedInterview.id, idx)}
                                   disabled={analyzingIdx === idx}
                                 >
@@ -926,8 +926,8 @@ export default function VideoInterviewsContent() {
                               )}
                             </div>
                             {response.aiFeedback ? (
-                              <div className="p-2.5 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-200/50 dark:border-teal-800/30">
-                                <p className="text-xs font-medium text-teal-700 dark:text-teal-400 mb-1">{t.asyncInterview.aiFeedback}</p>
+                              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/50/30">
+                                <p className="text-xs font-medium text-blue-700 mb-1">{t.asyncInterview.aiFeedback}</p>
                                 <p className="text-xs text-muted-foreground">{response.aiFeedback}</p>
                               </div>
                             ) : (

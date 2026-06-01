@@ -83,12 +83,12 @@ interface InternalApplication {
 }
 
 const statusColors: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  MANAGER_APPROVED: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  INTERVIEW: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border-0',
-  OFFERED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+  PENDING: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  MANAGER_APPROVED: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  INTERVIEW: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 border-0',
+  OFFERED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   HIRED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border-0',
-  REJECTED: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  REJECTED: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 const statusLabels: Record<string, string> = {
@@ -101,10 +101,10 @@ const statusLabels: Record<string, string> = {
 };
 
 const departmentColors: Record<string, string> = {
-  Engineering: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  Marketing: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Sales: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border-0',
-  Product: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+  Engineering: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  Marketing: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Sales: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 border-0',
+  Product: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   Design: 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400 border-0',
 };
 
@@ -249,16 +249,16 @@ export default function CompanyInternalJobsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{it.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{it.title}</h1>
             <p className="text-sm text-muted-foreground">{it.subtitle}</p>
           </div>
         </div>
         <Button
-          className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+          className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
           onClick={() => setCreateOpen(true)}
         >
           <Plus className="h-4 w-4 me-2" />
@@ -268,11 +268,11 @@ export default function CompanyInternalJobsContent() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-emerald-600 opacity-[0.06]" />
+        <Card className="border-border/50 card-relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br bg-blue-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Briefcase className="h-4 w-4" />
               </div>
               <div>
@@ -282,11 +282,11 @@ export default function CompanyInternalJobsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <FileText className="h-4 w-4" />
               </div>
               <div>
@@ -296,11 +296,11 @@ export default function CompanyInternalJobsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-cyan-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -310,11 +310,11 @@ export default function CompanyInternalJobsContent() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 card-hover-lift relative overflow-hidden">
+        <Card className="border-border/50 card-relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.06]" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div>
@@ -346,7 +346,7 @@ export default function CompanyInternalJobsContent() {
             placeholder={t.common.search}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+            className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-blue-500/50"
           />
         </div>
       </div>
@@ -354,14 +354,14 @@ export default function CompanyInternalJobsContent() {
       {/* Internal Job Postings Grid */}
       <div>
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Building2 className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <Building2 className="h-5 w-5 text-blue-600" />
           {it.internalBoard}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredPostings.map((posting) => {
             const daysAgo = Math.floor((Date.now() - new Date(posting.createdAt).getTime()) / 86400000);
             return (
-              <Card key={posting.id} className="border-border/50 card-hover-lift">
+              <Card key={posting.id} className="border-border/50 card-">
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-sm font-semibold">{posting.jobTitle}</CardTitle>
@@ -387,7 +387,7 @@ export default function CompanyInternalJobsContent() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {posting.isInternalOnly && (
-                          <Badge className="text-[9px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0">
+                          <Badge className="text-[9px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0">
                             {it.isInternalOnly}
                           </Badge>
                         )}
@@ -400,7 +400,7 @@ export default function CompanyInternalJobsContent() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full text-xs border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950"
+                      className="w-full text-xs border-slate-200 text-blue-700 hover:bg-slate-50 dark:hover:bg-teal-950"
                       onClick={() => openDetail(posting)}
                     >
                       <Eye className="h-3 w-3 me-1" />
@@ -423,7 +423,7 @@ export default function CompanyInternalJobsContent() {
       {/* Applications Table */}
       <div>
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <FileText className="h-5 w-5 text-blue-600" />
           {it.applications}
         </h2>
         <Card className="border-border/50">
@@ -445,7 +445,7 @@ export default function CompanyInternalJobsContent() {
                       <td className="p-3">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-7 w-7">
-                            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[9px]">
+                            <AvatarFallback className="bg-blue-600 text-white text-[9px]">
                               {getInitials(app.applicantName)}
                             </AvatarFallback>
                           </Avatar>
@@ -460,17 +460,17 @@ export default function CompanyInternalJobsContent() {
                       </td>
                       <td className="p-3">
                         {app.managerApproved === true ? (
-                          <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0 text-[10px]">
+                          <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0 text-[10px]">
                             <CheckCircle2 className="h-3 w-3 me-1" />
                             {it.approved}
                           </Badge>
                         ) : app.managerApproved === false ? (
-                          <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0 text-[10px]">
+                          <Badge className="bg-red-50 text-red-700 dark:bg-red-950 border-0 text-[10px]">
                             <XCircle className="h-3 w-3 me-1" />
                             {it.rejected}
                           </Badge>
                         ) : (
-                          <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0 text-[10px]">
+                          <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-950 border-0 text-[10px]">
                             <Clock className="h-3 w-3 me-1" />
                             {it.pendingApproval}
                           </Badge>
@@ -530,7 +530,7 @@ export default function CompanyInternalJobsContent() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-teal-600" />
+              <Building2 className="h-5 w-5 text-blue-600" />
               {it.createPosting}
             </DialogTitle>
           </DialogHeader>
@@ -562,7 +562,7 @@ export default function CompanyInternalJobsContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 {isInternalOnly ? (
-                  <ToggleRight className="h-5 w-5 text-teal-600 cursor-pointer" onClick={() => setIsInternalOnly(false)} />
+                  <ToggleRight className="h-5 w-5 text-blue-600 cursor-pointer" onClick={() => setIsInternalOnly(false)} />
                 ) : (
                   <ToggleLeft className="h-5 w-5 text-muted-foreground cursor-pointer" onClick={() => setIsInternalOnly(true)} />
                 )}
@@ -572,7 +572,7 @@ export default function CompanyInternalJobsContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 {notifyEmployees ? (
-                  <ToggleRight className="h-5 w-5 text-teal-600 cursor-pointer" onClick={() => setNotifyEmployees(false)} />
+                  <ToggleRight className="h-5 w-5 text-blue-600 cursor-pointer" onClick={() => setNotifyEmployees(false)} />
                 ) : (
                   <ToggleLeft className="h-5 w-5 text-muted-foreground cursor-pointer" onClick={() => setNotifyEmployees(true)} />
                 )}
@@ -596,7 +596,7 @@ export default function CompanyInternalJobsContent() {
             </DialogClose>
             <Button
               size="sm"
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+              className="bg-gradient-to-r bg-blue-600 text-white"
               onClick={handleCreate}
             >
               {it.createPosting}
@@ -610,7 +610,7 @@ export default function CompanyInternalJobsContent() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ArrowRightLeft className="h-5 w-5 text-teal-600" />
+              <ArrowRightLeft className="h-5 w-5 text-blue-600" />
               {selectedPosting?.jobTitle} — {it.applications}
             </DialogTitle>
           </DialogHeader>
@@ -621,22 +621,22 @@ export default function CompanyInternalJobsContent() {
                 <CardContent className="p-4">
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4 text-teal-600" />
+                      <Briefcase className="h-4 w-4 text-blue-600" />
                       <span className="text-muted-foreground">{it.department}:</span>
                       <span className="font-medium">{selectedPosting.department}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-teal-600" />
+                      <MapPin className="h-4 w-4 text-blue-600" />
                       <span className="text-muted-foreground">{it.location}:</span>
                       <span className="font-medium">{selectedPosting.location}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-teal-600" />
+                      <Clock className="h-4 w-4 text-blue-600" />
                       <span className="text-muted-foreground">{it.minTenure}:</span>
                       <span className="font-medium">{selectedPosting.minTenureMonths} {it.tenureMonths}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-teal-600" />
+                      <Users className="h-4 w-4 text-blue-600" />
                       <span className="text-muted-foreground">{it.applications}:</span>
                       <span className="font-medium">{postingApplications.length}</span>
                     </div>
@@ -659,7 +659,7 @@ export default function CompanyInternalJobsContent() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Avatar className="h-8 w-8">
-                              <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px]">
+                              <AvatarFallback className="bg-blue-600 text-white text-[10px]">
                                 {getInitials(app.applicantName)}
                               </AvatarFallback>
                             </Avatar>

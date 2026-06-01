@@ -446,16 +446,16 @@ export default function CreateJobPage() {
                 onClick={() => step.id < currentStep && setCurrentStep(step.id)}
                 className={cn(
                   'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                  isActive && 'bg-teal-600/10 text-teal-700 dark:text-teal-400',
-                  isComplete && 'text-teal-600 dark:text-teal-400 cursor-pointer',
+                  isActive && 'bg-blue-600/10 text-blue-700',
+                  isComplete && 'text-blue-600 cursor-pointer',
                   !isActive && !isComplete && 'text-muted-foreground'
                 )}
               >
                 <div
                   className={cn(
                     'flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold',
-                    isActive && 'bg-teal-600 text-white',
-                    isComplete && 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
+                    isActive && 'bg-blue-600 text-white',
+                    isComplete && 'bg-teal-100 text-blue-600',
                     !isActive && !isComplete && 'bg-muted text-muted-foreground'
                   )}
                 >
@@ -464,7 +464,7 @@ export default function CreateJobPage() {
                 <span className="hidden sm:inline">{step.title}</span>
               </button>
               {index < steps.length - 1 && (
-                <div className={cn('flex-1 h-px mx-1', isComplete ? 'bg-teal-300 dark:bg-teal-700' : 'bg-border')} />
+                <div className={cn('flex-1 h-px mx-1', isComplete ? 'bg-teal-300 dark:bg-blue-700' : 'bg-border')} />
               )}
             </React.Fragment>
           );
@@ -490,7 +490,7 @@ export default function CreateJobPage() {
                       setAiError(null);
                       setAiDialogOpen(true);
                     }}
-                    className="border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                    className="border-slate-300 text-blue-600 hover:bg-slate-50"
                   >
                     <Sparkles className="w-4 h-4 me-2" />
                     AI Generate
@@ -499,9 +499,9 @@ export default function CreateJobPage() {
                     <div className="flex items-start gap-2 p-2 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 max-w-xs">
                       <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-red-700 dark:text-red-300">{aiError}</p>
+                        <p className="text-xs text-red-700">{aiError}</p>
                         {aiError.includes('No active AI provider') && (
-                          <Button variant="link" size="sm" className="h-auto p-0 text-xs text-red-600 dark:text-red-400" asChild>
+                          <Button variant="link" size="sm" className="h-auto p-0 text-xs text-red-600" asChild>
                             <Link href="/company/ai-settings">
                               <Settings className="h-3 w-3 mr-1" />
                               Configure AI
@@ -616,7 +616,7 @@ export default function CreateJobPage() {
                 <div className="space-y-2">
                   {form.requirements.map((req, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs flex items-center justify-center flex-shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-teal-100 text-blue-700 text-xs flex items-center justify-center flex-shrink-0">
                         {i + 1}
                       </div>
                       <Input
@@ -646,7 +646,7 @@ export default function CreateJobPage() {
                 <div className="space-y-2">
                   {form.responsibilities.map((resp, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs flex items-center justify-center flex-shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 text-xs flex items-center justify-center flex-shrink-0">
                         {i + 1}
                       </div>
                       <Input
@@ -676,7 +676,7 @@ export default function CreateJobPage() {
                 <div className="space-y-2">
                   {form.benefits.map((ben, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs flex items-center justify-center flex-shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 text-xs flex items-center justify-center flex-shrink-0">
                         {i + 1}
                       </div>
                       <Input
@@ -800,8 +800,8 @@ export default function CreateJobPage() {
               </div>
 
               {form.salaryMin && form.salaryMax && (
-                <div className="p-4 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/30">
-                  <p className="text-sm font-medium text-teal-700 dark:text-teal-400">
+                <div className="p-4 rounded-lg bg-slate-50 border border-slate-200/30">
+                  <p className="text-sm font-medium text-blue-700">
                     Salary Range: ${parseInt(form.salaryMin).toLocaleString()} - ${parseInt(form.salaryMax).toLocaleString()} {form.salaryCurrency}
                   </p>
                 </div>
@@ -822,7 +822,7 @@ export default function CreateJobPage() {
                     size="sm"
                     onClick={handleSuggestScreeningQuestions}
                     disabled={screeningAiLoading || !form.title.trim()}
-                    className="border-teal-300 dark:border-teal-700 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                    className="border-slate-300 text-blue-600 hover:bg-slate-50"
                   >
                     {screeningAiLoading ? (
                       <Loader2 className="w-4 h-4 me-2 animate-spin" />
@@ -834,7 +834,7 @@ export default function CreateJobPage() {
                   <Button
                     size="sm"
                     onClick={addScreeningQuestion}
-                    className="bg-teal-600 hover:bg-teal-700 text-white"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     <Plus className="w-4 h-4 me-2" />
                     {t.screening.addQuestion}
@@ -951,7 +951,7 @@ export default function CreateJobPage() {
                           <div className="space-y-2">
                             {q.options.map((opt, optIndex) => (
                               <div key={optIndex} className="flex items-center gap-2">
-                                <div className="w-5 h-5 rounded-full border border-teal-300 dark:border-teal-700 text-teal-600 text-[10px] flex items-center justify-center flex-shrink-0">
+                                <div className="w-5 h-5 rounded-full border border-slate-300 text-blue-600 text-[10px] flex items-center justify-center flex-shrink-0">
                                   {String.fromCharCode(65 + optIndex)}
                                 </div>
                                 <Input
@@ -977,7 +977,7 @@ export default function CreateJobPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => addScreeningOption(qIndex)}
-                            className="h-7 text-xs border-teal-300 dark:border-teal-700 text-teal-600"
+                            className="h-7 text-xs border-slate-300 text-blue-600"
                           >
                             <Plus className="w-3 h-3 me-1" />
                             {t.screening.addOption}
@@ -999,11 +999,11 @@ export default function CreateJobPage() {
                         </div>
                         {q.isKnockout && (
                           <div className="ms-7 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 space-y-3">
-                            <p className="text-xs text-amber-700 dark:text-amber-400">
+                            <p className="text-xs text-amber-700">
                               {t.screening.knockoutDesc}
                             </p>
                             <div className="grid gap-2">
-                              <Label className="text-xs text-amber-700 dark:text-amber-400">
+                              <Label className="text-xs text-amber-700">
                                 {t.screening.disqualifyAnswer}
                               </Label>
                               {q.questionType === 'YES_NO' ? (
@@ -1067,7 +1067,7 @@ export default function CreateJobPage() {
                 <div>
                   <h3 className="text-xl font-bold">{form.title || 'Job Title'}</h3>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
+                    <Badge className="bg-teal-100 text-blue-700">
                       {jobTypeOptions.find((o) => o.value === form.jobType)?.label}
                     </Badge>
                     {form.isRemote && <Badge variant="outline">Remote</Badge>}
@@ -1083,7 +1083,7 @@ export default function CreateJobPage() {
                 {form.salaryMin && form.salaryMax && (
                   <div>
                     <h4 className="text-sm font-semibold mb-1">Salary</h4>
-                    <p className="text-sm text-teal-600 dark:text-teal-400">
+                    <p className="text-sm text-blue-600">
                       ${parseInt(form.salaryMin).toLocaleString()} - ${parseInt(form.salaryMax).toLocaleString()} {form.salaryCurrency}
                     </p>
                   </div>
@@ -1166,12 +1166,12 @@ export default function CreateJobPage() {
                                 {t.screening[q.questionType === 'YES_NO' ? 'typeYesNo' : q.questionType === 'MULTIPLE_CHOICE' ? 'typeMultipleChoice' : q.questionType === 'TEXT' ? 'typeText' : q.questionType === 'NUMBER' ? 'typeNumber' : 'typeDate' as keyof typeof t.screening]}
                               </Badge>
                               {q.isRequired && (
-                                <Badge className="text-[10px] h-5 bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 border-0">
+                                <Badge className="text-[10px] h-5 bg-slate-50 text-blue-700 border-0">
                                   {t.screening.required}
                                 </Badge>
                               )}
                               {q.isKnockout && (
-                                <Badge className="text-[10px] h-5 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0 gap-1">
+                                <Badge className="text-[10px] h-5 bg-amber-50 text-amber-700 border-0 gap-1">
                                   <AlertTriangle className="w-3 h-3" />
                                   {t.screening.knockout}
                                 </Badge>
@@ -1214,7 +1214,7 @@ export default function CreateJobPage() {
               variant="outline"
               onClick={() => handleSubmit('DRAFT')}
               disabled={isSubmitting}
-              className="border-teal-300 dark:border-teal-700"
+              className="border-slate-300"
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 me-2 animate-spin" /> : null}
               Save as Draft
@@ -1225,7 +1225,7 @@ export default function CreateJobPage() {
             <Button
               onClick={() => setCurrentStep((prev) => Math.min(totalSteps, prev + 1))}
               disabled={!canProceed()}
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {t.common.next}
               <ArrowRight className="w-4 h-4 ms-2" />
@@ -1234,7 +1234,7 @@ export default function CreateJobPage() {
             <Button
               onClick={() => handleSubmit('OPEN')}
               disabled={isSubmitting}
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 me-2 animate-spin" /> : <Check className="w-4 h-4 me-2" />}
               Publish Job
@@ -1248,7 +1248,7 @@ export default function CreateJobPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-teal-600" />
+              <Sparkles className="h-5 w-5 text-blue-600" />
               AI Generate Job Description
             </DialogTitle>
             <DialogDescription>
@@ -1302,7 +1302,7 @@ export default function CreateJobPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setAiDialogOpen(false)}>Cancel</Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
               onClick={handleAiGenerate}
               disabled={!aiForm.title.trim() || aiGenerating}
             >

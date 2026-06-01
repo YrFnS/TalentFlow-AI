@@ -69,29 +69,29 @@ interface EmployeeRanking {
 }
 
 const cycleStatusConfig: Record<CycleStatus, { label: string; color: string; icon: React.ElementType }> = {
-  active: { label: 'Active', color: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0', icon: CheckCircle2 },
-  completed: { label: 'Completed', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: CheckCircle2 },
-  upcoming: { label: 'Upcoming', color: 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-0', icon: Clock },
+  active: { label: 'Active', color: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0', icon: CheckCircle2 },
+  completed: { label: 'Completed', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: CheckCircle2 },
+  upcoming: { label: 'Upcoming', color: 'bg-blue-50 text-blue-700 dark:bg-blue-950 border-0', icon: Clock },
 };
 
 const trendConfig: Record<TrendDirection, { icon: React.ElementType; color: string }> = {
-  up: { icon: TrendingUp, color: 'text-emerald-600 dark:text-emerald-400' },
-  down: { icon: TrendingDown, color: 'text-red-600 dark:text-red-400' },
-  stable: { icon: Minus, color: 'text-amber-600 dark:text-amber-400' },
+  up: { icon: TrendingUp, color: 'text-emerald-600' },
+  down: { icon: TrendingDown, color: 'text-red-600' },
+  stable: { icon: Minus, color: 'text-amber-600' },
 };
 
 function getScoreColor(score: number): string {
-  if (score >= 90) return 'text-emerald-600 dark:text-emerald-400';
-  if (score >= 75) return 'text-teal-600 dark:text-teal-400';
-  if (score >= 60) return 'text-amber-600 dark:text-amber-400';
-  return 'text-red-600 dark:text-red-400';
+  if (score >= 90) return 'text-emerald-600';
+  if (score >= 75) return 'text-blue-600';
+  if (score >= 60) return 'text-amber-600';
+  return 'text-red-600';
 }
 
 function getScoreBadgeColor(score: number): string {
-  if (score >= 90) return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0';
-  if (score >= 75) return 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0';
-  if (score >= 60) return 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0';
-  return 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0';
+  if (score >= 90) return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0';
+  if (score >= 75) return 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0';
+  if (score >= 60) return 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0';
+  return 'bg-red-50 text-red-700 dark:bg-red-950 border-0';
 }
 
 const cycles: ReviewCycle[] = [];
@@ -115,7 +115,7 @@ export default function PerformancePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Award className="h-5 w-5" />
           </div>
           <div>
@@ -125,7 +125,7 @@ export default function PerformancePage() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
               <Plus className="h-4 w-4 me-2" />
               {t.performance.startNewReview}
             </Button>
@@ -168,7 +168,7 @@ export default function PerformancePage() {
                 <Input placeholder={t.performance.criteriaPlaceholder} />
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {['Quality', 'Productivity', 'Communication', 'Leadership', 'Innovation'].map((c) => (
-                    <Badge key={c} className="text-[10px] bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0 cursor-pointer hover:bg-teal-100 dark:hover:bg-teal-950/50">
+                    <Badge key={c} className="text-[10px] bg-slate-50 text-blue-700 dark:bg-teal-950 border-0 cursor-pointer hover:bg-teal-100">
                       + {c}
                     </Badge>
                   ))}
@@ -179,7 +179,7 @@ export default function PerformancePage() {
               <DialogClose asChild>
                 <Button variant="outline">{t.performance.cancel}</Button>
               </DialogClose>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 {t.performance.createCycle}
               </Button>
             </DialogFooter>
@@ -189,10 +189,10 @@ export default function PerformancePage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <BarChart3 className="h-4 w-4" />
               </div>
               <div>
@@ -202,10 +202,10 @@ export default function PerformancePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
               <div>
@@ -215,10 +215,10 @@ export default function PerformancePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
                 <Award className="h-4 w-4" />
               </div>
               <div>
@@ -228,10 +228,10 @@ export default function PerformancePage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-950 text-red-600">
                 <AlertCircle className="h-4 w-4" />
               </div>
               <div>
@@ -249,7 +249,7 @@ export default function PerformancePage() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Clock className="h-4 w-4 text-blue-600" />
                 {t.performance.reviewCycles}
               </CardTitle>
             </CardHeader>
@@ -299,7 +299,7 @@ export default function PerformancePage() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Award className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Award className="h-4 w-4 text-blue-600" />
                 {t.performance.employeeRanking}
               </CardTitle>
             </CardHeader>
@@ -323,7 +323,7 @@ export default function PerformancePage() {
                           <span className={cn(
                             'inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold',
                             emp.rank <= 3
-                              ? 'bg-gradient-to-br from-teal-500 to-emerald-600 text-white'
+                              ? 'bg-blue-600 text-white'
                               : 'bg-muted text-muted-foreground'
                           )}>
                             {emp.rank}
@@ -332,7 +332,7 @@ export default function PerformancePage() {
                         <TableCell className="py-2">
                           <div className="flex items-center gap-2">
                             <Avatar className="h-7 w-7">
-                              <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[8px]">
+                              <AvatarFallback className="bg-blue-600 text-white text-[8px]">
                                 {emp.avatar}
                               </AvatarFallback>
                             </Avatar>

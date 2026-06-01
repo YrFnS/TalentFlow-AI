@@ -69,12 +69,12 @@ interface MyApplication {
 }
 
 const statusColors: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  MANAGER_APPROVED: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  INTERVIEW: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border-0',
-  OFFERED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+  PENDING: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  MANAGER_APPROVED: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  INTERVIEW: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 border-0',
+  OFFERED: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   HIRED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border-0',
-  REJECTED: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0',
+  REJECTED: 'bg-red-50 text-red-700 dark:bg-red-950 border-0',
 };
 
 const statusLabels: Record<string, string> = {
@@ -87,10 +87,10 @@ const statusLabels: Record<string, string> = {
 };
 
 const departmentColors: Record<string, string> = {
-  Engineering: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0',
-  Marketing: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0',
-  Sales: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400 border-0',
-  Product: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0',
+  Engineering: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0',
+  Marketing: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0',
+  Sales: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950 border-0',
+  Product: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0',
   Design: 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400 border-0',
 };
 
@@ -179,11 +179,11 @@ export default function CandidateInternalJobsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{it.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{it.title}</h1>
             <p className="text-sm text-muted-foreground">{it.subtitle}</p>
           </div>
         </div>
@@ -194,7 +194,7 @@ export default function CandidateInternalJobsContent() {
         <button
           className={cn(
             'px-4 py-2 rounded-md text-sm font-medium transition-all',
-            tab === 'board' ? 'bg-background text-teal-700 dark:text-teal-400 shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            tab === 'board' ? 'bg-background text-blue-700 shadow-sm' : 'text-muted-foreground hover:text-foreground'
           )}
           onClick={() => setTab('board')}
         >
@@ -204,7 +204,7 @@ export default function CandidateInternalJobsContent() {
         <button
           className={cn(
             'px-4 py-2 rounded-md text-sm font-medium transition-all',
-            tab === 'applications' ? 'bg-background text-teal-700 dark:text-teal-400 shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            tab === 'applications' ? 'bg-background text-blue-700 shadow-sm' : 'text-muted-foreground hover:text-foreground'
           )}
           onClick={() => setTab('applications')}
         >
@@ -216,14 +216,14 @@ export default function CandidateInternalJobsContent() {
       {tab === 'board' && (
         <>
           {/* Eligibility Banner */}
-          <Card className="border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20">
+          <Card className="border-slate-200 bg-slate-50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-950 text-blue-600">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-teal-700 dark:text-teal-400">{it.eligibility}</p>
+                  <p className="text-sm font-medium text-blue-700">{it.eligibility}</p>
                   <p className="text-xs text-muted-foreground">
                     {it.currentRole}: Frontend Developer • {USER_TENURE_MONTHS} {it.tenureMonths}
                   </p>
@@ -252,7 +252,7 @@ export default function CandidateInternalJobsContent() {
                 placeholder={t.common.search}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-teal-500/50"
+                className="ps-9 h-8 text-xs bg-accent/30 border-0 focus-visible:ring-1 focus-visible:ring-blue-500/50"
               />
             </div>
           </div>
@@ -265,7 +265,7 @@ export default function CandidateInternalJobsContent() {
               const daysAgo = Math.floor((Date.now() - new Date(posting.createdAt).getTime()) / 86400000);
 
               return (
-                <Card key={posting.id} className="border-border/50 card-hover-lift">
+                <Card key={posting.id} className="border-border/50 card-">
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-sm font-semibold">{posting.jobTitle}</CardTitle>
@@ -293,8 +293,8 @@ export default function CandidateInternalJobsContent() {
                       <div className={cn(
                         'flex items-center gap-1.5 px-2 py-1 rounded-md text-xs',
                         tenureMet
-                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
-                          : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
+                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
+                          : 'bg-red-50 text-red-700 dark:bg-red-950'
                       )}>
                         {tenureMet ? (
                           <CheckCircle2 className="h-3.5 w-3.5" />
@@ -316,7 +316,7 @@ export default function CandidateInternalJobsContent() {
                           className={cn(
                             'w-full text-xs',
                             tenureMet
-                              ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700'
+                              ? 'bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700'
                               : 'bg-muted text-muted-foreground cursor-not-allowed'
                           )}
                           disabled={!tenureMet}
@@ -345,7 +345,7 @@ export default function CandidateInternalJobsContent() {
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <FileText className="h-5 w-5 text-blue-600" />
               {it.myApplications}
             </CardTitle>
           </CardHeader>
@@ -401,7 +401,7 @@ export default function CandidateInternalJobsContent() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ArrowRightLeft className="h-5 w-5 text-teal-600" />
+              <ArrowRightLeft className="h-5 w-5 text-blue-600" />
               {it.applyInternally}
             </DialogTitle>
           </DialogHeader>
@@ -430,8 +430,8 @@ export default function CandidateInternalJobsContent() {
               <div className={cn(
                 'flex items-center gap-2 p-2 rounded-md text-sm',
                 checkTenure(selectedJob.minTenureMonths)
-                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
-                  : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950'
+                  : 'bg-red-50 text-red-700 dark:bg-red-950'
               )}>
                 {checkTenure(selectedJob.minTenureMonths) ? (
                   <CheckCircle2 className="h-4 w-4" />
@@ -482,7 +482,7 @@ export default function CandidateInternalJobsContent() {
             </DialogClose>
             <Button
               size="sm"
-              className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+              className="bg-gradient-to-r bg-blue-600 text-white"
               onClick={handleApply}
             >
               <Send className="h-3.5 w-3.5 me-1" />

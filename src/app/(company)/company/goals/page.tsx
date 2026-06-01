@@ -64,16 +64,16 @@ interface Objective {
 }
 
 const statusConfig: Record<ObjectiveStatus, { label: string; color: string; icon: React.ElementType }> = {
-  'on-track': { label: 'On Track', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-0', icon: CheckCircle2 },
-  'at-risk': { label: 'At Risk', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border-0', icon: AlertTriangle },
-  'behind': { label: 'Behind', color: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400 border-0', icon: Clock },
-  'complete': { label: 'Complete', color: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400 border-0', icon: CheckCircle2 },
+  'on-track': { label: 'On Track', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 border-0', icon: CheckCircle2 },
+  'at-risk': { label: 'At Risk', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950 border-0', icon: AlertTriangle },
+  'behind': { label: 'Behind', color: 'bg-red-50 text-red-700 dark:bg-red-950 border-0', icon: Clock },
+  'complete': { label: 'Complete', color: 'bg-slate-50 text-blue-700 dark:bg-teal-950 border-0', icon: CheckCircle2 },
 };
 
 const confidenceConfig: Record<Confidence, { label: string; color: string }> = {
-  high: { label: 'High', color: 'text-emerald-600 dark:text-emerald-400' },
-  medium: { label: 'Medium', color: 'text-amber-600 dark:text-amber-400' },
-  low: { label: 'Low', color: 'text-red-600 dark:text-red-400' },
+  high: { label: 'High', color: 'text-emerald-600' },
+  medium: { label: 'Medium', color: 'text-amber-600' },
+  low: { label: 'Low', color: 'text-red-600' },
 };
 
 const objectives: Objective[] = [];
@@ -137,11 +137,11 @@ export default function GoalsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Target className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight heading-glow">{t.goals.title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight ">{t.goals.title}</h1>
             <p className="text-sm text-muted-foreground">{t.goals.subtitle}</p>
           </div>
         </div>
@@ -159,7 +159,7 @@ export default function GoalsPage() {
           </Select>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+              <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                 <Plus className="h-4 w-4 me-2" />
                 {t.goals.createObjective}
               </Button>
@@ -250,7 +250,7 @@ export default function GoalsPage() {
                 <DialogClose asChild>
                   <Button variant="outline">{t.common.cancel}</Button>
                 </DialogClose>
-                <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700">
+                <Button className="bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700">
                   {t.common.create}
                 </Button>
               </DialogFooter>
@@ -261,10 +261,10 @@ export default function GoalsPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Target className="h-4 w-4" />
               </div>
               <div>
@@ -274,10 +274,10 @@ export default function GoalsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
                 <BarChart3 className="h-4 w-4" />
               </div>
               <div>
@@ -287,10 +287,10 @@ export default function GoalsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950 text-blue-600">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div>
@@ -300,10 +300,10 @@ export default function GoalsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 stat-card-shine card-click-ripple">
+        <Card className="border-border/50 ">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div>
@@ -320,7 +320,7 @@ export default function GoalsPage() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Target className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Target className="h-4 w-4 text-blue-600" />
               {t.goals.quarterlyProgress}
             </CardTitle>
           </CardHeader>
@@ -378,8 +378,8 @@ export default function GoalsPage() {
                 className={cn(
                   'h-8 text-xs shrink-0',
                   activeFilter === tab.key
-                    ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700 border-0'
-                    : 'hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800'
+                    ? 'bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700 border-0'
+                    : 'hover:bg-slate-50 hover:text-blue-700 dark:hover:text-blue-400 hover:border-slate-200 dark:hover:border-teal-800'
                 )}
                 onClick={() => setActiveFilter(tab.key)}
               >
@@ -410,7 +410,7 @@ export default function GoalsPage() {
                     >
                       <div className="flex items-start gap-3">
                         <Avatar className="h-8 w-8 shrink-0 mt-0.5">
-                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-[10px]">
+                          <AvatarFallback className="bg-blue-600 text-white text-[10px]">
                             {obj.ownerInitials}
                           </AvatarFallback>
                         </Avatar>

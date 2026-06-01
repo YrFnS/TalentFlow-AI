@@ -265,7 +265,7 @@ export default function CompaniesPage() {
                       </TableCell>
                       <TableCell>
                         {company.isActive ? (
-                          <Badge className="bg-teal-100 text-teal-700 hover:bg-teal-100 dark:bg-teal-950 dark:text-teal-300">
+                          <Badge className="bg-teal-100 text-blue-700 hover:bg-teal-100 dark:bg-teal-950">
                             <CheckCircle2 className="h-3 w-3 mr-1" />
                             {t.admin.active}
                           </Badge>
@@ -352,7 +352,7 @@ export default function CompaniesPage() {
                       <Badge variant="outline">{t.admin.unverified}</Badge>
                     )}
                     {selectedCompany.isActive ? (
-                      <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300">
+                      <Badge className="bg-teal-100 text-blue-700 dark:bg-teal-950">
                         {t.admin.active}
                       </Badge>
                     ) : (

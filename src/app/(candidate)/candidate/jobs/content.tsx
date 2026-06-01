@@ -235,7 +235,7 @@ export default function JobSearchPage() {
       </div>
 
       {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full text-emerald-600 hover:text-emerald-700">
+        <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full text-blue-600 hover:text-blue-700">
           <X className="h-4 w-4 mr-1" />
           {t.candidate.clearFilters}
         </Button>
@@ -248,7 +248,7 @@ export default function JobSearchPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t.candidate.jobSearch}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">{t.candidate.jobSearch}</h1>
           <p className="text-muted-foreground mt-1">
             {filteredJobs.length} jobs found
           </p>
@@ -276,7 +276,7 @@ export default function JobSearchPage() {
       <div className="flex gap-6">
         {/* Filter Sidebar - Desktop */}
         <aside className="hidden lg:block w-72 shrink-0">
-          <Card className="sticky top-20 border-0 shadow-sm animate-fade-in">
+          <Card className="sticky top-20 border border-slate-200 shadow-sm">
             <CardContent className="p-5">
               <h3 className="font-semibold text-sm mb-4 flex items-center gap-2">
                 <SlidersHorizontal className="h-4 w-4" />
@@ -294,10 +294,10 @@ export default function JobSearchPage() {
               {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-52" />)}
             </div>
           ) : paginatedJobs.length === 0 ? (
-            <Card className="border-0 shadow-sm">
+            <Card className="border border-slate-200 shadow-sm">
               <CardContent className="p-12 text-center">
                 <Search className="h-12 w-12 mx-auto text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-semibold">{t.candidate.noJobsFound}</h3>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">{t.candidate.noJobsFound}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{t.candidate.tryDifferentFilters}</p>
                 {hasActiveFilters && (
                   <Button variant="outline" className="mt-4" onClick={clearFilters}>
@@ -314,17 +314,17 @@ export default function JobSearchPage() {
                 const salaryDisplay = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, job.type);
 
                 return (
-                  <Card key={job.id} className="group border-0 shadow-sm hover:shadow-md transition-all duration-200 hover-lift">
+                  <Card key={job.id} className="group border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-start gap-3 min-w-0">
-                          <Avatar className="h-10 w-10 shrink-0 rounded-lg bg-emerald-50 dark:bg-emerald-950">
-                            <AvatarFallback className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-semibold rounded-lg">
+                          <Avatar className="h-10 w-10 shrink-0 rounded-lg">
+                            <AvatarFallback className="bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg">
                               {job.company.name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0">
-                            <h3 className="font-semibold text-sm truncate group-hover:text-emerald-600 transition-colors">
+                            <h3 className="font-semibold text-sm truncate text-slate-900 group-hover:text-blue-600 transition-colors">
                               {job.title}
                             </h3>
                             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
@@ -340,7 +340,7 @@ export default function JobSearchPage() {
                           onClick={() => toggleSave(job.id)}
                         >
                           {isSaved ? (
-                            <BookmarkCheck className="h-4 w-4 text-emerald-600" />
+                            <BookmarkCheck className="h-4 w-4 text-blue-600" />
                           ) : (
                             <Bookmark className="h-4 w-4 text-muted-foreground" />
                           )}
@@ -352,7 +352,7 @@ export default function JobSearchPage() {
                           {jobTypeLabels[job.type] || job.type}
                         </Badge>
                         {job.isRemote && (
-                          <Badge variant="secondary" className="text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-0">
+                          <Badge variant="secondary" className="text-[11px] font-medium bg-slate-50 text-slate-700 border border-slate-200">
                             Remote
                           </Badge>
                         )}
@@ -363,7 +363,7 @@ export default function JobSearchPage() {
                       </div>
 
                       <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground">{salaryDisplay}</span>
+                        <span className="font-medium text-slate-900">{salaryDisplay}</span>
                         {job.experienceMin && job.experienceMin > 0 && (
                           <span className="flex items-center gap-0.5">
                             <GraduationCap className="h-3 w-3" />
@@ -389,21 +389,21 @@ export default function JobSearchPage() {
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between mt-4 pt-3 border-t">
-                        <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950 px-2.5 py-1">
-                          <Star className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                          <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{job.match}% match</span>
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200">
+                        <div className="flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1">
+                          <Star className="h-3.5 w-3.5 text-amber-500" />
+                          <span className="text-xs font-semibold text-slate-700">{job.match}% match</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="text-[10px] text-muted-foreground">{job.applicants} {t.candidate.applicants}</span>
                           {isApplied ? (
-                            <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-0 text-xs">
-                              ✓ {t.candidate.applied}
+                            <Badge className="bg-slate-100 text-slate-700 border border-slate-200 text-xs">
+                              &checkmark; {t.candidate.applied}
                             </Badge>
                           ) : (
                             <Button
                               size="sm"
-                              className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                              className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
                               onClick={() => handleApply(job.id)}
                             >
                               {t.candidate.quickApply}
@@ -434,7 +434,7 @@ export default function JobSearchPage() {
                   key={p}
                   variant={p === page ? 'default' : 'outline'}
                   size="sm"
-                  className={p === page ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}
+                  className={p === page ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}
                   onClick={() => setPage(p)}
                 >
                   {p}
