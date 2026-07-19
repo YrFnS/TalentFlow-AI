@@ -1,6 +1,7 @@
 // @ts-nocheck
 'use client'
 
+import React from 'react';
 import { useI18n } from '@/store/i18n-store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Brain, GitBranch, Video, Target, Globe, Settings2 } from 'lucide-react';
