@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useI18n } from '@/store/i18n-store';
 import { useAuth } from '@/store/auth-store';
 import { useTheme } from 'next-themes';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -65,13 +66,13 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/callback/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
       });
 
-      if (res.ok) {
+      if (!result?.error) {
         const sessionRes = await fetch('/api/auth/session');
         const session = await sessionRes.json();
 
@@ -90,8 +91,7 @@ export default function LoginPage() {
           router.push('/');
         }
       } else {
-        const data = await res.json().catch(() => ({}));
-        const errorMsg = data?.error || '';
+        const errorMsg = result.error;
 
         if (errorMsg.includes('2FA_REQUIRED:')) {
           const userId = errorMsg.split('2FA_REQUIRED:')[1];
@@ -126,13 +126,14 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        const loginRes = await fetch('/api/auth/callback/credentials', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, totpToken: token }),
+        const loginResult = await signIn('credentials', {
+          email,
+          password,
+          totpToken: token,
+          redirect: false,
         });
 
-        if (loginRes.ok) {
+        if (!loginResult?.error) {
           const sessionRes = await fetch('/api/auth/session');
           const session = await sessionRes.json();
 
@@ -151,8 +152,7 @@ export default function LoginPage() {
             router.push('/');
           }
         } else {
-          const data = await loginRes.json().catch(() => ({}));
-          toast.error(data?.error || tf.invalidCode || 'Invalid authentication code');
+          toast.error(loginResult.error || tf.invalidCode || 'Invalid authentication code');
         }
       } else {
         const data = await res.json().catch(() => ({}));

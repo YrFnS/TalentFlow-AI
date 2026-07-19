@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useI18n } from '@/store/i18n-store';
 import { useAuth } from '@/store/auth-store';
 import { useTheme } from 'next-themes';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -188,13 +189,13 @@ export default function RegisterPage() {
 
       if (res.ok) {
         toast.success(locale === 'ar' ? 'تم إنشاء الحساب بنجاح' : 'Account created successfully');
-        const signInRes = await fetch('/api/auth/callback/credentials', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+        const signInResult = await signIn('credentials', {
+          email: email.trim().toLowerCase(),
+          password,
+          redirect: false,
         });
 
-        if (signInRes.ok) {
+        if (!signInResult?.error) {
           const sessionRes = await fetch('/api/auth/session');
           const session = await sessionRes.json();
           if (session?.user) {

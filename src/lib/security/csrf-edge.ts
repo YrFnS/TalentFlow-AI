@@ -53,6 +53,15 @@ export async function validateCsrfTokenValues(headerToken: string, cookieValue: 
  * These are public endpoints that don't require an existing session
  */
 export function isCsrfExemptPath(pathname: string): boolean {
+  // NextAuth performs its own CSRF validation for these state-changing routes.
+  if (
+    pathname.startsWith('/api/auth/callback/') ||
+    pathname === '/api/auth/signin' ||
+    pathname === '/api/auth/signout'
+  ) {
+    return true;
+  }
+
   const exemptPaths = [
     '/api/auth/register',
     '/api/auth/csrf-token',
