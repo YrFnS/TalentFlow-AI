@@ -2,15 +2,18 @@
 import { db } from '@/lib/db';
 import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
-import { requireCompanyMember } from '@/lib/auth-guard';
+import { requireAuth, requireCompanyMember } from '@/lib/auth-guard';
 
 export async function GET(request: NextRequest) {
-  const auth = await requireCompanyMember();
+  const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
 
   try {
     const { searchParams } = new URL(request.url);
-    const companyId = auth.companyId || searchParams.get('companyId');
+    const requestedCompanyId = searchParams.get('companyId');
+    const companyId = auth.role === 'CANDIDATE'
+      ? requestedCompanyId
+      : auth.companyId || requestedCompanyId;
     const status = searchParams.get('status');
     const search = searchParams.get('search');
 
