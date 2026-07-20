@@ -32,7 +32,18 @@ export async function POST(request: NextRequest) {
     if (existingCompany) {
       const jobCount = await db.job.count({ where: { companyId: existingCompany.id } });
       if (jobCount > 0) {
-        return NextResponse.json({ message: 'Database already seeded', companyId: existingCompany.id });
+        const logo = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=500&q=80';
+        const image = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80';
+        const [companies, users] = await Promise.all([
+          db.company.updateMany({ data: { logo } }),
+          db.user.updateMany({ where: { image: null }, data: { image } }),
+        ]);
+        return NextResponse.json({
+          message: 'Database already seeded; demo images refreshed',
+          companyId: existingCompany.id,
+          companiesUpdated: companies.count,
+          usersUpdated: users.count,
+        });
       }
       // Company exists but no jobs - continue seeding with existing company
     }

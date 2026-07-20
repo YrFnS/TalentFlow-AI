@@ -53,6 +53,13 @@ async function seed() {
 		`  ✅ Admin: admin@talentflow.ai / (randomized, see seed output)`,
 	);
 
+	const portraitUrls = [
+		"https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+		"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+		"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+		"https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=400&q=80",
+	];
+
 	const sampleUsers = [
 		{
 			email: "sarah@techventures.com",
@@ -102,16 +109,17 @@ async function seed() {
 		},
 	];
 
-	for (const u of sampleUsers) {
+	for (const [index, u] of sampleUsers.entries()) {
 		const pw = await randomPassword();
 		await db.user.upsert({
 			where: { email: u.email },
-			update: {},
+			update: { image: portraitUrls[index % portraitUrls.length] },
 			create: {
 				email: u.email,
 				name: u.name,
 				password: pw,
 				role: u.role,
+				image: portraitUrls[index % portraitUrls.length],
 				isActive: true,
 				emailVerified: new Date(),
 			},
@@ -123,6 +131,13 @@ async function seed() {
 	// 2. COMPANIES
 	// =====================================================
 	console.log("\nCreating companies...");
+
+	const companyImages = [
+		"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=500&q=80",
+		"https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=500&q=80",
+		"https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=500&q=80",
+		"https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=500&q=80",
+	];
 
 	const sampleCompanies = [
 		{
@@ -237,11 +252,11 @@ async function seed() {
 		},
 	];
 
-	for (const c of sampleCompanies) {
+	for (const [index, c] of sampleCompanies.entries()) {
 		await db.company.upsert({
 			where: { slug: c.slug },
-			update: {},
-			create: c,
+			update: { ...c, logo: companyImages[index % companyImages.length] },
+			create: { ...c, logo: companyImages[index % companyImages.length] },
 		});
 		console.log(`  ✅ ${c.name}`);
 	}

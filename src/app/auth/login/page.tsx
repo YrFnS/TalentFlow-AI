@@ -22,6 +22,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+const postLoginPath = (role: string) => {
+  const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl');
+  if (callbackUrl) {
+    const url = new URL(callbackUrl, window.location.origin);
+    if (url.origin === window.location.origin && url.pathname !== '/auth/login') {
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+  }
+
+  if (['SUPER_ADMIN', 'ADMIN', 'MODERATOR'].includes(role)) return '/admin';
+  if (['COMPANY_ADMIN', 'HR_MANAGER', 'RECRUITER', 'REVIEWER'].includes(role)) return '/company';
+  return '/candidate';
+};
+
 export default function LoginPage() {
   const { t, locale, setLocale, dir } = useI18n();
   const { setUser } = useAuth();
@@ -77,18 +91,20 @@ export default function LoginPage() {
         const session = await sessionRes.json();
 
         if (session?.user) {
+          const role = (session.user as Record<string, unknown>).role as string || 'CANDIDATE';
           setUser({
             id: (session.user as Record<string, unknown>).id as string || '',
             email: session.user.email || email,
             name: session.user.name || '',
-            role: (session.user as Record<string, unknown>).role as string as any || 'CANDIDATE',
+            role: role as any,
             image: session.user.image || undefined,
             companyId: (session.user as Record<string, unknown>).companyId as string || undefined,
             companyName: (session.user as Record<string, unknown>).companyName as string || undefined,
             locale: (session.user as Record<string, unknown>).locale as string || 'en',
           });
           toast.success(locale === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Signed in successfully');
-          router.push('/');
+          router.replace(postLoginPath(role));
+          router.refresh();
         }
       } else {
         const errorMsg = result.error;
@@ -138,18 +154,20 @@ export default function LoginPage() {
           const session = await sessionRes.json();
 
           if (session?.user) {
+            const role = (session.user as Record<string, unknown>).role as string || 'CANDIDATE';
             setUser({
               id: (session.user as Record<string, unknown>).id as string || '',
               email: session.user.email || email,
               name: session.user.name || '',
-              role: (session.user as Record<string, unknown>).role as string as any || 'CANDIDATE',
+              role: role as any,
               image: session.user.image || undefined,
               companyId: (session.user as Record<string, unknown>).companyId as string || undefined,
               companyName: (session.user as Record<string, unknown>).companyName as string || undefined,
               locale: (session.user as Record<string, unknown>).locale as string || 'en',
             });
             toast.success(locale === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Signed in successfully');
-            router.push('/');
+            router.replace(postLoginPath(role));
+            router.refresh();
           }
         } else {
           toast.error(loginResult.error || tf.invalidCode || 'Invalid authentication code');
