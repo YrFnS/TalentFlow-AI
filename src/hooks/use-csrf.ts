@@ -73,12 +73,6 @@ export function useCsrf() {
 	}, []);
 
 	const refreshToken = useCallback(async (): Promise<string | null> => {
-		// Use cached token if still valid (refresh 5 min before expiry)
-		if (cachedToken && Date.now() < tokenExpiry - 300000) {
-			setCsrfToken(cachedToken);
-			return cachedToken;
-		}
-
 		if (fetchingRef.current) {
 			return cachedToken;
 		}

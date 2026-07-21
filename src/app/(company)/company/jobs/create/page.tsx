@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useCsrf } from "@/hooks/use-csrf";
 
 import type { ScreeningQuestion, JobForm, AiForm } from "./components/types";
 import { createEmptyQuestion } from "./components/types";
@@ -53,6 +54,7 @@ export default function CreateJobPage() {
 	const router = useRouter();
 	const { t } = useI18n();
 	const { user } = useAuth();
+	const { refreshToken } = useCsrf();
 	const [currentStep, setCurrentStep] = useState(1);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [aiGenerating, setAiGenerating] = useState(false);
@@ -272,9 +274,17 @@ export default function CreateJobPage() {
 	const handleSubmit = async (status: "DRAFT" | "OPEN") => {
 		setIsSubmitting(true);
 		try {
+			const csrfToken = await refreshToken();
+			if (!csrfToken) {
+				toast.error("Unable to verify this request. Please try again.");
+				return;
+			}
 			const res = await fetch("/api/jobs", {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					"Content-Type": "application/json",
+					"x-csrf-token": csrfToken,
+				},
 				body: JSON.stringify({
 					companyId,
 					createdById: user?.id || "seed-user",
@@ -319,7 +329,10 @@ export default function CreateJobPage() {
 						}));
 					await fetch("/api/screening-questions", {
 						method: "POST",
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							"Content-Type": "application/json",
+							"x-csrf-token": csrfToken,
+						},
 						body: JSON.stringify({
 							jobId: jobData.id,
 							questions: validQuestions,
@@ -327,6 +340,9 @@ export default function CreateJobPage() {
 					});
 				}
 				router.push("/company/jobs");
+			} else {
+				const data = await res.json().catch(() => null);
+				toast.error(data?.error || "Failed to create job");
 			}
 		} catch (error) {
 			console.error("Failed to create job:", error);
