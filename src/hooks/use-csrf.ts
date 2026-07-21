@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 let cachedToken: string | null = null;
 let tokenExpiry = 0;
@@ -61,6 +61,16 @@ initCsrfToken();
 export function useCsrf() {
 	const [csrfToken, setCsrfToken] = useState<string | null>(cachedToken);
 	const fetchingRef = useRef(false);
+
+	useEffect(() => {
+		let active = true;
+		initCsrfToken().then((token) => {
+			if (active) setCsrfToken(token);
+		});
+		return () => {
+			active = false;
+		};
+	}, []);
 
 	const refreshToken = useCallback(async (): Promise<string | null> => {
 		// Use cached token if still valid (refresh 5 min before expiry)
