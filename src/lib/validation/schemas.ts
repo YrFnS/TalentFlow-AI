@@ -44,31 +44,31 @@ export const loginSchema = z.object({
 });
 
 const jobPayloadSchema = z.object({
-    companyId: idSchema.optional(),
-    title: z.string().min(1).max(200).trim(),
-    description: z.string().min(1).max(50000),
-    department: z.string().max(100).optional(),
-    location: z.string().trim().max(200).optional(),
-    jobType: z
-      .enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'REMOTE', 'HYBRID'])
-      .optional(),
-    type: z
-      .enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'REMOTE', 'HYBRID'])
-      .optional(),
-    status: z.enum(['DRAFT', 'OPEN']).optional(),
-    salaryMin: optionalNonNegativeInt,
-    salaryMax: optionalNonNegativeInt,
-    salaryCurrency: z.string().trim().min(3).max(8).optional(),
-    requirements: stringListSchema,
-    responsibilities: stringListSchema,
-    benefits: stringListSchema,
-    skills: stringListSchema,
-    isRemote: z.boolean().optional(),
-    experienceMin: optionalNonNegativeInt,
-    experienceMax: optionalNonNegativeInt,
-    openings: optionalNonNegativeInt,
-    deadline: optionalDateString,
-  });
+  companyId: idSchema.optional(),
+  title: z.string().min(1).max(200).trim(),
+  description: z.string().min(1).max(50000),
+  department: z.string().max(100).optional(),
+  location: z.string().trim().max(200).optional(),
+  jobType: z
+    .enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'REMOTE', 'HYBRID'])
+    .optional(),
+  type: z
+    .enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'REMOTE', 'HYBRID'])
+    .optional(),
+  status: z.enum(['DRAFT', 'OPEN']).optional(),
+  salaryMin: optionalNonNegativeInt,
+  salaryMax: optionalNonNegativeInt,
+  salaryCurrency: z.string().trim().min(3).max(8).optional(),
+  requirements: stringListSchema,
+  responsibilities: stringListSchema,
+  benefits: stringListSchema,
+  skills: stringListSchema,
+  isRemote: z.boolean().optional(),
+  experienceMin: optionalNonNegativeInt,
+  experienceMax: optionalNonNegativeInt,
+  openings: optionalNonNegativeInt,
+  deadline: optionalDateString,
+});
 
 function validateJobRanges(
   value: {
@@ -80,29 +80,29 @@ function validateJobRanges(
   },
   ctx: z.RefinementCtx,
 ) {
-    if (
-      value.salaryMin !== undefined &&
-      value.salaryMax !== undefined &&
-      value.salaryMax < value.salaryMin
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['salaryMax'],
-        message: 'salaryMax must be greater than or equal to salaryMin',
-      });
-    }
+  if (
+    value.salaryMin !== undefined &&
+    value.salaryMax !== undefined &&
+    value.salaryMax < value.salaryMin
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['salaryMax'],
+      message: 'salaryMax must be greater than or equal to salaryMin',
+    });
+  }
 
-    if (
-      value.experienceMin !== undefined &&
-      value.experienceMax !== undefined &&
-      value.experienceMax < value.experienceMin
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['experienceMax'],
-        message: 'experienceMax must be greater than or equal to experienceMin',
-      });
-    }
+  if (
+    value.experienceMin !== undefined &&
+    value.experienceMax !== undefined &&
+    value.experienceMax < value.experienceMin
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['experienceMax'],
+      message: 'experienceMax must be greater than or equal to experienceMin',
+    });
+  }
 
   if (value.openings !== undefined && value.openings < 1) {
     ctx.addIssue({
@@ -181,6 +181,73 @@ export const interviewUpdateSchema = z.object({
   feedback: z.string().max(20000).nullable().optional(),
   rating: z.coerce.number().int().min(1).max(5).nullable().optional(),
 });
+
+const offerPayloadSchema = z.object({
+  salary: z.coerce.number().int().min(1).max(2_000_000_000),
+  salaryCurrency: z
+    .string()
+    .trim()
+    .min(3)
+    .max(8)
+    .transform((value) => value.toUpperCase()),
+  equity: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.string().trim().max(200).optional(),
+  ),
+  startDate: optionalDateString,
+  benefits: stringListSchema,
+  conditions: stringListSchema,
+  letterText: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.string().max(50000).optional(),
+  ),
+  responseDeadline: optionalDateString,
+  notes: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.string().max(10000).optional(),
+  ),
+});
+
+export const offerCreateSchema = offerPayloadSchema.extend({
+  applicationId: idSchema,
+});
+
+export const offerUpdateSchema = offerPayloadSchema.partial();
+
+export const offerSendSchema = z.object({
+  expiryDays: z.coerce.number().int().min(1).max(30).default(7),
+});
+
+export const offerSignSchema = z
+  .object({
+    signingToken: z.string().min(32).max(512),
+    signatureType: z.enum(['TYPED', 'DRAWN', 'DECLINE']),
+    signature: z.string().max(600000).optional().default(''),
+    declineReason: z.string().trim().max(2000).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.signatureType === 'TYPED') {
+      const signature = value.signature.trim();
+      if (signature.length < 2 || signature.length > 200) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['signature'],
+          message: 'Typed signature must be between 2 and 200 characters',
+        });
+      }
+    }
+
+    if (
+      value.signatureType === 'DRAWN' &&
+      !/^data:image\/(png|jpeg);base64,/i.test(value.signature)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['signature'],
+        message: 'Drawn signature must be a PNG or JPEG data URL',
+      });
+    }
+  });
 
 export const chatbotMessageSchema = z.object({
   message: z.string().min(1).max(2000).trim(),
