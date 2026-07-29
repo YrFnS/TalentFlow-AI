@@ -7,6 +7,11 @@ let cachedCsrfToken: string | null = null;
 let cachedCsrfTokenAt = 0;
 let csrfRequest: Promise<string | null> | null = null;
 
+// Capture the browser's native fetch before the global CSRF interceptor is installed.
+// Server rendering keeps using the runtime-provided fetch implementation.
+const nativeFetch: typeof fetch =
+  typeof window !== 'undefined' ? window.fetch.bind(window) : globalThis.fetch.bind(globalThis);
+
 export class ApiError extends Error {
   status: number;
   details: unknown;
@@ -26,7 +31,7 @@ export async function getCsrfToken(forceRefresh = false): Promise<string | null>
   if (!forceRefresh && isFresh) return cachedCsrfToken;
   if (!forceRefresh && csrfRequest) return csrfRequest;
 
-  csrfRequest = fetch('/api/auth/csrf-token', {
+  csrfRequest = nativeFetch('/api/auth/csrf-token', {
     method: 'GET',
     credentials: 'same-origin',
     cache: 'no-store',
@@ -61,11 +66,17 @@ export async function apiFetch(
   input: RequestInfo | URL,
   init: RequestInit = {},
 ): Promise<Response> {
-  const method = (init.method || 'GET').toUpperCase();
+  const requestMethod = input instanceof Request ? input.method : 'GET';
+  const method = (init.method || requestMethod || 'GET').toUpperCase();
   const needsCsrf = STATE_CHANGING_METHODS.has(method);
 
   const send = async (forceRefresh = false) => {
-    const headers = new Headers(init.headers || {});
+    const headers = new Headers(
+      input instanceof Request ? input.headers : undefined,
+    );
+    if (init.headers) {
+      new Headers(init.headers).forEach((value, key) => headers.set(key, value));
+    }
 
     if (needsCsrf) {
       const token = await getCsrfToken(forceRefresh);
@@ -75,7 +86,7 @@ export async function apiFetch(
       headers.set('x-csrf-token', token);
     }
 
-    return fetch(input, {
+    return nativeFetch(input, {
       ...init,
       method,
       headers,
