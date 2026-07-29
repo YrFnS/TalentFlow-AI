@@ -1,145 +1,183 @@
-// @ts-nocheck
 'use client';
-import React, { useEffect, useState, useCallback } from 'react';
-import { useI18n } from '@/store/i18n-store';
-import { cn } from '@/lib/utils';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   DndContext,
+  DragEndEvent,
   DragOverlay,
-  closestCorners,
+  DragStartEvent,
   KeyboardSensor,
   PointerSensor,
+  closestCorners,
+  useDroppable,
   useSensor,
   useSensors,
-  DragStartEvent,
-  DragEndEvent,
-  DragOverEvent,
 } from '@dnd-kit/core';
 import {
   SortableContext,
-  verticalListSortingStrategy,
   useSortable,
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  Plus,
-  MapPin,
   Briefcase,
-  Filter,
-  X,
   GripVertical,
-  BarChart3,
-  Clock,
-  TrendingUp,
-  AlertTriangle,
-  ChevronDown,
-  ChevronUp,
+  Loader2,
+  LockKeyhole,
+  Plus,
+  RefreshCw,
+  Search,
+  Users,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
+import { useAuth } from '@/store/auth-store';
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 
-interface PipelineStage {
-  id: string;
-  name: string;
-  order: number;
-  color: string;
-  isDefault: boolean;
-  currentStageApplications: Application[];
-}
+type ApplicationStatus =
+  | 'APPLIED'
+  | 'SCREENING'
+  | 'INTERVIEW'
+  | 'OFFERED'
+  | 'HIRED'
+  | 'REJECTED'
+  | 'WITHDRAWN';
 
-interface Application {
+type Application = {
   id: string;
-  status: string;
+  status: ApplicationStatus;
   matchScore: number | null;
   appliedAt: string;
   candidate: {
-    user: { id: string; name: string; email: string; image: string | null };
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      image: string | null;
+    };
   };
   job: { id: string; title: string };
-}
+};
 
-interface Job {
+type Stage = {
   id: string;
-  title: string;
-}
+  name: string;
+  order: number;
+  color: string | null;
+  isDefault: boolean;
+  currentStageApplications: Application[];
+};
 
-interface StageAnalytic {
-  stageName: string;
-  avgDays: number;
-  conversionRate: number;
-  color: string;
-}
+type Job = { id: string; title: string };
 
-function ApplicationCard({ app, isDragging }: { app: Application; isDragging?: boolean }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: app.id,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const initials = app.candidate.user.name
+function initials(name: string) {
+  return name
     .split(' ')
-    .map((n) => n[0])
-    .join('');
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
-  const score = app.matchScore || 0;
-  const scoreColor =
-    score >= 85
-      ? 'text-emerald-700 bg-emerald-50'
-      : score >= 70
-      ? 'text-blue-700 bg-blue-50'
-      : 'text-amber-700 bg-amber-50';
+function stageStatus(stageName: string): ApplicationStatus | undefined {
+  const name = stageName.toLowerCase();
+  if (name.includes('applied') || name.includes('new')) return 'APPLIED';
+  if (name.includes('screen')) return 'SCREENING';
+  if (name.includes('interview')) return 'INTERVIEW';
+  if (name.includes('reject')) return 'REJECTED';
+  return undefined;
+}
+
+function isOfferControlledStage(stageName: string) {
+  const name = stageName.toLowerCase();
+  return name.includes('offer') || name.includes('hire');
+}
+
+function CandidateCard({
+  application,
+  disabled = false,
+  overlay = false,
+}: {
+  application: Application;
+  disabled?: boolean;
+  overlay?: boolean;
+}) {
+  const sortable = useSortable({ id: application.id, disabled });
+  const style = overlay
+    ? undefined
+    : {
+        transform: CSS.Transform.toString(sortable.transform),
+        transition: sortable.transition,
+      };
 
   return (
     <div
-      ref={setNodeRef}
+      ref={overlay ? undefined : sortable.setNodeRef}
       style={style}
-      {...attributes}
+      {...(overlay ? {} : sortable.attributes)}
       className={cn(
-        'p-3 rounded-lg border border-slate-200 bg-white hover:shadow-md transition-all active:cursor-grabbing',
-        isDragging && 'opacity-50 shadow-lg'
+        'rounded-xl border bg-card p-3 shadow-sm transition-shadow',
+        !disabled && 'hover:shadow-md',
+        sortable.isDragging && 'opacity-40',
+        overlay && 'w-72 rotate-1 shadow-xl',
       )}
     >
       <div className="flex items-start gap-2.5">
-        <button {...listeners} className="cursor-grab active:cursor-grabbing mt-0.5 opacity-40 hover:opacity-70 transition-opacity touch-none">
-          <GripVertical className="w-4 h-4 text-slate-400" />
+        <button
+          type="button"
+          aria-label="Move candidate"
+          disabled={disabled}
+          {...(overlay ? {} : sortable.listeners)}
+          className={cn(
+            'mt-1 rounded p-0.5 text-muted-foreground',
+            disabled ? 'cursor-not-allowed opacity-30' : 'cursor-grab active:cursor-grabbing',
+          )}
+        >
+          <GripVertical className="h-4 w-4" />
         </button>
-        <Avatar className="w-9 h-9 flex-shrink-0">
-          <AvatarFallback className="bg-slate-700 text-white text-[10px] font-semibold">
-            {initials}
-          </AvatarFallback>
+        <Avatar className="h-9 w-9">
+          <AvatarImage src={application.candidate.user.image || undefined} />
+          <AvatarFallback>{initials(application.candidate.user.name)}</AvatarFallback>
         </Avatar>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-900 truncate">{app.candidate.user.name}</p>
-          <p className="text-[11px] text-slate-500 truncate">{app.job.title}</p>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">
+            {application.candidate.user.name}
+          </p>
+          <p className="truncate text-xs text-muted-foreground">
+            {application.job.title}
+          </p>
         </div>
-        {app.matchScore && (
-          <div className={cn('px-1.5 py-0.5 rounded-md text-[10px] font-semibold', scoreColor)}>
-            {app.matchScore}%
-          </div>
+        {application.matchScore != null && (
+          <Badge variant="secondary" className="text-[10px]">
+            {Math.round(application.matchScore)}%
+          </Badge>
         )}
       </div>
-      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
-        <span className="text-[10px] text-slate-400">
-          {new Date(app.appliedAt).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
-        </span>
-      </div>
+      <p className="mt-2 border-t pt-2 text-[11px] text-muted-foreground">
+        Applied {new Date(application.appliedAt).toLocaleDateString()}
+      </p>
     </div>
   );
 }
@@ -147,441 +185,465 @@ function ApplicationCard({ app, isDragging }: { app: Application; isDragging?: b
 function StageColumn({
   stage,
   applications,
+  canEdit,
 }: {
-  stage: PipelineStage;
+  stage: Stage;
   applications: Application[];
+  canEdit: boolean;
 }) {
+  const droppable = useDroppable({
+    id: `stage:${stage.id}`,
+    disabled: !canEdit || isOfferControlledStage(stage.name),
+  });
+  const controlled = isOfferControlledStage(stage.name);
+
   return (
-    <div className="flex flex-col min-w-[280px] w-[280px] flex-shrink-0">
-      <div className="flex items-center gap-2 mb-3 px-1">
-        <div
-          className="w-3 h-3 rounded-full flex-shrink-0"
-          style={{ backgroundColor: stage.color }}
+    <section className="w-[290px] shrink-0">
+      <header className="mb-3 flex items-center gap-2 px-1">
+        <span
+          className="h-3 w-3 rounded-full"
+          style={{ backgroundColor: stage.color || 'var(--primary)' }}
         />
-        <h3 className="text-sm font-semibold text-slate-900 flex-1">{stage.name}</h3>
-        <Badge className="text-[10px] px-2 py-0 h-5 font-semibold bg-slate-100 text-slate-700">
+        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold">
+          {stage.name}
+        </h2>
+        {controlled && <LockKeyhole className="h-3.5 w-3.5 text-muted-foreground" />}
+        <Badge variant="secondary" className="h-5 text-[10px]">
           {applications.length}
         </Badge>
-      </div>
+      </header>
 
-      <SortableContext items={applications.map((a) => a.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-3 min-h-[120px] p-3 rounded-lg bg-slate-50 border-2 border-dashed border-slate-200 transition-colors hover:border-slate-300">
+      <SortableContext
+        items={applications.map((application) => application.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div
+          ref={droppable.setNodeRef}
+          className={cn(
+            'min-h-40 space-y-3 rounded-xl border border-dashed bg-muted/30 p-3 transition-colors',
+            droppable.isOver && 'border-primary bg-primary/5',
+            controlled && 'bg-muted/60',
+          )}
+        >
           {applications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-slate-400 gap-3">
-              <div className="w-10 h-10 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center">
-                <Plus className="w-5 h-5 text-slate-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-xs font-medium text-slate-500">Drop candidates here</p>
-                <p className="text-[10px] text-slate-400 mt-0.5">Drag & drop to move</p>
-              </div>
+            <div className="flex min-h-32 flex-col items-center justify-center text-center">
+              {controlled ? (
+                <LockKeyhole className="h-7 w-7 text-muted-foreground" />
+              ) : (
+                <Plus className="h-7 w-7 text-muted-foreground" />
+              )}
+              <p className="mt-2 text-xs font-medium text-muted-foreground">
+                {controlled ? 'Managed by the offer workflow' : 'Drop candidates here'}
+              </p>
             </div>
           ) : (
-            applications.map((app) => (
-              <ApplicationCard key={app.id} app={app} />
+            applications.map((application) => (
+              <CandidateCard
+                key={application.id}
+                application={application}
+                disabled={!canEdit || controlled}
+              />
             ))
           )}
         </div>
       </SortableContext>
-    </div>
+    </section>
   );
 }
 
 export default function PipelinePage() {
-  const { t } = useI18n();
-  const [stages, setStages] = useState<PipelineStage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [companyId, setCompanyId] = useState('');
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const { user, validateSession } = useAuth();
+  const [stages, setStages] = useState<Stage[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [selectedJob, setSelectedJob] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+  const [jobFilter, setJobFilter] = useState('all');
+  const [query, setQuery] = useState('');
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [addStageOpen, setAddStageOpen] = useState(false);
-  const [newStageName, setNewStageName] = useState('');
-  const [newStageColor, setNewStageColor] = useState('#3b82f6');
-  const [analyticsExpanded, setAnalyticsExpanded] = useState(true);
+  const [stageName, setStageName] = useState('');
+  const [stageColor, setStageColor] = useState('#14b8a6');
+  const [addingStage, setAddingStage] = useState(false);
+
+  const canEdit = [
+    'SUPER_ADMIN',
+    'ADMIN',
+    'COMPANY_ADMIN',
+    'HR_MANAGER',
+    'RECRUITER',
+  ].includes(user?.role || '');
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor),
   );
 
-  const fetchPipeline = useCallback(async () => {
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
+
     try {
-      await fetch('/api/seed', { method: 'POST' });
-      const seedRes = await fetch('/api/seed', { method: 'POST' });
-      const seedData = await seedRes.json();
-      const cId = seedData.companyId;
-      setCompanyId(cId);
-
-      const [stagesRes, jobsRes] = await Promise.all([
-        fetch(`/api/pipeline-stages?companyId=${cId}`),
-        fetch(`/api/jobs?companyId=${cId}`),
+      const [stagesResponse, jobsResponse] = await Promise.all([
+        fetch('/api/pipeline-stages', { cache: 'no-store' }),
+        fetch('/api/jobs', { cache: 'no-store' }),
       ]);
-
-      if (stagesRes.ok) {
-        const stagesData = await stagesRes.json();
-        setStages(stagesData);
+      if (!stagesResponse.ok) {
+        throw new Error(
+          await getApiErrorMessage(stagesResponse, 'Unable to load pipeline'),
+        );
       }
 
-      if (jobsRes.ok) {
-        const jobsData = await jobsRes.json();
-        setJobs(jobsData);
-      }
-    } catch (error) {
-      console.error('Failed to fetch pipeline:', error);
+      const stageData = await stagesResponse.json();
+      const jobData = jobsResponse.ok ? await jobsResponse.json() : [];
+      setStages(Array.isArray(stageData) ? stageData : []);
+      setJobs(Array.isArray(jobData) ? jobData : []);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to load pipeline');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchPipeline();
-  }, [fetchPipeline]);
+    void validateSession();
+    void load();
+  }, [load, validateSession]);
 
-  const getFilteredApplications = (stage: PipelineStage) => {
-    let apps = stage.currentStageApplications || [];
-    if (selectedJob !== 'all') {
-      apps = apps.filter((a: Application) => a.job.id === selectedJob);
-    }
-    return apps;
-  };
+  const visibleStages = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return stages.map((stage) => ({
+      ...stage,
+      currentStageApplications: stage.currentStageApplications.filter(
+        (application) =>
+          (jobFilter === 'all' || application.job.id === jobFilter) &&
+          (!term ||
+            application.candidate.user.name.toLowerCase().includes(term) ||
+            application.candidate.user.email.toLowerCase().includes(term) ||
+            application.job.title.toLowerCase().includes(term)),
+      ),
+    }));
+  }, [jobFilter, query, stages]);
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    // Could add intermediate feedback
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (!over) return;
-
-    const appId = active.id as string;
-    const overId = over.id as string;
-    let targetStageId: string | null = null;
-
-    for (const stage of stages) {
-      const apps = getFilteredApplications(stage);
-      if (stage.id === overId || apps.some((a: Application) => a.id === overId)) {
-        targetStageId = stage.id;
-        break;
-      }
-    }
-
-    if (targetStageId) {
-      const updatedStages = stages.map((stage) => {
-        const apps = [...getFilteredApplications(stage)];
-        const appIndex = apps.findIndex((a: Application) => a.id === appId);
-
-        if (appIndex !== -1) {
-          const [movedApp] = apps.splice(appIndex, 1);
-          return { ...stage, currentStageApplications: apps };
-        }
-
-        if (stage.id === targetStageId) {
-          let movedApp: Application | null = null;
-          for (const s of stages) {
-            const found = getFilteredApplications(s).find((a: Application) => a.id === appId);
-            if (found) {
-              movedApp = found;
-              break;
-            }
-          }
-          if (movedApp) {
-            return { ...stage, currentStageApplications: [...getFilteredApplications(stage), { ...movedApp, currentStageId: targetStageId }] };
-          }
-        }
-
-        return stage;
-      });
-
-      setStages(updatedStages);
-
-      try {
-        await fetch('/api/applications', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: appId, currentStageId: targetStageId }),
-        });
-      } catch (error) {
-        console.error('Failed to update application stage:', error);
-        fetchPipeline();
-      }
-    }
-  };
-
-  const handleAddStage = async () => {
-    if (!newStageName.trim() || !companyId) return;
-    try {
-      const res = await fetch('/api/pipeline-stages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          companyId,
-          name: newStageName,
-          color: newStageColor,
-        }),
-      });
-      if (res.ok) {
-        setNewStageName('');
-        setNewStageColor('#3b82f6');
-        setAddStageOpen(false);
-        fetchPipeline();
-      }
-    } catch (error) {
-      console.error('Failed to add stage:', error);
-    }
-  };
-
-  const activeApp = activeId
-    ? stages.flatMap((s) => s.currentStageApplications).find((a: Application) => a.id === activeId)
+  const activeApplication = activeId
+    ? stages
+        .flatMap((stage) => stage.currentStageApplications)
+        .find((application) => application.id === activeId) || null
     : null;
 
   const totalApplications = stages.reduce(
-    (sum, s) => sum + (s.currentStageApplications?.length || 0),
-    0
+    (total, stage) => total + stage.currentStageApplications.length,
+    0,
   );
 
-  const stageAnalytics: StageAnalytic[] = stages.map((stage, i) => {
-    const apps = stage.currentStageApplications || [];
-    const nextStage = stages[i + 1];
-    const nextApps = nextStage ? (nextStage.currentStageApplications?.length || 0) : 0;
-    const conversionRate = apps.length > 0 && nextStage ? Math.round((nextApps / apps.length) * 100) : (i === stages.length - 1 ? 100 : 0);
-    return {
-      stageName: stage.name,
-      avgDays: 0,
-      conversionRate,
-      color: stage.color,
-    };
-  });
+  function targetStageFromOver(overId: string): Stage | undefined {
+    if (overId.startsWith('stage:')) {
+      return stages.find((stage) => stage.id === overId.slice(6));
+    }
+    return stages.find((stage) =>
+      stage.currentStageApplications.some((application) => application.id === overId),
+    );
+  }
 
-  const bottleneck = stageAnalytics.length > 0
-    ? stageAnalytics.reduce((max, s) => s.avgDays > max.avgDays ? s : max, stageAnalytics[0])
-    : null;
+  async function moveApplication(applicationId: string, targetStage: Stage) {
+    const sourceStage = stages.find((stage) =>
+      stage.currentStageApplications.some(
+        (application) => application.id === applicationId,
+      ),
+    );
+    if (!sourceStage || sourceStage.id === targetStage.id) return;
+    if (isOfferControlledStage(targetStage.name)) {
+      toast.info('Offer and hired stages are updated by the secure offer workflow');
+      return;
+    }
+
+    const moved = sourceStage.currentStageApplications.find(
+      (application) => application.id === applicationId,
+    );
+    if (!moved) return;
+
+    const previous = stages;
+    setStages((current) =>
+      current.map((stage) => {
+        if (stage.id === sourceStage.id) {
+          return {
+            ...stage,
+            currentStageApplications: stage.currentStageApplications.filter(
+              (application) => application.id !== applicationId,
+            ),
+          };
+        }
+        if (stage.id === targetStage.id) {
+          return {
+            ...stage,
+            currentStageApplications: [moved, ...stage.currentStageApplications],
+          };
+        }
+        return stage;
+      }),
+    );
+
+    try {
+      const status = stageStatus(targetStage.name);
+      const response = await apiFetch('/api/applications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: applicationId,
+          currentStageId: targetStage.id,
+          ...(status ? { status } : {}),
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to move candidate'),
+        );
+      }
+      toast.success(`Moved to ${targetStage.name}`);
+    } catch (reason) {
+      setStages(previous);
+      toast.error(reason instanceof Error ? reason.message : 'Unable to move candidate');
+    }
+  }
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null);
+    if (!event.over || event.active.id === event.over.id) return;
+    const targetStage = targetStageFromOver(String(event.over.id));
+    if (targetStage) {
+      void moveApplication(String(event.active.id), targetStage);
+    }
+  }
+
+  async function addStage() {
+    if (!stageName.trim()) {
+      toast.error('Stage name is required');
+      return;
+    }
+
+    setAddingStage(true);
+    try {
+      const response = await apiFetch('/api/pipeline-stages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: stageName.trim(), color: stageColor }),
+      });
+      if (!response.ok) {
+        throw new Error(await getApiErrorMessage(response, 'Unable to add stage'));
+      }
+      const stage = await response.json();
+      setStages((current) => [
+        ...current,
+        { ...stage, currentStageApplications: [] },
+      ]);
+      setStageName('');
+      setStageColor('#14b8a6');
+      setAddStageOpen(false);
+      toast.success('Pipeline stage added');
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : 'Unable to add stage');
+    } finally {
+      setAddingStage(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-20" />
+        <Skeleton className="h-12" />
+        <div className="flex gap-4 overflow-hidden">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-96 w-72 shrink-0" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t.pipeline.title}</h1>
-          <p className="text-slate-500 text-sm mt-1">
-            {totalApplications} applications across {stages.length} stages
+          <h1 className="text-2xl font-bold">Hiring pipeline</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {totalApplications} candidates across {stages.length} stages.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Select value={selectedJob} onValueChange={setSelectedJob}>
-            <SelectTrigger className="w-[200px] h-9">
-              <Briefcase className="w-4 h-4 me-2 text-slate-400" />
-              <SelectValue placeholder="Filter by job" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Jobs</SelectItem>
-              {jobs.map((job) => (
-                <SelectItem key={job.id} value={job.id}>
-                  {job.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Dialog open={addStageOpen} onOpenChange={setAddStageOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="border-slate-300">
-                <Plus className="w-4 h-4 me-2" />
-                {t.pipeline.addStage}
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{t.pipeline.addStage}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="grid gap-2">
-                  <Label>{t.pipeline.stageName}</Label>
-                  <Input
-                    value={newStageName}
-                    onChange={(e) => setNewStageName(e.target.value)}
-                    placeholder="e.g., Technical Assessment"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>{t.pipeline.stageColor}</Label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={newStageColor}
-                      onChange={(e) => setNewStageColor(e.target.value)}
-                      className="w-10 h-10 rounded cursor-pointer"
-                    />
-                    <Input value={newStageColor} onChange={(e) => setNewStageColor(e.target.value)} className="flex-1" />
-                  </div>
-                </div>
-                <Button onClick={handleAddStage} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  Add Stage
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void load(true)}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="me-2 h-4 w-4" />
+            )}
+            Refresh
+          </Button>
+          {canEdit && (
+            <Button size="sm" onClick={() => setAddStageOpen(true)}>
+              <Plus className="me-2 h-4 w-4" />
+              Add stage
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Pipeline Analytics Summary */}
-      <Card className="border-slate-200">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-sm text-slate-900">
-              <BarChart3 className="w-4 h-4 text-blue-600" />
-              {t.pipelineAnalytics?.title || 'Pipeline Analytics'}
-            </CardTitle>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setAnalyticsExpanded(!analyticsExpanded)}>
-              {analyticsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      {error && (
+        <Card className="border-destructive/40">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button size="sm" variant="outline" onClick={() => void load()}>
+              Retry
             </Button>
-          </div>
-        </CardHeader>
-        {analyticsExpanded && (
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Stage Metrics */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
-                  <Clock className="w-3.5 h-3.5" />
-                  {t.pipelineAnalytics?.avgTimeByStage || 'Average Time in Stage'}
-                </div>
-                {stageAnalytics.length > 0 ? (
-                  stageAnalytics.filter(s => s.avgDays > 0).map((stage) => (
-                    <div key={stage.stageName} className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: stage.color }} />
-                      <span className="text-xs font-medium text-slate-700 w-20 shrink-0">{stage.stageName}</span>
-                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${Math.min((stage.avgDays / 8) * 100, 100)}%`,
-                            backgroundColor: stage.color,
-                          }}
-                        />
-                      </div>
-                      <span className="text-xs text-slate-500 w-12 text-end">{stage.avgDays}d</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-slate-400 py-4 text-center">No stage data available</p>
-                )}
+          </CardContent>
+        </Card>
+      )}
 
-                {bottleneck && bottleneck.avgDays > 0 && (
-                  <div className="flex items-center gap-2 mt-3 p-2 rounded-lg bg-amber-50 border border-amber-200">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                    <div>
-                      <span className="text-xs font-medium text-amber-700">
-                        {t.pipelineAnalytics?.bottleneck || 'Bottleneck'}: {bottleneck.stageName}
-                      </span>
-                      <span className="text-[10px] text-slate-500 ms-1">({bottleneck.avgDays}d avg)</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Conversion Rates + Mini Funnel */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  {t.pipelineAnalytics?.conversionRate || 'Stage Conversion Rates'}
-                </div>
-                {stageAnalytics.slice(0, -1).map((stage, i) => {
-                  const nextStage = stageAnalytics[i + 1];
-                  return (
-                    <div key={stage.stageName} className="flex items-center gap-2 text-xs">
-                      <span className="text-slate-500 w-20 shrink-0 truncate">{stage.stageName}</span>
-                      <span className="text-slate-400">→</span>
-                      <span className="w-20 shrink-0 truncate text-slate-500">{nextStage.stageName}</span>
-                      <div className="flex-1" />
-                      <span className={cn(
-                        'font-semibold',
-                        stage.conversionRate >= 60 ? 'text-emerald-700' :
-                        stage.conversionRate >= 40 ? 'text-amber-700' :
-                        'text-red-600'
-                      )}>
-                        {stage.conversionRate}%
-                      </span>
-                    </div>
-                  );
-                })}
-
-                <div className="mt-3 pt-3 border-t border-slate-200">
-                  <div className="flex flex-col items-center gap-0.5">
-                    {stageAnalytics.map((stage, i) => {
-                      const widthPct = 100 - (i * 18);
-                      return (
-                        <div
-                          key={stage.stageName}
-                          className="rounded-sm flex items-center justify-center text-white text-[9px] font-semibold transition-all duration-300"
-                          style={{
-                            width: `${widthPct}%`,
-                            height: '20px',
-                            backgroundColor: stage.color,
-                            minWidth: '40px',
-                          }}
-                        >
-                          {stage.stageName}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Users className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Candidates</p>
+              <p className="text-2xl font-bold">{totalApplications}</p>
             </div>
           </CardContent>
-        )}
-      </Card>
-
-      {/* Kanban Board */}
-      {loading ? (
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="min-w-[280px] w-[280px] flex-shrink-0">
-              <div className="animate-pulse">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 rounded-full bg-slate-200" />
-                  <div className="h-4 bg-slate-200 rounded w-20" />
-                  <div className="h-5 bg-slate-200 rounded w-6 ms-auto" />
-                </div>
-                <div className="space-y-2 p-1 rounded-lg bg-slate-50">
-                  {[1, 2, 3].map((j) => (
-                    <div key={j} className="h-20 bg-slate-200 rounded-lg" />
-                  ))}
-                </div>
-              </div>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Briefcase className="h-5 w-5" />
             </div>
-          ))}
+            <div>
+              <p className="text-xs text-muted-foreground">Active jobs</p>
+              <p className="text-2xl font-bold">{jobs.length}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Access</p>
+            <p className="mt-1 font-medium">
+              {canEdit ? 'Drag candidates to update stages' : 'Read-only pipeline'}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="ps-9"
+            placeholder="Search candidate or job"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
         </div>
+        <Select value={jobFilter} onValueChange={setJobFilter}>
+          <SelectTrigger className="w-full sm:w-64">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All jobs</SelectItem>
+            {jobs.map((job) => (
+              <SelectItem key={job.id} value={job.id}>
+                {job.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {stages.length === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <Users className="mx-auto h-10 w-10 text-muted-foreground" />
+            <p className="mt-3 font-medium">No pipeline stages configured</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Add a first stage before moving candidates through the pipeline.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
           onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-4 overflow-x-auto pb-4">
-            {stages.map((stage) => (
-              <StageColumn
-                key={stage.id}
-                stage={stage}
-                applications={getFilteredApplications(stage)}
-              />
-            ))}
+          <div className="overflow-x-auto pb-4">
+            <div className="flex min-w-max gap-4">
+              {visibleStages.map((stage) => (
+                <StageColumn
+                  key={stage.id}
+                  stage={stage}
+                  applications={stage.currentStageApplications}
+                  canEdit={canEdit}
+                />
+              ))}
+            </div>
           </div>
-
           <DragOverlay>
-            {activeApp && <ApplicationCard app={activeApp} isDragging />}
+            {activeApplication ? (
+              <CandidateCard application={activeApplication} overlay />
+            ) : null}
           </DragOverlay>
         </DndContext>
       )}
+
+      <Dialog open={addStageOpen} onOpenChange={setAddStageOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add pipeline stage</DialogTitle>
+            <DialogDescription>
+              Use Offer or Hired stages only for display; those statuses are managed
+              by the secure offer workflow.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="space-y-2">
+              <Label>Stage name</Label>
+              <Input
+                value={stageName}
+                onChange={(event) => setStageName(event.target.value)}
+                placeholder="Reference check"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Stage color</Label>
+              <Input
+                type="color"
+                className="h-11 w-full"
+                value={stageColor}
+                onChange={(event) => setStageColor(event.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddStageOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void addStage()} disabled={addingStage}>
+              {addingStage && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+              Add stage
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

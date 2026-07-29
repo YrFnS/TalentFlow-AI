@@ -98,6 +98,72 @@ export function parseOfferDeadline(value?: string | null): Date | null {
   return date;
 }
 
+function formatOfferMoney(value: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency} ${value.toLocaleString('en-US')}`;
+  }
+}
+
+/**
+ * Update the application status and, when a matching company pipeline stage
+ * exists, move stage history in the same database transaction.
+ */
+export async function setApplicationWorkflowState(
+  transaction: any,
+  input: {
+    applicationId: string;
+    companyId: string;
+    status: 'INTERVIEW' | 'OFFERED' | 'HIRED' | 'REJECTED';
+    stageTerms: string[];
+  },
+) {
+  const application = await transaction.application.findUnique({
+    where: { id: input.applicationId },
+    select: { currentStageId: true },
+  });
+  if (!application) throw new Error('Application not found');
+
+  const stage = input.stageTerms.length
+    ? await transaction.pipelineStage.findFirst({
+        where: {
+          companyId: input.companyId,
+          OR: input.stageTerms.map((term) => ({
+            name: { contains: term, mode: 'insensitive' },
+          })),
+        },
+        orderBy: { order: 'asc' },
+        select: { id: true },
+      })
+    : null;
+
+  if (stage && stage.id !== application.currentStageId) {
+    await transaction.applicationStage.updateMany({
+      where: { applicationId: input.applicationId, exitedAt: null },
+      data: { exitedAt: new Date() },
+    });
+    await transaction.applicationStage.create({
+      data: {
+        applicationId: input.applicationId,
+        stageId: stage.id,
+      },
+    });
+  }
+
+  return transaction.application.update({
+    where: { id: input.applicationId },
+    data: {
+      status: input.status,
+      ...(stage ? { currentStageId: stage.id } : {}),
+    },
+  });
+}
+
 export function buildOfferLetter(input: {
   candidateName: string;
   jobTitle: string;
@@ -110,11 +176,7 @@ export function buildOfferLetter(input: {
   conditions?: string[];
   responseDeadline?: Date | null;
 }): string {
-  const money = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: input.salaryCurrency,
-    maximumFractionDigits: 0,
-  }).format(input.salary);
+  const money = formatOfferMoney(input.salary, input.salaryCurrency);
 
   const sections = [
     `Dear ${input.candidateName},`,
@@ -124,8 +186,12 @@ export function buildOfferLetter(input: {
     `Base salary: ${money} per year`,
     input.equity ? `Equity: ${input.equity}` : '',
     input.startDate ? `Proposed start date: ${input.startDate}` : '',
-    input.benefits?.length ? `Benefits:\n${input.benefits.map((item) => `- ${item}`).join('\n')}` : '',
-    input.conditions?.length ? `Conditions:\n${input.conditions.map((item) => `- ${item}`).join('\n')}` : '',
+    input.benefits?.length
+      ? `Benefits:\n${input.benefits.map((item) => `- ${item}`).join('\n')}`
+      : '',
+    input.conditions?.length
+      ? `Conditions:\n${input.conditions.map((item) => `- ${item}`).join('\n')}`
+      : '',
     input.responseDeadline
       ? `Please respond by ${input.responseDeadline.toLocaleDateString()}.`
       : '',
@@ -135,7 +201,9 @@ export function buildOfferLetter(input: {
     `Sincerely,\n${input.companyName}`,
   ];
 
-  return sections.filter((line, index) => line || sections[index - 1] !== '').join('\n');
+  return sections
+    .filter((line, index) => line || sections[index - 1] !== '')
+    .join('\n');
 }
 
 export function serializeOffer(offer: any) {
@@ -235,11 +303,7 @@ export function buildOfferSignatureEmail(input: {
   signingUrl: string;
   expiry: Date;
 }): string {
-  const money = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: input.salaryCurrency,
-    maximumFractionDigits: 0,
-  }).format(input.salary);
+  const money = formatOfferMoney(input.salary, input.salaryCurrency);
 
   return `
     <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;padding:24px;color:#172033">

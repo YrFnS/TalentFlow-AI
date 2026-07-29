@@ -7,15 +7,13 @@ import {
   resolveCompanyId,
 } from '@/lib/auth-guard';
 import { getClientIp } from '@/lib/security';
-import {
-  offerUpdateSchema,
-  validateInput,
-} from '@/lib/validation/schemas';
+import { offerUpdateSchema, validateInput } from '@/lib/validation/schemas';
 import {
   offerInclude,
   parseOfferDeadline,
   serializeOffer,
   serializeOfferList,
+  setApplicationWorkflowState,
 } from '@/lib/offer-service';
 
 async function resolveOffer(id: string, companyId: string) {
@@ -125,6 +123,12 @@ export async function PATCH(
       }
       data.responseDeadline = deadline;
     }
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json(
+        { error: 'At least one offer field must be updated' },
+        { status: 400 },
+      );
+    }
 
     const offer = await db.offer.update({
       where: { id },
@@ -204,9 +208,23 @@ export async function DELETE(
         existing.application?.status === 'OFFERED' &&
         otherActiveOffers === 0
       ) {
-        await transaction.application.update({
-          where: { id: existing.applicationId },
-          data: { status: 'INTERVIEW' },
+        await setApplicationWorkflowState(transaction, {
+          applicationId: existing.applicationId,
+          companyId,
+          status: 'INTERVIEW',
+          stageTerms: ['interview'],
+        });
+      }
+
+      if (existing.status === 'SENT') {
+        await transaction.notification.create({
+          data: {
+            userId: existing.application.candidate.user.id,
+            title: 'Offer withdrawn',
+            message: `${existing.application.job.company.name} withdrew the offer for ${existing.application.job.title}.`,
+            type: 'offer',
+            link: '/candidate/applications',
+          },
         });
       }
 

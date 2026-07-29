@@ -12,12 +12,29 @@ import {
   validateInput,
 } from '@/lib/validation/schemas';
 import { getClientIp } from '@/lib/security';
+import { BUILTIN_EMAIL_TEMPLATES, sendEmail } from '@/lib/email-service';
+
+const INTERVIEW_STATUSES = new Set([
+  'SCHEDULED',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'CANCELLED',
+]);
 
 const interviewInclude = {
   application: {
     include: {
       candidate: {
-        include: { user: { select: { id: true, name: true, email: true } } },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+        },
       },
       job: { select: { id: true, title: true, companyId: true } },
     },
@@ -47,7 +64,9 @@ export async function GET(request: NextRequest) {
     const interviews = await db.interview.findMany({
       where: {
         application: { job: { companyId } },
-        ...(status && status !== 'all' ? { status: status as never } : {}),
+        ...(status && INTERVIEW_STATUSES.has(status)
+          ? { status: status as never }
+          : {}),
       },
       include: interviewInclude,
       orderBy: { scheduledAt: 'asc' },
@@ -87,14 +106,24 @@ export async function POST(request: NextRequest) {
     const application = await db.application.findFirst({
       where: { id: input.applicationId, job: { companyId } },
       include: {
-        job: { select: { title: true } },
-        candidate: { include: { user: { select: { id: true } } } },
+        job: { select: { id: true, title: true } },
+        candidate: {
+          include: {
+            user: { select: { id: true, name: true, email: true } },
+          },
+        },
       },
     });
     if (!application) {
       return NextResponse.json(
         { error: 'Application not found' },
         { status: 404 },
+      );
+    }
+    if (['REJECTED', 'WITHDRAWN', 'HIRED'].includes(application.status)) {
+      return NextResponse.json(
+        { error: 'This application is not eligible for an interview' },
+        { status: 409 },
       );
     }
 
@@ -118,6 +147,21 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+    if (scheduledAt <= new Date()) {
+      return NextResponse.json(
+        { error: 'Interview time must be in the future' },
+        { status: 400 },
+      );
+    }
+
+    const interviewStage = await db.pipelineStage.findFirst({
+      where: {
+        companyId,
+        name: { contains: 'interview', mode: 'insensitive' },
+      },
+      orderBy: { order: 'asc' },
+      select: { id: true },
+    });
 
     const interview = await db.$transaction(async (transaction) => {
       const created = await transaction.interview.create({
@@ -129,6 +173,7 @@ export async function POST(request: NextRequest) {
           durationMinutes: input.durationMinutes,
           location: input.location || null,
           meetingLink: input.meetingLink || null,
+          feedback: input.notes || null,
         },
       });
 
@@ -142,11 +187,32 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      if (interviewStage && application.currentStageId !== interviewStage.id) {
+        await transaction.applicationStage.updateMany({
+          where: { applicationId: application.id, exitedAt: null },
+          data: { exitedAt: new Date() },
+        });
+        await transaction.applicationStage.create({
+          data: {
+            applicationId: application.id,
+            stageId: interviewStage.id,
+          },
+        });
+      }
+
+      await transaction.application.update({
+        where: { id: application.id },
+        data: {
+          status: 'INTERVIEW',
+          ...(interviewStage ? { currentStageId: interviewStage.id } : {}),
+        },
+      });
+
       await transaction.notification.create({
         data: {
           userId: application.candidate.user.id,
           title: 'Interview scheduled',
-          message: `Your interview for ${application.job.title} has been scheduled.`,
+          message: `Your interview for ${application.job.title} is scheduled for ${scheduledAt.toLocaleString()}.`,
           type: 'interview',
           link: '/candidate/interview-prep',
         },
@@ -163,6 +229,7 @@ export async function POST(request: NextRequest) {
             companyId,
             applicationId: input.applicationId,
             scheduledAt,
+            type: input.type,
           }),
         },
       });
@@ -172,6 +239,24 @@ export async function POST(request: NextRequest) {
         include: interviewInclude,
       });
     });
+
+    try {
+      await sendEmail({
+        to: application.candidate.user.email,
+        subject: `Interview scheduled — ${application.job.title}`,
+        body: BUILTIN_EMAIL_TEMPLATES.interviewScheduled(
+          application.candidate.user.name,
+          application.job.title,
+          scheduledAt.toLocaleDateString(),
+          scheduledAt.toLocaleTimeString(),
+          input.meetingLink || input.location || input.type.replaceAll('_', ' '),
+        ),
+        companyId,
+        userId: application.candidate.user.id,
+      });
+    } catch (emailError) {
+      console.error('Interview email failed:', emailError);
+    }
 
     return NextResponse.json(interview, { status: 201 });
   } catch (error) {
@@ -208,7 +293,7 @@ export async function PUT(request: NextRequest) {
         id: input.interviewId,
         application: { job: { companyId } },
       },
-      select: { id: true },
+      include: { application: { select: { id: true } } },
     });
     if (!existing) {
       return NextResponse.json(
@@ -216,11 +301,27 @@ export async function PUT(request: NextRequest) {
         { status: 404 },
       );
     }
+    if (
+      input.status &&
+      ['COMPLETED', 'CANCELLED'].includes(existing.status) &&
+      input.status !== existing.status
+    ) {
+      return NextResponse.json(
+        { error: 'A completed or cancelled interview cannot be reopened' },
+        { status: 409 },
+      );
+    }
 
     const data: Record<string, unknown> = {};
     if (input.status !== undefined) data.status = input.status;
     if (input.feedback !== undefined) data.feedback = input.feedback;
     if (input.rating !== undefined) data.rating = input.rating;
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json(
+        { error: 'At least one interview field must be updated' },
+        { status: 400 },
+      );
+    }
 
     const interview = await db.$transaction(async (transaction) => {
       const updated = await transaction.interview.update({
@@ -236,7 +337,12 @@ export async function PUT(request: NextRequest) {
           resource: 'interview',
           resourceId: input.interviewId,
           ipAddress: getClientIp(request.headers),
-          details: JSON.stringify({ companyId, changedFields: Object.keys(data) }),
+          details: JSON.stringify({
+            companyId,
+            oldStatus: existing.status,
+            newStatus: input.status,
+            changedFields: Object.keys(data),
+          }),
         },
       });
       return updated;
@@ -277,7 +383,14 @@ export async function DELETE(request: NextRequest) {
 
     const existing = await db.interview.findFirst({
       where: { id: interviewId, application: { job: { companyId } } },
-      select: { id: true },
+      include: {
+        application: {
+          include: {
+            candidate: { include: { user: { select: { id: true } } } },
+            job: { select: { title: true } },
+          },
+        },
+      },
     });
     if (!existing) {
       return NextResponse.json(
@@ -285,21 +398,48 @@ export async function DELETE(request: NextRequest) {
         { status: 404 },
       );
     }
+    if (existing.status === 'COMPLETED') {
+      return NextResponse.json(
+        { error: 'A completed interview cannot be cancelled' },
+        { status: 409 },
+      );
+    }
+    if (existing.status === 'CANCELLED') {
+      return NextResponse.json(
+        { error: 'This interview is already cancelled' },
+        { status: 409 },
+      );
+    }
 
-    const interview = await db.interview.update({
-      where: { id: interviewId },
-      data: { status: 'CANCELLED' },
-    });
+    const interview = await db.$transaction(async (transaction) => {
+      const updated = await transaction.interview.update({
+        where: { id: interviewId },
+        data: { status: 'CANCELLED' },
+        include: interviewInclude,
+      });
 
-    await db.auditLog.create({
-      data: {
-        userId: auth.userId,
-        action: 'interview.cancel',
-        resource: 'interview',
-        resourceId: interviewId,
-        ipAddress: getClientIp(request.headers),
-        details: JSON.stringify({ companyId }),
-      },
+      await transaction.notification.create({
+        data: {
+          userId: existing.application.candidate.user.id,
+          title: 'Interview cancelled',
+          message: `Your interview for ${existing.application.job.title} has been cancelled.`,
+          type: 'interview',
+          link: '/candidate/interview-prep',
+        },
+      });
+
+      await transaction.auditLog.create({
+        data: {
+          userId: auth.userId,
+          action: 'interview.cancel',
+          resource: 'interview',
+          resourceId: interviewId,
+          ipAddress: getClientIp(request.headers),
+          details: JSON.stringify({ companyId }),
+        },
+      });
+
+      return updated;
     });
 
     return NextResponse.json(interview);

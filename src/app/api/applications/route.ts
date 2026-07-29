@@ -24,6 +24,8 @@ const APPLICATION_STATUSES = new Set([
   'WITHDRAWN',
 ]);
 
+const WORKFLOW_CONTROLLED_STATUSES = new Set(['OFFERED', 'HIRED', 'WITHDRAWN']);
+
 const applicationInclude = {
   job: {
     select: {
@@ -40,6 +42,11 @@ const applicationInclude = {
   },
   currentStage: true,
 };
+
+function isOfferControlledStage(name: string): boolean {
+  const normalized = name.toLowerCase();
+  return normalized.includes('offer') || normalized.includes('hire');
+}
 
 export async function GET(request: NextRequest) {
   const auth = await requireCompanyMember();
@@ -58,9 +65,7 @@ export async function GET(request: NextRequest) {
     const jobId = searchParams.get('jobId');
     const status = searchParams.get('status');
     const search = searchParams.get('search')?.trim();
-    const where: Prisma.ApplicationWhereInput = {
-      job: { companyId },
-    };
+    const where: Prisma.ApplicationWhereInput = { job: { companyId } };
 
     if (jobId) where.jobId = jobId;
     if (status && APPLICATION_STATUSES.has(status)) where.status = status as never;
@@ -121,6 +126,32 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    if (
+      input.status &&
+      WORKFLOW_CONTROLLED_STATUSES.has(input.status)
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            input.status === 'WITHDRAWN'
+              ? 'Only the candidate can withdraw an application'
+              : 'Offer and hired statuses are managed by the secure offer workflow',
+        },
+        { status: 409 },
+      );
+    }
+
+    if (
+      input.status === undefined &&
+      input.currentStageId === undefined &&
+      input.notes === undefined
+    ) {
+      return NextResponse.json(
+        { error: 'At least one application field must be updated' },
+        { status: 400 },
+      );
+    }
+
     const existing = await db.application.findFirst({
       where: { id: input.id, job: { companyId } },
       include: { job: { select: { title: true } }, currentStage: true },
@@ -132,15 +163,35 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    if (
+      ['HIRED', 'WITHDRAWN'].includes(existing.status) &&
+      (input.status !== undefined || input.currentStageId !== undefined)
+    ) {
+      return NextResponse.json(
+        { error: 'This application is in a final state and cannot be moved' },
+        { status: 409 },
+      );
+    }
+
+    let targetStage: { id: string; name: string } | null = null;
     if (input.currentStageId) {
-      const stage = await db.pipelineStage.findFirst({
+      targetStage = await db.pipelineStage.findFirst({
         where: { id: input.currentStageId, companyId },
-        select: { id: true },
+        select: { id: true, name: true },
       });
-      if (!stage) {
+      if (!targetStage) {
         return NextResponse.json(
           { error: 'Pipeline stage not found for this company' },
           { status: 400 },
+        );
+      }
+      if (isOfferControlledStage(targetStage.name)) {
+        return NextResponse.json(
+          {
+            error:
+              'Offer and hired pipeline stages are managed by the secure offer workflow',
+          },
+          { status: 409 },
         );
       }
     }
@@ -191,6 +242,7 @@ export async function PATCH(request: NextRequest) {
             newStatus: input.status,
             oldStageId: existing.currentStageId,
             newStageId: input.currentStageId,
+            newStageName: targetStage?.name,
             jobTitle: existing.job.title,
           }),
         },
@@ -232,7 +284,11 @@ export async function POST(request: NextRequest) {
     const [job, candidate] = await Promise.all([
       db.job.findFirst({
         where: { id: input.jobId, companyId },
-        include: { company: { include: { stages: { orderBy: { order: 'asc' }, take: 1 } } } },
+        include: {
+          company: {
+            include: { stages: { orderBy: { order: 'asc' }, take: 1 } },
+          },
+        },
       }),
       db.candidateProfile.findUnique({
         where: { id: input.candidateId },

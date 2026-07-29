@@ -2,13 +2,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getClientIp } from '@/lib/security';
-import {
-  offerSignSchema,
-  validateInput,
-} from '@/lib/validation/schemas';
+import { offerSignSchema, validateInput } from '@/lib/validation/schemas';
 import {
   matchesOfferSigningToken,
   offerInclude,
+  setApplicationWorkflowState,
 } from '@/lib/offer-service';
 
 export async function POST(
@@ -72,6 +70,7 @@ export async function POST(
     const isDecline = input.signatureType === 'DECLINE';
     const candidateUser = offer.application.candidate.user;
     const job = offer.application.job;
+    const companyId = job.companyId;
 
     const updated = await db.$transaction(async (transaction) => {
       const result = await transaction.offer.update({
@@ -96,12 +95,12 @@ export async function POST(
             },
       });
 
-      if (!isDecline) {
-        await transaction.application.update({
-          where: { id: offer.applicationId },
-          data: { status: 'HIRED' },
-        });
-      }
+      await setApplicationWorkflowState(transaction, {
+        applicationId: offer.applicationId,
+        companyId,
+        status: isDecline ? 'REJECTED' : 'HIRED',
+        stageTerms: isDecline ? ['reject'] : ['hire'],
+      });
 
       if (offer.companySignerId) {
         await transaction.notification.create({
@@ -123,6 +122,7 @@ export async function POST(
           resourceId: id,
           ipAddress: getClientIp(request.headers),
           details: JSON.stringify({
+            companyId,
             applicationId: offer.applicationId,
             candidateId: offer.application.candidateId,
             signatureType: input.signatureType,

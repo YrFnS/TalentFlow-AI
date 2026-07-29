@@ -4,15 +4,13 @@ import { db } from '@/lib/db';
 import { requireCompanyEditor, resolveCompanyId } from '@/lib/auth-guard';
 import { getClientIp } from '@/lib/security';
 import { sendEmail } from '@/lib/email-service';
-import {
-  offerSendSchema,
-  validateInput,
-} from '@/lib/validation/schemas';
+import { offerSendSchema, validateInput } from '@/lib/validation/schemas';
 import {
   buildOfferSignatureEmail,
   createOfferSigningToken,
   offerInclude,
   serializeOffer,
+  setApplicationWorkflowState,
 } from '@/lib/offer-service';
 
 export async function POST(
@@ -85,13 +83,18 @@ export async function POST(
           signingTokenExpiry: expiry,
           companySignedAt: now,
           companySignerId: auth.userId,
+          respondedAt: null,
+          candidateSignedAt: null,
+          candidateSignature: null,
         },
         include: offerInclude,
       });
 
-      await transaction.application.update({
-        where: { id: existing.applicationId },
-        data: { status: 'OFFERED' },
+      await setApplicationWorkflowState(transaction, {
+        applicationId: existing.applicationId,
+        companyId,
+        status: 'OFFERED',
+        stageTerms: ['offer'],
       });
 
       await transaction.notification.create({

@@ -1,457 +1,820 @@
-// @ts-nocheck
-"use client";
+'use client';
 
-import React, { useEffect, useState, useCallback } from "react";
-import { useI18n } from "@/store/i18n-store";
-import { cn } from "@/lib/utils";
-import { Search, X, Plus, Sparkles, Loader2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+  Calendar,
+  CalendarPlus,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  Loader2,
+  MapPin,
+  RefreshCw,
+  Search,
+  Star,
+  UserRound,
+  Video,
+  XCircle,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
+import { useAuth } from '@/store/auth-store';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 
-import type {
-	Interview,
-	AvailabilityConfig,
-	SchedulingSlot,
-	ScreeningQuestion,
-} from "./components/types";
-import InterviewsTab from "./components/InterviewsTab";
-import SelfSchedulingTab from "./components/SelfSchedulingTab";
-import InterviewDetailsSheet from "./components/InterviewDetailsSheet";
-import ScheduleInterviewDialog from "./components/ScheduleInterviewDialog";
-import CancelInterviewDialog from "./components/CancelInterviewDialog";
-import AiQuestionsDialog from "./components/AiQuestionsDialog";
-import { getInitials } from "@/lib/utils";
+type InterviewStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+type InterviewType = 'PHONE' | 'VIDEO' | 'ON_SITE' | 'ASYNC_VIDEO';
 
-const interviewTypes = ["PHONE", "VIDEO", "ON_SITE", "ASYNC_VIDEO"];
-const interviewStatuses = [
-	"SCHEDULED",
-	"IN_PROGRESS",
-	"COMPLETED",
-	"CANCELLED",
-];
+type Interview = {
+  id: string;
+  applicationId: string;
+  type: InterviewType;
+  status: InterviewStatus;
+  scheduledAt: string | null;
+  durationMinutes: number;
+  location: string | null;
+  meetingLink: string | null;
+  feedback: string | null;
+  rating: number | null;
+  createdAt: string;
+  application: {
+    id: string;
+    candidate: {
+      id: string;
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        image: string | null;
+      };
+    };
+    job: { id: string; title: string; companyId: string };
+  };
+  assignments: Array<{
+    id: string;
+    notes: string | null;
+    interviewer: { id: string; name: string };
+  }>;
+};
+
+type ApplicationOption = {
+  id: string;
+  status: string;
+  candidate: {
+    user: { name: string; email: string; image: string | null };
+  };
+  job: { id: string; title: string };
+};
+
+type ScheduleForm = {
+  applicationId: string;
+  type: InterviewType;
+  date: string;
+  time: string;
+  durationMinutes: string;
+  location: string;
+  meetingLink: string;
+  notes: string;
+};
+
+const EMPTY_SCHEDULE: ScheduleForm = {
+  applicationId: '',
+  type: 'VIDEO',
+  date: '',
+  time: '',
+  durationMinutes: '30',
+  location: '',
+  meetingLink: '',
+  notes: '',
+};
+
+const STATUS_STYLE: Record<InterviewStatus, string> = {
+  SCHEDULED: 'bg-primary/10 text-primary',
+  IN_PROGRESS: 'bg-amber-500/10 text-amber-700',
+  COMPLETED: 'bg-emerald-500/10 text-emerald-700',
+  CANCELLED: 'bg-destructive/10 text-destructive',
+};
+
+function initials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function typeIcon(type: InterviewType) {
+  return type === 'PHONE' ? UserRound : type === 'ON_SITE' ? MapPin : Video;
+}
 
 export default function InterviewsPage() {
-	const { t } = useI18n();
+  const { user, validateSession } = useAuth();
+  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [applications, setApplications] = useState<ApplicationOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | InterviewStatus>('all');
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [schedule, setSchedule] = useState<ScheduleForm>(EMPTY_SCHEDULE);
+  const [scheduling, setScheduling] = useState(false);
+  const [selected, setSelected] = useState<Interview | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [rating, setRating] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
-	// State
-	const [interviews, setInterviews] = useState<Interview[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [searchQuery, setSearchQuery] = useState("");
-	const [statusFilter, setStatusFilter] = useState("all");
-	const [scheduleOpen, setScheduleOpen] = useState(false);
-	const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
-		null,
-	);
-	const [detailsOpen, setDetailsOpen] = useState(false);
-	const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-	const [cancelTarget, setCancelTarget] = useState<Interview | null>(null);
-	const [submitting, setSubmitting] = useState(false);
-	const [aiQuestionsOpen, setAiQuestionsOpen] = useState(false);
+  const canEdit = [
+    'SUPER_ADMIN',
+    'ADMIN',
+    'COMPANY_ADMIN',
+    'HR_MANAGER',
+    'RECRUITER',
+  ].includes(user?.role || '');
 
-	// Schedule form
-	const [formType, setFormType] = useState("VIDEO");
-	const [formDate, setFormDate] = useState("");
-	const [formTime, setFormTime] = useState("");
-	const [formDuration, setFormDuration] = useState("30");
-	const [formInterviewer, setFormInterviewer] = useState("");
-	const [formNotes, setFormNotes] = useState("");
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
 
-	// Self-scheduling state
-	const [availability, setAvailability] = useState<AvailabilityConfig>({
-		interviewerId: "interviewer-1",
-		interviewerName: "Sarah Chen",
-		slots: [
-			{ dayOfWeek: 1, startTime: "09:00", endTime: "12:00" },
-			{ dayOfWeek: 1, startTime: "14:00", endTime: "17:00" },
-			{ dayOfWeek: 2, startTime: "09:00", endTime: "12:00" },
-			{ dayOfWeek: 3, startTime: "10:00", endTime: "13:00" },
-			{ dayOfWeek: 3, startTime: "15:00", endTime: "17:00" },
-			{ dayOfWeek: 4, startTime: "09:00", endTime: "12:00" },
-			{ dayOfWeek: 4, startTime: "14:00", endTime: "16:00" },
-			{ dayOfWeek: 5, startTime: "09:00", endTime: "11:00" },
-		],
-		slotDuration: 30,
-		bufferBetween: 15,
-		timezone: "Asia/Riyadh",
-	});
-	const [schedulingSlots, setSchedulingSlots] = useState<SchedulingSlot[]>([]);
-	const [slotsLoading, setSlotsLoading] = useState(false);
-	const [savingAvailability, setSavingAvailability] = useState(false);
-	const [generatingSlots, setGeneratingSlots] = useState(false);
-	const [daysToGenerate, setDaysToGenerate] = useState("14");
-	const [copiedLink, setCopiedLink] = useState<string | null>(null);
+    try {
+      const [interviewsResponse, applicationsResponse] = await Promise.all([
+        fetch('/api/interviews', { cache: 'no-store' }),
+        fetch('/api/applications', { cache: 'no-store' }),
+      ]);
+      if (!interviewsResponse.ok) {
+        throw new Error(
+          await getApiErrorMessage(interviewsResponse, 'Unable to load interviews'),
+        );
+      }
 
-	// Data fetching
-	const fetchInterviews = useCallback(async () => {
-		try {
-			const params = new URLSearchParams();
-			if (statusFilter && statusFilter !== "all")
-				params.set("status", statusFilter);
-			const res = await fetch(`/api/interviews?${params.toString()}`);
-			if (res.ok) {
-				const data = await res.json();
-				setInterviews(data);
-			}
-		} catch (error) {
-			console.error("Failed to fetch interviews:", error);
-		} finally {
-			setLoading(false);
-		}
-	}, [statusFilter]);
+      const interviewData = await interviewsResponse.json();
+      const applicationData = applicationsResponse.ok
+        ? await applicationsResponse.json()
+        : [];
+      setInterviews(Array.isArray(interviewData) ? interviewData : []);
+      setApplications(
+        Array.isArray(applicationData)
+          ? applicationData.filter(
+              (application: ApplicationOption) =>
+                !['REJECTED', 'WITHDRAWN', 'HIRED'].includes(application.status),
+            )
+          : [],
+      );
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to load interviews');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
-	const fetchAvailability = useCallback(async () => {
-		try {
-			const res = await fetch(
-				"/api/interviews/availability?interviewerId=interviewer-1",
-			);
-			if (res.ok) {
-				const data = await res.json();
-				if (data.slots && data.slots.length > 0) {
-					setAvailability(data);
-				}
-			}
-		} catch (error) {
-			console.error("Failed to fetch availability:", error);
-		}
-	}, []);
+  useEffect(() => {
+    void validateSession();
+    void load();
+  }, [load, validateSession]);
 
-	const fetchSlots = useCallback(async () => {
-		setSlotsLoading(true);
-		try {
-			const now = new Date();
-			const toDate = new Date(now);
-			toDate.setDate(toDate.getDate() + 14);
-			const res = await fetch(
-				`/api/interviews/slots?interviewerId=interviewer-1&fromDate=${now.toISOString()}&toDate=${toDate.toISOString()}`,
-			);
-			if (res.ok) {
-				const data = await res.json();
-				setSchedulingSlots(Array.isArray(data) ? data : []);
-			}
-		} catch (error) {
-			console.error("Failed to fetch slots:", error);
-		} finally {
-			setSlotsLoading(false);
-		}
-	}, []);
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return interviews.filter((interview) => {
+      if (statusFilter !== 'all' && interview.status !== statusFilter) return false;
+      if (!term) return true;
+      return (
+        interview.application.candidate.user.name.toLowerCase().includes(term) ||
+        interview.application.candidate.user.email.toLowerCase().includes(term) ||
+        interview.application.job.title.toLowerCase().includes(term) ||
+        interview.assignments.some((assignment) =>
+          assignment.interviewer.name.toLowerCase().includes(term),
+        )
+      );
+    });
+  }, [interviews, query, statusFilter]);
 
-	useEffect(() => {
-		fetchInterviews();
-		fetchAvailability();
-		fetchSlots();
-	}, [fetchInterviews, fetchAvailability, fetchSlots]);
+  const counts = useMemo(
+    () =>
+      interviews.reduce<Record<string, number>>(
+        (result, interview) => {
+          result[interview.status] = (result[interview.status] || 0) + 1;
+          result.all += 1;
+          return result;
+        },
+        { all: 0 },
+      ),
+    [interviews],
+  );
 
-	// Handlers
-	const filteredInterviews = interviews.filter((interview) => {
-		const query = searchQuery.toLowerCase();
-		return (
-			!searchQuery ||
-			interview.application.candidate.user.name.toLowerCase().includes(query) ||
-			interview.application.job.title.toLowerCase().includes(query) ||
-			interview.assignments.some((a) =>
-				a.interviewer.name.toLowerCase().includes(query),
-			)
-		);
-	});
+  function openDetails(interview: Interview) {
+    setSelected(interview);
+    setFeedback(interview.feedback || '');
+    setRating(interview.rating ? String(interview.rating) : '');
+    setDetailsOpen(true);
+  }
 
-	const handleSchedule = async () => {
-		if (!formDate || !formTime) return;
-		setSubmitting(true);
-		try {
-			const scheduledAt = new Date(`${formDate}T${formTime}`).toISOString();
-			const res = await fetch("/api/interviews", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					applicationId: "app-demo",
-					type: formType,
-					scheduledAt,
-					durationMinutes: parseInt(formDuration),
-					notes: formNotes || undefined,
-				}),
-			});
-			if (res.ok) {
-				const newInterview = await res.json();
-				setInterviews((prev) => [newInterview, ...prev]);
-				setScheduleOpen(false);
-				resetForm();
-			}
-		} catch (error) {
-			console.error("Failed to schedule interview:", error);
-		} finally {
-			setSubmitting(false);
-		}
-	};
+  async function scheduleInterview() {
+    if (!schedule.applicationId || !schedule.date || !schedule.time) {
+      toast.error('Application, date, and time are required');
+      return;
+    }
 
-	const handleCancelInterview = async () => {
-		if (!cancelTarget) return;
-		try {
-			const res = await fetch(
-				`/api/interviews?interviewId=${cancelTarget.id}`,
-				{ method: "DELETE" },
-			);
-			if (res.ok) {
-				setInterviews((prev) =>
-					prev.map((i) =>
-						i.id === cancelTarget.id ? { ...i, status: "CANCELLED" } : i,
-					),
-				);
-				setCancelDialogOpen(false);
-				if (detailsOpen && selectedInterview?.id === cancelTarget.id) {
-					setSelectedInterview({ ...cancelTarget, status: "CANCELLED" });
-				}
-				setCancelTarget(null);
-			}
-		} catch (error) {
-			console.error("Failed to cancel interview:", error);
-		}
-	};
+    const scheduledAt = new Date(`${schedule.date}T${schedule.time}`);
+    if (Number.isNaN(scheduledAt.getTime())) {
+      toast.error('The interview date and time are invalid');
+      return;
+    }
+    if (scheduledAt <= new Date()) {
+      toast.error('Interview time must be in the future');
+      return;
+    }
 
-	const resetForm = () => {
-		setFormType("VIDEO");
-		setFormDate("");
-		setFormTime("");
-		setFormDuration("30");
-		setFormInterviewer("");
-		setFormNotes("");
-	};
+    setScheduling(true);
+    try {
+      const response = await apiFetch('/api/interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicationId: schedule.applicationId,
+          type: schedule.type,
+          scheduledAt: scheduledAt.toISOString(),
+          durationMinutes: Number(schedule.durationMinutes),
+          location: schedule.location || undefined,
+          meetingLink: schedule.meetingLink || undefined,
+          notes: schedule.notes || undefined,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to schedule interview'),
+        );
+      }
 
-	const handleSaveAvailability = async () => {
-		setSavingAvailability(true);
-		try {
-			const res = await fetch("/api/interviews/availability", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(availability),
-			});
-			if (res.ok) {
-				toast.success(t.selfScheduling.availabilitySaved);
-			}
-		} catch (error) {
-			console.error("Failed to save availability:", error);
-		} finally {
-			setSavingAvailability(false);
-		}
-	};
+      const interview = (await response.json()) as Interview;
+      setInterviews((current) => [...current, interview].sort((left, right) => {
+        const leftTime = left.scheduledAt ? new Date(left.scheduledAt).getTime() : 0;
+        const rightTime = right.scheduledAt ? new Date(right.scheduledAt).getTime() : 0;
+        return leftTime - rightTime;
+      }));
 
-	const handleGenerateSlots = async () => {
-		setGeneratingSlots(true);
-		try {
-			const res = await fetch(
-				`/api/interviews/slots?interviewerId=interviewer-1&generate=true&days=${daysToGenerate}`,
-			);
-			if (res.ok) {
-				const data = await res.json();
-				toast.success(t.selfScheduling.slotsGenerated);
-				fetchSlots();
-			}
-		} catch (error) {
-			console.error("Failed to generate slots:", error);
-		} finally {
-			setGeneratingSlots(false);
-		}
-	};
+      await apiFetch('/api/applications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: schedule.applicationId, status: 'INTERVIEW' }),
+      });
 
-	const handleCopySchedulingLink = (token: string) => {
-		const link = `${window.location.origin}/schedule/${token}`;
-		navigator.clipboard.writeText(link);
-		setCopiedLink(token);
-		setTimeout(() => setCopiedLink(null), 2000);
-		toast.success("Link copied to clipboard");
-	};
+      setSchedule(EMPTY_SCHEDULE);
+      setScheduleOpen(false);
+      toast.success('Interview scheduled');
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : 'Unable to schedule interview');
+    } finally {
+      setScheduling(false);
+    }
+  }
 
-	const addAvailabilitySlot = () => {
-		setAvailability((prev) => ({
-			...prev,
-			slots: [
-				...prev.slots,
-				{ dayOfWeek: 1, startTime: "09:00", endTime: "17:00" },
-			],
-		}));
-	};
+  async function updateInterview(status?: InterviewStatus) {
+    if (!selected) return;
+    setUpdating(true);
+    try {
+      const response = await apiFetch('/api/interviews', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          interviewId: selected.id,
+          status: status || selected.status,
+          feedback: feedback.trim() || null,
+          rating: rating ? Number(rating) : null,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(await getApiErrorMessage(response, 'Unable to update interview'));
+      }
 
-	const removeAvailabilitySlot = (index: number) => {
-		setAvailability((prev) => ({
-			...prev,
-			slots: prev.slots.filter((_, i) => i !== index),
-		}));
-	};
+      const updated = (await response.json()) as Interview;
+      setInterviews((current) =>
+        current.map((interview) =>
+          interview.id === updated.id ? updated : interview,
+        ),
+      );
+      setSelected(updated);
+      toast.success('Interview updated');
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : 'Unable to update interview');
+    } finally {
+      setUpdating(false);
+    }
+  }
 
-	const updateAvailabilitySlot = (
-		index: number,
-		field: string,
-		value: string | number,
-	) => {
-		setAvailability((prev) => ({
-			...prev,
-			slots: prev.slots.map((s, i) =>
-				i === index ? { ...s, [field]: value } : s,
-			),
-		}));
-	};
+  async function cancelInterview(interview: Interview) {
+    if (!window.confirm('Cancel this interview?')) return;
+    setCancellingId(interview.id);
+    try {
+      const response = await apiFetch(
+        `/api/interviews?interviewId=${encodeURIComponent(interview.id)}`,
+        { method: 'DELETE' },
+      );
+      if (!response.ok) {
+        throw new Error(await getApiErrorMessage(response, 'Unable to cancel interview'));
+      }
+      const updated = (await response.json()) as Interview;
+      setInterviews((current) =>
+        current.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)),
+      );
+      setSelected((current) =>
+        current?.id === updated.id ? { ...current, ...updated } : current,
+      );
+      toast.success('Interview cancelled');
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : 'Unable to cancel interview');
+    } finally {
+      setCancellingId(null);
+    }
+  }
 
-	const formatDate = (dateStr: string) =>
-		new Date(dateStr).toLocaleDateString(undefined, {
-			weekday: "short",
-			year: "numeric",
-			month: "short",
-			day: "numeric",
-		});
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-20" />
+        <Skeleton className="h-12" />
+        <div className="grid gap-4 lg:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-48" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-	const formatTime = (dateStr: string) =>
-		new Date(dateStr).toLocaleTimeString(undefined, {
-			hour: "2-digit",
-			minute: "2-digit",
-		});
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Interviews</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Schedule interviews and capture structured feedback.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void load(true)}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="me-2 h-4 w-4" />
+            )}
+            Refresh
+          </Button>
+          {canEdit && (
+            <Button size="sm" onClick={() => setScheduleOpen(true)}>
+              <CalendarPlus className="me-2 h-4 w-4" />
+              Schedule interview
+            </Button>
+          )}
+        </div>
+      </div>
 
-	return (
-		<div className="space-y-6">
-			{/* Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div>
-					<h1 className="text-2xl font-bold tracking-tight">
-						{t.interviews.title}
-					</h1>
-					<p className="text-muted-foreground text-sm mt-1">
-						{interviews.length} {t.interviews.title.toLowerCase()}
-					</p>
-				</div>
-				<div className="flex items-center gap-2">
-					<ScheduleInterviewDialog
-						open={scheduleOpen}
-						onOpenChange={setScheduleOpen}
-						formType={formType}
-						onFormTypeChange={setFormType}
-						formDate={formDate}
-						onFormDateChange={setFormDate}
-						formTime={formTime}
-						onFormTimeChange={setFormTime}
-						formDuration={formDuration}
-						onFormDurationChange={setFormDuration}
-						formInterviewer={formInterviewer}
-						onFormInterviewerChange={setFormInterviewer}
-						formNotes={formNotes}
-						onFormNotesChange={setFormNotes}
-						submitting={submitting}
-						onSchedule={handleSchedule}
-						t={t}
-					/>
-					<Button
-						variant="outline"
-						className="border-slate-300 text-blue-600 hover:bg-slate-50"
-						onClick={() => setAiQuestionsOpen(true)}
-					>
-						<Sparkles className="w-4 h-4 me-2" />
-						AI Generate Questions
-					</Button>
-				</div>
-			</div>
+      {error && (
+        <Card className="border-destructive/40">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button size="sm" variant="outline" onClick={() => void load()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-			{/* Tabs */}
-			<Tabs defaultValue="interviews" className="space-y-6">
-				<TabsList className="bg-muted/50">
-					<TabsTrigger value="interviews" className="gap-2">
-						<Sparkles className="w-4 h-4" />
-						{t.interviews.title}
-					</TabsTrigger>
-					<TabsTrigger value="self-scheduling" className="gap-2">
-						<Sparkles className="w-4 h-4" />
-						{t.selfScheduling.title}
-					</TabsTrigger>
-				</TabsList>
+      <div className="flex flex-col gap-3 lg:flex-row">
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="ps-9"
+            placeholder="Search candidate, job, or interviewer"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}
+        >
+          <SelectTrigger className="w-full lg:w-56">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses ({counts.all || 0})</SelectItem>
+            {(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const).map(
+              (status) => (
+                <SelectItem key={status} value={status}>
+                  {status.replaceAll('_', ' ')} ({counts[status] || 0})
+                </SelectItem>
+              ),
+            )}
+          </SelectContent>
+        </Select>
+      </div>
 
-				<TabsContent value="interviews">
-					<InterviewsTab
-						interviews={filteredInterviews}
-						loading={loading}
-						searchQuery={searchQuery}
-						onSearchChange={setSearchQuery}
-						statusFilter={statusFilter}
-						onStatusFilterChange={setStatusFilter}
-						onSelectInterview={(i) => {
-							setSelectedInterview(i);
-							setDetailsOpen(true);
-						}}
-						formatDate={formatDate}
-						formatTime={formatTime}
-						getInitials={getInitials}
-						t={t}
-					/>
-				</TabsContent>
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <Calendar className="mx-auto h-10 w-10 text-muted-foreground" />
+            <p className="mt-3 font-medium">No interviews found</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Scheduled candidate interviews will appear here.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {filtered.map((interview) => {
+            const Icon = typeIcon(interview.type);
+            return (
+              <Card key={interview.id} className="transition-shadow hover:shadow-md">
+                <CardContent className="space-y-4 p-5">
+                  <div className="flex items-start gap-3">
+                    <Avatar>
+                      <AvatarImage
+                        src={interview.application.candidate.user.image || undefined}
+                      />
+                      <AvatarFallback>
+                        {initials(interview.application.candidate.user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold">
+                        {interview.application.candidate.user.name}
+                      </p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        {interview.application.job.title}
+                      </p>
+                    </div>
+                    <Badge className={STATUS_STYLE[interview.status]}>
+                      {interview.status}
+                    </Badge>
+                  </div>
 
-				<TabsContent value="self-scheduling">
-					<SelfSchedulingTab
-						availability={availability}
-						setAvailability={setAvailability}
-						schedulingSlots={schedulingSlots}
-						slotsLoading={slotsLoading}
-						savingAvailability={savingAvailability}
-						generatingSlots={generatingSlots}
-						daysToGenerate={daysToGenerate}
-						onDaysToGenerateChange={setDaysToGenerate}
-						copiedLink={copiedLink}
-						onSaveAvailability={handleSaveAvailability}
-						onGenerateSlots={handleGenerateSlots}
-						onCopyLink={handleCopySchedulingLink}
-						addAvailabilitySlot={addAvailabilitySlot}
-						removeAvailabilitySlot={removeAvailabilitySlot}
-						updateAvailabilitySlot={updateAvailabilitySlot}
-						formatTime={formatTime}
-						t={t}
-					/>
-				</TabsContent>
-			</Tabs>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="rounded-lg border p-3">
+                      <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5" /> Date and time
+                      </p>
+                      <p className="mt-1 font-medium">
+                        {interview.scheduledAt
+                          ? new Date(interview.scheduledAt).toLocaleString()
+                          : 'Not scheduled'}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border p-3">
+                      <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Icon className="h-3.5 w-3.5" /> Type
+                      </p>
+                      <p className="mt-1 font-medium">
+                        {interview.type.replaceAll('_', ' ')} · {interview.durationMinutes}m
+                      </p>
+                    </div>
+                  </div>
 
-			{/* Interview Details Sheet */}
-			<InterviewDetailsSheet
-				interview={selectedInterview}
-				open={detailsOpen}
-				onOpenChange={setDetailsOpen}
-				onCancel={(i) => {
-					setCancelTarget(i);
-					setCancelDialogOpen(true);
-				}}
-				formatDate={formatDate}
-				formatTime={formatTime}
-				getInitials={getInitials}
-				t={t}
-			/>
+                  {(interview.location || interview.meetingLink) && (
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      {interview.location && (
+                        <p className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          {interview.location}
+                        </p>
+                      )}
+                      {interview.meetingLink && (
+                        <a
+                          className="flex items-center gap-2 text-primary hover:underline"
+                          href={interview.meetingLink}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Open meeting link
+                        </a>
+                      )}
+                    </div>
+                  )}
 
-			{/* Cancel Dialog */}
-			<CancelInterviewDialog
-				open={cancelDialogOpen}
-				onOpenChange={setCancelDialogOpen}
-				onConfirm={handleCancelInterview}
-				t={t}
-			/>
+                  <div className="flex justify-end gap-2 border-t pt-3">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => openDetails(interview)}
+                    >
+                      View details
+                    </Button>
+                    {canEdit && interview.status === 'SCHEDULED' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-destructive"
+                        onClick={() => void cancelInterview(interview)}
+                        disabled={cancellingId === interview.id}
+                      >
+                        {cancellingId === interview.id ? (
+                          <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <XCircle className="me-2 h-4 w-4" />
+                        )}
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
-			{/* AI Questions Dialog */}
-			<AiQuestionsDialog
-				open={aiQuestionsOpen}
-				onOpenChange={setAiQuestionsOpen}
-				t={t}
-			/>
-		</div>
-	);
+      <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Schedule interview</DialogTitle>
+            <DialogDescription>
+              Select an active application and add the interview details.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-2 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Application *</Label>
+              <Select
+                value={schedule.applicationId}
+                onValueChange={(applicationId) =>
+                  setSchedule((current) => ({ ...current, applicationId }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose candidate and job" />
+                </SelectTrigger>
+                <SelectContent>
+                  {applications.map((application) => (
+                    <SelectItem key={application.id} value={application.id}>
+                      {application.candidate.user.name} — {application.job.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Type</Label>
+              <Select
+                value={schedule.type}
+                onValueChange={(type) =>
+                  setSchedule((current) => ({
+                    ...current,
+                    type: type as InterviewType,
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(['PHONE', 'VIDEO', 'ON_SITE', 'ASYNC_VIDEO'] as const).map(
+                    (type) => (
+                      <SelectItem key={type} value={type}>
+                        {type.replaceAll('_', ' ')}
+                      </SelectItem>
+                    ),
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Duration</Label>
+              <Select
+                value={schedule.durationMinutes}
+                onValueChange={(durationMinutes) =>
+                  setSchedule((current) => ({ ...current, durationMinutes }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {['15', '30', '45', '60', '90'].map((minutes) => (
+                    <SelectItem key={minutes} value={minutes}>
+                      {minutes} minutes
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Date *</Label>
+              <Input
+                type="date"
+                min={new Date().toISOString().slice(0, 10)}
+                value={schedule.date}
+                onChange={(event) =>
+                  setSchedule((current) => ({ ...current, date: event.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Time *</Label>
+              <Input
+                type="time"
+                value={schedule.time}
+                onChange={(event) =>
+                  setSchedule((current) => ({ ...current, time: event.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Location</Label>
+              <Input
+                value={schedule.location}
+                onChange={(event) =>
+                  setSchedule((current) => ({
+                    ...current,
+                    location: event.target.value,
+                  }))
+                }
+                placeholder="Office, phone, or video platform"
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Meeting link</Label>
+              <Input
+                type="url"
+                value={schedule.meetingLink}
+                onChange={(event) =>
+                  setSchedule((current) => ({
+                    ...current,
+                    meetingLink: event.target.value,
+                  }))
+                }
+                placeholder="https://meet.example.com/..."
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Notes for interviewer</Label>
+              <Textarea
+                rows={3}
+                value={schedule.notes}
+                onChange={(event) =>
+                  setSchedule((current) => ({ ...current, notes: event.target.value }))
+                }
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScheduleOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void scheduleInterview()} disabled={scheduling}>
+              {scheduling ? (
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+              ) : (
+                <CalendarPlus className="me-2 h-4 w-4" />
+              )}
+              Schedule
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="sm:max-w-xl">
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selected.application.candidate.user.name}</DialogTitle>
+                <DialogDescription>
+                  {selected.application.job.title} · {selected.type.replaceAll('_', ' ')}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-5 py-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border p-3">
+                    <p className="text-xs text-muted-foreground">Scheduled</p>
+                    <p className="mt-1 font-medium">
+                      {selected.scheduledAt
+                        ? new Date(selected.scheduledAt).toLocaleString()
+                        : 'Not scheduled'}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-3">
+                    <p className="text-xs text-muted-foreground">Status</p>
+                    <Badge className={`mt-2 ${STATUS_STYLE[selected.status]}`}>
+                      {selected.status}
+                    </Badge>
+                  </div>
+                </div>
+
+                {selected.assignments.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-sm font-medium">Interviewers</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selected.assignments.map((assignment) => (
+                        <Badge key={assignment.id} variant="secondary">
+                          {assignment.interviewer.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label>Rating</Label>
+                  <Select
+                    value={rating || 'none'}
+                    onValueChange={(value) => setRating(value === 'none' ? '' : value)}
+                    disabled={!canEdit}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Not rated</SelectItem>
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <SelectItem key={value} value={String(value)}>
+                          {value} / 5
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Feedback</Label>
+                  <Textarea
+                    rows={6}
+                    value={feedback}
+                    onChange={(event) => setFeedback(event.target.value)}
+                    disabled={!canEdit}
+                    placeholder="Record evidence, strengths, concerns, and recommendation."
+                  />
+                </div>
+
+                {selected.rating && (
+                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Star className="h-4 w-4 text-amber-500" /> Current rating:{' '}
+                    {selected.rating}/5
+                  </p>
+                )}
+              </div>
+
+              <DialogFooter className="flex-wrap">
+                <Button variant="outline" onClick={() => setDetailsOpen(false)}>
+                  Close
+                </Button>
+                {canEdit && selected.status !== 'CANCELLED' && (
+                  <Button
+                    variant="outline"
+                    onClick={() => void updateInterview()}
+                    disabled={updating}
+                  >
+                    {updating && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+                    Save feedback
+                  </Button>
+                )}
+                {canEdit && selected.status !== 'COMPLETED' && selected.status !== 'CANCELLED' && (
+                  <Button
+                    onClick={() => void updateInterview('COMPLETED')}
+                    disabled={updating}
+                  >
+                    <CheckCircle2 className="me-2 h-4 w-4" />
+                    Complete interview
+                  </Button>
+                )}
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

@@ -5,10 +5,11 @@ import {
   hashOfferSigningToken,
   offerInclude,
   serializePublicOffer,
+  setApplicationWorkflowState,
 } from '@/lib/offer-service';
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -40,10 +41,46 @@ export async function GET(
       offer.signingTokenExpiry <= new Date() &&
       !['ACCEPTED', 'DECLINED', 'EXPIRED'].includes(offer.status)
     ) {
-      offer = await db.offer.update({
-        where: { id: offer.id },
-        data: { status: 'EXPIRED', signingStatus: 'EXPIRED' },
-        include: offerInclude,
+      offer = await db.$transaction(async (transaction) => {
+        const expired = await transaction.offer.update({
+          where: { id: offer.id },
+          data: { status: 'EXPIRED', signingStatus: 'EXPIRED' },
+          include: offerInclude,
+        });
+
+        await setApplicationWorkflowState(transaction, {
+          applicationId: offer.applicationId,
+          companyId: offer.application.job.companyId,
+          status: 'INTERVIEW',
+          stageTerms: ['interview'],
+        });
+
+        if (offer.companySignerId) {
+          await transaction.notification.create({
+            data: {
+              userId: offer.companySignerId,
+              title: 'Offer expired',
+              message: `${offer.application.candidate.user.name}'s offer for ${offer.application.job.title} expired without a response.`,
+              type: 'offer',
+              link: '/company/offers',
+            },
+          });
+        }
+
+        await transaction.auditLog.create({
+          data: {
+            userId: null,
+            action: 'offer.expire',
+            resource: 'offer',
+            resourceId: offer.id,
+            details: JSON.stringify({
+              applicationId: offer.applicationId,
+              detectedBy: 'public_offer_view',
+            }),
+          },
+        });
+
+        return expired;
       });
     }
 
