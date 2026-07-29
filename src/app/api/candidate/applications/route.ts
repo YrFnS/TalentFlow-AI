@@ -1,46 +1,38 @@
-// @ts-nocheck
-import { db } from '@/lib/db';
+// @ts-nocheck - Prisma result types are shaped for the candidate portal.
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
 import { requireCandidate } from '@/lib/auth-guard';
+
+const APPLICATION_STATUSES = new Set([
+  'APPLIED',
+  'SCREENING',
+  'INTERVIEW',
+  'OFFERED',
+  'HIRED',
+  'REJECTED',
+  'WITHDRAWN',
+]);
 
 export async function GET(request: NextRequest) {
   const auth = await requireCandidate();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { searchParams } = new URL(request.url);
-    const candidateId = searchParams.get('candidateId');
-    const userId = auth.userId;
-    const status = searchParams.get('status');
+    const profile = await db.candidateProfile.findUnique({
+      where: { userId: auth.userId },
+      select: { id: true },
+    });
 
-    let profileId = candidateId;
+    if (!profile) return NextResponse.json([]);
 
-    // If userId provided, find the candidate profile
-    if (!profileId && userId) {
-      const profile = await db.candidateProfile.findUnique({
-        where: { userId },
-        select: { id: true },
-      });
-      profileId = profile?.id;
-    }
-
-    // If still no profile, try first candidate
-    if (!profileId) {
-      const firstCandidate = await db.candidateProfile.findFirst({
-        select: { id: true },
-      });
-      profileId = firstCandidate?.id;
-    }
-
-    if (!profileId) {
-      return NextResponse.json([]);
-    }
-
-    const where: Record<string, unknown> = { candidateId: profileId };
-    if (status) where.status = status;
-
+    const status = request.nextUrl.searchParams.get('status');
     const applications = await db.application.findMany({
-      where,
+      where: {
+        candidateId: profile.id,
+        ...(status && APPLICATION_STATUSES.has(status)
+          ? { status: status as never }
+          : {}),
+      },
       include: {
         job: {
           include: {
@@ -49,32 +41,46 @@ export async function GET(request: NextRequest) {
         },
         currentStage: true,
         applicationStages: {
+          include: { stage: { select: { name: true, color: true } } },
           orderBy: { enteredAt: 'asc' },
         },
-        interviews: true,
+        interviews: {
+          orderBy: { scheduledAt: 'asc' },
+        },
       },
       orderBy: { appliedAt: 'desc' },
     });
 
     return NextResponse.json(
-      applications.map((app: any) => ({
-        id: app.id,
-        jobTitle: app.job?.title || '',
-        company: app.job?.company?.name || '',
-        location: app.job?.location || '',
-        appliedAt: app.appliedAt,
-        status: app.status,
-        matchScore: app.matchScore || 0,
-        timeline: app.applicationStages.map((stage: any) => ({
-          status: stage.stageId ? 'SCREENING' : 'APPLIED',
-          date: new Date(stage.enteredAt).toLocaleDateString(),
-          note: stage.notes || '',
+      applications.map((application) => ({
+        id: application.id,
+        jobId: application.jobId,
+        jobTitle: application.job?.title || '',
+        company: application.job?.company?.name || '',
+        companyLogo: application.job?.company?.logo || null,
+        location: application.job?.location || '',
+        jobType: application.job?.jobType,
+        appliedAt: application.appliedAt,
+        updatedAt: application.updatedAt,
+        status: application.status,
+        matchScore: application.matchScore || 0,
+        currentStage: application.currentStage,
+        timeline: application.applicationStages.map((history) => ({
+          id: history.id,
+          stageName: history.stage?.name || '',
+          stageColor: history.stage?.color || null,
+          date: history.enteredAt,
+          exitedAt: history.exitedAt,
+          note: history.notes || '',
         })),
-        interviews: app.interviews,
-      }))
+        interviews: application.interviews,
+      })),
     );
   } catch (error) {
     console.error('Candidate applications GET error:', error);
-    return NextResponse.json({ error: 'Failed to fetch applications' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch applications' },
+      { status: 500 },
+    );
   }
 }

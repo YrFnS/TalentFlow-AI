@@ -1,42 +1,23 @@
-// @ts-nocheck
+// @ts-nocheck - Prisma results are shaped for the candidate portal.
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
 import { requireCandidate } from '@/lib/auth-guard';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const auth = await requireCandidate();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { searchParams } = new URL(request.url);
-    const candidateId = searchParams.get('candidateId');
-    const userId = auth.userId;
+    const profile = await db.candidateProfile.findUnique({
+      where: { userId: auth.userId },
+      select: { id: true },
+    });
 
-    let profileId = candidateId;
+    if (!profile) return NextResponse.json([]);
 
-    if (!profileId && userId) {
-      const profile = await db.candidateProfile.findUnique({
-        where: { userId },
-        select: { id: true },
-      });
-      profileId = profile?.id;
-    }
-
-    if (!profileId) {
-      const firstCandidate = await db.candidateProfile.findFirst({
-        select: { id: true },
-      });
-      profileId = firstCandidate?.id;
-    }
-
-    if (!profileId) {
-      return NextResponse.json([]);
-    }
-
-    // Get interviews for this candidate's applications
     const interviews = await db.interview.findMany({
       where: {
-        application: { candidateId: profileId },
+        application: { candidateId: profile.id },
         status: { in: ['SCHEDULED', 'IN_PROGRESS'] },
       },
       include: {
@@ -44,20 +25,26 @@ export async function GET(request: NextRequest) {
           include: {
             job: {
               include: {
-                company: { select: { name: true } },
+                company: { select: { id: true, name: true, logo: true } },
               },
             },
           },
+        },
+        assignments: {
+          include: { interviewer: { select: { id: true, name: true } } },
         },
       },
       orderBy: { scheduledAt: 'asc' },
     });
 
     return NextResponse.json(
-      interviews.map((interview: any) => ({
+      interviews.map((interview) => ({
         id: interview.id,
+        jobId: interview.application?.job?.id || '',
         jobTitle: interview.application?.job?.title || '',
         company: interview.application?.job?.company?.name || '',
+        companyLogo: interview.application?.job?.company?.logo || null,
+        scheduledAt: interview.scheduledAt,
         date: interview.scheduledAt?.toLocaleDateString() || '',
         time: interview.scheduledAt?.toLocaleTimeString() || '',
         type: interview.type,
@@ -65,10 +52,16 @@ export async function GET(request: NextRequest) {
         duration: interview.durationMinutes,
         location: interview.location,
         meetingLink: interview.meetingLink,
-      }))
+        interviewers: interview.assignments.map(
+          (assignment) => assignment.interviewer.name,
+        ),
+      })),
     );
   } catch (error) {
     console.error('Candidate interviews GET error:', error);
-    return NextResponse.json({ error: 'Failed to fetch interviews' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch interviews' },
+      { status: 500 },
+    );
   }
 }
