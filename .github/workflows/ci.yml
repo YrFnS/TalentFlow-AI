@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Type check and build
+    name: Lint, type check, and build
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -46,6 +46,9 @@ jobs:
 
       - name: Run repository regression guard
         run: node scripts/repository-guard.mjs
+
+      - name: Lint
+        run: bun run lint
 
       - name: Type check
         run: bun run type-check
