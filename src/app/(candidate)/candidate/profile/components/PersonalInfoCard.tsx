@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
-import { User } from 'lucide-react';
-import { useI18n } from '@/store/i18n-store';
+import type React from 'react';
+import { LockKeyhole, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-interface PersonalInfo {
+export interface PersonalInfo {
   name: string;
   email: string;
   phone: string;
@@ -33,99 +32,128 @@ interface PersonalInfoCardProps {
   setPersonalInfo: React.Dispatch<React.SetStateAction<PersonalInfo>>;
 }
 
-export default function PersonalInfoCard({ personalInfo, setPersonalInfo }: PersonalInfoCardProps) {
-  const { t } = useI18n();
+export default function PersonalInfoCard({
+  personalInfo,
+  setPersonalInfo,
+}: PersonalInfoCardProps) {
+  const setField = (field: keyof PersonalInfo, value: string) => {
+    setPersonalInfo((current) => ({ ...current, [field]: value }));
+  };
 
   return (
-    <Card className="border-0 shadow-sm card-">
+    <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <User className="h-5 w-5 text-emerald-600" />
-          {t.candidate.personalInfo}
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <User className="h-5 w-5 text-primary" />
+          Personal information
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="name">{t.auth.name}</Label>
+            <Label htmlFor="name">Full name</Label>
             <Input
               id="name"
               value={personalInfo.name}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, name: (e.target as unknown as { value: string }).value })}
+              maxLength={100}
+              onChange={(event) => setField('name', event.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">{t.auth.email}</Label>
-            <Input
-              id="email"
-              type="email"
-              value={personalInfo.email}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, email: (e.target as unknown as { value: string }).value })}
-            />
+            <Label htmlFor="email" className="flex items-center gap-1.5">
+              Login email
+              <LockKeyhole className="h-3.5 w-3.5 text-muted-foreground" />
+            </Label>
+            <Input id="email" type="email" value={personalInfo.email} disabled />
+            <p className="text-xs text-muted-foreground">
+              Email changes require account verification and are not handled from
+              the public profile form.
+            </p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone">{t.candidate.phone}</Label>
+            <Label htmlFor="phone">Phone</Label>
             <Input
               id="phone"
               value={personalInfo.phone}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, phone: (e.target as unknown as { value: string }).value })}
+              maxLength={40}
+              onChange={(event) => setField('phone', event.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location">{t.candidate.location}</Label>
+            <Label htmlFor="location">Location</Label>
             <Input
               id="location"
               value={personalInfo.location}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, location: (e.target as unknown as { value: string }).value })}
+              maxLength={250}
+              onChange={(event) => setField('location', event.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="currentTitle">{t.candidate.currentTitle}</Label>
+            <Label htmlFor="currentTitle">Current title</Label>
             <Input
               id="currentTitle"
               value={personalInfo.currentTitle}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, currentTitle: (e.target as unknown as { value: string }).value })}
+              maxLength={250}
+              onChange={(event) => setField('currentTitle', event.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="availability">{t.candidate.availability}</Label>
+            <Label htmlFor="availability">Availability</Label>
             <Select
               value={personalInfo.availability}
-              onValueChange={(v) => setPersonalInfo({ ...personalInfo, availability: v })}
+              onValueChange={(value) => setField('availability', value)}
             >
               <SelectTrigger id="availability">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="open">Open to work</SelectItem>
-                <SelectItem value="not-looking">Not looking</SelectItem>
-                <SelectItem value="open-offers">Open to offers</SelectItem>
+                <SelectItem value="employed">Employed, open to conversations</SelectItem>
+                <SelectItem value="not_looking">Not looking</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="linkedin">{t.candidate.linkedin}</Label>
+            <Label htmlFor="linkedin">LinkedIn URL</Label>
             <Input
               id="linkedin"
+              type="url"
               value={personalInfo.linkedin}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, linkedin: (e.target as unknown as { value: string }).value })}
+              maxLength={2048}
+              placeholder="https://www.linkedin.com/in/..."
+              onChange={(event) => setField('linkedin', event.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="portfolio">{t.candidate.portfolio}</Label>
+            <Label htmlFor="portfolio">Portfolio URL</Label>
             <Input
               id="portfolio"
+              type="url"
               value={personalInfo.portfolio}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, portfolio: (e.target as unknown as { value: string }).value })}
+              maxLength={2048}
+              placeholder="https://..."
+              onChange={(event) => setField('portfolio', event.target.value)}
             />
           </div>
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="bio">{t.candidate.bio}</Label>
+            <Label htmlFor="expectedSalary">Expected salary</Label>
+            <Input
+              id="expectedSalary"
+              value={personalInfo.expectedSalary}
+              maxLength={100}
+              placeholder="Example: 2,500,000 IQD monthly"
+              onChange={(event) => setField('expectedSalary', event.target.value)}
+            />
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="bio">Professional summary</Label>
             <Textarea
               id="bio"
               value={personalInfo.bio}
-              onChange={(e) => setPersonalInfo({ ...personalInfo, bio: (e.target as unknown as { value: string }).value })}
-              rows={3}
+              maxLength={10000}
+              onChange={(event) => setField('bio', event.target.value)}
+              rows={5}
+              placeholder="Summarize your strengths, experience, and the roles you are targeting."
             />
           </div>
         </div>
