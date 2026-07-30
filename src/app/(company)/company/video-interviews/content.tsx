@@ -1,35 +1,26 @@
-// @ts-nocheck
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { useI18n } from '@/store/i18n-store';
-import { cn, getInitials } from '@/lib/utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Video,
-  Clock,
-  CheckCircle2,
-  XCircle,
   AlertCircle,
-  Plus,
-  Sparkles,
-  Loader2,
-  Play,
-  Trash2,
-  Calendar,
-  Search,
+  CalendarClock,
+  CheckCircle2,
+  Clock,
   Eye,
-  Brain,
-  Timer,
-  RotateCcw,
-  X,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Trash2,
+  UserRound,
+  Video,
+  XCircle,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -37,7 +28,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -45,903 +39,774 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 
-interface InterviewQuestion {
+type InterviewQuestion = {
   text: string;
   type: string;
-}
+};
 
-interface VideoInterviewResponse {
+type ApplicationOption = {
   id: string;
-  videoInterviewId: string;
-  candidateId: string;
+  status: string;
+  candidate: {
+    id: string;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      image?: string | null;
+    };
+  };
+  job: {
+    id: string;
+    title: string;
+  };
+};
+
+type VideoInterviewResponse = {
+  id: string;
   questionIndex: number;
-  videoUrl: string | null;
   duration: number | null;
   aiScore: number | null;
   aiFeedback: string | null;
   retakes: number;
   completedAt: string | null;
-}
+};
 
-interface VideoInterview {
+type VideoInterview = {
   id: string;
   applicationId: string;
   title: string;
   description: string | null;
-  questions: string;
+  questions: InterviewQuestion[];
   responseDeadline: string | null;
   maxRetakes: number;
   timePerQuestion: number | null;
   status: string;
   completedAt: string | null;
   createdAt: string;
-  updatedAt: string;
   responses: VideoInterviewResponse[];
-  application: {
-    id: string;
-    candidate: {
-      user: { name: string; email: string };
-    };
-    job: { title: string };
-  };
-}
-
-const statusConfig: Record<string, { color: string; bgColor: string; borderColor: string; icon: React.ElementType }> = {
-  PENDING: {
-    color: 'text-amber-700',
-    bgColor: 'bg-amber-100 dark:bg-amber-900/30',
-    borderColor: 'border-amber-200 dark:border-amber-800/30',
-    icon: Clock,
-  },
-  IN_PROGRESS: {
-    color: 'text-blue-700',
-    bgColor: 'bg-teal-100',
-    borderColor: 'border-slate-200/30',
-    icon: Play,
-  },
-  COMPLETED: {
-    color: 'text-emerald-700',
-    bgColor: 'bg-emerald-100 dark:bg-emerald-900/30',
-    borderColor: 'border-emerald-200 dark:border-emerald-800/30',
-    icon: CheckCircle2,
-  },
-  EXPIRED: {
-    color: 'text-red-700',
-    bgColor: 'bg-red-100 dark:bg-red-900/30',
-    borderColor: 'border-red-200 dark:border-red-800/30',
-    icon: AlertCircle,
-  },
-  CANCELLED: {
-    color: 'text-gray-700 dark:text-gray-400',
-    bgColor: 'bg-gray-100 /30',
-    borderColor: 'border-gray-200 dark:border-gray-800/30',
-    icon: XCircle,
-  },
+  application: ApplicationOption | null;
 };
 
-const questionTypeOptions = [
-  { value: 'intro', labelKey: 'intro' },
-  { value: 'technical', labelKey: 'technical' },
-  { value: 'behavioral', labelKey: 'behavioral' },
-  { value: 'situational', labelKey: 'situational' },
-];
+type CreateForm = {
+  applicationId: string;
+  title: string;
+  description: string;
+  responseDeadline: string;
+  maxRetakes: string;
+  timePerQuestion: string;
+  questions: InterviewQuestion[];
+};
+
+const initialForm: CreateForm = {
+  applicationId: '',
+  title: '',
+  description: '',
+  responseDeadline: '',
+  maxRetakes: '1',
+  timePerQuestion: '90',
+  questions: [{ text: '', type: 'behavioral' }],
+};
+
+const terminalApplicationStatuses = new Set([
+  'HIRED',
+  'REJECTED',
+  'WITHDRAWN',
+]);
+
+const statusStyle: Record<string, string> = {
+  PENDING: 'bg-amber-500/10 text-amber-700',
+  IN_PROGRESS: 'bg-blue-500/10 text-blue-700',
+  COMPLETED: 'bg-emerald-500/10 text-emerald-700',
+  EXPIRED: 'bg-destructive/10 text-destructive',
+  CANCELLED: 'bg-muted text-muted-foreground',
+};
+
+function initials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function averageScore(interview: VideoInterview): number | null {
+  const values = interview.responses
+    .map((response) => response.aiScore)
+    .filter((score): score is number => score !== null);
+
+  if (!values.length) return null;
+  return Math.round(values.reduce((sum, score) => sum + score, 0) / values.length);
+}
 
 export default function VideoInterviewsContent() {
-  const { t } = useI18n();
   const [interviews, setInterviews] = useState<VideoInterview[]>([]);
+  const [applications, setApplications] = useState<ApplicationOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [jobFilter, setJobFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Create dialog state
+  const [query, setQuery] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
-  const [createSubmitting, setCreateSubmitting] = useState(false);
-  const [createForm, setCreateForm] = useState({
-    applicationId: '',
-    title: '',
-    description: '',
-    questions: [{ text: '', type: 'intro' }] as InterviewQuestion[],
-    responseDeadline: '',
-    maxRetakes: 1,
-    timePerQuestion: 90,
-  });
-  const [generatingAI, setGeneratingAI] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<VideoInterview | null>(null);
+  const [form, setForm] = useState<CreateForm>(initialForm);
 
-  // View responses dialog
-  const [responsesOpen, setResponsesOpen] = useState(false);
-  const [selectedInterview, setSelectedInterview] = useState<VideoInterview | null>(null);
-  const [analyzingIdx, setAnalyzingIdx] = useState<number | null>(null);
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
 
-  const fetchInterviews = useCallback(async () => {
     try {
-      const params = new URLSearchParams();
-      if (statusFilter && statusFilter !== 'all') {
-        params.set('status', statusFilter);
+      const [interviewsResponse, applicationsResponse] = await Promise.all([
+        fetch('/api/video-interviews', { cache: 'no-store' }),
+        fetch('/api/applications', { cache: 'no-store' }),
+      ]);
+
+      if (!interviewsResponse.ok) {
+        throw new Error(
+          await getApiErrorMessage(
+            interviewsResponse,
+            'Unable to load video interviews',
+          ),
+        );
       }
-      const res = await fetch(`/api/video-interviews?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setInterviews(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch video interviews:', error);
+
+      const interviewData = await interviewsResponse.json();
+      const applicationData = applicationsResponse.ok
+        ? await applicationsResponse.json()
+        : [];
+
+      setInterviews(Array.isArray(interviewData) ? interviewData : []);
+      setApplications(Array.isArray(applicationData) ? applicationData : []);
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : 'Unable to load video interviews',
+      );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  }, [statusFilter]);
+  }, []);
 
   useEffect(() => {
-    fetchInterviews();
-  }, [fetchInterviews]);
+    void load();
+  }, [load]);
 
-  // Unique jobs for filter
-  const uniqueJobs = Array.from(new Set(interviews.map((vi) => vi.application.job.title)));
+  const activeApplicationIds = useMemo(
+    () =>
+      new Set(
+        interviews
+          .filter((interview) =>
+            ['PENDING', 'IN_PROGRESS'].includes(interview.status),
+          )
+          .map((interview) => interview.applicationId),
+      ),
+    [interviews],
+  );
 
-  // Stats
-  const stats = {
-    total: interviews.length,
-    pending: interviews.filter((vi) => vi.status === 'PENDING').length,
-    completed: interviews.filter((vi) => vi.status === 'COMPLETED').length,
-    avgScore: (() => {
-      const scored = interviews.filter((vi) => vi.status === 'COMPLETED' && vi.responses.length > 0);
-      if (scored.length === 0) return 0;
-      const totalScore = scored.reduce((sum, vi) => {
-        const responsesWithScore = vi.responses.filter((r) => r.aiScore !== null);
-        if (responsesWithScore.length === 0) return sum;
-        const avg = responsesWithScore.reduce((s, r) => s + (r.aiScore || 0), 0) / responsesWithScore.length;
-        return sum + avg;
-      }, 0);
-      return Math.round(totalScore / scored.length);
-    })(),
-  };
+  const eligibleApplications = useMemo(
+    () =>
+      applications.filter(
+        (application) =>
+          !terminalApplicationStatuses.has(application.status) &&
+          !activeApplicationIds.has(application.id),
+      ),
+    [activeApplicationIds, applications],
+  );
 
-  // Filtered interviews
-  const filteredInterviews = interviews.filter((vi) => {
-    const matchesSearch = !searchQuery ||
-      vi.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      vi.application.candidate.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      vi.application.job.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesJob = jobFilter === 'all' || vi.application.job.title === jobFilter;
-    return matchesSearch && matchesJob;
-  });
-
-  const getStatusLabel = (status: string): string => {
-    const labels: Record<string, string> = {
-      PENDING: t.asyncInterview.pending,
-      IN_PROGRESS: t.asyncInterview.inProgress,
-      COMPLETED: t.asyncInterview.completed,
-      EXPIRED: t.asyncInterview.expired,
-      CANCELLED: t.asyncInterview.cancelled,
-    };
-    return labels[status] || status;
-  };
-
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const parseQuestions = (questionsStr: string): InterviewQuestion[] => {
-    try {
-      return JSON.parse(questionsStr);
-    } catch {
-      return [];
-    }
-  };
-
-  const getInterviewAvgScore = (vi: VideoInterview): number | null => {
-    const scored = vi.responses.filter((r) => r.aiScore !== null);
-    if (scored.length === 0) return null;
-    return Math.round(scored.reduce((sum, r) => sum + (r.aiScore || 0), 0) / scored.length);
-  };
-
-  // Create interview handler
-  const handleCreate = async () => {
-    if (!createForm.title || createForm.questions.length === 0 || createForm.questions.some((q) => !q.text.trim())) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-    setCreateSubmitting(true);
-    try {
-      const res = await fetch('/api/video-interviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          applicationId: createForm.applicationId || 'app-demo',
-          title: createForm.title,
-          description: createForm.description || undefined,
-          questions: createForm.questions,
-          responseDeadline: createForm.responseDeadline || undefined,
-          maxRetakes: createForm.maxRetakes,
-          timePerQuestion: createForm.timePerQuestion,
-        }),
-      });
-      if (res.ok) {
-        const newInterview = await res.json();
-        setInterviews((prev) => [newInterview, ...prev]);
-        setCreateOpen(false);
-        resetCreateForm();
-        toast.success('Interview created successfully');
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return interviews.filter((interview) => {
+      if (statusFilter !== 'all' && interview.status !== statusFilter) {
+        return false;
       }
-    } catch (error) {
-      console.error('Failed to create interview:', error);
-      toast.error('Failed to create interview');
-    } finally {
-      setCreateSubmitting(false);
-    }
-  };
 
-  const resetCreateForm = () => {
-    setCreateForm({
-      applicationId: '',
-      title: '',
-      description: '',
-      questions: [{ text: '', type: 'intro' }],
-      responseDeadline: '',
-      maxRetakes: 1,
-      timePerQuestion: 90,
-    });
-  };
-
-  // AI question generation
-  const handleGenerateQuestions = async () => {
-    if (!createForm.title.trim()) {
-      toast.error('Please enter an interview title first');
-      return;
-    }
-    setGeneratingAI(true);
-    try {
-      const res = await fetch('/api/ai/generate-interview-questions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          role: createForm.title,
-          level: 'Mid',
-          type: 'mixed',
-          count: 4,
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data.questions)) {
-          const aiQuestions: InterviewQuestion[] = data.questions.map((q: { question: string; category: string }) => ({
-            text: q.question,
-            type: q.category === 'technical' ? 'technical' : q.category === 'behavioral' ? 'behavioral' : q.category === 'situational' ? 'situational' : 'intro',
-          }));
-          setCreateForm((prev) => ({ ...prev, questions: aiQuestions }));
-          toast.success(`Generated ${aiQuestions.length} questions`);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to generate questions:', error);
-      toast.error('Failed to generate questions');
-    } finally {
-      setGeneratingAI(false);
-    }
-  };
-
-  // AI analysis handler
-  const handleAnalyze = async (interviewId: string, questionIndex: number) => {
-    setAnalyzingIdx(questionIndex);
-    try {
-      // Simulate AI analysis with a delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      // Return a generic score since we don't have real AI feedback
-      const score = 0;
-      const feedback = '';
-
-      setInterviews((prev) =>
-        prev.map((vi) => {
-          if (vi.id === interviewId) {
-            return {
-              ...vi,
-              responses: vi.responses.map((r) => {
-                if (r.questionIndex === questionIndex) {
-                  return { ...r, aiScore: score, aiFeedback: feedback };
-                }
-                return r;
-              }),
-            };
-          }
-          return vi;
-        })
+      if (!term) return true;
+      return (
+        interview.title.toLowerCase().includes(term) ||
+        interview.application?.candidate.user.name
+          .toLowerCase()
+          .includes(term) ||
+        interview.application?.job.title.toLowerCase().includes(term)
       );
+    });
+  }, [interviews, query, statusFilter]);
 
-      if (selectedInterview?.id === interviewId) {
-        setSelectedInterview((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            responses: prev.responses.map((r) => {
-              if (r.questionIndex === questionIndex) {
-                return { ...r, aiScore: score, aiFeedback: feedback };
-              }
-              return r;
-            }),
-          };
-        });
+  const stats = useMemo(
+    () => ({
+      total: interviews.length,
+      pending: interviews.filter((interview) => interview.status === 'PENDING')
+        .length,
+      active: interviews.filter(
+        (interview) => interview.status === 'IN_PROGRESS',
+      ).length,
+      completed: interviews.filter(
+        (interview) => interview.status === 'COMPLETED',
+      ).length,
+    }),
+    [interviews],
+  );
+
+  function setField<K extends keyof CreateForm>(key: K, value: CreateForm[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateQuestion(
+    index: number,
+    field: keyof InterviewQuestion,
+    value: string,
+  ) {
+    setForm((current) => ({
+      ...current,
+      questions: current.questions.map((question, questionIndex) =>
+        questionIndex === index ? { ...question, [field]: value } : question,
+      ),
+    }));
+  }
+
+  function removeQuestion(index: number) {
+    setForm((current) => ({
+      ...current,
+      questions:
+        current.questions.length === 1
+          ? current.questions
+          : current.questions.filter((_, questionIndex) => questionIndex !== index),
+    }));
+  }
+
+  async function createInterview() {
+    if (!form.applicationId) {
+      toast.error('Select a real candidate application');
+      return;
+    }
+    if (!form.title.trim()) {
+      toast.error('Interview title is required');
+      return;
+    }
+    if (form.questions.some((question) => !question.text.trim())) {
+      toast.error('Every question needs text');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const response = await apiFetch('/api/video-interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicationId: form.applicationId,
+          title: form.title,
+          description: form.description || undefined,
+          responseDeadline: form.responseDeadline || undefined,
+          maxRetakes: Number(form.maxRetakes),
+          timePerQuestion: Number(form.timePerQuestion),
+          questions: form.questions.map((question) => ({
+            text: question.text.trim(),
+            type: question.type,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to create video interview'),
+        );
       }
 
-      toast.success('AI analysis complete');
-    } catch {
-      toast.error('Failed to analyze response');
+      const created = (await response.json()) as VideoInterview;
+      setInterviews((current) => [created, ...current]);
+      setForm(initialForm);
+      setCreateOpen(false);
+      toast.success('Video interview assigned');
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error
+          ? reason.message
+          : 'Unable to create video interview',
+      );
     } finally {
-      setAnalyzingIdx(null);
+      setSubmitting(false);
     }
-  };
+  }
 
-  // Add/remove question
-  const addQuestion = () => {
-    setCreateForm((prev) => ({
-      ...prev,
-      questions: [...prev.questions, { text: '', type: 'technical' }],
-    }));
-  };
+  async function cancelInterview(interview: VideoInterview) {
+    if (
+      !confirm(
+        `Cancel “${interview.title}” for ${interview.application?.candidate.user.name || 'this candidate'}?`,
+      )
+    ) {
+      return;
+    }
 
-  const removeQuestion = (index: number) => {
-    setCreateForm((prev) => ({
-      ...prev,
-      questions: prev.questions.filter((_, i) => i !== index),
-    }));
-  };
+    setCancellingId(interview.id);
+    try {
+      const response = await apiFetch(
+        `/api/video-interviews?id=${encodeURIComponent(interview.id)}`,
+        { method: 'DELETE' },
+      );
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to cancel video interview'),
+        );
+      }
 
-  const updateQuestion = (index: number, field: 'text' | 'type', value: string) => {
-    setCreateForm((prev) => ({
-      ...prev,
-      questions: prev.questions.map((q, i) => (i === index ? { ...q, [field]: value } : q)),
-    }));
-  };
+      const updated = (await response.json()) as VideoInterview;
+      setInterviews((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      if (selected?.id === updated.id) setSelected(updated);
+      toast.success('Video interview cancelled');
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error
+          ? reason.message
+          : 'Unable to cancel video interview',
+      );
+    } finally {
+      setCancellingId(null);
+    }
+  }
 
-  const getQuestionTypeLabel = (type: string): string => {
-    const labels: Record<string, string> = {
-      intro: t.asyncInterview.intro,
-      technical: t.asyncInterview.technical,
-      behavioral: t.asyncInterview.behavioral,
-      situational: t.asyncInterview.situational,
-    };
-    return labels[type] || type;
-  };
-
-  const openResponsesDialog = (vi: VideoInterview) => {
-    setSelectedInterview(vi);
-    setResponsesOpen(true);
-  };
-
-  return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
-            <Video className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{t.asyncInterview.title}</h1>
-            <p className="text-sm text-muted-foreground">{t.asyncInterview.subtitle}</p>
-          </div>
-        </div>
-        <Button
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={() => { resetCreateForm(); setCreateOpen(true); }}
-        >
-          <Plus className="w-4 h-4 me-2" />
-          {t.asyncInterview.createInterview}
-        </Button>
-      </div>
-
-      {/* Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: t.asyncInterview.totalInterviews, value: stats.total, icon: Video, gradient: 'bg-blue-600' },
-          { label: t.asyncInterview.pendingResponses, value: stats.pending, icon: Clock, gradient: 'from-amber-500 to-orange-600' },
-          { label: t.asyncInterview.completed, value: stats.completed, icon: CheckCircle2, gradient: 'from-emerald-500 to-teal-600' },
-          { label: t.asyncInterview.avgAIScore, value: stats.avgScore > 0 ? `${stats.avgScore}%` : '-', icon: Brain, gradient: 'from-teal-600 to-emerald-700' },
-        ].map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.label} className="card-border-border/50 relative overflow-hidden">
-              <div className={cn('absolute inset-0 bg-gradient-to-br opacity-[0.06]', stat.gradient)} />
-              <CardContent className="p-4 relative">
-                <div className="flex items-center gap-3">
-                  <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br text-white', stat.gradient)}>
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">{stat.label}</p>
-                    <p className="text-xl font-bold">{stat.value}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t.common.search}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-9"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px] h-9">
-            <SelectValue placeholder={t.asyncInterview.filterByStatus} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t.asyncInterview.filterByStatus}</SelectItem>
-            <SelectItem value="PENDING">{t.asyncInterview.pending}</SelectItem>
-            <SelectItem value="IN_PROGRESS">{t.asyncInterview.inProgress}</SelectItem>
-            <SelectItem value="COMPLETED">{t.asyncInterview.completed}</SelectItem>
-            <SelectItem value="EXPIRED">{t.asyncInterview.expired}</SelectItem>
-            <SelectItem value="CANCELLED">{t.asyncInterview.cancelled}</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={jobFilter} onValueChange={setJobFilter}>
-          <SelectTrigger className="w-[180px] h-9">
-            <SelectValue placeholder={t.asyncInterview.filterByJob} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t.asyncInterview.filterByJob}</SelectItem>
-            {uniqueJobs.map((job) => (
-              <SelectItem key={job} value={job}>{job}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Interviews Table */}
-      {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-muted" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-muted rounded w-1/3" />
-                    <div className="h-3 bg-muted rounded w-1/2" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-20" />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-28" />
           ))}
         </div>
-      ) : filteredInterviews.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Video className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-medium">{t.asyncInterview.noInterviews}</h3>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-border/50">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs">{t.asyncInterview.candidate}</TableHead>
-                    <TableHead className="text-xs">{t.asyncInterview.job}</TableHead>
-                    <TableHead className="text-xs">{t.asyncInterview.questions}</TableHead>
-                    <TableHead className="text-xs">{t.asyncInterview.responseDeadline}</TableHead>
-                    <TableHead className="text-xs">{t.asyncInterview.status}</TableHead>
-                    <TableHead className="text-xs">{t.asyncInterview.aiScore}</TableHead>
-                    <TableHead className="text-xs">{t.asyncInterview.actions}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInterviews.map((vi) => {
-                    const sConfig = statusConfig[vi.status] || statusConfig.PENDING;
-                    const SIcon = sConfig.icon;
-                    const parsedQuestions = parseQuestions(vi.questions);
-                    const avgScore = getInterviewAvgScore(vi);
-                    const isDeadlinePassed = vi.responseDeadline && new Date(vi.responseDeadline) < new Date() && vi.status === 'PENDING';
+        <Skeleton className="h-80" />
+      </div>
+    );
+  }
 
-                    return (
-                      <TableRow key={vi.id} className="hover:bg-muted/5">
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Avatar className="w-8 h-8">
-                              <AvatarFallback className="bg-teal-100 text-blue-700 text-[10px]">
-                                {getInitials(vi.application.candidate.user.name)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium truncate max-w-[140px]">
-                                {vi.application.candidate.user.name}
-                              </p>
-                              <p className="text-xs text-muted-foreground truncate max-w-[140px]">
-                                {vi.title}
-                              </p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">{vi.application.job.title}</TableCell>
-                        <TableCell className="text-sm">{parsedQuestions.length}</TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {formatDate(vi.responseDeadline)}
-                            {isDeadlinePassed && (
-                              <p className="text-xs text-red-500">{t.asyncInterview.deadlinePassed}</p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              'text-[10px] px-1.5 py-0 font-medium',
-                              sConfig.color,
-                              sConfig.bgColor,
-                              sConfig.borderColor
-                            )}
-                          >
-                            <SIcon className="w-3 h-3 me-1" />
-                            {getStatusLabel(vi.status)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {avgScore !== null ? (
-                            <span className={cn(
-                              'text-sm font-bold',
-                              avgScore >= 85 ? 'text-emerald-600' :
-                              avgScore >= 70 ? 'text-blue-600' :
-                              'text-amber-600'
-                            )}>
-                              {avgScore}%
-                            </span>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            {(vi.status === 'COMPLETED' || vi.status === 'IN_PROGRESS') && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-slate-50"
-                                onClick={() => openResponsesDialog(vi)}
-                              >
-                                <Eye className="w-3 h-3 me-1" />
-                                {t.asyncInterview.viewResponses}
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Video interviews</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Assign asynchronous interviews to real applications and review submitted
+            responses.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void load(true)}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="me-2 h-4 w-4" />
+            )}
+            Refresh
+          </Button>
 
-      {/* Create Interview Dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-[640px] max-h-[85vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Video className="h-5 w-5 text-blue-600" />
-              {t.asyncInterview.createInterview}
-            </DialogTitle>
-            <DialogDescription>
-              {t.asyncInterview.subtitle}
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="max-h-[60vh] pe-2">
-            <div className="space-y-4 py-2">
-              {/* Select Application */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">{t.asyncInterview.selectApplication}</Label>
-                <Select
-                  value={createForm.applicationId}
-                  onValueChange={(v) => setCreateForm((prev) => ({ ...prev, applicationId: v }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t.asyncInterview.selectApplication} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="app-1">Select an application...</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" disabled={eligibleApplications.length === 0}>
+                <Plus className="me-2 h-4 w-4" />
+                Assign interview
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Assign a video interview</DialogTitle>
+                <DialogDescription>
+                  The candidate receives a portal notification after this assignment is
+                  created.
+                </DialogDescription>
+              </DialogHeader>
 
-              {/* Title */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">{t.asyncInterview.interviewTitle} *</Label>
-                <Input
-                  placeholder={t.asyncInterview.interviewTitle}
-                  value={createForm.title}
-                  onChange={(e) => setCreateForm((prev) => ({ ...prev, title: e.target.value }))}
-                />
-              </div>
+              <div className="space-y-5 py-2">
+                <div className="space-y-2">
+                  <Label>Application *</Label>
+                  <Select
+                    value={form.applicationId}
+                    onValueChange={(value) => setField('applicationId', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a candidate and role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {eligibleApplications.map((application) => (
+                        <SelectItem key={application.id} value={application.id}>
+                          {application.candidate.user.name} — {application.job.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Description */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">{t.asyncInterview.description}</Label>
-                <Textarea
-                  placeholder={t.asyncInterview.description}
-                  value={createForm.description}
-                  onChange={(e) => setCreateForm((prev) => ({ ...prev, description: e.target.value }))}
-                  rows={2}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label>Interview title *</Label>
+                  <Input
+                    value={form.title}
+                    onChange={(event) => setField('title', event.target.value)}
+                    placeholder="Frontend engineering interview"
+                  />
+                </div>
 
-              {/* Questions */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">{t.asyncInterview.questions} *</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs border-slate-300 text-blue-600 hover:bg-slate-50"
-                      onClick={handleGenerateQuestions}
-                      disabled={generatingAI}
-                    >
-                      {generatingAI ? (
-                        <Loader2 className="w-3 h-3 me-1 animate-spin" />
-                      ) : (
-                        <Sparkles className="w-3 h-3 me-1" />
-                      )}
-                      {generatingAI ? t.asyncInterview.generating : t.asyncInterview.generateQuestions}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={addQuestion}
-                    >
-                      <Plus className="w-3 h-3 me-1" />
-                      {t.asyncInterview.addQuestion}
-                    </Button>
+                <div className="space-y-2">
+                  <Label>Instructions</Label>
+                  <Textarea
+                    value={form.description}
+                    onChange={(event) =>
+                      setField('description', event.target.value)
+                    }
+                    rows={3}
+                    placeholder="Explain what the candidate should prepare."
+                  />
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2 sm:col-span-1">
+                    <Label>Deadline</Label>
+                    <Input
+                      type="datetime-local"
+                      value={form.responseDeadline}
+                      onChange={(event) =>
+                        setField('responseDeadline', event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Retakes</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="5"
+                      value={form.maxRetakes}
+                      onChange={(event) =>
+                        setField('maxRetakes', event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Seconds per question</Label>
+                    <Input
+                      type="number"
+                      min="30"
+                      max="900"
+                      value={form.timePerQuestion}
+                      onChange={(event) =>
+                        setField('timePerQuestion', event.target.value)
+                      }
+                    />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  {createForm.questions.map((q, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <div className="flex-1 space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-muted-foreground w-5">{idx + 1}.</span>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Questions *</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setField('questions', [
+                          ...form.questions,
+                          { text: '', type: 'behavioral' },
+                        ])
+                      }
+                    >
+                      <Plus className="me-1 h-3 w-3" />
+                      Add question
+                    </Button>
+                  </div>
+
+                  {form.questions.map((question, index) => (
+                    <div key={index} className="rounded-xl border p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 space-y-3">
+                          <Input
+                            value={question.text}
+                            onChange={(event) =>
+                              updateQuestion(index, 'text', event.target.value)
+                            }
+                            placeholder={`Question ${index + 1}`}
+                          />
                           <Select
-                            value={q.type}
-                            onValueChange={(v) => updateQuestion(idx, 'type', v)}
+                            value={question.type}
+                            onValueChange={(value) =>
+                              updateQuestion(index, 'type', value)
+                            }
                           >
-                            <SelectTrigger className="w-[120px] h-7 text-xs">
+                            <SelectTrigger className="w-full sm:w-56">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {questionTypeOptions.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {t.asyncInterview[opt.labelKey as keyof typeof t.asyncInterview]}
-                                </SelectItem>
-                              ))}
+                              <SelectItem value="intro">Introduction</SelectItem>
+                              <SelectItem value="behavioral">Behavioral</SelectItem>
+                              <SelectItem value="technical">Technical</SelectItem>
+                              <SelectItem value="situational">Situational</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
-                        <Input
-                          placeholder={`${t.asyncInterview.questionType}: ${getQuestionTypeLabel(q.type)}`}
-                          value={q.text}
-                          onChange={(e) => updateQuestion(idx, 'text', e.target.value)}
-                          className="text-sm"
-                        />
-                      </div>
-                      {createForm.questions.length > 1 && (
                         <Button
+                          type="button"
                           variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 mt-5"
-                          onClick={() => removeQuestion(idx)}
+                          size="icon"
+                          className="text-destructive"
+                          disabled={form.questions.length === 1}
+                          onClick={() => removeQuestion(index)}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                      )}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <Separator />
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setCreateOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => void createInterview()} disabled={submitting}>
+                  {submitting && (
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  )}
+                  Assign interview
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
 
-              {/* Response Deadline */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">{t.asyncInterview.responseDeadline}</Label>
-                <Input
-                  type="date"
-                  value={createForm.responseDeadline}
-                  onChange={(e) => setCreateForm((prev) => ({ ...prev, responseDeadline: e.target.value }))}
-                />
-              </div>
+      {eligibleApplications.length === 0 && applications.length > 0 && (
+        <Card className="border-amber-500/40 bg-amber-500/5">
+          <CardContent className="flex gap-3 p-4">
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+            <p className="text-sm text-muted-foreground">
+              Every eligible application already has an active assignment, or the
+              remaining applications are in terminal states.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-              {/* Max Retakes & Time per Question */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">{t.asyncInterview.maxRetakes}</Label>
-                  <Select
-                    value={String(createForm.maxRetakes)}
-                    onValueChange={(v) => setCreateForm((prev) => ({ ...prev, maxRetakes: parseInt(v) }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">1</SelectItem>
-                      <SelectItem value="2">2</SelectItem>
-                      <SelectItem value="3">3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">{t.asyncInterview.timePerQuestion}</Label>
-                  <Select
-                    value={String(createForm.timePerQuestion)}
-                    onValueChange={(v) => setCreateForm((prev) => ({ ...prev, timePerQuestion: parseInt(v) }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="30">30 {t.asyncInterview.seconds}</SelectItem>
-                      <SelectItem value="60">60 {t.asyncInterview.seconds}</SelectItem>
-                      <SelectItem value="90">90 {t.asyncInterview.seconds}</SelectItem>
-                      <SelectItem value="120">120 {t.asyncInterview.seconds}</SelectItem>
-                      <SelectItem value="0">{t.asyncInterview.unlimited}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          </ScrollArea>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              {t.common.cancel}
+      {error && (
+        <Card className="border-destructive/40">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button size="sm" variant="outline" onClick={() => void load()}>
+              Retry
             </Button>
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={handleCreate}
-              disabled={createSubmitting || !createForm.title || createForm.questions.some((q) => !q.text.trim())}
-            >
-              {createSubmitting ? <Loader2 className="w-4 h-4 me-2 animate-spin" /> : null}
-              {t.asyncInterview.createInterview}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* View Responses Dialog */}
-      <Dialog open={responsesOpen} onOpenChange={setResponsesOpen}>
-        <DialogContent className="sm:max-w-[640px] max-h-[85vh]">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ['Total assignments', stats.total, Video],
+          ['Pending', stats.pending, CalendarClock],
+          ['In progress', stats.active, Clock],
+          ['Completed', stats.completed, CheckCircle2],
+        ].map(([label, value, Icon]) => (
+          <Card key={String(label)}>
+            <CardContent className="flex items-center justify-between p-5">
+              <div>
+                <p className="text-sm text-muted-foreground">{String(label)}</p>
+                <p className="mt-2 text-3xl font-bold">{String(value)}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Input
+          className="min-w-0 flex-1"
+          placeholder="Search candidate, role, or interview title"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-52">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="IN_PROGRESS">In progress</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
+            <SelectItem value="EXPIRED">Expired</SelectItem>
+            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <Video className="mx-auto h-10 w-10 text-muted-foreground" />
+            <p className="mt-3 font-medium">No video interviews found</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Assign an interview from a real application to begin.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {filtered.map((interview) => {
+            const candidate = interview.application?.candidate.user;
+            const score = averageScore(interview);
+            const canCancel = ['PENDING', 'IN_PROGRESS'].includes(interview.status);
+
+            return (
+              <Card key={interview.id}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={candidate?.image || undefined} />
+                        <AvatarFallback>
+                          {initials(candidate?.name || 'Candidate')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <CardTitle className="truncate text-base">
+                          {interview.title}
+                        </CardTitle>
+                        <p className="truncate text-sm text-muted-foreground">
+                          {candidate?.name || 'Candidate'} ·{' '}
+                          {interview.application?.job.title || 'Role'}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className={statusStyle[interview.status]}>
+                      {interview.status.replaceAll('_', ' ')}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div className="rounded-lg border p-3">
+                      <p className="text-xs text-muted-foreground">Questions</p>
+                      <p className="mt-1 font-semibold">
+                        {interview.questions.length}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border p-3">
+                      <p className="text-xs text-muted-foreground">Responses</p>
+                      <p className="mt-1 font-semibold">
+                        {interview.responses.length}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border p-3">
+                      <p className="text-xs text-muted-foreground">AI score</p>
+                      <p className="mt-1 font-semibold">
+                        {score === null ? '—' : `${score}%`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <CalendarClock className="h-3.5 w-3.5" />
+                      Deadline{' '}
+                      {interview.responseDeadline
+                        ? new Date(interview.responseDeadline).toLocaleString()
+                        : 'not set'}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <UserRound className="h-3.5 w-3.5" />
+                      {candidate?.email || 'No email'}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-end gap-2 border-t pt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSelected(interview)}
+                    >
+                      <Eye className="me-2 h-4 w-4" />
+                      View
+                    </Button>
+                    {canCancel && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive"
+                        disabled={cancellingId === interview.id}
+                        onClick={() => void cancelInterview(interview)}
+                      >
+                        {cancellingId === interview.id ? (
+                          <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <XCircle className="me-2 h-4 w-4" />
+                        )}
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-blue-600" />
-              {t.asyncInterview.viewResponses}
-            </DialogTitle>
+            <DialogTitle>{selected?.title}</DialogTitle>
             <DialogDescription>
-              {selectedInterview?.title} - {selectedInterview?.application.candidate.user.name}
+              {selected?.application?.candidate.user.name} ·{' '}
+              {selected?.application?.job.title}
             </DialogDescription>
           </DialogHeader>
-          {selectedInterview && (
-            <ScrollArea className="max-h-[60vh] pe-2">
-              <div className="space-y-4 py-2">
-                {parseQuestions(selectedInterview.questions).map((question, idx) => {
-                  const response = selectedInterview.responses.find((r) => r.questionIndex === idx);
-                  return (
-                    <Card key={idx} className="border-border/50">
-                      <CardContent className="p-4 space-y-3">
-                        {/* Question */}
-                        <div className="flex items-start gap-2">
-                          <Badge variant="outline" className="text-[10px] bg-slate-50 text-blue-700 border-slate-200/30 shrink-0">
-                            {getQuestionTypeLabel(question.type)}
-                          </Badge>
-                          <p className="text-sm font-medium">{question.text}</p>
-                        </div>
-
-                        {/* Video Placeholder */}
-                        {response ? (
-                          <div className="relative rounded-lg overflow-hidden bg-gradient-to-br from-teal-900/80 to-emerald-900/80 dark:from-teal-950 dark:to-emerald-950 aspect-video flex items-center justify-center">
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                            <div className="relative flex flex-col items-center gap-2">
-                              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                                <Play className="w-5 h-5 text-white ms-0.5" />
-                              </div>
-                              {response.duration && (
-                                <span className="text-xs text-white/80">{response.duration}s</span>
-                              )}
-                            </div>
-                            {response.retakes > 0 && (
-                              <div className="absolute top-2 end-2 flex items-center gap-1 text-xs text-white/70 bg-black/30 rounded px-1.5 py-0.5">
-                                <RotateCcw className="w-3 h-3" />
-                                {response.retakes} {t.asyncInterview.retake.toLowerCase()}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="relative rounded-lg overflow-hidden bg-muted/30 aspect-video flex items-center justify-center border border-dashed border-border/50">
-                            <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                              <Video className="w-8 h-8 opacity-30" />
-                              <span className="text-xs">No response yet</span>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* AI Score & Feedback */}
-                        {response && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-muted-foreground">{t.asyncInterview.aiScore}:</span>
-                                {response.aiScore !== null ? (
-                                  <span className={cn(
-                                    'text-sm font-bold',
-                                    response.aiScore >= 85 ? 'text-emerald-600' :
-                                    response.aiScore >= 70 ? 'text-blue-600' :
-                                    'text-amber-600'
-                                  )}>
-                                    {response.aiScore}%
-                                  </span>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">-</span>
-                                )}
-                              </div>
-                              {response.aiFeedback === null && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-6 px-2 text-[10px] border-slate-300 text-blue-600 hover:bg-slate-50"
-                                  onClick={() => handleAnalyze(selectedInterview.id, idx)}
-                                  disabled={analyzingIdx === idx}
-                                >
-                                  {analyzingIdx === idx ? (
-                                    <Loader2 className="w-3 h-3 me-1 animate-spin" />
-                                  ) : (
-                                    <Sparkles className="w-3 h-3 me-1" />
-                                  )}
-                                  {analyzingIdx === idx ? t.asyncInterview.analyzing : t.asyncInterview.analyzeWithAI}
-                                </Button>
-                              )}
-                            </div>
-                            {response.aiFeedback ? (
-                              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/50/30">
-                                <p className="text-xs font-medium text-blue-700 mb-1">{t.asyncInterview.aiFeedback}</p>
-                                <p className="text-xs text-muted-foreground">{response.aiFeedback}</p>
-                              </div>
-                            ) : (
-                              <p className="text-xs text-muted-foreground italic">{t.asyncInterview.noFeedback}</p>
-                            )}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+          <div className="space-y-5">
+            {selected?.description && (
+              <p className="text-sm leading-6 text-muted-foreground">
+                {selected.description}
+              </p>
+            )}
+            <div>
+              <p className="mb-2 text-sm font-medium">Questions</p>
+              <div className="space-y-2">
+                {selected?.questions.map((question, index) => (
+                  <div key={index} className="rounded-lg border p-3 text-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <p>
+                        {index + 1}. {question.text}
+                      </p>
+                      <Badge variant="outline">{question.type}</Badge>
+                    </div>
+                    {selected.responses.find(
+                      (response) => response.questionIndex === index,
+                    )?.aiFeedback && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {
+                          selected.responses.find(
+                            (response) => response.questionIndex === index,
+                          )?.aiFeedback
+                        }
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
-            </ScrollArea>
-          )}
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
