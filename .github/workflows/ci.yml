@@ -43,6 +43,14 @@ jobs:
         # install its compatible AJV 6 runtime while the app keeps AJV 8.
         run: bun install
 
+      - name: Export normalized lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: normalized-bun-lock-${{ github.event.pull_request.head.sha || github.sha }}
+          path: bun.lock
+          retention-days: 1
+          if-no-files-found: error
+
       - name: Generate Prisma client
         run: bunx prisma generate
 
