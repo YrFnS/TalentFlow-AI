@@ -35,6 +35,26 @@ type GroupRates = Record<
   string,
   { applied: number; selected: number; rate: number }
 >;
+type ImpactDetail = {
+  group: string;
+  applied: number;
+  selected: number;
+  selectionRate: number;
+  thresholdRate: number;
+  ratio: number;
+  passes: boolean;
+};
+type AttributeImpact = {
+  hasAdverseImpact: boolean;
+  referenceRate: number;
+  thresholdRatio: number;
+  details: ImpactDetail[];
+};
+type StoredAdverseImpact = {
+  selectionRateRule?: Record<string, AttributeImpact>;
+  hasAnyAdverseImpact?: boolean;
+  disclaimer?: string;
+};
 
 function parseJson<T>(value: string, fallback: T): T {
   try {
@@ -114,7 +134,10 @@ function groupStats(
   );
 }
 
-function applySelectionRateRule(rates: GroupRates, thresholdRatio: number) {
+function applySelectionRateRule(
+  rates: GroupRates,
+  thresholdRatio: number,
+): AttributeImpact {
   const entries = Object.entries(rates);
   if (entries.length < 2) {
     return {
@@ -149,10 +172,7 @@ function applySelectionRateRule(rates: GroupRates, thresholdRatio: number) {
 }
 
 function complianceScore(
-  impacts: Record<
-    string,
-    { details: Array<{ passes: boolean }> }
-  >,
+  impacts: Record<string, { details: Array<{ passes: boolean }> }>,
 ): number {
   const details = Object.values(impacts).flatMap((impact) => impact.details);
   if (details.length === 0) return 100;
@@ -215,16 +235,18 @@ function serializeAudit(audit: {
   status: string;
   createdAt: Date;
 }) {
-  const impacts = parseJson<
-    Record<string, { details: Array<{ passes: boolean }> }>
-  >(audit.adverseImpact, {});
+  const adverseImpact = parseJson<StoredAdverseImpact>(audit.adverseImpact, {});
+  const selectionRateRule = adverseImpact.selectionRateRule || {};
   return {
     ...audit,
     dateRange: parseJson<Record<string, string>>(audit.dateRange, {}),
     metrics: parseJson<Record<string, unknown>>(audit.metrics, {}),
-    adverseImpact: impacts,
+    adverseImpact: {
+      ...adverseImpact,
+      selectionRateRule,
+    },
     recommendations: parseJson<string[]>(audit.recommendations, []),
-    complianceScore: complianceScore(impacts),
+    complianceScore: complianceScore(selectionRateRule),
   };
 }
 
@@ -295,10 +317,7 @@ export async function POST(request: NextRequest) {
       config.protectedAttributes,
     );
     const metrics: Record<string, GroupRates> = {};
-    const impacts: Record<
-      string,
-      ReturnType<typeof applySelectionRateRule>
-    > = {};
+    const impacts: Record<string, AttributeImpact> = {};
 
     for (const attribute of protectedAttributes) {
       const rates = groupStats(
@@ -315,7 +334,7 @@ export async function POST(request: NextRequest) {
     const hasAnyAdverseImpact = Object.values(impacts).some(
       (impact) => impact.hasAdverseImpact,
     );
-    const adverseImpact = {
+    const adverseImpact: StoredAdverseImpact = {
       selectionRateRule: impacts,
       hasAnyAdverseImpact,
       disclaimer:
