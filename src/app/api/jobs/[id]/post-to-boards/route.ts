@@ -1,3 +1,4 @@
+import type { JobBoardPosting } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import {
@@ -78,7 +79,7 @@ export async function POST(
     }
 
     const postings = await db.$transaction(async (transaction) => {
-      const records = [];
+      const records: JobBoardPosting[] = [];
       for (const board of boards) {
         const existing = await transaction.jobBoardPosting.findUnique({
           where: { jobId_boardId: { jobId, boardId: board.id } },
