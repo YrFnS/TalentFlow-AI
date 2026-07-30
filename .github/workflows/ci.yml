@@ -38,10 +38,7 @@ jobs:
           bun-version: 1.3.4
 
       - name: Install dependencies
-        # The repository lockfile predates the removal of an incompatible global
-        # AJV override. Bun normalizes that dependency graph during installation;
-        # the generated lockfile should be committed in a dedicated dependency PR.
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Generate Prisma client
         run: bunx prisma generate
