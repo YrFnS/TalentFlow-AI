@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import {
   AlertCircle,
   CalendarClock,
@@ -101,6 +102,12 @@ type CreateForm = {
   questions: InterviewQuestion[];
 };
 
+type StatCard = {
+  label: string;
+  value: number;
+  icon: LucideIcon;
+};
+
 const initialForm: CreateForm = {
   applicationId: '',
   title: '',
@@ -125,7 +132,7 @@ const statusStyle: Record<string, string> = {
   CANCELLED: 'bg-muted text-muted-foreground',
 };
 
-function initials(name: string) {
+function initials(name: string): string {
   return name
     .split(' ')
     .map((part) => part[0])
@@ -228,8 +235,8 @@ export default function VideoInterviewsContent() {
       if (statusFilter !== 'all' && interview.status !== statusFilter) {
         return false;
       }
-
       if (!term) return true;
+
       return (
         interview.title.toLowerCase().includes(term) ||
         interview.application?.candidate.user.name
@@ -254,6 +261,13 @@ export default function VideoInterviewsContent() {
     }),
     [interviews],
   );
+
+  const statCards: StatCard[] = [
+    { label: 'Total assignments', value: stats.total, icon: Video },
+    { label: 'Pending', value: stats.pending, icon: CalendarClock },
+    { label: 'In progress', value: stats.active, icon: Clock },
+    { label: 'Completed', value: stats.completed, icon: CheckCircle2 },
+  ];
 
   function setField<K extends keyof CreateForm>(key: K, value: CreateForm[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -338,13 +352,9 @@ export default function VideoInterviewsContent() {
   }
 
   async function cancelInterview(interview: VideoInterview) {
-    if (
-      !confirm(
-        `Cancel “${interview.title}” for ${interview.application?.candidate.user.name || 'this candidate'}?`,
-      )
-    ) {
-      return;
-    }
+    const candidateName =
+      interview.application?.candidate.user.name || 'this candidate';
+    if (!confirm(`Cancel “${interview.title}” for ${candidateName}?`)) return;
 
     setCancellingId(interview.id);
     try {
@@ -395,8 +405,8 @@ export default function VideoInterviewsContent() {
         <div>
           <h1 className="text-2xl font-bold">Video interviews</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Assign asynchronous interviews to real applications and review submitted
-            responses.
+            Assign asynchronous interviews to real applications and review
+            submitted responses.
           </p>
         </div>
         <div className="flex gap-2">
@@ -425,8 +435,8 @@ export default function VideoInterviewsContent() {
               <DialogHeader>
                 <DialogTitle>Assign a video interview</DialogTitle>
                 <DialogDescription>
-                  The candidate receives a portal notification after this assignment is
-                  created.
+                  The candidate receives a portal notification after the
+                  assignment is created.
                 </DialogDescription>
               </DialogHeader>
 
@@ -472,7 +482,7 @@ export default function VideoInterviewsContent() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="space-y-2 sm:col-span-1">
+                  <div className="space-y-2">
                     <Label>Deadline</Label>
                     <Input
                       type="datetime-local"
@@ -592,8 +602,8 @@ export default function VideoInterviewsContent() {
           <CardContent className="flex gap-3 p-4">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
             <p className="text-sm text-muted-foreground">
-              Every eligible application already has an active assignment, or the
-              remaining applications are in terminal states.
+              Every eligible application already has an active assignment, or
+              the remaining applications are in terminal states.
             </p>
           </CardContent>
         </Card>
@@ -611,17 +621,12 @@ export default function VideoInterviewsContent() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ['Total assignments', stats.total, Video],
-          ['Pending', stats.pending, CalendarClock],
-          ['In progress', stats.active, Clock],
-          ['Completed', stats.completed, CheckCircle2],
-        ].map(([label, value, Icon]) => (
-          <Card key={String(label)}>
+        {statCards.map(({ label, value, icon: Icon }) => (
+          <Card key={label}>
             <CardContent className="flex items-center justify-between p-5">
               <div>
-                <p className="text-sm text-muted-foreground">{String(label)}</p>
-                <p className="mt-2 text-3xl font-bold">{String(value)}</p>
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <p className="mt-2 text-3xl font-bold">{value}</p>
               </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
@@ -668,7 +673,9 @@ export default function VideoInterviewsContent() {
           {filtered.map((interview) => {
             const candidate = interview.application?.candidate.user;
             const score = averageScore(interview);
-            const canCancel = ['PENDING', 'IN_PROGRESS'].includes(interview.status);
+            const canCancel = ['PENDING', 'IN_PROGRESS'].includes(
+              interview.status,
+            );
 
             return (
               <Card key={interview.id}>
@@ -765,7 +772,12 @@ export default function VideoInterviewsContent() {
         </div>
       )}
 
-      <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
+      <Dialog
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+      >
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{selected?.title}</DialogTitle>
@@ -783,27 +795,26 @@ export default function VideoInterviewsContent() {
             <div>
               <p className="mb-2 text-sm font-medium">Questions</p>
               <div className="space-y-2">
-                {selected?.questions.map((question, index) => (
-                  <div key={index} className="rounded-lg border p-3 text-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <p>
-                        {index + 1}. {question.text}
-                      </p>
-                      <Badge variant="outline">{question.type}</Badge>
+                {selected?.questions.map((question, index) => {
+                  const response = selected.responses.find(
+                    (item) => item.questionIndex === index,
+                  );
+                  return (
+                    <div key={index} className="rounded-lg border p-3 text-sm">
+                      <div className="flex items-start justify-between gap-3">
+                        <p>
+                          {index + 1}. {question.text}
+                        </p>
+                        <Badge variant="outline">{question.type}</Badge>
+                      </div>
+                      {response?.aiFeedback && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {response.aiFeedback}
+                        </p>
+                      )}
                     </div>
-                    {selected.responses.find(
-                      (response) => response.questionIndex === index,
-                    )?.aiFeedback && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {
-                          selected.responses.find(
-                            (response) => response.questionIndex === index,
-                          )?.aiFeedback
-                        }
-                      </p>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
