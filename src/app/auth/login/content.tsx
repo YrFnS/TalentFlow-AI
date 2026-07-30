@@ -12,6 +12,7 @@ import {
   GitBranch,
   Globe,
   Loader2,
+  ShieldCheck,
   Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,6 +20,14 @@ import { useI18n } from '@/store/i18n-store';
 import { useAuth, type AuthUser } from '@/store/auth-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,10 +66,32 @@ function normalizeRole(value: unknown): AuthUser['role'] {
   return roles.has(role) ? role : 'CANDIDATE';
 }
 
-function destinationForRole(role: AuthUser['role']): string {
+function defaultDestination(role: AuthUser['role']): string {
   if (role === 'CANDIDATE') return '/candidate';
   if (['SUPER_ADMIN', 'ADMIN', 'MODERATOR'].includes(role)) return '/admin';
   return '/company';
+}
+
+function safeCallbackDestination(role: AuthUser['role']): string {
+  if (typeof window === 'undefined') return defaultDestination(role);
+
+  const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl');
+  if (!callbackUrl) return defaultDestination(role);
+
+  try {
+    const url = new URL(callbackUrl, window.location.origin);
+    if (
+      url.origin === window.location.origin &&
+      url.pathname !== '/auth/login' &&
+      !url.pathname.startsWith('/api/')
+    ) {
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+  } catch {
+    // Fall back to the role landing page.
+  }
+
+  return defaultDestination(role);
 }
 
 export default function LoginPage() {
@@ -74,6 +105,9 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<'google' | 'linkedin' | null>(null);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [twoFactorOpen, setTwoFactorOpen] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [verifyingTwoFactor, setVerifyingTwoFactor] = useState(false);
 
   function validate(): boolean {
     const nextErrors: { email?: string; password?: string } = {};
@@ -117,10 +151,22 @@ export default function LoginPage() {
     };
   }
 
+  async function completeLogin() {
+    const user = await hydrateUser();
+    setUser(user);
+    toast.success(t.auth.signInSuccess);
+    router.replace(safeCallbackDestination(user.role));
+    router.refresh();
+  }
+
   async function handleSocialLogin(provider: 'google' | 'linkedin') {
     setSocialLoading(provider);
     try {
-      await signIn(provider, { callbackUrl: '/' });
+      const callbackUrl =
+        typeof window === 'undefined'
+          ? '/'
+          : new URLSearchParams(window.location.search).get('callbackUrl') || '/';
+      await signIn(provider, { callbackUrl });
     } catch {
       toast.error(t.socialLogin.socialLoginError);
       setSocialLoading(null);
@@ -139,16 +185,18 @@ export default function LoginPage() {
         redirect: false,
       });
 
+      if (result?.error?.includes('2FA_REQUIRED:')) {
+        setTwoFactorCode('');
+        setTwoFactorOpen(true);
+        return;
+      }
+
       if (!result?.ok || result.error) {
         toast.error(t.auth.invalidCredentials);
         return;
       }
 
-      const user = await hydrateUser();
-      setUser(user);
-      toast.success(t.auth.signInSuccess);
-      router.replace(destinationForRole(user.role));
-      router.refresh();
+      await completeLogin();
     } catch (reason) {
       toast.error(
         reason instanceof Error && reason.message
@@ -157,6 +205,43 @@ export default function LoginPage() {
       );
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleTwoFactorSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const code = twoFactorCode.trim();
+    if (!code) {
+      toast.error('Enter your authentication code or a backup code');
+      return;
+    }
+
+    setVerifyingTwoFactor(true);
+    try {
+      // NextAuth verifies both TOTP and backup codes. Calling the separate
+      // verification endpoint first would consume a backup code before the
+      // session is created, so the credential provider remains the single
+      // source of truth for this login attempt.
+      const result = await signIn('credentials', {
+        email: email.trim(),
+        password,
+        totpToken: code,
+        redirect: false,
+      });
+
+      if (!result?.ok || result.error) {
+        toast.error(result?.error || 'Invalid authentication code');
+        return;
+      }
+
+      setTwoFactorOpen(false);
+      await completeLogin();
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error ? reason.message : 'Unable to verify the code',
+      );
+    } finally {
+      setVerifyingTwoFactor(false);
     }
   }
 
@@ -383,6 +468,58 @@ export default function LoginPage() {
           </Card>
         </div>
       </main>
+
+      <Dialog
+        open={twoFactorOpen}
+        onOpenChange={(open) => {
+          if (!verifyingTwoFactor) setTwoFactorOpen(open);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <form onSubmit={handleTwoFactorSubmit}>
+            <DialogHeader>
+              <span className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <ShieldCheck className="h-5 w-5" />
+              </span>
+              <DialogTitle>Two-factor authentication</DialogTitle>
+              <DialogDescription>
+                Enter the current code from your authenticator app. A remaining
+                backup code also works here and will be consumed once.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="py-5">
+              <Label htmlFor="two-factor-code">Authentication code</Label>
+              <Input
+                id="two-factor-code"
+                className="mt-2 font-mono tracking-widest"
+                autoComplete="one-time-code"
+                autoFocus
+                value={twoFactorCode}
+                onChange={(event) => setTwoFactorCode(event.target.value)}
+                placeholder="123456"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={verifyingTwoFactor}
+                onClick={() => setTwoFactorOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={verifyingTwoFactor}>
+                {verifyingTwoFactor && (
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                )}
+                Verify and sign in
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
