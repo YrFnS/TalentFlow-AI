@@ -66,30 +66,28 @@ export async function GET(request: NextRequest) {
       ),
     ];
 
-    const [candidates, campaigns] = await Promise.all([
-      candidateIds.length
-        ? db.candidateProfile.findMany({
-            where: { id: { in: candidateIds } },
-            select: {
-              id: true,
-              currentTitle: true,
-              user: { select: { name: true, image: true } },
-            },
-          })
-        : Promise.resolve([]),
-      campaignIds.length
-        ? db.sourcingCampaign.findMany({
-            where: { id: { in: campaignIds }, companyId },
-            select: { id: true, name: true },
-          })
-        : Promise.resolve([]),
-    ]);
+    const candidates = candidateIds.length
+      ? await db.candidateProfile.findMany({
+          where: { id: { in: candidateIds } },
+          select: {
+            id: true,
+            currentTitle: true,
+            user: { select: { name: true, image: true } },
+          },
+        })
+      : [];
+    const campaigns = campaignIds.length
+      ? await db.sourcingCampaign.findMany({
+          where: { id: { in: campaignIds }, companyId },
+          select: { id: true, name: true },
+        })
+      : [];
 
     const candidateMap = new Map(
-      candidates.map((candidate) => [candidate.id, candidate]),
+      candidates.map((candidate) => [candidate.id, candidate] as const),
     );
     const campaignMap = new Map(
-      campaigns.map((campaign) => [campaign.id, campaign.name]),
+      campaigns.map((campaign) => [campaign.id, campaign.name] as const),
     );
 
     return NextResponse.json({
