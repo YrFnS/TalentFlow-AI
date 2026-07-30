@@ -1,12 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
 import {
   Briefcase,
-  CheckCircle2,
   Eye,
-  FileText,
   Loader2,
   Mail,
   MapPin,
@@ -34,7 +32,6 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
@@ -53,7 +50,10 @@ type CandidateApplication = {
   status: string;
   matchScore: number | null;
   appliedAt: string;
-  job: { id: string; title: string };
+  job: {
+    id: string;
+    title: string;
+  };
 };
 
 type Candidate = {
@@ -65,7 +65,6 @@ type Candidate = {
   experienceYears: number | null;
   currentTitle: string | null;
   availability: string | null;
-  resumeUrl: string | null;
   createdAt: string;
   user: {
     id: string;
@@ -76,21 +75,23 @@ type Candidate = {
   applications: CandidateApplication[];
 };
 
-const AVAILABILITY_LABEL: Record<string, string> = {
+type StatCard = {
+  label: string;
+  value: number;
+  icon: LucideIcon;
+};
+
+const availabilityLabels: Record<string, string> = {
   open: 'Open to work',
   employed: 'Employed',
   not_looking: 'Not looking',
+  'not-looking': 'Not looking',
+  'open-offers': 'Open to offers',
 };
 
-const AVAILABILITY_STYLE: Record<string, string> = {
-  open: 'bg-emerald-500/10 text-emerald-700',
-  employed: 'bg-primary/10 text-primary',
-  not_looking: 'bg-muted text-muted-foreground',
-};
-
-const STATUS_STYLE: Record<string, string> = {
-  APPLIED: 'bg-primary/10 text-primary',
-  SCREENING: 'bg-cyan-500/10 text-cyan-700',
+const statusStyles: Record<string, string> = {
+  APPLIED: 'bg-slate-500/10 text-slate-700',
+  SCREENING: 'bg-blue-500/10 text-blue-700',
   INTERVIEW: 'bg-amber-500/10 text-amber-700',
   OFFERED: 'bg-violet-500/10 text-violet-700',
   HIRED: 'bg-emerald-500/10 text-emerald-700',
@@ -98,7 +99,7 @@ const STATUS_STYLE: Record<string, string> = {
   WITHDRAWN: 'bg-muted text-muted-foreground',
 };
 
-function initials(name: string) {
+function initials(name: string): string {
   return name
     .split(' ')
     .map((part) => part[0])
@@ -109,33 +110,37 @@ function initials(name: string) {
 
 function parseSkills(value: string | null): string[] {
   if (!value) return [];
+
   try {
     const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
   } catch {
-    return value
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
+    // Support legacy comma-separated values.
   }
+
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function bestMatch(candidate: Candidate): number | null {
   const scores = candidate.applications
     .map((application) => application.matchScore)
-    .filter((score): score is number => score != null);
+    .filter((score): score is number => score !== null);
   return scores.length ? Math.max(...scores) : null;
 }
 
 function latestApplication(candidate: Candidate): CandidateApplication | null {
-  return [...candidate.applications].sort(
-    (left, right) =>
-      new Date(right.appliedAt).getTime() - new Date(left.appliedAt).getTime(),
-  )[0] || null;
+  return candidate.applications[0] || null;
 }
 
-export default function CandidatesPage() {
-  const router = useRouter();
+export default function CandidatesContent() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -143,7 +148,6 @@ export default function CandidatesPage() {
   const [query, setQuery] = useState('');
   const [availability, setAvailability] = useState('all');
   const [selected, setSelected] = useState<Candidate | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const load = useCallback(async (refresh = false) => {
     if (refresh) setRefreshing(true);
@@ -160,7 +164,9 @@ export default function CandidatesPage() {
       const data = await response.json();
       setCandidates(Array.isArray(data) ? data : []);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Unable to load candidates');
+      setError(
+        reason instanceof Error ? reason.message : 'Unable to load candidates',
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -174,9 +180,14 @@ export default function CandidatesPage() {
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
     return candidates.filter((candidate) => {
-      if (availability !== 'all' && candidate.availability !== availability) {
+      const normalizedAvailability = candidate.availability || 'open';
+      if (
+        availability !== 'all' &&
+        normalizedAvailability !== availability
+      ) {
         return false;
       }
+
       if (!term) return true;
       return (
         candidate.user.name.toLowerCase().includes(term) ||
@@ -193,23 +204,29 @@ export default function CandidatesPage() {
   const stats = useMemo(
     () => ({
       total: candidates.length,
-      open: candidates.filter((candidate) => candidate.availability === 'open').length,
+      open: candidates.filter(
+        (candidate) => (candidate.availability || 'open') === 'open',
+      ).length,
       interviewing: candidates.filter((candidate) =>
         candidate.applications.some(
           (application) => application.status === 'INTERVIEW',
         ),
       ).length,
       hired: candidates.filter((candidate) =>
-        candidate.applications.some((application) => application.status === 'HIRED'),
+        candidate.applications.some(
+          (application) => application.status === 'HIRED',
+        ),
       ).length,
     }),
     [candidates],
   );
 
-  function openDetails(candidate: Candidate) {
-    setSelected(candidate);
-    setDetailsOpen(true);
-  }
+  const statCards: StatCard[] = [
+    { label: 'Total candidates', value: stats.total, icon: Users },
+    { label: 'Open to work', value: stats.open, icon: UserSearch },
+    { label: 'Interviewing', value: stats.interviewing, icon: Briefcase },
+    { label: 'Hired', value: stats.hired, icon: UserRoundCheck },
+  ];
 
   if (loading) {
     return (
@@ -261,17 +278,12 @@ export default function CandidatesPage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ['Total candidates', stats.total, Users],
-          ['Open to work', stats.open, UserSearch],
-          ['Interviewing', stats.interviewing, Briefcase],
-          ['Hired', stats.hired, UserRoundCheck],
-        ].map(([label, value, Icon]) => (
-          <Card key={String(label)}>
+        {statCards.map(({ label, value, icon: Icon }) => (
+          <Card key={label}>
             <CardContent className="flex items-center justify-between p-5">
               <div>
-                <p className="text-sm text-muted-foreground">{String(label)}</p>
-                <p className="mt-2 text-3xl font-bold">{String(value)}</p>
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <p className="mt-2 text-3xl font-bold">{value}</p>
               </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
@@ -333,16 +345,21 @@ export default function CandidatesPage() {
                   const skills = parseSkills(candidate.skills);
                   const score = bestMatch(candidate);
                   const latest = latestApplication(candidate);
+
                   return (
                     <TableRow key={candidate.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-9 w-9">
                             <AvatarImage src={candidate.user.image || undefined} />
-                            <AvatarFallback>{initials(candidate.user.name)}</AvatarFallback>
+                            <AvatarFallback>
+                              {initials(candidate.user.name)}
+                            </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0">
-                            <p className="truncate font-medium">{candidate.user.name}</p>
+                            <p className="truncate text-sm font-medium">
+                              {candidate.user.name}
+                            </p>
                             <p className="truncate text-xs text-muted-foreground">
                               {candidate.currentTitle || candidate.user.email}
                             </p>
@@ -350,34 +367,32 @@ export default function CandidatesPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
                           <MapPin className="h-3.5 w-3.5" />
                           {candidate.location || 'Not provided'}
-                        </p>
+                        </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex max-w-64 flex-wrap gap-1.5">
+                        <div className="flex max-w-64 flex-wrap gap-1">
                           {skills.slice(0, 3).map((skill) => (
-                            <Badge key={skill} variant="secondary" className="text-[10px]">
+                            <Badge key={skill} variant="secondary">
                               {skill}
                             </Badge>
                           ))}
                           {skills.length > 3 && (
-                            <Badge variant="outline" className="text-[10px]">
-                              +{skills.length - 3}
-                            </Badge>
+                            <Badge variant="outline">+{skills.length - 3}</Badge>
                           )}
                           {skills.length === 0 && (
-                            <span className="text-xs text-muted-foreground">No skills listed</span>
+                            <span className="text-sm text-muted-foreground">—</span>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        {score == null ? (
-                          <span className="text-sm text-muted-foreground">Not scored</span>
+                        {score === null ? (
+                          <span className="text-sm text-muted-foreground">—</span>
                         ) : (
                           <Badge variant="outline" className="gap-1">
-                            <Sparkles className="h-3 w-3 text-primary" />
+                            <Sparkles className="h-3 w-3" />
                             {Math.round(score)}%
                           </Badge>
                         )}
@@ -386,20 +401,22 @@ export default function CandidatesPage() {
                         {latest ? (
                           <div>
                             <p className="text-sm font-medium">{latest.job.title}</p>
-                            <Badge className={`mt-1 ${STATUS_STYLE[latest.status] || ''}`}>
+                            <Badge
+                              className={`mt-1 ${statusStyles[latest.status] || ''}`}
+                            >
                               {latest.status}
                             </Badge>
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">No application</span>
+                          <span className="text-sm text-muted-foreground">—</span>
                         )}
                       </TableCell>
                       <TableCell>
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => openDetails(candidate)}
-                          aria-label="View candidate"
+                          onClick={() => setSelected(candidate)}
+                          aria-label={`View ${candidate.user.name}`}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -413,7 +430,7 @@ export default function CandidatesPage() {
         </Card>
       )}
 
-      <Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
+      <Sheet open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
           {selected && (
             <>
@@ -423,130 +440,99 @@ export default function CandidatesPage() {
                     <AvatarImage src={selected.user.image || undefined} />
                     <AvatarFallback>{initials(selected.user.name)}</AvatarFallback>
                   </Avatar>
-                  <div className="min-w-0">
+                  <div>
                     <SheetTitle>{selected.user.name}</SheetTitle>
                     <SheetDescription>
-                      {selected.currentTitle || 'Candidate'}
+                      {selected.currentTitle || 'Candidate profile'}
                     </SheetDescription>
                   </div>
                 </div>
               </SheetHeader>
 
-              <div className="space-y-6 py-6">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg border p-3">
-                    <p className="text-xs text-muted-foreground">Experience</p>
-                    <p className="mt-1 font-medium">
-                      {selected.experienceYears ?? 0} years
-                    </p>
-                  </div>
-                  <div className="rounded-lg border p-3">
-                    <p className="text-xs text-muted-foreground">Availability</p>
-                    <Badge
-                      className={`mt-2 ${
-                        AVAILABILITY_STYLE[selected.availability || 'open'] || ''
-                      }`}
-                    >
-                      {AVAILABILITY_LABEL[selected.availability || 'open'] ||
-                        selected.availability}
-                    </Badge>
+              <div className="space-y-6 px-4 pb-6">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <a
+                    className="flex items-center gap-2 rounded-lg border p-3 text-sm hover:bg-muted"
+                    href={`mailto:${selected.user.email}`}
+                  >
+                    <Mail className="h-4 w-4 text-primary" />
+                    <span className="truncate">{selected.user.email}</span>
+                  </a>
+                  <div className="flex items-center gap-2 rounded-lg border p-3 text-sm">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    {selected.location || 'Location not provided'}
                   </div>
                 </div>
 
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <a
-                    href={`mailto:${selected.user.email}`}
-                    className="flex items-center gap-2 text-primary hover:underline"
-                  >
-                    <Mail className="h-4 w-4" />
-                    {selected.user.email}
-                  </a>
-                  {selected.phone && (
-                    <p className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4" />
-                      {selected.phone}
-                    </p>
-                  )}
-                  {selected.location && (
-                    <p className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      {selected.location}
-                    </p>
-                  )}
+                <div>
+                  <p className="text-sm font-medium">Availability</p>
+                  <Badge className="mt-2" variant="secondary">
+                    {availabilityLabels[selected.availability || 'open'] ||
+                      selected.availability ||
+                      'Open to work'}
+                  </Badge>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium">Experience</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {selected.experienceYears === null
+                      ? 'Not provided'
+                      : `${selected.experienceYears} year${
+                          selected.experienceYears === 1 ? '' : 's'
+                        }`}
+                  </p>
                 </div>
 
                 {selected.bio && (
                   <div>
-                    <p className="mb-2 text-sm font-medium">Profile summary</p>
-                    <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                    <p className="text-sm font-medium">Profile summary</p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
                       {selected.bio}
                     </p>
                   </div>
                 )}
 
-                {parseSkills(selected.skills).length > 0 && (
-                  <div>
-                    <p className="mb-2 text-sm font-medium">Skills</p>
-                    <div className="flex flex-wrap gap-2">
-                      {parseSkills(selected.skills).map((skill) => (
-                        <Badge key={skill} variant="secondary">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
+                <div>
+                  <p className="text-sm font-medium">Skills</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {parseSkills(selected.skills).map((skill) => (
+                      <Badge key={skill} variant="secondary">
+                        {skill}
+                      </Badge>
+                    ))}
+                    {parseSkills(selected.skills).length === 0 && (
+                      <span className="text-sm text-muted-foreground">
+                        No skills added.
+                      </span>
+                    )}
                   </div>
-                )}
+                </div>
 
                 <div>
-                  <p className="mb-2 text-sm font-medium">Company applications</p>
-                  <div className="space-y-3">
-                    {[...selected.applications]
-                      .sort(
-                        (left, right) =>
-                          new Date(right.appliedAt).getTime() -
-                          new Date(left.appliedAt).getTime(),
-                      )
-                      .map((application) => (
-                        <div
-                          key={application.id}
-                          className="flex items-center justify-between gap-3 rounded-lg border p-3"
-                        >
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium">
-                              {application.job.title}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Applied {new Date(application.appliedAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="text-end">
-                            <Badge className={STATUS_STYLE[application.status] || ''}>
-                              {application.status}
-                            </Badge>
-                            {application.matchScore != null && (
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                {Math.round(application.matchScore)}% match
-                              </p>
-                            )}
-                          </div>
+                  <p className="text-sm font-medium">Applications</p>
+                  <div className="mt-2 space-y-2">
+                    {selected.applications.map((application) => (
+                      <div
+                        key={application.id}
+                        className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">
+                            {application.job.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Applied {new Date(application.appliedAt).toLocaleDateString()}
+                          </p>
                         </div>
-                      ))}
+                        <Badge className={statusStyles[application.status] || ''}>
+                          {application.status}
+                        </Badge>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-
-              <SheetFooter className="flex-col gap-2 sm:flex-row">
-                <Button variant="outline" asChild>
-                  <a href={`mailto:${selected.user.email}`}>
-                    <Mail className="me-2 h-4 w-4" />
-                    Email candidate
-                  </a>
-                </Button>
-                <Button onClick={() => router.push('/company/applications')}>
-                  <FileText className="me-2 h-4 w-4" />
-                  Open applications
-                </Button>
-              </SheetFooter>
             </>
           )}
         </SheetContent>
