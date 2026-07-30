@@ -1,92 +1,201 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
-import { requireCompanyMember, requireCompanyAccess } from '@/lib/auth-guard';
 import { db } from '@/lib/db';
+import {
+  requireCompanyAdmin,
+  requireCompanyMember,
+  resolveCompanyId,
+} from '@/lib/auth-guard';
+import { getClientIp } from '@/lib/security';
 
-// GET /api/companies/fair-hiring-config — Get FairHiringConfig for company
+const ALLOWED_ATTRIBUTES = new Set([
+  'gender',
+  'ethnicity',
+  'veteranStatus',
+  'disabilityStatus',
+]);
+const ALLOWED_FREQUENCIES = new Set(['WEEKLY', 'MONTHLY', 'QUARTERLY']);
+
+function parseArray(value: string): string[] {
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === 'string')
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function serializeConfig(config: {
+  id: string;
+  companyId: string;
+  biasDetectionEnabled: boolean;
+  protectedAttributes: string;
+  autoFlagThreshold: number;
+  excludeFromScoring: string;
+  auditFrequency: string;
+  lastAuditAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    ...config,
+    protectedAttributes: parseArray(config.protectedAttributes),
+    excludeFromScoring: parseArray(config.excludeFromScoring),
+  };
+}
+
 export async function GET(request: NextRequest) {
   const auth = await requireCompanyMember();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { searchParams } = new URL(request.url);
-    const companyId = searchParams.get('companyId');
-
+    const companyId = resolveCompanyId(
+      auth,
+      request.nextUrl.searchParams.get('companyId'),
+    );
     if (!companyId) {
       return NextResponse.json(
-        { error: 'companyId is required' },
-        { status: 400 }
+        { error: 'A valid company context is required' },
+        { status: 403 },
       );
     }
 
-    const accessCheck = await requireCompanyAccess(companyId);
-    if (accessCheck instanceof NextResponse) return accessCheck;
-
-    // Create default config if not exists
     const config = await db.fairHiringConfig.upsert({
       where: { companyId },
       update: {},
-      create: {
-        companyId,
-        biasDetectionEnabled: true,
-        protectedAttributes: JSON.stringify(['gender', 'ethnicity', 'veteranStatus', 'disabilityStatus']),
-        autoFlagThreshold: 0.8,
-        excludeFromScoring: JSON.stringify(['gender', 'ethnicity', 'age']),
-        auditFrequency: 'MONTHLY',
-      },
+      create: { companyId },
     });
 
-    return NextResponse.json({ config });
+    return NextResponse.json({ config: serializeConfig(config) });
   } catch (error) {
     console.error('Error getting fair hiring config:', error);
-    const message = error instanceof Error ? error.message : 'Failed to get config';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to get fair-hiring configuration' },
+      { status: 500 },
+    );
   }
 }
 
-// PATCH /api/companies/fair-hiring-config — Update FairHiringConfig
 export async function PATCH(request: NextRequest) {
-  const auth = await requireCompanyMember();
+  const auth = await requireCompanyAdmin();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const body = await request.json();
-    const { companyId, biasDetectionEnabled, protectedAttributes, autoFlagThreshold, auditFrequency } = body;
-
+    const body = (await request.json()) as Record<string, unknown>;
+    const companyId = resolveCompanyId(
+      auth,
+      typeof body.companyId === 'string' ? body.companyId : null,
+    );
     if (!companyId) {
       return NextResponse.json(
-        { error: 'companyId is required' },
-        { status: 400 }
+        { error: 'A valid company context is required' },
+        { status: 403 },
       );
     }
 
-    const accessCheck = await requireCompanyAccess(companyId);
-    if (accessCheck instanceof NextResponse) return accessCheck;
+    const updateData: {
+      biasDetectionEnabled?: boolean;
+      protectedAttributes?: string;
+      autoFlagThreshold?: number;
+      auditFrequency?: string;
+    } = {};
 
-    // Build update data
-    const updateData: Record<string, unknown> = {};
-    if (typeof biasDetectionEnabled === 'boolean') updateData.biasDetectionEnabled = biasDetectionEnabled;
-    if (protectedAttributes) updateData.protectedAttributes = JSON.stringify(protectedAttributes);
-    if (typeof autoFlagThreshold === 'number') updateData.autoFlagThreshold = autoFlagThreshold;
-    if (auditFrequency) updateData.auditFrequency = auditFrequency;
+    if (body.biasDetectionEnabled !== undefined) {
+      if (typeof body.biasDetectionEnabled !== 'boolean') {
+        return NextResponse.json(
+          { error: 'biasDetectionEnabled must be a boolean' },
+          { status: 400 },
+        );
+      }
+      updateData.biasDetectionEnabled = body.biasDetectionEnabled;
+    }
 
-    const config = await db.fairHiringConfig.upsert({
-      where: { companyId },
-      update: updateData,
-      create: {
-        companyId,
-        biasDetectionEnabled: biasDetectionEnabled ?? true,
-        protectedAttributes: protectedAttributes ? JSON.stringify(protectedAttributes) : JSON.stringify(['gender', 'ethnicity', 'veteranStatus', 'disabilityStatus']),
-        autoFlagThreshold: autoFlagThreshold ?? 0.8,
-        excludeFromScoring: JSON.stringify(['gender', 'ethnicity', 'age']),
-        auditFrequency: auditFrequency ?? 'MONTHLY',
-      },
+    if (body.protectedAttributes !== undefined) {
+      if (!Array.isArray(body.protectedAttributes)) {
+        return NextResponse.json(
+          { error: 'protectedAttributes must be an array' },
+          { status: 400 },
+        );
+      }
+      const attributes = [
+        ...new Set(
+          body.protectedAttributes.filter(
+            (attribute): attribute is string =>
+              typeof attribute === 'string' &&
+              ALLOWED_ATTRIBUTES.has(attribute),
+          ),
+        ),
+      ];
+      if (attributes.length === 0) {
+        return NextResponse.json(
+          { error: 'Select at least one supported protected attribute' },
+          { status: 400 },
+        );
+      }
+      updateData.protectedAttributes = JSON.stringify(attributes);
+    }
+
+    if (body.autoFlagThreshold !== undefined) {
+      const threshold = Number(body.autoFlagThreshold);
+      if (!Number.isFinite(threshold) || threshold < 0.5 || threshold > 1) {
+        return NextResponse.json(
+          { error: 'autoFlagThreshold must be between 0.5 and 1' },
+          { status: 400 },
+        );
+      }
+      updateData.autoFlagThreshold = Math.round(threshold * 1000) / 1000;
+    }
+
+    if (body.auditFrequency !== undefined) {
+      const frequency = String(body.auditFrequency);
+      if (!ALLOWED_FREQUENCIES.has(frequency)) {
+        return NextResponse.json(
+          { error: 'auditFrequency must be WEEKLY, MONTHLY, or QUARTERLY' },
+          { status: 400 },
+        );
+      }
+      updateData.auditFrequency = frequency;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: 'No supported configuration fields were provided' },
+        { status: 400 },
+      );
+    }
+
+    const config = await db.$transaction(async (transaction) => {
+      const updated = await transaction.fairHiringConfig.upsert({
+        where: { companyId },
+        update: updateData,
+        create: {
+          companyId,
+          ...updateData,
+        },
+      });
+      await transaction.auditLog.create({
+        data: {
+          userId: auth.userId,
+          action: 'fair_hiring.config_update',
+          resource: 'fair_hiring_config',
+          resourceId: updated.id,
+          ipAddress: getClientIp(request.headers),
+          details: JSON.stringify({
+            companyId,
+            changedFields: Object.keys(updateData),
+          }),
+        },
+      });
+      return updated;
     });
 
-    return NextResponse.json({ config });
+    return NextResponse.json({ config: serializeConfig(config) });
   } catch (error) {
     console.error('Error updating fair hiring config:', error);
-    const message = error instanceof Error ? error.message : 'Failed to update config';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to update fair-hiring configuration' },
+      { status: 500 },
+    );
   }
 }
