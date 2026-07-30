@@ -460,7 +460,7 @@ export default function LoginPage() {
                     href="/auth/register"
                     className="font-medium text-primary hover:underline"
                   >
-                    {t.auth.createAccount}
+                    {t.auth.signUp}
                   </Link>
                 </p>
               </form>
