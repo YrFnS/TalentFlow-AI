@@ -1,110 +1,151 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireCompanyMember } from '@/lib/auth-guard';
+import {
+  requireCompanyEditor,
+  resolveCompanyId,
+} from '@/lib/auth-guard';
+import { getClientIp } from '@/lib/security';
+
+const MANUAL_POSTING_NOTE =
+  'External publishing is not configured for this board. Complete the posting manually, then mark the record as posted and add its public URL.';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireCompanyMember();
+  const auth = await requireCompanyEditor();
   if (auth instanceof NextResponse) return auth;
 
-  const { id: jobId } = await params;
-
   try {
-    const body = await request.json();
-    const { boardIds } = body as { boardIds: string[] };
-
-    if (!boardIds || !Array.isArray(boardIds) || boardIds.length === 0) {
+    const body = (await request.json()) as Record<string, unknown>;
+    const companyId = resolveCompanyId(
+      auth,
+      typeof body.companyId === 'string' ? body.companyId : null,
+    );
+    if (!companyId) {
       return NextResponse.json(
-        { error: 'boardIds is required and must be a non-empty array' },
-        { status: 400 }
+        { error: 'A valid company context is required' },
+        { status: 403 },
       );
     }
 
-    // Verify the job exists
-    const job = await db.job.findUnique({
-      where: { id: jobId },
-    });
+    const { id: jobId } = await params;
+    const boardIds = [
+      ...new Set(
+        Array.isArray(body.boardIds)
+          ? body.boardIds
+              .filter((id): id is string => typeof id === 'string')
+              .map((id) => id.trim())
+              .filter(Boolean)
+          : [],
+      ),
+    ];
+
+    if (boardIds.length === 0 || boardIds.length > 20) {
+      return NextResponse.json(
+        { error: 'Select between 1 and 20 job boards' },
+        { status: 400 },
+      );
+    }
+
+    const [job, boards] = await Promise.all([
+      db.job.findFirst({
+        where: {
+          id: jobId,
+          companyId,
+          status: 'OPEN',
+          publishedAt: { not: null },
+        },
+        select: { id: true, title: true },
+      }),
+      db.jobBoard.findMany({
+        where: { id: { in: boardIds }, isActive: true },
+        select: { id: true, name: true },
+      }),
+    ]);
 
     if (!job) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Only published, open jobs can be prepared for job boards' },
+        { status: 404 },
+      );
     }
-
-    // Verify all boards exist
-    const boards = await db.jobBoard.findMany({
-      where: { id: { in: boardIds }, isActive: true },
-    });
-
     if (boards.length !== boardIds.length) {
       return NextResponse.json(
-        { error: 'Some boards not found or inactive' },
-        { status: 400 }
+        { error: 'One or more selected job boards are unavailable' },
+        { status: 400 },
       );
     }
 
-    // Create postings with PENDING status
-    const postings = [];
+    const postings = await db.$transaction(async (transaction) => {
+      const records = [];
+      for (const board of boards) {
+        const existing = await transaction.jobBoardPosting.findUnique({
+          where: { jobId_boardId: { jobId, boardId: board.id } },
+        });
 
-    for (const boardId of boardIds) {
-      // Check if already posted
-      const existing = await db.jobBoardPosting.findUnique({
-        where: { jobId_boardId: { jobId, boardId } },
-      });
+        if (existing?.status === 'POSTED') {
+          records.push(existing);
+          continue;
+        }
 
-      if (existing) {
-        postings.push(existing);
-        continue;
+        const record = existing
+          ? await transaction.jobBoardPosting.update({
+              where: { id: existing.id },
+              data: {
+                status: 'PENDING',
+                error: MANUAL_POSTING_NOTE,
+              },
+            })
+          : await transaction.jobBoardPosting.create({
+              data: {
+                jobId,
+                boardId: board.id,
+                status: 'PENDING',
+                error: MANUAL_POSTING_NOTE,
+              },
+            });
+        records.push(record);
       }
 
-      const posting = await db.jobBoardPosting.create({
+      await transaction.auditLog.create({
         data: {
-          jobId,
-          boardId,
-          status: 'PENDING',
-        },
-        include: {
-          board: true,
-          job: { select: { title: true } },
+          userId: auth.userId,
+          action: 'job_board_posting.prepare',
+          resource: 'job',
+          resourceId: jobId,
+          ipAddress: getClientIp(request.headers),
+          details: JSON.stringify({
+            companyId,
+            jobTitle: job.title,
+            boardIds,
+            mode: 'manual_tracking',
+          }),
         },
       });
+      return records;
+    });
 
-      postings.push(posting);
+    const enriched = await db.jobBoardPosting.findMany({
+      where: { id: { in: postings.map((posting) => posting.id) } },
+      include: {
+        board: true,
+        job: { select: { id: true, title: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
 
-      // Simulate posting (in real implementation, would call external API)
-      // After 1-2 second delay, update to POSTED with mock externalUrl
-      const delay = 1000 + Math.random() * 1000;
-      const board = boards.find((b) => b.id === boardId);
-      const boardName = board?.name?.toLowerCase() || 'board';
-
-      setTimeout(async () => {
-        try {
-          await db.jobBoardPosting.update({
-            where: { id: posting.id },
-            data: {
-              status: 'POSTED',
-              externalId: `ext-${boardName}-${Date.now()}`,
-              externalUrl: `https://${boardName}.com/jobs/${posting.id}`,
-              postedAt: new Date(),
-              expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-              views: Math.floor(Math.random() * 50),
-              clicks: Math.floor(Math.random() * 20),
-              applications: Math.floor(Math.random() * 5),
-            },
-          });
-        } catch (e) {
-          console.error('Error updating posting:', e);
-        }
-      }, delay);
-    }
-
-    return NextResponse.json({ postings });
+    return NextResponse.json({
+      postings: enriched,
+      manualActionRequired: true,
+      message:
+        'Posting records were created for manual tracking. No external board API was called.',
+    });
   } catch (error) {
-    console.error('Error posting to boards:', error);
+    console.error('Error preparing job board postings:', error);
     return NextResponse.json(
-      { error: 'Failed to post to boards' },
-      { status: 500 }
+      { error: 'Failed to prepare job board postings' },
+      { status: 500 },
     );
   }
 }
