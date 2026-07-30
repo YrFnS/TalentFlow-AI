@@ -29,6 +29,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
@@ -50,8 +52,11 @@ jobs:
       - name: Run repository regression guard
         run: node scripts/repository-guard.mjs
 
-      - name: Lint
-        run: bun run lint
+      - name: Lint changed files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: bun run lint:changed
 
       - name: Type check
         run: bun run type-check
