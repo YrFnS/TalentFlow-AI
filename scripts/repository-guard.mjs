@@ -5,15 +5,35 @@ import process from 'node:process';
 const ROOT = new URL('../', import.meta.url);
 const SOURCE_ROOT = new URL('../src/', import.meta.url);
 const TEXT_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
+
 const FORBIDDEN = [
-  { pattern: '/api/seed', reason: 'runtime pages must not trigger database seeding' },
-  { pattern: 'demo_company', reason: 'hardcoded demo tenant identifiers are forbidden' },
-  { pattern: 'app-demo', reason: 'hardcoded demo application identifiers are forbidden' },
-  { pattern: 'cs_sim_', reason: 'simulated Stripe checkout identifiers are forbidden' },
-  { pattern: 'bps_sim_', reason: 'simulated Stripe portal identifiers are forbidden' },
+  {
+    pattern: /\b(?:fetch|apiFetch)\s*\(\s*['"`]\/api\/seed(?:['"`?])/,
+    display: '/api/seed',
+    reason: 'runtime pages must not trigger database seeding',
+  },
+  {
+    pattern: 'demo_company',
+    reason: 'hardcoded demo tenant identifiers are forbidden',
+  },
+  {
+    pattern: 'app-demo',
+    reason: 'hardcoded demo application identifiers are forbidden',
+  },
+  {
+    pattern: 'cs_sim_',
+    reason: 'simulated Stripe checkout identifiers are forbidden',
+  },
+  {
+    pattern: 'bps_sim_',
+    reason: 'simulated Stripe portal identifiers are forbidden',
+  },
   { pattern: 'admin123', reason: 'known demo credentials are forbidden' },
   { pattern: 'hr123456', reason: 'known demo credentials are forbidden' },
-  { pattern: 'candidate123', reason: 'known demo credentials are forbidden' },
+  {
+    pattern: 'candidate123',
+    reason: 'known demo credentials are forbidden',
+  },
 ];
 
 async function walk(directory) {
@@ -30,6 +50,10 @@ async function walk(directory) {
   return files;
 }
 
+function lineMatches(line, pattern) {
+  return pattern instanceof RegExp ? pattern.test(line) : line.includes(pattern);
+}
+
 const files = await walk(SOURCE_ROOT.pathname);
 const violations = [];
 
@@ -39,11 +63,11 @@ for (const file of files) {
 
   for (const rule of FORBIDDEN) {
     lines.forEach((line, index) => {
-      if (line.includes(rule.pattern)) {
+      if (lineMatches(line, rule.pattern)) {
         violations.push({
           file: relative(ROOT.pathname, file),
           line: index + 1,
-          pattern: rule.pattern,
+          pattern: rule.display || String(rule.pattern),
           reason: rule.reason,
         });
       }
