@@ -1,36 +1,38 @@
-// @ts-nocheck
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useI18n } from '@/store/i18n-store';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import {
-  Globe,
-  Eye,
-  MousePointerClick,
-  Users,
-  CheckCircle2,
-  Clock,
-  XCircle,
   AlertTriangle,
+  BarChart3,
+  CheckCircle2,
   ExternalLink,
+  Eye,
+  FileCheck2,
+  Link2,
   Loader2,
-  Briefcase,
+  MousePointerClick,
+  Plus,
+  RefreshCw,
   Search,
-  ChevronDown,
+  Send,
+  Trash2,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -38,7 +40,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
 import {
   Table,
   TableBody,
@@ -53,18 +54,23 @@ interface JobBoard {
   name: string;
   logo: string | null;
   apiBaseUrl: string | null;
-  isActive: boolean;
-  postingCount: number;
-  config?: string;
-  createdAt: string;
+  integrationStatus: 'CONNECTED' | 'MANUAL';
+  companyPostingCount: number;
 }
 
-interface JobBoardPosting {
+interface Job {
+  id: string;
+  title: string;
+  status: string;
+  location: string | null;
+  publishedAt: string | null;
+}
+
+interface Posting {
   id: string;
   jobId: string;
   boardId: string;
   status: 'PENDING' | 'POSTED' | 'FAILED' | 'EXPIRED' | 'REMOVED';
-  externalId: string | null;
   externalUrl: string | null;
   postedAt: string | null;
   expiresAt: string | null;
@@ -72,23 +78,17 @@ interface JobBoardPosting {
   clicks: number;
   applications: number;
   error: string | null;
-  createdAt: string;
-  board: { id: string; name: string; logo: string | null; isActive: boolean };
+  updatedAt: string;
+  board: { id: string; name: string; logo: string | null };
   job: { id: string; title: string };
 }
 
-interface Job {
-  id: string;
-  title: string;
-  status: string;
-}
-
-interface AnalyticsData {
+interface Analytics {
   totalPostings: number;
   totalViews: number;
   totalClicks: number;
   totalApplications: number;
-  byBoard: {
+  byBoard: Array<{
     boardId: string;
     boardName: string;
     postingCount: number;
@@ -99,674 +99,582 @@ interface AnalyticsData {
     pending: number;
     failed: number;
     expired: number;
-  }[];
+    removed: number;
+  }>;
 }
 
-const BOARD_COLORS: Record<string, string> = {
-  LinkedIn: 'bg-blue-600',
-  Indeed: 'bg-indigo-600',
-  Glassdoor: 'bg-green-600',
-  ZipRecruiter: 'bg-purple-600',
-  AngelList: 'bg-rose-600',
-  Bayt: 'bg-amber-600',
-  NaukriGulf: 'bg-cyan-600',
-  Dice: 'bg-red-600',
-  Monster: 'bg-blue-600',
-  SimplyHired: 'bg-orange-600',
+const emptyAnalytics: Analytics = {
+  totalPostings: 0,
+  totalViews: 0,
+  totalClicks: 0,
+  totalApplications: 0,
+  byBoard: [],
 };
 
-const BOARD_REACH: Record<string, number> = {
-  LinkedIn: 81000000,
-  Indeed: 300000000,
-  Glassdoor: 57000000,
-  ZipRecruiter: 20000000,
-  AngelList: 8000000,
-  Bayt: 40000000,
-  NaukriGulf: 15000000,
-  Dice: 5000000,
-  Monster: 29000000,
-  SimplyHired: 10000000,
+const statusClass: Record<Posting['status'], string> = {
+  PENDING: 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
+  POSTED: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+  FAILED: 'bg-destructive/10 text-destructive',
+  EXPIRED: 'bg-muted text-muted-foreground',
+  REMOVED: 'bg-muted text-muted-foreground',
 };
-
-function getBoardInitials(name: string): string {
-  if (!name) return '?';
-  const words = name.split(/[\s/]+/);
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-  return name.substring(0, 2).toUpperCase();
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-  return num.toString();
-}
-
-function getStatusBadge(status: string, t: Record<string, string>) {
-  switch (status) {
-    case 'POSTED':
-      return (
-        <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 border-0">
-          <CheckCircle2 className="w-3 h-3 me-1" />
-          {t.posted}
-        </Badge>
-      );
-    case 'PENDING':
-      return (
-        <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 border-0">
-          <Clock className="w-3 h-3 me-1" />
-          {t.pending}
-        </Badge>
-      );
-    case 'FAILED':
-      return (
-        <Badge className="bg-red-100 text-red-700 dark:bg-red-950 border-0">
-          <XCircle className="w-3 h-3 me-1" />
-          {t.failed}
-        </Badge>
-      );
-    case 'EXPIRED':
-      return (
-        <Badge className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 border-0">
-          <AlertTriangle className="w-3 h-3 me-1" />
-          {t.expired}
-        </Badge>
-      );
-    case 'REMOVED':
-      return (
-        <Badge className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 border-0">
-          <XCircle className="w-3 h-3 me-1" />
-          {t.removed}
-        </Badge>
-      );
-    default:
-      return <Badge variant="secondary">{status}</Badge>;
-  }
-}
 
 export default function JobBoardsContent() {
-  const { t } = useI18n();
-  const jt = t.jobBoards as Record<string, string>;
-
   const [boards, setBoards] = useState<JobBoard[]>([]);
-  const [postings, setPostings] = useState<JobBoardPosting[]>([]);
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [postings, setPostings] = useState<Posting[]>([]);
+  const [analytics, setAnalytics] = useState<Analytics>(emptyAnalytics);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+
+  const [prepareDialogOpen, setPrepareDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState('');
   const [selectedBoardIds, setSelectedBoardIds] = useState<string[]>([]);
-  const [posting, setPosting] = useState(false);
-  const [postingProgress, setPostingProgress] = useState(0);
+  const [preparing, setPreparing] = useState(false);
+
+  const [manualPosting, setManualPosting] = useState<Posting | null>(null);
+  const [externalUrl, setExternalUrl] = useState('');
+  const [updatingPostingId, setUpdatingPostingId] = useState<string | null>(
+    null,
+  );
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
-  const companyId = 'demo-company-id';
-
-  const fetchData = useCallback(async () => {
+  async function load(refresh = false) {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
     try {
-      // Seed boards first if needed
-      await fetch('/api/job-boards/seed', { method: 'POST' });
-
-      const [boardsRes, analyticsRes] = await Promise.all([
-        fetch('/api/job-boards'),
-        fetch(`/api/job-boards/analytics?companyId=${companyId}`),
-      ]);
-
-      if (boardsRes.ok) {
-        const boardsData = await boardsRes.json();
-        setBoards(boardsData.boards || []);
+      const response = await fetch('/api/job-boards', { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to load job boards'),
+        );
       }
-
-      if (analyticsRes.ok) {
-        const analyticsData = await analyticsRes.json();
-        setAnalytics(analyticsData);
-      }
-
-      // Fetch jobs for the company
-      const jobsRes = await fetch(`/api/jobs?companyId=${companyId}`);
-      if (jobsRes.ok) {
-        const jobsData = await jobsRes.json();
-        const jobList = Array.isArray(jobsData) ? jobsData : (jobsData.jobs || []);
-        setJobs(jobList.filter((j: Job) => j.status === 'OPEN' || j.status === 'DRAFT'));
-      }
-
-      // Fetch all postings
-      const allPostings: JobBoardPosting[] = [];
-      for (const job of jobs.slice(0, 20)) {
-        const pRes = await fetch(`/api/jobs/${job.id}/postings`);
-        if (pRes.ok) {
-          const pData = await pRes.json();
-          allPostings.push(...(pData.postings || []));
-        }
-      }
-      setPostings(allPostings);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+      const data = await response.json();
+      setBoards(Array.isArray(data.boards) ? data.boards : []);
+      setJobs(Array.isArray(data.jobs) ? data.jobs : []);
+      setPostings(Array.isArray(data.postings) ? data.postings : []);
+      setAnalytics(data.analytics || emptyAnalytics);
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : 'Unable to load job boards',
+      );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  }, [companyId, jobs]);
+  }
 
   useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      // Seed boards first
-      await fetch('/api/job-boards/seed', { method: 'POST' });
+    void load();
+  }, []);
 
-      const [boardsRes, analyticsRes] = await Promise.all([
-        fetch('/api/job-boards'),
-        fetch(`/api/job-boards/analytics?companyId=${companyId}`),
-      ]);
+  const filteredPostings = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase();
+    return postings.filter((posting) => {
+      const matchesStatus =
+        statusFilter === 'ALL' || posting.status === statusFilter;
+      const matchesSearch =
+        !query ||
+        posting.job.title.toLocaleLowerCase().includes(query) ||
+        posting.board.name.toLocaleLowerCase().includes(query);
+      return matchesStatus && matchesSearch;
+    });
+  }, [postings, searchQuery, statusFilter]);
 
-      if (boardsRes.ok) {
-        const boardsData = await boardsRes.json();
-        setBoards(boardsData.boards || []);
-      }
+  function toggleBoard(boardId: string, checked: boolean) {
+    setSelectedBoardIds((current) =>
+      checked
+        ? [...new Set([...current, boardId])]
+        : current.filter((id) => id !== boardId),
+    );
+  }
 
-      if (analyticsRes.ok) {
-        const analyticsData = await analyticsRes.json();
-        setAnalytics(analyticsData);
-      }
-
-      // Fetch jobs
-      try {
-        const jobsRes = await fetch(`/api/jobs?companyId=${companyId}`);
-        if (jobsRes.ok) {
-          const jobsData = await jobsRes.json();
-          const jobList = Array.isArray(jobsData) ? jobsData : (jobsData.jobs || []);
-          setJobs(jobList.filter((j: Job) => j.status === 'OPEN' || j.status === 'DRAFT'));
-        }
-      } catch {
-        // Jobs fetch failed, continue with empty list
-      }
-
-      setLoading(false);
-    };
-
-    init();
-  }, [companyId]);
-
-  // Re-fetch postings when jobs list is available
-  useEffect(() => {
-    if (jobs.length === 0) return;
-
-    const fetchPostings = async () => {
-      const allPostings: JobBoardPosting[] = [];
-      for (const job of jobs.slice(0, 20)) {
-        try {
-          const pRes = await fetch(`/api/jobs/${job.id}/postings`);
-          if (pRes.ok) {
-            const pData = await pRes.json();
-            allPostings.push(...(pData.postings || []));
-          }
-        } catch {
-          // Continue
-        }
-      }
-      setPostings(allPostings);
-    };
-
-    fetchPostings();
-  }, [jobs]);
-
-  const handlePostToBoards = async () => {
+  async function preparePostings() {
     if (!selectedJob) {
-      toast.error(jt.selectJob);
+      toast.error('Select an open job');
       return;
     }
     if (selectedBoardIds.length === 0) {
-      toast.error(jt.selectBoards);
+      toast.error('Select at least one job board');
       return;
     }
 
-    setPosting(true);
-    setPostingProgress(0);
-
+    setPreparing(true);
     try {
-      const totalSteps = selectedBoardIds.length;
-      let completed = 0;
-
-      // Simulate progressive posting
-      const progressInterval = setInterval(() => {
-        completed = Math.min(completed + 1, totalSteps);
-        setPostingProgress(Math.round((completed / totalSteps) * 100));
-        if (completed >= totalSteps) {
-          clearInterval(progressInterval);
-        }
-      }, 1200);
-
-      const res = await fetch(`/api/jobs/${selectedJob}/post-to-boards`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ boardIds: selectedBoardIds }),
-      });
-
-      clearInterval(progressInterval);
-      setPostingProgress(100);
-
-      if (res.ok) {
-        toast.success(jt.postedSuccessfully);
-        setDialogOpen(false);
-        setSelectedBoardIds([]);
-        setSelectedJob('');
-        // Refresh data
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      } else {
-        toast.error(jt.postingFailed);
+      const response = await apiFetch(
+        `/api/jobs/${selectedJob}/post-to-boards`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ boardIds: selectedBoardIds }),
+        },
+      );
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to prepare postings'),
+        );
       }
-    } catch {
-      toast.error(jt.postingFailed);
+      const data = await response.json();
+      toast.success(data.message || 'Posting records prepared');
+      setPrepareDialogOpen(false);
+      setSelectedJob('');
+      setSelectedBoardIds([]);
+      await load(true);
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error ? reason.message : 'Unable to prepare postings',
+      );
     } finally {
-      setPosting(false);
-      setPostingProgress(0);
+      setPreparing(false);
     }
-  };
+  }
 
-  const toggleBoardSelection = (boardId: string) => {
-    setSelectedBoardIds((prev) =>
-      prev.includes(boardId)
-        ? prev.filter((id) => id !== boardId)
-        : [...prev, boardId]
-    );
-  };
-
-  const filteredPostings = postings.filter((p) => {
-    const matchesSearch =
-      !searchQuery ||
-      p.job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.board.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  async function updatePosting(
+    posting: Posting,
+    status: 'POSTED' | 'FAILED' | 'REMOVED',
+    url?: string,
+  ) {
+    setUpdatingPostingId(posting.id);
+    try {
+      const response = await apiFetch(`/api/jobs/${posting.jobId}/postings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postingId: posting.id,
+          status,
+          externalUrl: url || undefined,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to update posting'),
+        );
+      }
+      toast.success(
+        status === 'POSTED'
+          ? 'Posting marked as live'
+          : status === 'REMOVED'
+            ? 'Posting marked as removed'
+            : 'Posting marked as failed',
+      );
+      setManualPosting(null);
+      setExternalUrl('');
+      await load(true);
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error ? reason.message : 'Unable to update posting',
+      );
+    } finally {
+      setUpdatingPostingId(null);
+    }
+  }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-          <p className="text-muted-foreground">{t.common.loading}</p>
+      <div className="space-y-5">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Card key={index} className="h-28 animate-pulse bg-muted/40" />
+          ))}
         </div>
+        <Card className="h-72 animate-pulse bg-muted/40" />
       </div>
     );
   }
 
-  const activeBoards = boards.filter((b) => b.isActive).length;
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{jt.title}</h1>
-          <p className="text-muted-foreground mt-1">{jt.subtitle}</p>
+          <h1 className="text-2xl font-bold">Job boards</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Track external job-board postings without pretending an integration
+            exists. Connected publishing can be enabled board by board later.
+          </p>
         </div>
-        <Button
-          onClick={() => setDialogOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
-        >
-          <Globe className="w-4 h-4" />
-          {jt.postToBoards}
-        </Button>
-      </div>
-
-      {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="card-animate-fade-in-up">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-950">
-                <Globe className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">{jt.activeBoards}</p>
-                <p className="text-2xl font-bold">{activeBoards}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-950">
-                <Briefcase className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">{jt.totalPostings}</p>
-                <p className="text-2xl font-bold">{analytics?.totalPostings || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-950">
-                <Eye className="w-5 h-5 text-cyan-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">{jt.totalViews}</p>
-                <p className="text-2xl font-bold">{formatNumber(analytics?.totalViews || 0)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-950">
-                <Users className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">{jt.totalApplications}</p>
-                <p className="text-2xl font-bold">{analytics?.totalApplications || 0}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Job Board Grid */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">{jt.boardAnalytics}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {boards.map((board) => {
-            const boardAnalytics = analytics?.byBoard.find(
-              (b) => b.boardId === board.id
-            );
-            const colorClass = BOARD_COLORS[board.name] || 'bg-gray-600';
-            const reach = BOARD_REACH[board.name] || 0;
-
-            return (
-              <Card
-                key={board.id}
-                className="card-animate-fade-in-up cursor-pointer transition-all"
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-lg text-white text-sm font-bold ${colorClass}`}
-                    >
-                      {getBoardInitials(board.name)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-sm truncate">{board.name}</h3>
-                        {board.isActive ? (
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                        ) : (
-                          <span className="w-2 h-2 rounded-full bg-gray-400 shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {jt.estimatedReach}: {formatNumber(reach)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/50">
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground">{jt.views}</p>
-                      <p className="text-sm font-semibold">
-                        {boardAnalytics?.views || 0}
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground">{jt.clicks}</p>
-                      <p className="text-sm font-semibold">
-                        {boardAnalytics?.clicks || 0}
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground">{jt.applications}</p>
-                      <p className="text-sm font-semibold">
-                        {boardAnalytics?.applications || 0}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-between">
-                    <Badge variant="secondary" className="text-xs">
-                      {boardAnalytics?.postingCount || 0} {jt.postings || 'postings'}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void load(true)}
+            disabled={refreshing}
+          >
+            <RefreshCw
+              className={`me-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`}
+            />
+            Refresh
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setPrepareDialogOpen(true)}
+            disabled={jobs.length === 0 || boards.length === 0}
+          >
+            <Plus className="me-2 h-4 w-4" />
+            Prepare posting
+          </Button>
         </div>
       </div>
 
-      {/* Posting History Table */}
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <h2 className="text-lg font-semibold">{jt.postingHistory}</h2>
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder={t.common.search}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="ps-9 h-9 w-48"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-36 h-9">
-                <SelectValue placeholder={jt.status} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">{t.common.all}</SelectItem>
-                <SelectItem value="POSTED">{jt.posted}</SelectItem>
-                <SelectItem value="PENDING">{jt.pending}</SelectItem>
-                <SelectItem value="FAILED">{jt.failed}</SelectItem>
-                <SelectItem value="EXPIRED">{jt.expired}</SelectItem>
-                <SelectItem value="REMOVED">{jt.removed}</SelectItem>
-              </SelectContent>
-            </Select>
+      <Card className="border-amber-500/40 bg-amber-500/5">
+        <CardContent className="flex gap-3 p-4">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <div>
+            <p className="font-medium">Manual tracking mode</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Selecting a board creates a tenant-scoped tracking record. No
+              external API is called until a verified board integration is
+              configured. After publishing manually, add the public URL and mark
+              the record as posted.
+            </p>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {filteredPostings.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <Globe className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-muted-foreground">{jt.noPostings}</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardContent className="p-0">
-              <div className="max-h-96 overflow-y-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t.jobs.jobTitle}</TableHead>
-                      <TableHead>{jt.selectBoards}</TableHead>
-                      <TableHead>{jt.status}</TableHead>
-                      <TableHead className="text-center">{jt.views}</TableHead>
-                      <TableHead className="text-center">{jt.clicks}</TableHead>
-                      <TableHead className="text-center">{jt.applications}</TableHead>
-                      <TableHead>{t.interviews.date}</TableHead>
-                      <TableHead>{t.common.actions}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredPostings.map((posting) => {
-                      const boardColor = BOARD_COLORS[posting.board.name] || 'bg-gray-600';
-                      return (
-                        <TableRow key={posting.id}>
-                          <TableCell className="font-medium">
-                            {posting.job.title}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div
-                                className={`flex items-center justify-center w-6 h-6 rounded text-white text-[10px] font-bold ${boardColor}`}
-                              >
-                                {getBoardInitials(posting.board.name)}
-                              </div>
-                              <span className="text-sm">{posting.board.name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getStatusBadge(posting.status, jt)}</TableCell>
-                          <TableCell className="text-center">{posting.views}</TableCell>
-                          <TableCell className="text-center">{posting.clicks}</TableCell>
-                          <TableCell className="text-center">{posting.applications}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {posting.postedAt
-                              ? new Date(posting.postedAt).toLocaleDateString()
-                              : '—'}
-                          </TableCell>
-                          <TableCell>
-                            {posting.externalUrl && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 text-xs gap-1"
-                                asChild
-                              >
-                                <a
-                                  href={posting.externalUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  {t.common.view}
-                                </a>
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+      {error && (
+        <Card className="border-destructive/40">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button variant="outline" size="sm" onClick={() => void load()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          {
+            label: 'Posting records',
+            value: analytics.totalPostings,
+            icon: FileCheck2,
+          },
+          { label: 'Views', value: analytics.totalViews, icon: Eye },
+          {
+            label: 'Clicks',
+            value: analytics.totalClicks,
+            icon: MousePointerClick,
+          },
+          {
+            label: 'Attributed applications',
+            value: analytics.totalApplications,
+            icon: BarChart3,
+          },
+        ].map(({ label, value, icon: Icon }) => (
+          <Card key={label}>
+            <CardContent className="flex items-center justify-between p-5">
+              <div>
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <p className="mt-2 text-3xl font-bold">{value}</p>
               </div>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </span>
             </CardContent>
           </Card>
-        )}
+        ))}
       </div>
 
-      {/* Post to Boards Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Globe className="w-5 h-5 text-blue-600" />
-              {jt.postToBoards}
-            </DialogTitle>
-          </DialogHeader>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Board catalog</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {boards.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+              No job-board catalog is configured. A platform administrator must
+              provision it through a trusted migration or Prisma seed.
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {boards.map((board) => (
+                <div
+                  key={board.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border p-4"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{board.name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {board.companyPostingCount} company posting records
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      board.integrationStatus === 'CONNECTED'
+                        ? 'default'
+                        : 'outline'
+                    }
+                  >
+                    {board.integrationStatus === 'CONNECTED'
+                      ? 'Connected'
+                      : 'Manual'}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-          <div className="space-y-4 py-2">
-            {/* Job Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{jt.selectJob}</label>
-              <Select value={selectedJob} onValueChange={setSelectedJob}>
-                <SelectTrigger>
-                  <SelectValue placeholder={jt.selectJob} />
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <CardTitle className="text-base">Posting records</CardTitle>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative">
+                <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="ps-9"
+                  placeholder="Search job or board"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {jobs.length > 0 ? (
-                    jobs.map((job) => (
-                      <SelectItem key={job.id} value={job.id}>
-                        {job.title}
+                  {['ALL', 'PENDING', 'POSTED', 'FAILED', 'EXPIRED', 'REMOVED'].map(
+                    (status) => (
+                      <SelectItem key={status} value={status}>
+                        {status === 'ALL' ? 'All statuses' : status}
                       </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-jobs" disabled>
-                      No open jobs available
-                    </SelectItem>
+                    ),
                   )}
                 </SelectContent>
               </Select>
             </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {filteredPostings.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
+              No posting records match the current filters.
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Job</TableHead>
+                    <TableHead>Board</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Metrics</TableHead>
+                    <TableHead>Updated</TableHead>
+                    <TableHead className="text-end">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredPostings.map((posting) => (
+                    <TableRow key={posting.id}>
+                      <TableCell>
+                        <p className="font-medium">{posting.job.title}</p>
+                        {posting.error && (
+                          <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                            {posting.error}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell>{posting.board.name}</TableCell>
+                      <TableCell>
+                        <Badge className={statusClass[posting.status]}>
+                          {posting.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs text-muted-foreground">
+                          {posting.views} views · {posting.clicks} clicks ·{' '}
+                          {posting.applications} applications
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {new Date(posting.updatedAt).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-1">
+                          {posting.externalUrl && (
+                            <Button asChild variant="ghost" size="icon">
+                              <a
+                                href={posting.externalUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label="Open external posting"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+                          {posting.status !== 'POSTED' &&
+                            posting.status !== 'REMOVED' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setManualPosting(posting);
+                                  setExternalUrl(posting.externalUrl || '');
+                                }}
+                              >
+                                <Link2 className="me-1.5 h-3.5 w-3.5" />
+                                Mark posted
+                              </Button>
+                            )}
+                          {posting.status !== 'REMOVED' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive"
+                              disabled={updatingPostingId === posting.id}
+                              onClick={() =>
+                                void updatePosting(posting, 'REMOVED')
+                              }
+                              aria-label="Mark posting removed"
+                            >
+                              {updatingPostingId === posting.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-            {/* Board Selection */}
+      <Dialog open={prepareDialogOpen} onOpenChange={setPrepareDialogOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Prepare job-board tracking</DialogTitle>
+            <DialogDescription>
+              This creates manual tracking records only. It does not publish to
+              external services.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 py-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{jt.selectBoards}</label>
-              <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto p-1">
-                {boards.map((board) => {
-                  const colorClass = BOARD_COLORS[board.name] || 'bg-gray-600';
-                  const reach = BOARD_REACH[board.name] || 0;
-                  const isSelected = selectedBoardIds.includes(board.id);
-
-                  return (
-                    <div
-                      key={board.id}
-                      onClick={() => toggleBoardSelection(board.id)}
-                      className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
-                        isSelected
-                          ? 'border-teal-500 bg-slate-50'
-                          : 'border-border hover:border-slate-300'
-                      }`}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleBoardSelection(board.id)}
-                      />
-                      <div
-                        className={`flex items-center justify-center w-7 h-7 rounded text-white text-[10px] font-bold shrink-0 ${colorClass}`}
-                      >
-                        {getBoardInitials(board.name)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{board.name}</p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {formatNumber(reach)} {jt.estimatedReach?.split(' ')[0] || 'reach'}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {selectedBoardIds.length > 0 && (
-                <p className="text-xs text-blue-600">
-                  {selectedBoardIds.length} board(s) selected
-                </p>
-              )}
+              <Label>Published job</Label>
+              <Select value={selectedJob} onValueChange={setSelectedJob}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an open job" />
+                </SelectTrigger>
+                <SelectContent>
+                  {jobs.map((job) => (
+                    <SelectItem key={job.id} value={job.id}>
+                      {job.title}
+                      {job.location ? ` · ${job.location}` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Progress */}
-            {posting && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                  {jt.posting}
-                </div>
-                <Progress value={postingProgress} className="h-2" />
+            <div className="space-y-2">
+              <Label>Boards</Label>
+              <div className="grid max-h-64 gap-2 overflow-y-auto rounded-lg border p-3 sm:grid-cols-2">
+                {boards.map((board) => (
+                  <label
+                    key={board.id}
+                    className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-muted/50"
+                  >
+                    <Checkbox
+                      checked={selectedBoardIds.includes(board.id)}
+                      onCheckedChange={(checked) =>
+                        toggleBoard(board.id, checked === true)
+                      }
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">
+                        {board.name}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {board.integrationStatus === 'CONNECTED'
+                          ? 'Connected'
+                          : 'Manual tracking'}
+                      </span>
+                    </span>
+                  </label>
+                ))}
               </div>
-            )}
+            </div>
           </div>
 
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={posting}
+              onClick={() => setPrepareDialogOpen(false)}
+              disabled={preparing}
             >
-              {t.common.cancel}
+              Cancel
+            </Button>
+            <Button onClick={() => void preparePostings()} disabled={preparing}>
+              {preparing ? (
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="me-2 h-4 w-4" />
+              )}
+              Create tracking records
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(manualPosting)}
+        onOpenChange={(open) => {
+          if (!open && !updatingPostingId) setManualPosting(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark manual posting as live</DialogTitle>
+            <DialogDescription>
+              Confirm that {manualPosting?.job.title || 'the job'} was published
+              to {manualPosting?.board.name || 'the selected board'} and store its
+              public URL.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-3">
+            <Label htmlFor="external-posting-url">Public posting URL</Label>
+            <Input
+              id="external-posting-url"
+              type="url"
+              placeholder="https://example.com/jobs/123"
+              value={externalUrl}
+              onChange={(event) => setExternalUrl(event.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setManualPosting(null)}
+              disabled={Boolean(updatingPostingId)}
+            >
+              Cancel
             </Button>
             <Button
-              onClick={handlePostToBoards}
-              disabled={posting || !selectedJob || selectedBoardIds.length === 0}
-              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+              onClick={() => {
+                if (!manualPosting) return;
+                void updatePosting(manualPosting, 'POSTED', externalUrl);
+              }}
+              disabled={Boolean(updatingPostingId) || !externalUrl.trim()}
             >
-              {posting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {jt.posting}
-                </>
+              {updatingPostingId ? (
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <Globe className="w-4 h-4" />
-                  {jt.postNow}
-                </>
+                <CheckCircle2 className="me-2 h-4 w-4" />
               )}
+              Mark as posted
             </Button>
           </DialogFooter>
         </DialogContent>
