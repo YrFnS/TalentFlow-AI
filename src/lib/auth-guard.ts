@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
+import { db } from '@/lib/db';
 
 export interface AuthResult {
   session: Awaited<ReturnType<typeof getServerSession>>;
@@ -37,25 +38,80 @@ export function isCompanyEditorRole(role: string): boolean {
   return (COMPANY_EDITOR_ROLES as readonly string[]).includes(role);
 }
 
+/**
+ * Resolve the current authorization state from the database rather than
+ * trusting role and company claims that may be stale in a long-lived JWT.
+ * This makes company removal, role changes, user deactivation, and company
+ * deactivation effective on the next protected API request.
+ */
 export async function getOptionalAuth(): Promise<AuthResult | null> {
   const session = await getServerSession(authOptions);
   if (!session?.user) return null;
 
-  const user = session.user as typeof session.user & {
+  const sessionUser = session.user as typeof session.user & {
     id?: string;
-    role?: string;
     companyId?: string | null;
-    companyName?: string | null;
   };
+  if (!sessionUser.id) return null;
 
-  if (!user.id || !user.role) return null;
+  const user = await db.user.findUnique({
+    where: { id: sessionUser.id },
+    select: {
+      id: true,
+      role: true,
+      isActive: true,
+      companyMemberships: {
+        where: { company: { isActive: true } },
+        orderBy: { joinedAt: 'asc' },
+        select: {
+          role: true,
+          companyId: true,
+          company: { select: { id: true, name: true, isActive: true } },
+        },
+      },
+    },
+  });
+
+  if (!user?.isActive) return null;
+
+  if (isPlatformAdmin(user.role)) {
+    const preferredMembership =
+      user.companyMemberships.find(
+        (membership) => membership.companyId === sessionUser.companyId,
+      ) || user.companyMemberships[0];
+
+    return {
+      session,
+      userId: user.id,
+      role: user.role,
+      companyId: preferredMembership?.company.id || null,
+      companyName: preferredMembership?.company.name || null,
+    };
+  }
+
+  const membership =
+    user.companyMemberships.find(
+      (candidate) => candidate.companyId === sessionUser.companyId,
+    ) || user.companyMemberships[0];
+
+  if (membership) {
+    return {
+      session,
+      userId: user.id,
+      role: membership.role,
+      companyId: membership.company.id,
+      companyName: membership.company.name,
+    };
+  }
+
+  if (user.role !== 'CANDIDATE') return null;
 
   return {
     session,
     userId: user.id,
-    role: user.role,
-    companyId: user.companyId || null,
-    companyName: user.companyName || null,
+    role: 'CANDIDATE',
+    companyId: null,
+    companyName: null,
   };
 }
 
@@ -148,26 +204,20 @@ export async function requireCandidate(): Promise<AuthResult | NextResponse> {
 
 /**
  * Resolve the company that an API request is allowed to operate on.
- * Company users are always locked to their session company. Platform admins
- * may explicitly supply a company ID for support/administration operations.
+ * Company users are always locked to their live database membership. Platform
+ * admins may explicitly supply another company ID for support operations.
  */
 export function resolveCompanyId(
   auth: AuthResult,
   requestedCompanyId?: string | null,
 ): string | null {
-  if (auth.companyId) {
-    if (
-      requestedCompanyId &&
-      requestedCompanyId !== auth.companyId &&
-      !isPlatformAdmin(auth.role)
-    ) {
-      return null;
-    }
-    return auth.companyId;
+  if (isPlatformAdmin(auth.role)) {
+    return requestedCompanyId || auth.companyId || null;
   }
 
-  if (isPlatformAdmin(auth.role)) return requestedCompanyId || null;
-  return null;
+  if (!auth.companyId) return null;
+  if (requestedCompanyId && requestedCompanyId !== auth.companyId) return null;
+  return auth.companyId;
 }
 
 export async function requireCompanyAccess(
