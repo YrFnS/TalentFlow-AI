@@ -17,6 +17,10 @@ const FORBIDDEN = [
     reason: 'hardcoded demo tenant identifiers are forbidden',
   },
   {
+    pattern: 'demo-company',
+    reason: 'hardcoded demo tenant identifiers are forbidden',
+  },
+  {
     pattern: 'app-demo',
     reason: 'hardcoded demo application identifiers are forbidden',
   },
@@ -27,6 +31,11 @@ const FORBIDDEN = [
   {
     pattern: 'bps_sim_',
     reason: 'simulated Stripe portal identifiers are forbidden',
+  },
+  {
+    pattern: /console\.(?:log|info|debug).*?(?:reset token|reset url|rawToken)/i,
+    display: 'password-reset token logging',
+    reason: 'password-reset secrets must never be written to application logs',
   },
   { pattern: 'admin123', reason: 'known demo credentials are forbidden' },
   { pattern: 'hr123456', reason: 'known demo credentials are forbidden' },
