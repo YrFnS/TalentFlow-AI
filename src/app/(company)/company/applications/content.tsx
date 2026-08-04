@@ -1,40 +1,39 @@
-// @ts-nocheck
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { useI18n } from '@/store/i18n-store';
-import { cn } from '@/lib/utils';
-import { useCsrf } from '@/hooks/use-csrf';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
-  Search,
-  FileText,
-  Sparkles,
-  Mail,
-  MapPin,
   Briefcase,
-  Clock,
-  Calendar,
-  ChevronRight,
+  CalendarPlus,
   CheckCircle2,
+  Eye,
+  FileCheck,
+  FileText,
+  Loader2,
+  MapPin,
+  RefreshCw,
+  Save,
+  Search,
+  UserRound,
   XCircle,
-  ArrowRight,
-  MessageSquare,
-  MoreHorizontal,
-  Filter,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
+import { useAuth } from '@/store/auth-store';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -45,23 +44,34 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
-interface Application {
+type ApplicationStatus =
+  | 'APPLIED'
+  | 'SCREENING'
+  | 'INTERVIEW'
+  | 'OFFERED'
+  | 'HIRED'
+  | 'REJECTED'
+  | 'WITHDRAWN';
+
+type Application = {
   id: string;
-  status: string;
+  status: ApplicationStatus;
   matchScore: number | null;
   coverLetter: string | null;
   aiAnalysis: string | null;
@@ -71,217 +81,374 @@ interface Application {
   updatedAt: string;
   candidate: {
     id: string;
-    user: { id: string; name: string; email: string; image: string | null };
     currentTitle: string | null;
     location: string | null;
     skills: string | null;
     experienceYears: number | null;
     bio: string | null;
+    resumeUrl: string | null;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      image: string | null;
+    };
   };
-  job: { id: string; title: string; company: { name: string } };
-  currentStage: { id: string; name: string; color: string } | null;
+  job: {
+    id: string;
+    title: string;
+    companyId: string;
+    company: { id: string; name: string };
+  };
+  currentStage: { id: string; name: string; color: string | null } | null;
+};
+
+type Job = { id: string; title: string };
+type Stage = { id: string; name: string; color: string | null; order: number };
+
+type ScheduleForm = {
+  type: 'PHONE' | 'VIDEO' | 'ON_SITE' | 'ASYNC_VIDEO';
+  date: string;
+  time: string;
+  durationMinutes: string;
+  location: string;
+  meetingLink: string;
+  notes: string;
+};
+
+const EMPTY_SCHEDULE: ScheduleForm = {
+  type: 'VIDEO',
+  date: '',
+  time: '',
+  durationMinutes: '30',
+  location: '',
+  meetingLink: '',
+  notes: '',
+};
+
+const STATUS_STYLE: Record<ApplicationStatus, string> = {
+  APPLIED: 'bg-primary/10 text-primary',
+  SCREENING: 'bg-cyan-500/10 text-cyan-700',
+  INTERVIEW: 'bg-amber-500/10 text-amber-700',
+  OFFERED: 'bg-violet-500/10 text-violet-700',
+  HIRED: 'bg-emerald-500/10 text-emerald-700',
+  REJECTED: 'bg-destructive/10 text-destructive',
+  WITHDRAWN: 'bg-muted text-muted-foreground',
+};
+
+const EDITABLE_STATUSES: ApplicationStatus[] = [
+  'APPLIED',
+  'SCREENING',
+  'INTERVIEW',
+  'REJECTED',
+];
+
+function initials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 }
 
-const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
-  APPLIED: { label: 'Applied', color: 'bg-teal-100 text-blue-700', icon: FileText },
-  SCREENING: { label: 'Screening', color: 'bg-sky-100 text-sky-700', icon: Search },
-  INTERVIEW: { label: 'Interview', color: 'bg-amber-100 text-amber-700', icon: Calendar },
-  OFFERED: { label: 'Offered', color: 'bg-violet-100 text-violet-700', icon: CheckCircle2 },
-  HIRED: { label: 'Hired', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle2 },
-  REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: XCircle },
-  WITHDRAWN: { label: 'Withdrawn', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400', icon: XCircle },
-};
+function parseSkills(value: string | null): string[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+  } catch {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+}
 
-const sourceLabels: Record<string, string> = {
-  direct: 'Direct',
-  linkedin: 'LinkedIn',
-  referral: 'Referral',
-  'job-board': 'Job Board',
-};
-
-const nextActions: Record<string, { label: string; nextStatus: string; color: string }[]> = {
-  APPLIED: [
-    { label: 'Move to Screening', nextStatus: 'SCREENING', color: 'text-cyan-600' },
-    { label: 'Reject', nextStatus: 'REJECTED', color: 'text-destructive' },
-  ],
-  SCREENING: [
-    { label: 'Schedule Interview', nextStatus: 'INTERVIEW', color: 'text-amber-600' },
-    { label: 'Reject', nextStatus: 'REJECTED', color: 'text-destructive' },
-  ],
-  INTERVIEW: [
-    { label: 'Send Offer', nextStatus: 'OFFERED', color: 'text-violet-600' },
-    { label: 'Reject', nextStatus: 'REJECTED', color: 'text-destructive' },
-  ],
-  OFFERED: [
-    { label: 'Mark as Hired', nextStatus: 'HIRED', color: 'text-emerald-600' },
-    { label: 'Reject', nextStatus: 'REJECTED', color: 'text-destructive' },
-  ],
-  HIRED: [],
-  REJECTED: [],
-  WITHDRAWN: [],
-};
+function stageStatus(stageName: string): ApplicationStatus | undefined {
+  const name = stageName.toLowerCase();
+  if (name.includes('applied') || name.includes('new')) return 'APPLIED';
+  if (name.includes('screen')) return 'SCREENING';
+  if (name.includes('interview')) return 'INTERVIEW';
+  if (name.includes('offer')) return 'OFFERED';
+  if (name.includes('hire')) return 'HIRED';
+  if (name.includes('reject')) return 'REJECTED';
+  return undefined;
+}
 
 export default function ApplicationsPage() {
-  const { t } = useI18n();
-  const { csrfToken } = useCsrf();
+  const router = useRouter();
+  const { user, validateSession } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [stages, setStages] = useState<Stage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [jobFilter, setJobFilter] = useState<string>('all');
-  const [selectedApp, setSelectedApp] = useState<Application | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [companyId, setCompanyId] = useState('');
-  const [jobs, setJobs] = useState<Array<{ id: string; title: string }>>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | ApplicationStatus>('all');
+  const [jobFilter, setJobFilter] = useState('all');
+  const [selected, setSelected] = useState<Application | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [scheduleTarget, setScheduleTarget] = useState<Application | null>(null);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [schedule, setSchedule] = useState<ScheduleForm>(EMPTY_SCHEDULE);
+  const [scheduling, setScheduling] = useState(false);
 
-  const fetchApplications = useCallback(async () => {
+  const canEdit = [
+    'SUPER_ADMIN',
+    'ADMIN',
+    'COMPANY_ADMIN',
+    'HR_MANAGER',
+    'RECRUITER',
+  ].includes(user?.role || '');
+
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
+
     try {
-      await fetch('/api/seed', { method: 'POST' });
-      const seedRes = await fetch('/api/seed', { method: 'POST' });
-      const seedData = await seedRes.json();
-      const cId = seedData.companyId;
-      setCompanyId(cId);
-
-      const [appsRes, jobsRes] = await Promise.all([
-        fetch(`/api/applications?companyId=${cId}`),
-        fetch(`/api/jobs?companyId=${cId}`),
+      const [applicationsResponse, jobsResponse, stagesResponse] = await Promise.all([
+        fetch('/api/applications', { cache: 'no-store' }),
+        fetch('/api/jobs', { cache: 'no-store' }),
+        fetch('/api/pipeline-stages', { cache: 'no-store' }),
       ]);
 
-      if (appsRes.ok) {
-        const data = await appsRes.json();
-        setApplications(data);
+      if (!applicationsResponse.ok) {
+        throw new Error(
+          await getApiErrorMessage(applicationsResponse, 'Unable to load applications'),
+        );
       }
-      if (jobsRes.ok) {
-        const data = await jobsRes.json();
-        setJobs(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch applications:', error);
+
+      const applicationData = await applicationsResponse.json();
+      const jobData = jobsResponse.ok ? await jobsResponse.json() : [];
+      const stageData = stagesResponse.ok ? await stagesResponse.json() : [];
+      setApplications(Array.isArray(applicationData) ? applicationData : []);
+      setJobs(Array.isArray(jobData) ? jobData : []);
+      setStages(
+        Array.isArray(stageData)
+          ? stageData.map((stage: Stage) => ({
+              id: stage.id,
+              name: stage.name,
+              color: stage.color,
+              order: stage.order,
+            }))
+          : [],
+      );
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to load applications');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
+    void validateSession();
+    void load();
+  }, [load, validateSession]);
 
-  const filteredApplications = applications.filter((app) => {
-    const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
-    const matchesJob = jobFilter === 'all' || app.job.id === jobFilter;
-    const matchesSearch =
-      !searchQuery ||
-      app.candidate.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.candidate.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.job.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesJob && matchesSearch;
-  });
-
-  const handleStatusChange = async (appId: string, newStatus: string) => {
-    try {
-      const res = await fetch('/api/applications', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
-        },
-        body: JSON.stringify({ id: appId, status: newStatus }),
-      });
-      if (res.ok) {
-        setApplications((prev) =>
-          prev.map((app) => (app.id === appId ? { ...app, status: newStatus } : app))
-        );
-        if (selectedApp?.id === appId) {
-          setSelectedApp((prev) => (prev ? { ...prev, status: newStatus } : null));
-        }
-      }
-    } catch (error) {
-      console.error('Failed to update application status:', error);
-    }
-  };
-
-  const parseSkills = (skills: string | null): string[] => {
-    if (!skills) return [];
-    try {
-      return JSON.parse(skills);
-    } catch {
-      return skills.split(',').map((s) => s.trim());
-    }
-  };
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return applications.filter((application) => {
+      if (statusFilter !== 'all' && application.status !== statusFilter) return false;
+      if (jobFilter !== 'all' && application.job.id !== jobFilter) return false;
+      if (!term) return true;
+      return (
+        application.candidate.user.name.toLowerCase().includes(term) ||
+        application.candidate.user.email.toLowerCase().includes(term) ||
+        application.job.title.toLowerCase().includes(term)
+      );
     });
-  };
+  }, [applications, jobFilter, query, statusFilter]);
 
-  const formatRelativeTime = (date: string) => {
-    const now = new Date();
-    const d = new Date(date);
-    const diff = now.getTime() - d.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days === 0) return 'Today';
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days} days ago`;
-    return formatDate(date);
-  };
+  const counts = useMemo(
+    () =>
+      applications.reduce<Record<string, number>>(
+        (result, application) => {
+          result[application.status] = (result[application.status] || 0) + 1;
+          result.all += 1;
+          return result;
+        },
+        { all: 0 },
+      ),
+    [applications],
+  );
 
-  // Status counts
-  const statusCounts: Record<string, number> = {
-    all: applications.length,
-    APPLIED: applications.filter((a) => a.status === 'APPLIED').length,
-    SCREENING: applications.filter((a) => a.status === 'SCREENING').length,
-    INTERVIEW: applications.filter((a) => a.status === 'INTERVIEW').length,
-    OFFERED: applications.filter((a) => a.status === 'OFFERED').length,
-    HIRED: applications.filter((a) => a.status === 'HIRED').length,
-    REJECTED: applications.filter((a) => a.status === 'REJECTED').length,
-  };
+  async function updateApplication(
+    application: Application,
+    patch: { status?: ApplicationStatus; currentStageId?: string | null; notes?: string },
+  ) {
+    setSavingId(application.id);
+    try {
+      const response = await apiFetch('/api/applications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: application.id, ...patch }),
+      });
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to update application'),
+        );
+      }
+
+      const updated = (await response.json()) as Application;
+      setApplications((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setSelected((current) => (current?.id === updated.id ? updated : current));
+      setNotes(updated.notes || '');
+      toast.success('Application updated');
+      return updated;
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error ? reason.message : 'Unable to update application',
+      );
+      return null;
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  function openDetails(application: Application) {
+    setSelected(application);
+    setNotes(application.notes || '');
+    setDetailsOpen(true);
+  }
+
+  function openSchedule(application: Application) {
+    setScheduleTarget(application);
+    setSchedule(EMPTY_SCHEDULE);
+    setScheduleOpen(true);
+  }
+
+  async function scheduleInterview() {
+    if (!scheduleTarget || !schedule.date || !schedule.time) {
+      toast.error('Choose an interview date and time');
+      return;
+    }
+
+    setScheduling(true);
+    try {
+      const scheduledAt = new Date(`${schedule.date}T${schedule.time}`);
+      if (Number.isNaN(scheduledAt.getTime())) {
+        throw new Error('The interview date and time are invalid');
+      }
+
+      const response = await apiFetch('/api/interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicationId: scheduleTarget.id,
+          type: schedule.type,
+          scheduledAt: scheduledAt.toISOString(),
+          durationMinutes: Number(schedule.durationMinutes),
+          location: schedule.location || undefined,
+          meetingLink: schedule.meetingLink || undefined,
+          notes: schedule.notes || undefined,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(await getApiErrorMessage(response, 'Unable to schedule interview'));
+      }
+
+      const interviewStage = stages.find((stage) =>
+        stage.name.toLowerCase().includes('interview'),
+      );
+      await updateApplication(scheduleTarget, {
+        status: 'INTERVIEW',
+        ...(interviewStage ? { currentStageId: interviewStage.id } : {}),
+      });
+      setScheduleOpen(false);
+      toast.success('Interview scheduled');
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : 'Unable to schedule interview');
+    } finally {
+      setScheduling(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-20" />
+        <Skeleton className="h-12" />
+        <Skeleton className="h-96" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.applications.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {applications.length} total applications
+          <h1 className="text-2xl font-bold">Applications</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Review candidates and move them through the hiring process.
           </p>
         </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => void load(true)}
+          disabled={refreshing}
+        >
+          {refreshing ? (
+            <Loader2 className="me-2 h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="me-2 h-4 w-4" />
+          )}
+          Refresh
+        </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      {error && (
+        <Card className="border-destructive/40">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button size="sm" variant="outline" onClick={() => void load()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search applications..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-9"
+            className="ps-9"
+            placeholder="Search candidate, email, or job"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px] h-9">
-            <SelectValue placeholder="Status" />
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}
+        >
+          <SelectTrigger className="w-full lg:w-48">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status ({statusCounts.all})</SelectItem>
-            {Object.entries(statusConfig).map(([key, val]) => (
-              <SelectItem key={key} value={key}>
-                {val.label} ({statusCounts[key] || 0})
+            <SelectItem value="all">All statuses ({counts.all || 0})</SelectItem>
+            {(Object.keys(STATUS_STYLE) as ApplicationStatus[]).map((value) => (
+              <SelectItem key={value} value={value}>
+                {value.replaceAll('_', ' ')} ({counts[value] || 0})
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={jobFilter} onValueChange={setJobFilter}>
-          <SelectTrigger className="w-[200px] h-9">
-            <Briefcase className="w-4 h-4 me-2 text-muted-foreground" />
-            <SelectValue placeholder="All Jobs" />
+          <SelectTrigger className="w-full lg:w-56">
+            <Briefcase className="me-2 h-4 w-4 text-muted-foreground" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Jobs</SelectItem>
+            <SelectItem value="all">All jobs</SelectItem>
             {jobs.map((job) => (
               <SelectItem key={job.id} value={job.id}>
                 {job.title}
@@ -291,389 +458,424 @@ export default function ApplicationsPage() {
         </Select>
       </div>
 
-      {/* Status Summary Bar */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {Object.entries(statusConfig).map(([key, val]) => {
-          const count = statusCounts[key] || 0;
-          if (count === 0) return null;
-          return (
-            <button
-              key={key}
-              onClick={() => setStatusFilter(statusFilter === key ? 'all' : key)}
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
-                val.color,
-                statusFilter === key ? 'ring-2 ring-offset-1 ring-blue-500' : ''
-              )}
-            >
-              {count} {val.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Applications Table */}
-      <Card>
-        {loading ? (
-          <div className="p-6 space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-4 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-muted" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded w-1/4" />
-                  <div className="h-3 bg-muted rounded w-1/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filteredApplications.length === 0 ? (
-          <CardContent className="py-12 text-center">
-            <FileText className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-medium">No applications found</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              {searchQuery || statusFilter !== 'all' || jobFilter !== 'all'
-                ? 'Try adjusting your filters'
-                : 'Applications will appear here when candidates apply to your jobs'}
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <FileText className="mx-auto h-10 w-10 text-muted-foreground" />
+            <p className="mt-3 font-medium">No applications found</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              New candidate applications will appear here.
             </p>
           </CardContent>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs">Candidate</TableHead>
-                <TableHead className="text-xs">Job</TableHead>
-                <TableHead className="text-xs">{t.applications.applicationStatus}</TableHead>
-                <TableHead className="text-xs">{t.candidates.matchScore}</TableHead>
-                <TableHead className="text-xs">Source</TableHead>
-                <TableHead className="text-xs">Applied</TableHead>
-                <TableHead className="text-xs">Actions</TableHead>
-                <TableHead className="text-xs w-10"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredApplications.map((app) => {
-                const status = statusConfig[app.status] || statusConfig.APPLIED;
-                const actions = nextActions[app.status] || [];
-                return (
-                  <TableRow
-                    key={app.id}
-                    className="cursor-pointer hover:bg-accent/30"
-                    onClick={() => {
-                      setSelectedApp(app);
-                      setSheetOpen(true);
-                    }}
-                  >
+        </Card>
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Candidate</TableHead>
+                  <TableHead>Job</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Stage</TableHead>
+                  <TableHead>Applied</TableHead>
+                  <TableHead className="w-32" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((application) => (
+                  <TableRow key={application.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="w-9 h-9">
-                          <AvatarFallback className="bg-teal-100 text-blue-700 text-xs">
-                            {app.candidate.user.name.split(' ').map((n) => n[0]).join('')}
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage src={application.candidate.user.image || undefined} />
+                          <AvatarFallback>
+                            {initials(application.candidate.user.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{app.candidate.user.name}</p>
-                          <p className="text-xs text-muted-foreground">{app.candidate.user.email}</p>
+                        <div className="min-w-0">
+                          <p className="truncate font-medium">
+                            {application.candidate.user.name}
+                          </p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {application.candidate.user.email}
+                          </p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{app.job.title}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0', status.color)}>
-                        {status.label}
+                      <p className="font-medium">{application.job.title}</p>
+                      {application.candidate.location && (
+                        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          {application.candidate.location}
+                        </p>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={STATUS_STYLE[application.status]}>
+                        {application.status}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {app.matchScore ? (
-                        <div className="flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-blue-500" />
-                          <span className="text-xs font-semibold">{app.matchScore}%</span>
-                        </div>
+                      {application.currentStage ? (
+                        <span className="flex items-center gap-2 text-sm">
+                          <span
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{
+                              backgroundColor:
+                                application.currentStage.color || 'var(--primary)',
+                            }}
+                          />
+                          {application.currentStage.name}
+                        </span>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground">No stage</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs">
-                      {sourceLabels[app.source || 'direct'] || app.source}
+                    <TableCell className="text-sm text-muted-foreground">
+                      {new Date(application.appliedAt).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {formatRelativeTime(app.appliedAt)}
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center gap-1">
-                        {actions.slice(0, 1).map((action) => (
-                          <Button
-                            key={action.nextStatus}
-                            variant="ghost"
-                            size="sm"
-                            className={cn('h-7 text-xs px-2', action.color)}
-                            onClick={() => handleStatusChange(app.id, action.nextStatus)}
-                          >
-                            <ArrowRight className="w-3 h-3 me-1" />
-                            {action.label}
-                          </Button>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {actions.map((action) => (
-                            <DropdownMenuItem
-                              key={action.nextStatus}
-                              onClick={() => handleStatusChange(app.id, action.nextStatus)}
-                              className={action.color}
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => openDetails(application)}
+                          aria-label="View application"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {canEdit &&
+                          !['REJECTED', 'WITHDRAWN', 'HIRED'].includes(
+                            application.status,
+                          ) && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => openSchedule(application)}
+                              aria-label="Schedule interview"
                             >
-                              <ArrowRight className="w-4 h-4 me-2" />
-                              {action.label}
-                            </DropdownMenuItem>
-                          ))}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <MessageSquare className="w-4 h-4 me-2" />
-                            {t.applications.addNote}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Mail className="w-4 h-4 me-2" />
-                            Send Email
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              <CalendarPlus className="h-4 w-4" />
+                            </Button>
+                          )}
+                      </div>
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+      )}
 
-      {/* Application Detail Sheet */}
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="w-[520px] sm:max-w-[520px] p-0">
-          {selectedApp && (
-            <div className="flex flex-col h-full">
-              <SheetHeader className="p-6 pb-4 border-b">
-                <SheetTitle>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-11 h-11">
-                      <AvatarFallback className="bg-teal-100 text-blue-700">
-                        {selectedApp.candidate.user.name.split(' ').map((n) => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="text-start">
-                      <p className="font-semibold">{selectedApp.candidate.user.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedApp.candidate.currentTitle || 'No title'} · Applied for {selectedApp.job.title}
-                      </p>
-                    </div>
+      <Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+          {selected && (
+            <>
+              <SheetHeader>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={selected.candidate.user.image || undefined} />
+                    <AvatarFallback>{initials(selected.candidate.user.name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <SheetTitle>{selected.candidate.user.name}</SheetTitle>
+                    <SheetDescription>
+                      {selected.candidate.currentTitle || 'Candidate'} · {selected.job.title}
+                    </SheetDescription>
                   </div>
-                </SheetTitle>
+                </div>
               </SheetHeader>
 
-              <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="w-full justify-start border-b rounded-none px-6 h-10 bg-transparent">
-                    <TabsTrigger value="overview" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none">Overview</TabsTrigger>
-                    <TabsTrigger value="analysis" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none">AI Analysis</TabsTrigger>
-                    <TabsTrigger value="notes" className="text-xs data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none">Notes</TabsTrigger>
-                  </TabsList>
+              <div className="space-y-6 py-6">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border p-3">
+                    <p className="text-xs text-muted-foreground">Experience</p>
+                    <p className="mt-1 font-medium">
+                      {selected.candidate.experienceYears ?? 0} years
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-3">
+                    <p className="text-xs text-muted-foreground">AI match</p>
+                    <p className="mt-1 font-medium">
+                      {selected.matchScore == null ? 'Not scored' : `${selected.matchScore}%`}
+                    </p>
+                  </div>
+                </div>
 
-                  <TabsContent value="overview" className="p-6 space-y-5 mt-0">
-                    {/* Status & Score */}
-                    <div className="flex items-center gap-3">
-                      <Badge className={cn('text-xs', statusConfig[selectedApp.status]?.color)}>
-                        {statusConfig[selectedApp.status]?.label}
-                      </Badge>
-                      {selectedApp.matchScore && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-blue-600 text-xs font-semibold">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          {selectedApp.matchScore}% Match
-                        </div>
-                      )}
-                      {selectedApp.source && (
-                        <Badge variant="outline" className="text-[10px]">
-                          via {sourceLabels[selectedApp.source] || selectedApp.source}
+                {parseSkills(selected.candidate.skills).length > 0 && (
+                  <div>
+                    <p className="mb-2 text-sm font-medium">Skills</p>
+                    <div className="flex flex-wrap gap-2">
+                      {parseSkills(selected.candidate.skills).map((skill) => (
+                        <Badge key={skill} variant="secondary">
+                          {skill}
                         </Badge>
-                      )}
+                      ))}
                     </div>
+                  </div>
+                )}
 
-                    {/* Candidate Info */}
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Candidate Information</h4>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="w-4 h-4 text-muted-foreground" />
-                          <span>{selectedApp.candidate.user.email}</span>
-                        </div>
-                        {selectedApp.candidate.location && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <MapPin className="w-4 h-4 text-muted-foreground" />
-                            <span>{selectedApp.candidate.location}</span>
-                          </div>
-                        )}
-                        {selectedApp.candidate.experienceYears && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground" />
-                            <span>{selectedApp.candidate.experienceYears} years experience</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                {selected.candidate.bio && (
+                  <div>
+                    <p className="mb-2 text-sm font-medium">Profile summary</p>
+                    <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                      {selected.candidate.bio}
+                    </p>
+                  </div>
+                )}
 
-                    <Separator />
+                {selected.coverLetter && (
+                  <div>
+                    <p className="mb-2 text-sm font-medium">Cover letter</p>
+                    <p className="whitespace-pre-wrap rounded-lg border bg-muted/20 p-4 text-sm leading-6">
+                      {selected.coverLetter}
+                    </p>
+                  </div>
+                )}
 
-                    {/* Skills */}
-                    {selectedApp.candidate.skills && (
-                      <div className="space-y-2">
-                        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Skills</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {parseSkills(selectedApp.candidate.skills).map((skill) => (
-                            <Badge key={skill} variant="secondary" className="text-xs">
-                              {skill}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <Separator />
-
-                    {/* Cover Letter */}
-                    {selectedApp.coverLetter && (
-                      <div className="space-y-2">
-                        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.applications.coverLetter}</h4>
-                        <div className="text-sm text-muted-foreground whitespace-pre-wrap p-3 rounded-lg bg-muted/30 border border-border/50">
-                          {selectedApp.coverLetter}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Timeline */}
+                {canEdit && (
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.applications.timeline}</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 rounded-full bg-slate-500" />
-                          <div>
-                            <p className="text-sm font-medium">Application Submitted</p>
-                            <p className="text-xs text-muted-foreground">{formatDate(selectedApp.appliedAt)}</p>
-                          </div>
-                        </div>
-                        {selectedApp.currentStage && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: selectedApp.currentStage.color }} />
-                            <div>
-                              <p className="text-sm font-medium">Moved to {selectedApp.currentStage.name}</p>
-                              <p className="text-xs text-muted-foreground">{formatDate(selectedApp.updatedAt)}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="analysis" className="p-6 space-y-5 mt-0">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-blue-500" />
-                        <h3 className="text-base font-semibold">{t.candidates.aiAnalysis}</h3>
-                      </div>
-                      {selectedApp.aiAnalysis ? (
-                        <div className="text-sm text-muted-foreground whitespace-pre-wrap p-4 rounded-lg bg-muted/30 border border-border/50">
-                          {selectedApp.aiAnalysis}
-                        </div>
-                      ) : (
-                        <div className="p-6 rounded-lg border border-dashed border-border text-center">
-                          <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-                          <p className="text-sm text-muted-foreground">AI analysis not yet generated</p>
-                          <Button variant="outline" size="sm" className="mt-3 border-slate-300 text-blue-600">
-                            <Sparkles className="w-3.5 h-3.5 me-1.5" />
-                            Generate Analysis
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Match Score Breakdown */}
-                    {selectedApp.matchScore && (
-                      <div className="space-y-3">
-                        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Match Breakdown</h4>
-                        <div className="space-y-2">
-                          {[
-                            { label: 'Skills Match', value: Math.min(100, (selectedApp.matchScore || 0) + 5) },
-                            { label: 'Experience Level', value: Math.min(100, (selectedApp.matchScore || 0) - 5) },
-                            { label: 'Education', value: Math.min(100, (selectedApp.matchScore || 0) + 2) },
-                          ].map((item) => (
-                            <div key={item.label} className="space-y-1">
-                              <div className="flex justify-between text-xs">
-                                <span>{item.label}</span>
-                                <span className="font-medium">{item.value}%</span>
-                              </div>
-                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-slate-500 rounded-full"
-                                  style={{ width: `${item.value}%` }}
-                                />
-                              </div>
-                            </div>
+                      <Label>Status</Label>
+                      <Select
+                        value={selected.status}
+                        onValueChange={(value) =>
+                          void updateApplication(selected, {
+                            status: value as ApplicationStatus,
+                          })
+                        }
+                        disabled={savingId === selected.id}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {EDITABLE_STATUSES.map((value) => (
+                            <SelectItem key={value} value={value}>
+                              {value.replaceAll('_', ' ')}
+                            </SelectItem>
                           ))}
-                        </div>
-                      </div>
-                    )}
-                  </TabsContent>
-
-                  <TabsContent value="notes" className="p-6 space-y-4 mt-0">
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.applications.addNote}</h4>
-                      <Textarea
-                        placeholder="Add a note about this application..."
-                        rows={4}
-                      />
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                        Save Note
-                      </Button>
+                          {!EDITABLE_STATUSES.includes(selected.status) && (
+                            <SelectItem value={selected.status} disabled>
+                              {selected.status.replaceAll('_', ' ')}
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    {selectedApp.notes && (
-                      <div className="space-y-2">
-                        <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Existing Notes</h4>
-                        <div className="text-sm text-muted-foreground p-3 rounded-lg bg-muted/30 border border-border/50">
-                          {selectedApp.notes}
-                        </div>
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
-              </div>
+                    <div className="space-y-2">
+                      <Label>Pipeline stage</Label>
+                      <Select
+                        value={selected.currentStage?.id || 'none'}
+                        onValueChange={(value) => {
+                          const stage = stages.find((item) => item.id === value);
+                          void updateApplication(selected, {
+                            currentStageId: value === 'none' ? null : value,
+                            ...(stageStatus(stage?.name || '')
+                              ? { status: stageStatus(stage?.name || '') }
+                              : {}),
+                          });
+                        }}
+                        disabled={savingId === selected.id}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No stage</SelectItem>
+                          {stages.map((stage) => (
+                            <SelectItem key={stage.id} value={stage.id}>
+                              {stage.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
 
-              {/* Actions */}
-              <div className="p-4 border-t">
-                <div className="flex items-center gap-2">
-                  {(nextActions[selectedApp.status] || []).map((action) => (
+                <div className="space-y-2">
+                  <Label>Internal notes</Label>
+                  <Textarea
+                    rows={5}
+                    value={notes}
+                    onChange={(event) => setNotes(event.target.value)}
+                    disabled={!canEdit}
+                    placeholder="Add interview context, follow-up items, or reviewer notes."
+                  />
+                  {canEdit && (
                     <Button
-                      key={action.nextStatus}
                       size="sm"
-                      variant={action.nextStatus === 'REJECTED' ? 'outline' : 'default'}
-                      className={cn(
-                        action.nextStatus !== 'REJECTED' && 'bg-blue-600 hover:bg-blue-700 text-white',
-                        action.nextStatus === 'REJECTED' && 'text-destructive border-red-300 dark:border-red-800'
-                      )}
-                      onClick={() => handleStatusChange(selectedApp.id, action.nextStatus)}
+                      variant="outline"
+                      onClick={() =>
+                        void updateApplication(selected, { notes: notes.trim() })
+                      }
+                      disabled={savingId === selected.id}
                     >
-                      <ArrowRight className="w-4 h-4 me-1.5" />
-                      {action.label}
+                      {savingId === selected.id ? (
+                        <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="me-2 h-4 w-4" />
+                      )}
+                      Save notes
                     </Button>
-                  ))}
+                  )}
                 </div>
               </div>
-            </div>
+
+              <SheetFooter className="flex-col gap-2 sm:flex-row">
+                {canEdit &&
+                  !['REJECTED', 'WITHDRAWN', 'HIRED'].includes(selected.status) && (
+                    <Button variant="outline" onClick={() => openSchedule(selected)}>
+                      <CalendarPlus className="me-2 h-4 w-4" />
+                      Schedule interview
+                    </Button>
+                  )}
+                {canEdit && selected.status === 'INTERVIEW' && (
+                  <Button onClick={() => router.push('/company/offers')}>
+                    <FileCheck className="me-2 h-4 w-4" />
+                    Create offer
+                  </Button>
+                )}
+              </SheetFooter>
+            </>
           )}
         </SheetContent>
       </Sheet>
+
+      <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Schedule interview</DialogTitle>
+            <DialogDescription>
+              {scheduleTarget
+                ? `${scheduleTarget.candidate.user.name} · ${scheduleTarget.job.title}`
+                : 'Choose interview details.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-2 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Type</Label>
+              <Select
+                value={schedule.type}
+                onValueChange={(type) =>
+                  setSchedule((current) => ({
+                    ...current,
+                    type: type as ScheduleForm['type'],
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(['PHONE', 'VIDEO', 'ON_SITE', 'ASYNC_VIDEO'] as const).map(
+                    (type) => (
+                      <SelectItem key={type} value={type}>
+                        {type.replaceAll('_', ' ')}
+                      </SelectItem>
+                    ),
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Duration</Label>
+              <Select
+                value={schedule.durationMinutes}
+                onValueChange={(durationMinutes) =>
+                  setSchedule((current) => ({ ...current, durationMinutes }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {['15', '30', '45', '60', '90'].map((minutes) => (
+                    <SelectItem key={minutes} value={minutes}>
+                      {minutes} minutes
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Date</Label>
+              <Input
+                type="date"
+                value={schedule.date}
+                onChange={(event) =>
+                  setSchedule((current) => ({ ...current, date: event.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Time</Label>
+              <Input
+                type="time"
+                value={schedule.time}
+                onChange={(event) =>
+                  setSchedule((current) => ({ ...current, time: event.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Location</Label>
+              <Input
+                value={schedule.location}
+                onChange={(event) =>
+                  setSchedule((current) => ({
+                    ...current,
+                    location: event.target.value,
+                  }))
+                }
+                placeholder="Office, phone, or video platform"
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Meeting link</Label>
+              <Input
+                type="url"
+                value={schedule.meetingLink}
+                onChange={(event) =>
+                  setSchedule((current) => ({
+                    ...current,
+                    meetingLink: event.target.value,
+                  }))
+                }
+                placeholder="https://meet.example.com/..."
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Interviewer notes</Label>
+              <Textarea
+                rows={3}
+                value={schedule.notes}
+                onChange={(event) =>
+                  setSchedule((current) => ({ ...current, notes: event.target.value }))
+                }
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScheduleOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void scheduleInterview()} disabled={scheduling}>
+              {scheduling ? (
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+              ) : (
+                <CalendarPlus className="me-2 h-4 w-4" />
+              )}
+              Schedule
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

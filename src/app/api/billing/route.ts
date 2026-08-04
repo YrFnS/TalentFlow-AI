@@ -1,34 +1,60 @@
-// @ts-nocheck
+// @ts-nocheck - Prisma aggregates are normalized for the billing response.
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireCompanyMember } from '@/lib/auth-guard';
+import {
+  requireCompanyAdmin,
+  requireCompanyMember,
+  resolveCompanyId,
+} from '@/lib/auth-guard';
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   const auth = await requireCompanyMember();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const companyId = auth.companyId;
-
+    const companyId = resolveCompanyId(
+      auth,
+      request.nextUrl.searchParams.get('companyId'),
+    );
     if (!companyId) {
-      return NextResponse.json({ error: 'companyId is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'A valid company context is required' },
+        { status: 403 },
+      );
     }
 
-    // Real DB lookup
     const subscription = await db.subscription.findUnique({
       where: { companyId },
       include: {
         plan: true,
-        invoices: {
-          orderBy: { createdAt: 'desc' },
-          take: 12,
-        },
+        invoices: { orderBy: { createdAt: 'desc' }, take: 12 },
       },
     });
 
+    const memberIds = (
+      await db.companyMember.findMany({
+        where: { companyId },
+        select: { userId: true },
+      })
+    ).map((member) => member.userId);
+
+    const [jobCount, applicationCount, aiUsageCount] = await Promise.all([
+      db.job.count({ where: { companyId, status: { not: 'ARCHIVED' } } }),
+      db.application.count({ where: { job: { companyId } } }),
+      memberIds.length > 0
+        ? db.aIUsageLog.count({ where: { userId: { in: memberIds } } })
+        : Promise.resolve(0),
+    ]);
+
     if (!subscription) {
       return NextResponse.json({
+        billingEnabled: false,
         subscription: null,
+        usage: {
+          jobs: { current: jobCount, limit: null },
+          applications: { current: applicationCount, limit: null },
+          aiCredits: { current: aiUsageCount, limit: null },
+        },
         invoices: [],
         paymentMethod: null,
       });
@@ -36,26 +62,10 @@ export async function GET(req: NextRequest) {
 
     const limits = subscription.plan.limits
       ? JSON.parse(subscription.plan.limits)
-      : { jobs: 10, applications: 100, aiCredits: 50 };
-
-    // Real usage counts from DB
-    const [jobCount, applicationCount, aiUsageCount] = await Promise.all([
-      db.job.count({ where: { companyId } }),
-      db.application.count({
-        where: { job: { companyId } },
-      }),
-      db.aIUsageLog.count({
-        where: { userId: { in: (await db.companyMember.findMany({ where: { companyId }, select: { userId: true } })).map(m => m.userId) } },
-      }),
-    ]);
-
-    const usage = {
-      jobs: { current: jobCount, limit: limits.jobs || 10 },
-      applications: { current: applicationCount, limit: limits.applications || 100 },
-      aiCredits: { current: aiUsageCount, limit: limits.aiCredits || 50 },
-    };
+      : {};
 
     return NextResponse.json({
+      billingEnabled: false,
       subscription: {
         id: subscription.id,
         planId: subscription.planId,
@@ -68,69 +78,49 @@ export async function GET(req: NextRequest) {
         startDate: subscription.startDate,
         endDate: subscription.endDate,
         trialEndsAt: subscription.trialEndsAt,
-        usage,
+        usage: {
+          jobs: { current: jobCount, limit: limits.jobs ?? null },
+          applications: {
+            current: applicationCount,
+            limit: limits.applications ?? null,
+          },
+          aiCredits: {
+            current: aiUsageCount,
+            limit: limits.aiCredits ?? null,
+          },
+        },
       },
-      invoices: subscription.invoices.map((inv) => ({
-        id: inv.id,
-        invoiceNumber: inv.invoiceNumber,
-        amount: inv.amount,
-        currency: inv.currency,
-        status: inv.status,
-        date: inv.paidAt || inv.createdAt,
-        pdfUrl: inv.pdfUrl,
+      invoices: subscription.invoices.map((invoice) => ({
+        id: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.amount,
+        currency: invoice.currency,
+        status: invoice.status,
+        date: invoice.paidAt || invoice.createdAt,
+        pdfUrl: invoice.invoicePdf || invoice.pdfUrl,
+        hostedUrl: invoice.hostedInvoiceUrl,
       })),
-      paymentMethod: null, // No PaymentMethod model exists yet
+      paymentMethod: null,
     });
-  } catch {
-    return NextResponse.json({ error: 'Failed to fetch billing data' }, { status: 500 });
+  } catch (error) {
+    console.error('Billing GET error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch billing data' },
+      { status: 500 },
+    );
   }
 }
 
-export async function POST(req: NextRequest) {
-  const auth = await requireCompanyMember();
+export async function POST() {
+  const auth = await requireCompanyAdmin();
   if (auth instanceof NextResponse) return auth;
 
-  try {
-    const body = await req.json();
-    const { planId } = body;
-    const companyId = auth.companyId;
-
-    if (!companyId || !planId) {
-      return NextResponse.json({ error: 'companyId and planId are required' }, { status: 400 });
-    }
-
-    // Check if subscription exists
-    const existing = await db.subscription.findUnique({
-      where: { companyId },
-    });
-
-    if (existing) {
-      // Update the subscription plan
-      const updated = await db.subscription.update({
-        where: { companyId },
-        data: {
-          planId,
-          startDate: new Date(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-        include: { plan: true },
-      });
-      return NextResponse.json({ subscription: updated, message: 'Plan updated successfully' });
-    } else {
-      // Create new subscription
-      const created = await db.subscription.create({
-        data: {
-          companyId,
-          planId,
-          status: 'ACTIVE',
-          startDate: new Date(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-        include: { plan: true },
-      });
-      return NextResponse.json({ subscription: created, message: 'Subscription created successfully' });
-    }
-  } catch {
-    return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 });
-  }
+  return NextResponse.json(
+    {
+      error: 'Online billing is not enabled',
+      message:
+        'Subscription changes are disabled until a verified Stripe checkout integration is configured.',
+    },
+    { status: 503 },
+  );
 }

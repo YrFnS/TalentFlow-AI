@@ -1,26 +1,30 @@
-// @ts-nocheck
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
-  Search,
-  MapPin,
-  Clock,
-  Building2,
   Bookmark,
   BookmarkCheck,
-  Star,
-  SlidersHorizontal,
-  X,
   Briefcase,
+  Building2,
+  CheckCircle2,
+  Clock,
   GraduationCap,
   Loader2,
+  MapPin,
+  RefreshCw,
+  Search,
+  SlidersHorizontal,
+  X,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
 import { useI18n } from '@/store/i18n-store';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -28,17 +32,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface JobData {
+type Job = {
   id: string;
   title: string;
-  company: { id: string; name: string; logo: string | null };
-  location: string;
-  type: string;
+  description: string;
+  jobType: string;
+  location: string | null;
   isRemote: boolean;
   salaryMin: number | null;
   salaryMax: number | null;
@@ -46,370 +54,487 @@ interface JobData {
   experienceMin: number | null;
   experienceMax: number | null;
   skills: string[];
-  description: string;
-  applicants: number;
+  openings: number;
   publishedAt: string | null;
   createdAt: string;
-  match: number;
+  company: { id: string; name: string; logo: string | null };
+  _count: { applications: number };
+};
+
+type RawJob = Omit<Job, 'skills'> & { skills: string | string[] | null };
+
+type SavedJob = { jobId: string };
+type CandidateApplication = { jobId: string; status: string };
+
+function parseSkills(value: RawJob['skills']): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(Boolean);
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+  } catch {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+}
+
+function companyInitials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function formatSalary(job: Job) {
+  const format = (value: number) => {
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: job.salaryCurrency || 'USD',
+        maximumFractionDigits: 0,
+      }).format(value);
+    } catch {
+      return `${job.salaryCurrency} ${value.toLocaleString()}`;
+    }
+  };
+
+  if (job.salaryMin && job.salaryMax) {
+    return `${format(job.salaryMin)} – ${format(job.salaryMax)}`;
+  }
+  if (job.salaryMin) return `From ${format(job.salaryMin)}`;
+  if (job.salaryMax) return `Up to ${format(job.salaryMax)}`;
+  return 'Salary not specified';
+}
+
+function timeAgo(value: string | null) {
+  if (!value) return '';
+  const days = Math.max(
+    0,
+    Math.floor((Date.now() - new Date(value).getTime()) / (24 * 60 * 60 * 1000)),
+  );
+  if (days === 0) return 'Today';
+  if (days === 1) return '1 day ago';
+  return `${days} days ago`;
 }
 
 export default function JobSearchPage() {
-  const { t, dir } = useI18n();
-  const [jobs, setJobs] = useState<JobData[]>([]);
+  const { dir } = useI18n();
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [applicationByJob, setApplicationByJob] = useState<Map<string, string>>(
+    new Map(),
+  );
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
   const [keyword, setKeyword] = useState('');
-  const [locationFilter, setLocationFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [experienceFilter, setExperienceFilter] = useState('all');
-  const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
-  const [appliedJobs, setAppliedJobs] = useState<Set<string>>(new Set());
-  const [showFilters, setShowFilters] = useState(false);
+  const [location, setLocation] = useState('');
+  const [jobType, setJobType] = useState('all');
+  const [experience, setExperience] = useState('all');
   const [page, setPage] = useState(1);
-  const perPage = 6;
+  const perPage = 8;
 
-  useEffect(() => {
-    async function fetchJobs() {
-      try {
-        const res = await fetch('/api/jobs?status=OPEN');
-        if (res.ok) {
-          const data = await res.json();
-          setJobs(data.map((j: any) => ({
-            id: j.id,
-            title: j.title,
-            company: j.company || { id: '', name: '', logo: null },
-            location: j.location || '',
-            type: j.jobType || 'FULL_TIME',
-            isRemote: j.isRemote || false,
-            salaryMin: j.salaryMin,
-            salaryMax: j.salaryMax,
-            salaryCurrency: j.salaryCurrency || 'USD',
-            experienceMin: j.experienceMin,
-            experienceMax: j.experienceMax,
-            skills: j.skills ? JSON.parse(j.skills) : [],
-            description: j.description || '',
-            applicants: j._count?.applications || 0,
-            publishedAt: j.publishedAt,
-            createdAt: j.createdAt,
-            match: Math.floor(Math.random() * 20) + 75,
-          })));
-        }
-      } catch {
-        // Error handled silently
-      } finally {
-        setLoading(false);
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
+
+    try {
+      const [jobsResponse, savedResponse, applicationsResponse] = await Promise.all([
+        fetch('/api/jobs?status=OPEN', { cache: 'no-store' }),
+        fetch('/api/candidate/saved-jobs', { cache: 'no-store' }),
+        fetch('/api/candidate/applications', { cache: 'no-store' }),
+      ]);
+
+      if (!jobsResponse.ok) {
+        throw new Error(await getApiErrorMessage(jobsResponse, 'Unable to load jobs'));
       }
+
+      const rawJobs = (await jobsResponse.json()) as RawJob[];
+      const saved = savedResponse.ok
+        ? ((await savedResponse.json()) as SavedJob[])
+        : [];
+      const applications = applicationsResponse.ok
+        ? ((await applicationsResponse.json()) as CandidateApplication[])
+        : [];
+
+      setJobs(
+        Array.isArray(rawJobs)
+          ? rawJobs.map((job) => ({ ...job, skills: parseSkills(job.skills) }))
+          : [],
+      );
+      setSavedIds(new Set(Array.isArray(saved) ? saved.map((item) => item.jobId) : []));
+      setApplicationByJob(
+        new Map(
+          Array.isArray(applications)
+            ? applications.map((application) => [
+                application.jobId,
+                application.status,
+              ])
+            : [],
+        ),
+      );
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to load jobs');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-    fetchJobs();
   }, []);
 
-  const jobTypeLabels: Record<string, string> = {
-    FULL_TIME: 'Full-time',
-    PART_TIME: 'Part-time',
-    CONTRACT: 'Contract',
-    INTERNSHIP: 'Internship',
-  };
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  const filteredJobs = useMemo(() => {
+  const filtered = useMemo(() => {
+    const term = keyword.trim().toLowerCase();
+    const locationTerm = location.trim().toLowerCase();
     return jobs.filter((job) => {
       const matchesKeyword =
-        !keyword ||
-        job.title.toLowerCase().includes(keyword.toLowerCase()) ||
-        job.company.name.toLowerCase().includes(keyword.toLowerCase()) ||
-        job.skills.some((s) => s.toLowerCase().includes(keyword.toLowerCase()));
-
+        !term ||
+        job.title.toLowerCase().includes(term) ||
+        job.company.name.toLowerCase().includes(term) ||
+        job.skills.some((skill) => skill.toLowerCase().includes(term));
       const matchesLocation =
-        !locationFilter ||
-        job.location.toLowerCase().includes(locationFilter.toLowerCase()) ||
-        (locationFilter.toLowerCase() === 'remote' && job.isRemote);
-
-      const matchesType = typeFilter === 'all' || job.type === typeFilter;
-
+        !locationTerm ||
+        job.location?.toLowerCase().includes(locationTerm) ||
+        (locationTerm === 'remote' && job.isRemote);
+      const matchesType = jobType === 'all' || job.jobType === jobType;
+      const minimumExperience = job.experienceMin ?? 0;
       const matchesExperience =
-        experienceFilter === 'all' ||
-        (experienceFilter === 'entry' && (job.experienceMin ?? 0) <= 2) ||
-        (experienceFilter === 'mid' && (job.experienceMin ?? 0) >= 3 && (job.experienceMin ?? 0) <= 5) ||
-        (experienceFilter === 'senior' && (job.experienceMin ?? 0) >= 5 && (job.experienceMin ?? 0) <= 8) ||
-        (experienceFilter === 'lead' && (job.experienceMin ?? 0) >= 8);
-
+        experience === 'all' ||
+        (experience === 'entry' && minimumExperience <= 2) ||
+        (experience === 'mid' && minimumExperience >= 3 && minimumExperience <= 5) ||
+        (experience === 'senior' && minimumExperience >= 6);
       return matchesKeyword && matchesLocation && matchesType && matchesExperience;
     });
-  }, [keyword, locationFilter, typeFilter, experienceFilter, jobs]);
+  }, [experience, jobType, jobs, keyword, location]);
 
-  const totalPages = Math.ceil(filteredJobs.length / perPage);
-  const paginatedJobs = filteredJobs.slice((page - 1) * perPage, page * perPage);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const visibleJobs = filtered.slice((page - 1) * perPage, page * perPage);
+  const hasFilters = Boolean(
+    keyword || location || jobType !== 'all' || experience !== 'all',
+  );
 
-  const toggleSave = (jobId: string) => {
-    setSavedJobs((prev) => {
-      const next = new Set(prev);
-      if (next.has(jobId)) next.delete(jobId);
-      else next.add(jobId);
-      return next;
-    });
-  };
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
-  const handleApply = (jobId: string) => {
-    setAppliedJobs((prev) => new Set(prev).add(jobId));
-  };
-
-  const clearFilters = () => {
+  function clearFilters() {
     setKeyword('');
-    setLocationFilter('');
-    setTypeFilter('all');
-    setExperienceFilter('all');
-  };
+    setLocation('');
+    setJobType('all');
+    setExperience('all');
+    setPage(1);
+  }
 
-  const hasActiveFilters = keyword || locationFilter || typeFilter !== 'all' || experienceFilter !== 'all';
+  async function toggleSave(jobId: string) {
+    const isSaved = savedIds.has(jobId);
+    setSavingId(jobId);
+    try {
+      const response = await apiFetch('/api/candidate/saved-jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId,
+          action: isSaved ? 'remove' : 'save',
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(await getApiErrorMessage(response, 'Unable to update saved job'));
+      }
+      setSavedIds((current) => {
+        const next = new Set(current);
+        if (isSaved) next.delete(jobId);
+        else next.add(jobId);
+        return next;
+      });
+      toast.success(isSaved ? 'Removed from saved jobs' : 'Job saved');
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : 'Unable to save job');
+    } finally {
+      setSavingId(null);
+    }
+  }
 
-  const formatSalary = (min: number | null, max: number | null, currency: string, type: string) => {
-    if (!min || !max) return 'Salary not specified';
-    if (type === 'INTERNSHIP') return `$${min}/hr`;
-    return `$${Math.round(min / 1000)}K - $${Math.round(max / 1000)}K`;
-  };
-
-  const timeAgo = (dateStr: string | null) => {
-    if (!dateStr) return '';
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
-    if (diff === 0) return 'Today';
-    if (diff === 1) return '1 day ago';
-    return `${diff} days ago`;
-  };
-
-  const filterContent = (
+  const filters = (
     <div className="space-y-5">
-      <div>
-        <label className="text-sm font-medium mb-1.5 block">{t.candidate.keyword}</label>
+      <div className="space-y-2">
+        <LabelText>Keyword</LabelText>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Job title, company, or skill..."
+            className="ps-9"
+            placeholder="Job title, company, or skill"
             value={keyword}
-            onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-            className="pl-9 h-9"
+            onChange={(event) => {
+              setKeyword(event.target.value);
+              setPage(1);
+            }}
           />
         </div>
       </div>
-
-      <div>
-        <label className="text-sm font-medium mb-1.5 block">{t.candidate.location}</label>
+      <div className="space-y-2">
+        <LabelText>Location</LabelText>
         <div className="relative">
-          <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <MapPin className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="City or 'Remote'..."
-            value={locationFilter}
-            onChange={(e) => { setLocationFilter(e.target.value); setPage(1); }}
-            className="pl-9 h-9"
+            className="ps-9"
+            placeholder="City or Remote"
+            value={location}
+            onChange={(event) => {
+              setLocation(event.target.value);
+              setPage(1);
+            }}
           />
         </div>
       </div>
-
-      <div>
-        <label className="text-sm font-medium mb-1.5 block">{t.candidate.jobType}</label>
-        <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1); }}>
-          <SelectTrigger className="h-9">
-            <SelectValue placeholder={t.candidate.allTypes} />
+      <div className="space-y-2">
+        <LabelText>Employment type</LabelText>
+        <Select
+          value={jobType}
+          onValueChange={(value) => {
+            setJobType(value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t.candidate.allTypes}</SelectItem>
-            <SelectItem value="FULL_TIME">{t.candidate.fullTime}</SelectItem>
-            <SelectItem value="PART_TIME">{t.candidate.partTime}</SelectItem>
-            <SelectItem value="CONTRACT">{t.candidate.contract}</SelectItem>
-            <SelectItem value="INTERNSHIP">{t.candidate.internship}</SelectItem>
+            <SelectItem value="all">All types</SelectItem>
+            {['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'REMOTE', 'HYBRID'].map(
+              (value) => (
+                <SelectItem key={value} value={value}>
+                  {value.replaceAll('_', ' ')}
+                </SelectItem>
+              ),
+            )}
           </SelectContent>
         </Select>
       </div>
-
-      <div>
-        <label className="text-sm font-medium mb-1.5 block">{t.candidate.experienceLevel}</label>
-        <Select value={experienceFilter} onValueChange={(v) => { setExperienceFilter(v); setPage(1); }}>
-          <SelectTrigger className="h-9">
-            <SelectValue placeholder={t.candidate.allLevels} />
+      <div className="space-y-2">
+        <LabelText>Experience level</LabelText>
+        <Select
+          value={experience}
+          onValueChange={(value) => {
+            setExperience(value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t.candidate.allLevels}</SelectItem>
-            <SelectItem value="entry">{t.candidate.entryLevel}</SelectItem>
-            <SelectItem value="mid">{t.candidate.midLevel}</SelectItem>
-            <SelectItem value="senior">{t.candidate.seniorLevel}</SelectItem>
-            <SelectItem value="lead">{t.candidate.leadLevel}</SelectItem>
+            <SelectItem value="all">All levels</SelectItem>
+            <SelectItem value="entry">Entry · 0–2 years</SelectItem>
+            <SelectItem value="mid">Mid · 3–5 years</SelectItem>
+            <SelectItem value="senior">Senior · 6+ years</SelectItem>
           </SelectContent>
         </Select>
       </div>
-
-      {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={clearFilters} className="w-full text-blue-600 hover:text-blue-700">
-          <X className="h-4 w-4 mr-1" />
-          {t.candidate.clearFilters}
+      {hasFilters && (
+        <Button variant="ghost" className="w-full" onClick={clearFilters}>
+          <X className="me-2 h-4 w-4" />
+          Clear filters
         </Button>
       )}
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl space-y-5 p-4 md:p-6">
+        <Skeleton className="h-20" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton key={index} className="h-60" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-6" dir={dir}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">{t.candidate.jobSearch}</h1>
-          <p className="text-muted-foreground mt-1">
-            {filteredJobs.length} jobs found
+          <h1 className="text-2xl font-bold">Find jobs</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {filtered.length} published opportunities match your filters.
           </p>
         </div>
-        <div className="flex items-center gap-2 lg:hidden">
+        <div className="flex gap-2">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <SlidersHorizontal className="h-4 w-4" />
-                {t.candidate.filters}
+              <Button variant="outline" size="sm" className="lg:hidden">
+                <SlidersHorizontal className="me-2 h-4 w-4" />
+                Filters
               </Button>
             </SheetTrigger>
-            <SheetContent side={dir === 'rtl' ? 'right' : 'left'} className="w-80">
+            <SheetContent side={dir === 'rtl' ? 'right' : 'left'}>
               <SheetHeader>
-                <SheetTitle>{t.candidate.filters}</SheetTitle>
+                <SheetTitle>Job filters</SheetTitle>
               </SheetHeader>
-              <div className="mt-6">
-                {filterContent}
-              </div>
+              <div className="p-4">{filters}</div>
             </SheetContent>
           </Sheet>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void load(true)}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="me-2 h-4 w-4" />
+            )}
+            Refresh
+          </Button>
         </div>
       </div>
 
+      {error && (
+        <Card className="border-destructive/40">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button size="sm" variant="outline" onClick={() => void load()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex gap-6">
-        {/* Filter Sidebar - Desktop */}
-        <aside className="hidden lg:block w-72 shrink-0">
-          <Card className="sticky top-20 border border-slate-200 shadow-sm">
+        <aside className="hidden w-72 shrink-0 lg:block">
+          <Card className="sticky top-20">
             <CardContent className="p-5">
-              <h3 className="font-semibold text-sm mb-4 flex items-center gap-2">
+              <p className="mb-4 flex items-center gap-2 font-semibold">
                 <SlidersHorizontal className="h-4 w-4" />
-                {t.candidate.filters}
-              </h3>
-              {filterContent}
+                Filters
+              </p>
+              {filters}
             </CardContent>
           </Card>
         </aside>
 
-        {/* Job Listings */}
-        <div className="flex-1 min-w-0">
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-52" />)}
-            </div>
-          ) : paginatedJobs.length === 0 ? (
-            <Card className="border border-slate-200 shadow-sm">
-              <CardContent className="p-12 text-center">
-                <Search className="h-12 w-12 mx-auto text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">{t.candidate.noJobsFound}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{t.candidate.tryDifferentFilters}</p>
-                {hasActiveFilters && (
-                  <Button variant="outline" className="mt-4" onClick={clearFilters}>
-                    {t.candidate.clearFilters}
-                  </Button>
-                )}
+        <main className="min-w-0 flex-1">
+          {visibleJobs.length === 0 ? (
+            <Card>
+              <CardContent className="py-16 text-center">
+                <Search className="mx-auto h-10 w-10 text-muted-foreground" />
+                <p className="mt-3 font-medium">No jobs found</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Adjust the filters to discover more opportunities.
+                </p>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {paginatedJobs.map((job) => {
-                const isSaved = savedJobs.has(job.id);
-                const isApplied = appliedJobs.has(job.id);
-                const salaryDisplay = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, job.type);
-
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {visibleJobs.map((job) => {
+                const saved = savedIds.has(job.id);
+                const applicationStatus = applicationByJob.get(job.id);
                 return (
-                  <Card key={job.id} className="group border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200">
-                    <CardContent className="p-5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-start gap-3 min-w-0">
-                          <Avatar className="h-10 w-10 shrink-0 rounded-lg">
-                            <AvatarFallback className="bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg">
-                              {job.company.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-sm truncate text-slate-900 group-hover:text-blue-600 transition-colors">
-                              {job.title}
-                            </h3>
-                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                              <Building2 className="h-3 w-3 shrink-0" />
-                              <span className="truncate">{job.company.name}</span>
-                            </p>
-                          </div>
+                  <Card key={job.id} className="group transition-shadow hover:shadow-md">
+                    <CardContent className="flex h-full flex-col p-5">
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-11 w-11 rounded-xl">
+                          <AvatarImage src={job.company.logo || undefined} />
+                          <AvatarFallback className="rounded-xl">
+                            {companyInitials(job.company.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/candidate/jobs/${job.id}`}
+                            className="font-semibold group-hover:text-primary"
+                          >
+                            {job.title}
+                          </Link>
+                          <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                            <Building2 className="h-3 w-3" />
+                            {job.company.name}
+                          </p>
                         </div>
                         <Button
-                          variant="ghost"
                           size="icon"
-                          className="h-8 w-8 shrink-0"
-                          onClick={() => toggleSave(job.id)}
+                          variant="ghost"
+                          onClick={() => void toggleSave(job.id)}
+                          disabled={savingId === job.id}
+                          aria-label={saved ? 'Remove saved job' : 'Save job'}
                         >
-                          {isSaved ? (
-                            <BookmarkCheck className="h-4 w-4 text-blue-600" />
+                          {savingId === job.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : saved ? (
+                            <BookmarkCheck className="h-4 w-4 text-primary" />
                           ) : (
-                            <Bookmark className="h-4 w-4 text-muted-foreground" />
+                            <Bookmark className="h-4 w-4" />
                           )}
                         </Button>
                       </div>
 
-                      <div className="flex items-center gap-2 mt-3 flex-wrap">
-                        <Badge variant="secondary" className="text-[11px] font-medium">
-                          {jobTypeLabels[job.type] || job.type}
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Badge variant="secondary">
+                          {job.jobType.replaceAll('_', ' ')}
                         </Badge>
-                        {job.isRemote && (
-                          <Badge variant="secondary" className="text-[11px] font-medium bg-slate-50 text-slate-700 border border-slate-200">
-                            Remote
-                          </Badge>
-                        )}
-                        <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                          <MapPin className="h-3 w-3" />
-                          {job.location}
-                        </span>
+                        {job.isRemote && <Badge variant="outline">Remote</Badge>}
                       </div>
 
-                      <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                        <span className="font-medium text-slate-900">{salaryDisplay}</span>
-                        {job.experienceMin && job.experienceMin > 0 && (
-                          <span className="flex items-center gap-0.5">
-                            <GraduationCap className="h-3 w-3" />
-                            {job.experienceMin}+ {t.candidate.experienceYears}
-                          </span>
-                        )}
-                        <span className="flex items-center gap-0.5">
-                          <Clock className="h-3 w-3" />
-                          {timeAgo(job.publishedAt || job.createdAt)}
-                        </span>
+                      <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                        <p className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          {job.location || 'Flexible location'}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <Briefcase className="h-4 w-4" />
+                          {formatSalary(job)}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <GraduationCap className="h-4 w-4" />
+                          {job.experienceMin ?? 0}
+                          {job.experienceMax ? `–${job.experienceMax}` : '+'} years
+                        </p>
                       </div>
 
-                      <div className="flex flex-wrap gap-1.5 mt-3">
-                        {job.skills.slice(0, 3).map((skill) => (
-                          <Badge key={skill} variant="outline" className="text-[10px] px-1.5 py-0 h-5">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {job.skills.length > 3 && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
-                            +{job.skills.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200">
-                        <div className="flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1">
-                          <Star className="h-3.5 w-3.5 text-amber-500" />
-                          <span className="text-xs font-semibold text-slate-700">{job.match}% match</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-muted-foreground">{job.applicants} {t.candidate.applicants}</span>
-                          {isApplied ? (
-                            <Badge className="bg-slate-100 text-slate-700 border border-slate-200 text-xs">
-                              &checkmark; {t.candidate.applied}
+                      {job.skills.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-1.5">
+                          {job.skills.slice(0, 4).map((skill) => (
+                            <Badge key={skill} variant="outline" className="text-[10px]">
+                              {skill}
                             </Badge>
-                          ) : (
-                            <Button
-                              size="sm"
-                              className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
-                              onClick={() => handleApply(job.id)}
-                            >
-                              {t.candidate.quickApply}
-                            </Button>
+                          ))}
+                          {job.skills.length > 4 && (
+                            <Badge variant="outline" className="text-[10px]">
+                              +{job.skills.length - 4}
+                            </Badge>
                           )}
                         </div>
+                      )}
+
+                      <div className="mt-auto flex items-center justify-between gap-3 border-t pt-4">
+                        <div className="text-xs text-muted-foreground">
+                          <p>{job._count?.applications || 0} applicants</p>
+                          <p className="mt-0.5 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {timeAgo(job.publishedAt || job.createdAt)}
+                          </p>
+                        </div>
+                        {applicationStatus ? (
+                          <Badge className="bg-emerald-500/10 text-emerald-700">
+                            <CheckCircle2 className="me-1 h-3 w-3" />
+                            {applicationStatus.replaceAll('_', ' ')}
+                          </Badge>
+                        ) : (
+                          <Button asChild size="sm">
+                            <Link href={`/candidate/jobs/${job.id}`}>View and apply</Link>
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -418,40 +543,35 @@ export default function JobSearchPage() {
             </div>
           )}
 
-          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6">
+            <div className="mt-6 flex items-center justify-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
+                onClick={() => setPage((current) => current - 1)}
               >
-                {t.common.back}
+                Previous
               </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <Button
-                  key={p}
-                  variant={p === page ? 'default' : 'outline'}
-                  size="sm"
-                  className={p === page ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}
-                  onClick={() => setPage(p)}
-                >
-                  {p}
-                </Button>
-              ))}
+              <span className="px-3 text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </span>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
+                onClick={() => setPage((current) => current + 1)}
               >
-                {t.common.next}
+                Next
               </Button>
             </div>
           )}
-        </div>
+        </main>
       </div>
     </div>
   );
+}
+
+function LabelText({ children }: { children: React.ReactNode }) {
+  return <p className="text-sm font-medium">{children}</p>;
 }

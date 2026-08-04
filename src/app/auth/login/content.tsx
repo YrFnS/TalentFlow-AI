@@ -1,353 +1,525 @@
-// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useI18n } from '@/store/i18n-store';
-import { useAuth } from '@/store/auth-store';
-import { useTheme } from 'next-themes';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import {
+  ArrowRight,
+  Brain,
+  Eye,
+  EyeOff,
+  GitBranch,
+  Globe,
+  Loader2,
+  ShieldCheck,
+  Users,
+} from 'lucide-react';
 import { toast } from 'sonner';
-import { Brain, Eye, EyeOff, Globe, ArrowRight, Loader2 } from 'lucide-react';
+import { useI18n } from '@/store/i18n-store';
+import { useAuth, type AuthUser } from '@/store/auth-store';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+type SessionPayload = {
+  user?: {
+    id?: string;
+    email?: string | null;
+    name?: string | null;
+    role?: string;
+    image?: string | null;
+    companyId?: string | null;
+    companyName?: string | null;
+    locale?: string | null;
+  };
+};
+
+const roles = new Set<AuthUser['role']>([
+  'SUPER_ADMIN',
+  'ADMIN',
+  'MODERATOR',
+  'COMPANY_ADMIN',
+  'HR_MANAGER',
+  'RECRUITER',
+  'REVIEWER',
+  'CANDIDATE',
+]);
+
+function normalizeRole(value: unknown): AuthUser['role'] {
+  const role = typeof value === 'string' ? (value as AuthUser['role']) : 'CANDIDATE';
+  return roles.has(role) ? role : 'CANDIDATE';
+}
+
+function defaultDestination(role: AuthUser['role']): string {
+  if (role === 'CANDIDATE') return '/candidate';
+  if (['SUPER_ADMIN', 'ADMIN', 'MODERATOR'].includes(role)) return '/admin';
+  return '/company';
+}
+
+function safeCallbackDestination(role: AuthUser['role']): string {
+  if (typeof window === 'undefined') return defaultDestination(role);
+
+  const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl');
+  if (!callbackUrl) return defaultDestination(role);
+
+  try {
+    const url = new URL(callbackUrl, window.location.origin);
+    if (
+      url.origin === window.location.origin &&
+      url.pathname !== '/auth/login' &&
+      !url.pathname.startsWith('/api/')
+    ) {
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+  } catch {
+    // Fall back to the role landing page.
+  }
+
+  return defaultDestination(role);
+}
 
 export default function LoginPage() {
   const { t, locale, setLocale, dir } = useI18n();
   const { setUser } = useAuth();
-  const { theme, setTheme } = useTheme();
   const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<'google' | 'linkedin' | null>(null);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [twoFactorOpen, setTwoFactorOpen] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [verifyingTwoFactor, setVerifyingTwoFactor] = useState(false);
 
-  const validate = () => {
-    const newErrors: { email?: string; password?: string } = {};
-    if (!email.trim()) {
-      newErrors.email = t.auth.emailRequired;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = t.auth.invalidEmail;
+  function validate(): boolean {
+    const nextErrors: { email?: string; password?: string } = {};
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
+      nextErrors.email = t.auth.emailRequired;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      nextErrors.email = t.auth.invalidEmail;
     }
-    if (!password.trim()) {
-      newErrors.password = t.auth.passwordRequired;
+
+    if (!password) {
+      nextErrors.password = t.auth.passwordRequired;
     } else if (password.length < 6) {
-      newErrors.password = t.auth.passwordMinLength;
+      nextErrors.password = t.auth.passwordMinLength;
     }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
-  const handleSocialLogin = async (provider: 'google' | 'linkedin') => {
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
+  async function hydrateUser(): Promise<AuthUser> {
+    const response = await fetch('/api/auth/session', {
+      cache: 'no-store',
+      credentials: 'same-origin',
+    });
+    if (!response.ok) throw new Error('Unable to load the signed-in account');
+
+    const session = (await response.json()) as SessionPayload;
+    if (!session.user?.id) throw new Error('The session did not include a user');
+
+    return {
+      id: session.user.id,
+      email: session.user.email || email.trim(),
+      name: session.user.name || session.user.email || 'Account',
+      role: normalizeRole(session.user.role),
+      image: session.user.image || undefined,
+      companyId: session.user.companyId || undefined,
+      companyName: session.user.companyName || undefined,
+      locale: session.user.locale || locale || 'en',
+    };
+  }
+
+  async function completeLogin() {
+    const user = await hydrateUser();
+    setUser(user);
+    toast.success(t.auth.signInSuccess);
+    router.replace(safeCallbackDestination(user.role));
+    router.refresh();
+  }
+
+  async function handleSocialLogin(provider: 'google' | 'linkedin') {
     setSocialLoading(provider);
     try {
-      const result = await signIn(provider, {
-        callbackUrl: '/',
-        redirect: false,
-      });
-
-      if (result?.error) {
-        toast.error(t.socialLogin.socialLoginError);
-      } else if (result?.ok) {
-        const sessionRes = await fetch('/api/auth/session');
-        const session = await sessionRes.json();
-
-        if (session?.user) {
-          setUser({
-            id: (session.user as Record<string, unknown>).id as string || '',
-            email: session.user.email || '',
-            name: session.user.name || '',
-            role: (session.user as Record<string, unknown>).role as string as any || 'CANDIDATE',
-            image: session.user.image || undefined,
-            companyId: (session.user as Record<string, unknown>).companyId as string || undefined,
-            companyName: (session.user as Record<string, unknown>).companyName as string || undefined,
-            locale: (session.user as Record<string, unknown>).locale as string || 'en',
-          });
-          toast.success(t.socialLogin.socialLoginSuccess);
-          router.push('/');
-        }
-      }
+      const callbackUrl =
+        typeof window === 'undefined'
+          ? '/'
+          : new URLSearchParams(window.location.search).get('callbackUrl') || '/';
+      await signIn(provider, { callbackUrl });
     } catch {
       toast.error(t.socialLogin.socialLoginError);
-    } finally {
       setSocialLoading(null);
     }
-  };
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (!validate()) return;
 
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/callback/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        email: email.trim(),
+        password,
+        redirect: false,
       });
 
-      if (res.ok) {
-        const sessionRes = await fetch('/api/auth/session');
-        const session = await sessionRes.json();
-
-        if (session?.user) {
-          setUser({
-            id: (session.user as Record<string, unknown>).id as string || '',
-            email: session.user.email || email,
-            name: session.user.name || '',
-            role: (session.user as Record<string, unknown>).role as string as any || 'CANDIDATE',
-            image: session.user.image || undefined,
-            companyId: (session.user as Record<string, unknown>).companyId as string || undefined,
-            companyName: (session.user as Record<string, unknown>).companyName as string || undefined,
-            locale: (session.user as Record<string, unknown>).locale as string || 'en',
-          });
-          toast.success(t.auth.signInSuccess);
-          router.push('/');
-        }
-      } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data?.error || t.auth.invalidCredentials);
+      if (result?.error?.includes('2FA_REQUIRED:')) {
+        setTwoFactorCode('');
+        setTwoFactorOpen(true);
+        return;
       }
-    } catch {
-      toast.error(t.auth.signInError);
+
+      if (!result?.ok || result.error) {
+        toast.error(t.auth.invalidCredentials);
+        return;
+      }
+
+      await completeLogin();
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error && reason.message
+          ? reason.message
+          : t.auth.signInError,
+      );
     } finally {
       setIsLoading(false);
     }
-  };
+  }
+
+  async function handleTwoFactorSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const code = twoFactorCode.trim();
+    if (!code) {
+      toast.error('Enter your authentication code or a backup code');
+      return;
+    }
+
+    setVerifyingTwoFactor(true);
+    try {
+      // NextAuth verifies both TOTP and backup codes. Calling the separate
+      // verification endpoint first would consume a backup code before the
+      // session is created, so the credential provider remains the single
+      // source of truth for this login attempt.
+      const result = await signIn('credentials', {
+        email: email.trim(),
+        password,
+        totpToken: code,
+        redirect: false,
+      });
+
+      if (!result?.ok || result.error) {
+        toast.error(result?.error || 'Invalid authentication code');
+        return;
+      }
+
+      setTwoFactorOpen(false);
+      await completeLogin();
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error ? reason.message : 'Unable to verify the code',
+      );
+    } finally {
+      setVerifyingTwoFactor(false);
+    }
+  }
 
   return (
-    <div dir={dir} className="min-h-screen flex">
-      {/* Left side - Branding / Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-900">
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white">
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-                <Brain className="w-6 h-6" />
-              </div>
-              <span className="text-2xl font-bold">TalentFlow AI</span>
-            </div>
-            <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
-              {t.auth.hireSmarter}<br />
-              <span className="text-white/70">{t.auth.withAI}</span>
-            </h1>
-            <p className="text-lg text-white/60 max-w-md">
-              {t.auth.landingDesc}
-            </p>
-          </div>
-          {/* Feature highlights */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Brain className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">{t.auth.featureAIScreening}</p>
-                <p className="text-xs text-white/50">{t.auth.featureAIScreeningDesc}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <GitBranch className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">{t.auth.featureSmartPipeline}</p>
-                <p className="text-xs text-white/50">{t.auth.featureSmartPipelineDesc}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
-              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Users className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">{t.auth.featureAIMatching}</p>
-                <p className="text-xs text-white/50">{t.auth.featureAIMatchingDesc}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right side - Login Form */}
-      <div className="flex-1 flex flex-col">
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-              <Brain className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-lg font-bold text-slate-900 lg:hidden">
-              {t.common.appName}
+    <div dir={dir} className="flex min-h-screen bg-background">
+      <aside className="relative hidden w-1/2 overflow-hidden bg-slate-950 lg:flex">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.28),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.22),transparent_40%)]" />
+        <div className="relative z-10 flex flex-col justify-center px-12 text-white xl:px-20">
+          <Link href="/" className="mb-10 flex items-center gap-3">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+              <Brain className="h-6 w-6" />
             </span>
+            <span className="text-2xl font-bold">TalentFlow AI</span>
           </Link>
-          <div className="flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Globe className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setLocale('en')}>
-                  <span className={locale === 'en' ? 'font-bold' : ''}>English</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLocale('ar')}>
-                  <span className={locale === 'ar' ? 'font-bold' : ''}>العربية</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+
+          <h1 className="max-w-xl text-4xl font-bold leading-tight xl:text-5xl">
+            {t.auth.hireSmarter}
+            <span className="block text-white/65">{t.auth.withAI}</span>
+          </h1>
+          <p className="mt-5 max-w-lg text-lg leading-8 text-white/60">
+            {t.auth.landingDesc}
+          </p>
+
+          <div className="mt-10 space-y-3">
+            {[
+              {
+                icon: Brain,
+                title: t.auth.featureAIScreening,
+                description: t.auth.featureAIScreeningDesc,
+              },
+              {
+                icon: GitBranch,
+                title: t.auth.featureSmartPipeline,
+                description: t.auth.featureSmartPipelineDesc,
+              },
+              {
+                icon: Users,
+                title: t.auth.featureAIMatching,
+                description: t.auth.featureAIMatchingDesc,
+              },
+            ].map(({ icon: Icon, title, description }) => (
+              <div
+                key={title}
+                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-sm font-medium">{title}</p>
+                  <p className="mt-0.5 text-xs text-white/50">{description}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+      </aside>
 
-        {/* Main content */}
-        <div className="flex-1 flex items-center justify-center px-4 py-8">
-          <div className="w-full max-w-md">
-            <Card className="relative border-border/50 shadow-lg">
-              <CardHeader className="text-center pb-2">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600">
-                  <Brain className="h-7 w-7 text-white" />
-                </div>
-                <CardTitle className="text-2xl font-bold text-slate-900">{t.auth.signIn}</CardTitle>
-                <CardDescription>{t.auth.signInSubtitle}</CardDescription>
-              </CardHeader>
+      <main className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between px-4 py-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-2 lg:hidden">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <Brain className="h-4 w-4" />
+            </span>
+            <span className="font-bold">TalentFlow AI</span>
+          </Link>
+          <span className="hidden lg:block" />
 
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Social Login Buttons */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      type="button"
-                      className="h-11 gap-2 bg-[#4285F4] hover:bg-[#3574d4] text-white font-medium"
-                      onClick={() => handleSocialLogin('google')}
-                      disabled={socialLoading !== null}
-                    >
-                      {socialLoading === 'google' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#fff"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff"/></svg>
-                      )}
-                      {socialLoading === 'google' ? t.socialLogin.connecting : t.socialLogin.signInWithGoogle}
-                    </Button>
-                    <Button
-                      type="button"
-                      className="h-11 gap-2 bg-[#0A66C2] hover:bg-[#0856a5] text-white font-medium"
-                      onClick={() => handleSocialLogin('linkedin')}
-                      disabled={socialLoading !== null}
-                    >
-                      {socialLoading === 'linkedin' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#fff"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                      )}
-                      {socialLoading === 'linkedin' ? t.socialLogin.connecting : t.socialLogin.signInWithLinkedIn}
-                    </Button>
-                  </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Change language">
+                <Globe className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setLocale('en')}>
+                <span className={locale === 'en' ? 'font-semibold' : ''}>
+                  English
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocale('ar')}>
+                <span className={locale === 'ar' ? 'font-semibold' : ''}>
+                  العربية
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
 
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground/70">{t.socialLogin.orContinueWith}</span></div>
-                  </div>
+        <div className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
+          <Card className="w-full max-w-md border-border/60 shadow-xl shadow-black/5">
+            <CardHeader className="text-center">
+              <span className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                <Brain className="h-7 w-7" />
+              </span>
+              <CardTitle className="text-2xl">{t.auth.signIn}</CardTitle>
+              <CardDescription>{t.auth.signInSubtitle}</CardDescription>
+            </CardHeader>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email">{t.auth.email}</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder={t.auth.enterEmail}
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: undefined })); }}
-                      className={`transition-all duration-200 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-                      autoComplete="email"
-                    />
-                    {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password">{t.auth.password}</Label>
-                      <Link href="#" className="text-xs text-muted-foreground hover:text-foreground">
-                        {t.auth.forgotPassword}
-                      </Link>
-                    </div>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder={t.auth.enterPassword}
-                        value={password}
-                        onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: undefined })); }}
-                        className={`transition-all duration-200 ${errors.password ? 'border-destructive pe-10' : 'pe-10'}`}
-                        autoComplete="current-password"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute end-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{t.auth.passwordRequirement}</p>
-                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                  </div>
-
-                  {/* Remember me */}
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="remember"
-                      checked={rememberMe}
-                      onCheckedChange={(checked) => setRememberMe(checked === true)}
-                    />
-                    <Label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
-                      {t.auth.rememberMe}
-                    </Label>
-                  </div>
-
+            <CardContent>
+              <form className="space-y-5" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-2 gap-3">
                   <Button
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    size="lg"
-                    disabled={isLoading}
+                    type="button"
+                    variant="outline"
+                    disabled={socialLoading !== null || isLoading}
+                    onClick={() => void handleSocialLogin('google')}
                   >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin me-2" />
-                    ) : (
-                      <ArrowRight className="h-4 w-4 me-2" />
+                    {socialLoading === 'google' && (
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
                     )}
-                    {t.auth.signIn}
+                    Google
                   </Button>
-                </form>
-              </CardContent>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={socialLoading !== null || isLoading}
+                    onClick={() => void handleSocialLogin('linkedin')}
+                  >
+                    {socialLoading === 'linkedin' && (
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    )}
+                    LinkedIn
+                  </Button>
+                </div>
 
-              <CardFooter className="flex flex-col gap-4">
-                <div className="text-sm text-muted-foreground text-center">
+                <div className="relative py-1">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">or</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t.auth.email}</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      if (errors.email) {
+                        setErrors((current) => ({ ...current, email: undefined }));
+                      }
+                    }}
+                    aria-invalid={Boolean(errors.email)}
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-destructive">{errors.email}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <Label htmlFor="password">{t.auth.password}</Label>
+                    <Link
+                      href="/auth/forgot-password"
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      {t.auth.forgotPassword}
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(event) => {
+                        setPassword(event.target.value);
+                        if (errors.password) {
+                          setErrors((current) => ({
+                            ...current,
+                            password: undefined,
+                          }));
+                        }
+                      }}
+                      className="pe-10"
+                      aria-invalid={Boolean(errors.password)}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute end-0 top-0 h-full w-10"
+                      onClick={() => setShowPassword((current) => !current)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-xs text-destructive">{errors.password}</p>
+                  )}
+                </div>
+
+                <Button className="w-full" type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <ArrowRight className="me-2 h-4 w-4" />
+                  )}
+                  {t.auth.signIn}
+                </Button>
+
+                <p className="text-center text-sm text-muted-foreground">
                   {t.auth.noAccount}{' '}
-                  <Link href="/auth/register" className="font-semibold text-blue-600 hover:text-blue-700">
+                  <Link
+                    href="/auth/register"
+                    className="font-medium text-primary hover:underline"
+                  >
                     {t.auth.signUp}
                   </Link>
-                </div>
-              </CardFooter>
-            </Card>
-          </div>
+                </p>
+              </form>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </main>
+
+      <Dialog
+        open={twoFactorOpen}
+        onOpenChange={(open) => {
+          if (!verifyingTwoFactor) setTwoFactorOpen(open);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <form onSubmit={handleTwoFactorSubmit}>
+            <DialogHeader>
+              <span className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <ShieldCheck className="h-5 w-5" />
+              </span>
+              <DialogTitle>Two-factor authentication</DialogTitle>
+              <DialogDescription>
+                Enter the current code from your authenticator app. A remaining
+                backup code also works here and will be consumed once.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="py-5">
+              <Label htmlFor="two-factor-code">Authentication code</Label>
+              <Input
+                id="two-factor-code"
+                className="mt-2 font-mono tracking-widest"
+                autoComplete="one-time-code"
+                autoFocus
+                value={twoFactorCode}
+                onChange={(event) => setTwoFactorCode(event.target.value)}
+                placeholder="123456"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={verifyingTwoFactor}
+                onClick={() => setTwoFactorOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={verifyingTwoFactor}>
+                {verifyingTwoFactor && (
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                )}
+                Verify and sign in
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

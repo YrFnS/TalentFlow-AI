@@ -1,70 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireCompanyMember } from '@/lib/auth-guard';
+import {
+  requireCompanyMember,
+  resolveCompanyId,
+} from '@/lib/auth-guard';
 
 export async function GET(request: NextRequest) {
   const auth = await requireCompanyMember();
   if (auth instanceof NextResponse) return auth;
 
-  const { searchParams } = new URL(request.url);
-  const companyId = searchParams.get('companyId');
-
-  if (!companyId) {
-    return NextResponse.json(
-      { error: 'companyId query parameter is required' },
-      { status: 400 }
-    );
-  }
-
   try {
-    // Get all postings for company's jobs
+    const companyId = resolveCompanyId(
+      auth,
+      request.nextUrl.searchParams.get('companyId'),
+    );
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'A valid company context is required' },
+        { status: 403 },
+      );
+    }
+
     const postings = await db.jobBoardPosting.findMany({
-      where: {
-        job: {
-          companyId,
-        },
-      },
+      where: { job: { companyId } },
       include: {
-        board: {
-          select: {
-            id: true,
-            name: true,
-            logo: true,
-          },
-        },
-        job: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
+        board: { select: { id: true, name: true, logo: true } },
+        job: { select: { id: true, title: true } },
       },
     });
 
-    // Calculate aggregates
-    const totalPostings = postings.length;
-    const totalViews = postings.reduce((sum, p) => sum + p.views, 0);
-    const totalClicks = postings.reduce((sum, p) => sum + p.clicks, 0);
-    const totalApplications = postings.reduce((sum, p) => sum + p.applications, 0);
+    const boardMap = new Map<
+      string,
+      {
+        boardId: string;
+        boardName: string;
+        postingCount: number;
+        views: number;
+        clicks: number;
+        applications: number;
+        posted: number;
+        pending: number;
+        failed: number;
+        expired: number;
+        removed: number;
+      }
+    >();
 
-    // Group by board
-    const boardMap = new Map<string, {
-      boardId: string;
-      boardName: string;
-      postingCount: number;
-      views: number;
-      clicks: number;
-      applications: number;
-      posted: number;
-      pending: number;
-      failed: number;
-      expired: number;
-    }>();
-
-    for (const p of postings) {
-      const existing = boardMap.get(p.boardId) || {
-        boardId: p.boardId,
-        boardName: p.board.name,
+    for (const posting of postings) {
+      const current = boardMap.get(posting.boardId) || {
+        boardId: posting.boardId,
+        boardName: posting.board.name,
         postingCount: 0,
         views: 0,
         clicks: 0,
@@ -73,35 +58,35 @@ export async function GET(request: NextRequest) {
         pending: 0,
         failed: 0,
         expired: 0,
+        removed: 0,
       };
-
-      existing.postingCount++;
-      existing.views += p.views;
-      existing.clicks += p.clicks;
-      existing.applications += p.applications;
-
-      if (p.status === 'POSTED') existing.posted++;
-      else if (p.status === 'PENDING') existing.pending++;
-      else if (p.status === 'FAILED') existing.failed++;
-      else if (p.status === 'EXPIRED') existing.expired++;
-
-      boardMap.set(p.boardId, existing);
+      current.postingCount += 1;
+      current.views += posting.views;
+      current.clicks += posting.clicks;
+      current.applications += posting.applications;
+      if (posting.status === 'POSTED') current.posted += 1;
+      else if (posting.status === 'PENDING') current.pending += 1;
+      else if (posting.status === 'FAILED') current.failed += 1;
+      else if (posting.status === 'EXPIRED') current.expired += 1;
+      else if (posting.status === 'REMOVED') current.removed += 1;
+      boardMap.set(posting.boardId, current);
     }
 
-    const byBoard = Array.from(boardMap.values());
-
     return NextResponse.json({
-      totalPostings,
-      totalViews,
-      totalClicks,
-      totalApplications,
-      byBoard,
+      totalPostings: postings.length,
+      totalViews: postings.reduce((sum, posting) => sum + posting.views, 0),
+      totalClicks: postings.reduce((sum, posting) => sum + posting.clicks, 0),
+      totalApplications: postings.reduce(
+        (sum, posting) => sum + posting.applications,
+        0,
+      ),
+      byBoard: [...boardMap.values()],
     });
   } catch (error) {
-    console.error('Error fetching analytics:', error);
+    console.error('Error fetching job board analytics:', error);
     return NextResponse.json(
       { error: 'Failed to fetch analytics' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

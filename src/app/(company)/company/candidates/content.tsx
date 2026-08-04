@@ -1,30 +1,41 @@
-// @ts-nocheck
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { useI18n } from '@/store/i18n-store';
-import { cn } from '@/lib/utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import {
-  Search,
-  UserSearch,
-  Filter,
-  Sparkles,
+  Briefcase,
+  Eye,
+  Loader2,
   Mail,
   MapPin,
-  Briefcase,
-  ChevronDown,
-  CheckCircle2,
-  XCircle,
-  MoreHorizontal,
-  User,
-  FileText,
-  Star,
+  RefreshCw,
+  Search,
+  Sparkles,
+  UserRoundCheck,
+  UserSearch,
+  Users,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { getApiErrorMessage } from '@/lib/api-client';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -33,31 +44,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
 
-interface CandidateProfile {
+type CandidateApplication = {
+  id: string;
+  status: string;
+  matchScore: number | null;
+  appliedAt: string;
+  job: {
+    id: string;
+    title: string;
+  };
+};
+
+type Candidate = {
   id: string;
   phone: string | null;
   location: string | null;
@@ -67,462 +66,474 @@ interface CandidateProfile {
   currentTitle: string | null;
   availability: string | null;
   createdAt: string;
-  user: { id: string; name: string; email: string; image: string | null };
-  applications: Array<{
+  user: {
     id: string;
-    status: string;
-    job: { id: string; title: string };
-  }>;
+    name: string;
+    email: string;
+    image: string | null;
+  };
+  applications: CandidateApplication[];
+};
+
+type StatCard = {
+  label: string;
+  value: number;
+  icon: LucideIcon;
+};
+
+const availabilityLabels: Record<string, string> = {
+  open: 'Open to work',
+  employed: 'Employed',
+  not_looking: 'Not looking',
+  'not-looking': 'Not looking',
+  'open-offers': 'Open to offers',
+};
+
+const statusStyles: Record<string, string> = {
+  APPLIED: 'bg-slate-500/10 text-slate-700',
+  SCREENING: 'bg-blue-500/10 text-blue-700',
+  INTERVIEW: 'bg-amber-500/10 text-amber-700',
+  OFFERED: 'bg-violet-500/10 text-violet-700',
+  HIRED: 'bg-emerald-500/10 text-emerald-700',
+  REJECTED: 'bg-destructive/10 text-destructive',
+  WITHDRAWN: 'bg-muted text-muted-foreground',
+};
+
+function initials(name: string): string {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 }
 
-export default function CandidatesPage() {
-  const { t } = useI18n();
-  const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCandidate, setSelectedCandidate] = useState<CandidateProfile | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [filterAvailability, setFilterAvailability] = useState<string>('all');
+function parseSkills(value: string | null): string[] {
+  if (!value) return [];
 
-  const fetchCandidates = useCallback(async () => {
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+  } catch {
+    // Support legacy comma-separated values.
+  }
+
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function bestMatch(candidate: Candidate): number | null {
+  const scores = candidate.applications
+    .map((application) => application.matchScore)
+    .filter((score): score is number => score !== null);
+  return scores.length ? Math.max(...scores) : null;
+}
+
+function latestApplication(candidate: Candidate): CandidateApplication | null {
+  return candidate.applications[0] || null;
+}
+
+export default function CandidatesContent() {
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+  const [query, setQuery] = useState('');
+  const [availability, setAvailability] = useState('all');
+  const [selected, setSelected] = useState<Candidate | null>(null);
+
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
+
     try {
-      const res = await fetch('/api/candidates');
-      if (res.ok) {
-        const data = await res.json();
-        setCandidates(data);
+      const response = await fetch('/api/candidates', { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to load candidates'),
+        );
       }
-    } catch (error) {
-      console.error('Failed to fetch candidates:', error);
+      const data = await response.json();
+      setCandidates(Array.isArray(data) ? data : []);
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : 'Unable to load candidates',
+      );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCandidates();
-  }, [fetchCandidates]);
+    void load();
+  }, [load]);
 
-  const filteredCandidates = candidates.filter((c) => {
-    const matchesSearch =
-      !searchQuery ||
-      c.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.currentTitle?.toLowerCase() || '').includes(searchQuery.toLowerCase());
-    const matchesAvailability =
-      filterAvailability === 'all' || c.availability === filterAvailability;
-    return matchesSearch && matchesAvailability;
-  });
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return candidates.filter((candidate) => {
+      const normalizedAvailability = candidate.availability || 'open';
+      if (
+        availability !== 'all' &&
+        normalizedAvailability !== availability
+      ) {
+        return false;
+      }
 
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+      if (!term) return true;
+      return (
+        candidate.user.name.toLowerCase().includes(term) ||
+        candidate.user.email.toLowerCase().includes(term) ||
+        candidate.currentTitle?.toLowerCase().includes(term) ||
+        candidate.location?.toLowerCase().includes(term) ||
+        parseSkills(candidate.skills).some((skill) =>
+          skill.toLowerCase().includes(term),
+        )
+      );
     });
-  };
+  }, [availability, candidates, query]);
 
-  const toggleSelectAll = () => {
-    if (selectedIds.size === filteredCandidates.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredCandidates.map((c) => c.id)));
-    }
-  };
+  const stats = useMemo(
+    () => ({
+      total: candidates.length,
+      open: candidates.filter(
+        (candidate) => (candidate.availability || 'open') === 'open',
+      ).length,
+      interviewing: candidates.filter((candidate) =>
+        candidate.applications.some(
+          (application) => application.status === 'INTERVIEW',
+        ),
+      ).length,
+      hired: candidates.filter((candidate) =>
+        candidate.applications.some(
+          (application) => application.status === 'HIRED',
+        ),
+      ).length,
+    }),
+    [candidates],
+  );
 
-  const handleBulkAction = async (action: 'shortlist' | 'reject') => {
-    // In a real app, this would call an API
-    setSelectedIds(new Set());
-  };
+  const statCards: StatCard[] = [
+    { label: 'Total candidates', value: stats.total, icon: Users },
+    { label: 'Open to work', value: stats.open, icon: UserSearch },
+    { label: 'Interviewing', value: stats.interviewing, icon: Briefcase },
+    { label: 'Hired', value: stats.hired, icon: UserRoundCheck },
+  ];
 
-  const getScoreColor = (score: number | null) => {
-    if (!score) return '';
-    if (score >= 85) return 'text-emerald-600';
-    if (score >= 70) return 'text-blue-600';
-    if (score >= 50) return 'text-amber-600';
-    return 'text-red-600';
-  };
-
-  const getScoreBg = (score: number | null) => {
-    if (!score) return '';
-    if (score >= 85) return 'bg-emerald-50';
-    if (score >= 70) return 'bg-slate-50';
-    if (score >= 50) return 'bg-amber-50 dark:bg-amber-950/30';
-    return 'bg-red-50 dark:bg-red-950/30';
-  };
-
-  const parseSkills = (skills: string | null): string[] => {
-    if (!skills) return [];
-    try {
-      return JSON.parse(skills);
-    } catch {
-      return skills.split(',').map((s) => s.trim());
-    }
-  };
-
-  const getMatchScore = (candidate: CandidateProfile): number | null => {
-    // Generate a pseudo-random but consistent score based on candidate data
-    if (candidate.applications.length > 0) {
-      // Use a deterministic score based on candidate id hash
-      const hash = candidate.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      return 65 + (hash % 30);
-    }
-    return null;
-  };
-
-  const availabilityLabels: Record<string, string> = {
-    open: 'Open to Work',
-    employed: 'Employed',
-    not_looking: 'Not Looking',
-  };
-
-  const availabilityColors: Record<string, string> = {
-    open: 'bg-emerald-100 text-emerald-700',
-    employed: 'bg-teal-100 text-blue-700',
-    not_looking: 'bg-gray-100 text-gray-700 dark:bg-gray-800/30 dark:text-gray-400',
-  };
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-20" />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-28" />
+          ))}
+        </div>
+        <Skeleton className="h-96" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.candidates.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {candidates.length} candidates in your talent pool
+          <h1 className="text-2xl font-bold">Candidates</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Candidates who applied to jobs in your company.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {selectedIds.size > 0 && (
-            <>
-              <span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleBulkAction('shortlist')}
-                className="text-emerald-600 border-emerald-300 dark:border-emerald-700"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5 me-1.5" />
-                {t.candidates.shortlist}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleBulkAction('reject')}
-                className="text-destructive border-red-300 dark:border-red-800"
-              >
-                <XCircle className="w-3.5 h-3.5 me-1.5" />
-                {t.candidates.reject}
-              </Button>
-            </>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => void load(true)}
+          disabled={refreshing}
+        >
+          {refreshing ? (
+            <Loader2 className="me-2 h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="me-2 h-4 w-4" />
           )}
-        </div>
+          Refresh
+        </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      {error && (
+        <Card className="border-destructive/40">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button size="sm" variant="outline" onClick={() => void load()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {statCards.map(({ label, value, icon: Icon }) => (
+          <Card key={label}>
+            <CardContent className="flex items-center justify-between p-5">
+              <div>
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <p className="mt-2 text-3xl font-bold">{value}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search candidates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-9"
+            className="ps-9"
+            placeholder="Search name, email, title, location, or skill"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
           />
         </div>
-        <Select value={filterAvailability} onValueChange={setFilterAvailability}>
-          <SelectTrigger className="w-[160px] h-9">
-            <SelectValue placeholder="Availability" />
+        <Select value={availability} onValueChange={setAvailability}>
+          <SelectTrigger className="w-full sm:w-52">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="open">Open to Work</SelectItem>
+            <SelectItem value="all">All availability</SelectItem>
+            <SelectItem value="open">Open to work</SelectItem>
             <SelectItem value="employed">Employed</SelectItem>
-            <SelectItem value="not_looking">Not Looking</SelectItem>
+            <SelectItem value="not_looking">Not looking</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Candidates Table */}
-      <Card>
-        {loading ? (
-          <div className="p-6 space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-4 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-muted" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded w-1/4" />
-                  <div className="h-3 bg-muted rounded w-1/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filteredCandidates.length === 0 ? (
-          <CardContent className="py-12 text-center">
-            <UserSearch className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-medium">No candidates found</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              {searchQuery ? 'Try adjusting your search terms' : 'Candidates will appear here when they apply to your jobs'}
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <UserSearch className="mx-auto h-10 w-10 text-muted-foreground" />
+            <p className="mt-3 font-medium">No candidates found</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Candidates appear here after applying to one of your jobs.
             </p>
           </CardContent>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10">
-                  <Checkbox
-                    checked={selectedIds.size === filteredCandidates.length && filteredCandidates.length > 0}
-                    onCheckedChange={toggleSelectAll}
-                  />
-                </TableHead>
-                <TableHead className="text-xs">Candidate</TableHead>
-                <TableHead className="text-xs">{t.candidates.matchScore}</TableHead>
-                <TableHead className="text-xs">{t.candidates.skills}</TableHead>
-                <TableHead className="text-xs">{t.candidates.experience}</TableHead>
-                <TableHead className="text-xs">Status</TableHead>
-                <TableHead className="text-xs">Applications</TableHead>
-                <TableHead className="text-xs w-10"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCandidates.map((candidate) => {
-                const matchScore = getMatchScore(candidate);
-                const skills = parseSkills(candidate.skills);
-                return (
-                  <TableRow
-                    key={candidate.id}
-                    className="cursor-pointer hover:bg-accent/30"
-                    onClick={() => {
-                      setSelectedCandidate(candidate);
-                      setSheetOpen(true);
-                    }}
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selectedIds.has(candidate.id)}
-                        onCheckedChange={() => toggleSelect(candidate.id)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-9 h-9">
-                          <AvatarFallback className="bg-teal-100 text-blue-700 text-xs">
-                            {candidate.user.name.split(' ').map((n) => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{candidate.user.name}</p>
-                          <p className="text-xs text-muted-foreground">{candidate.currentTitle || candidate.user.email}</p>
+        </Card>
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Candidate</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Skills</TableHead>
+                  <TableHead>Best AI match</TableHead>
+                  <TableHead>Latest application</TableHead>
+                  <TableHead className="w-20" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((candidate) => {
+                  const skills = parseSkills(candidate.skills);
+                  const score = bestMatch(candidate);
+                  const latest = latestApplication(candidate);
+
+                  return (
+                    <TableRow key={candidate.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={candidate.user.image || undefined} />
+                            <AvatarFallback>
+                              {initials(candidate.user.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">
+                              {candidate.user.name}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {candidate.currentTitle || candidate.user.email}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {matchScore ? (
-                        <div className={cn('flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold w-fit', getScoreBg(matchScore), getScoreColor(matchScore))}>
-                          <Sparkles className="w-3 h-3" />
-                          {matchScore}%
+                      </TableCell>
+                      <TableCell>
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {candidate.location || 'Not provided'}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex max-w-64 flex-wrap gap-1">
+                          {skills.slice(0, 3).map((skill) => (
+                            <Badge key={skill} variant="secondary">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {skills.length > 3 && (
+                            <Badge variant="outline">+{skills.length - 3}</Badge>
+                          )}
+                          {skills.length === 0 && (
+                            <span className="text-sm text-muted-foreground">—</span>
+                          )}
                         </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1 max-w-[200px]">
-                        {skills.slice(0, 3).map((skill) => (
-                          <Badge key={skill} variant="secondary" className="text-[10px] px-1.5 py-0">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {skills.length > 3 && (
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                            +{skills.length - 3}
+                      </TableCell>
+                      <TableCell>
+                        {score === null ? (
+                          <span className="text-sm text-muted-foreground">—</span>
+                        ) : (
+                          <Badge variant="outline" className="gap-1">
+                            <Sparkles className="h-3 w-3" />
+                            {Math.round(score)}%
                           </Badge>
                         )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {candidate.experienceYears ? `${candidate.experienceYears} yrs` : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn('text-[10px] px-1.5 py-0', availabilityColors[candidate.availability || 'open'] || '')}
-                      >
-                        {availabilityLabels[candidate.availability || 'open'] || candidate.availability}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-xs">{candidate.applications.length}</TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => { setSelectedCandidate(candidate); setSheetOpen(true); }}>
-                            <User className="w-4 h-4 me-2" />View Profile
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Mail className="w-4 h-4 me-2" />Send Email
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileText className="w-4 h-4 me-2" />View Resume
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-emerald-600">
-                            <CheckCircle2 className="w-4 h-4 me-2" />{t.candidates.shortlist}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            <XCircle className="w-4 h-4 me-2" />{t.candidates.reject}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </Card>
+                      </TableCell>
+                      <TableCell>
+                        {latest ? (
+                          <div>
+                            <p className="text-sm font-medium">{latest.job.title}</p>
+                            <Badge
+                              className={`mt-1 ${statusStyles[latest.status] || ''}`}
+                            >
+                              {latest.status}
+                            </Badge>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setSelected(candidate)}
+                          aria-label={`View ${candidate.user.name}`}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+      )}
 
-      {/* Candidate Profile Sheet */}
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="w-[420px] sm:max-w-[420px] p-0">
-          {selectedCandidate && (
-            <div className="flex flex-col h-full">
-              <SheetHeader className="p-6 pb-4 border-b">
-                <SheetTitle className="flex items-center gap-3">
-                  <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-teal-100 text-blue-700">
-                      {selectedCandidate.user.name.split(' ').map((n) => n[0]).join('')}
-                    </AvatarFallback>
+      <Sheet open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+          {selected && (
+            <>
+              <SheetHeader>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={selected.user.image || undefined} />
+                    <AvatarFallback>{initials(selected.user.name)}</AvatarFallback>
                   </Avatar>
-                  <div className="text-start">
-                    <p className="font-semibold">{selectedCandidate.user.name}</p>
-                    <p className="text-sm text-muted-foreground">{selectedCandidate.currentTitle || 'No title'}</p>
+                  <div>
+                    <SheetTitle>{selected.user.name}</SheetTitle>
+                    <SheetDescription>
+                      {selected.currentTitle || 'Candidate profile'}
+                    </SheetDescription>
                   </div>
-                </SheetTitle>
+                </div>
               </SheetHeader>
 
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                {/* Contact Info */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.contactInfo}</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <span>{selectedCandidate.user.email}</span>
-                    </div>
-                    {selectedCandidate.phone && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground">📞</span>
-                        <span>{selectedCandidate.phone}</span>
-                      </div>
-                    )}
-                    {selectedCandidate.location && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span>{selectedCandidate.location}</span>
-                      </div>
-                    )}
+              <div className="space-y-6 px-4 pb-6">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <a
+                    className="flex items-center gap-2 rounded-lg border p-3 text-sm hover:bg-muted"
+                    href={`mailto:${selected.user.email}`}
+                  >
+                    <Mail className="h-4 w-4 text-primary" />
+                    <span className="truncate">{selected.user.email}</span>
+                  </a>
+                  <div className="flex items-center gap-2 rounded-lg border p-3 text-sm">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    {selected.location || 'Location not provided'}
                   </div>
                 </div>
 
-                <Separator />
-
-                {/* AI Match Score */}
-                {getMatchScore(selectedCandidate) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-blue-500" />
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.aiMatchScore}</h4>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200/30">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl font-bold text-blue-600">{getMatchScore(selectedCandidate)}%</span>
-                        <Badge className="bg-teal-100 text-blue-700">High Match</Badge>
-                      </div>
-                      <Progress value={getMatchScore(selectedCandidate)!} className="h-1.5" />
-                    </div>
-                  </div>
-                )}
-
-                <Separator />
-
-                {/* Skills */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.skills}</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {parseSkills(selectedCandidate.skills).map((skill) => (
-                      <Badge key={skill} variant="secondary" className="text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
+                <div>
+                  <p className="text-sm font-medium">Availability</p>
+                  <Badge className="mt-2" variant="secondary">
+                    {availabilityLabels[selected.availability || 'open'] ||
+                      selected.availability ||
+                      'Open to work'}
+                  </Badge>
                 </div>
 
-                <Separator />
-
-                {/* Experience */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.experience}</h4>
-                  <p className="text-sm">
-                    {selectedCandidate.experienceYears
-                      ? `${selectedCandidate.experienceYears} years of professional experience`
-                      : 'Experience not specified'}
+                <div>
+                  <p className="text-sm font-medium">Experience</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {selected.experienceYears === null
+                      ? 'Not provided'
+                      : `${selected.experienceYears} year${
+                          selected.experienceYears === 1 ? '' : 's'
+                        }`}
                   </p>
                 </div>
 
-                <Separator />
-
-                {/* Application History */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t.candidates.applicationHistory}</h4>
-                  {selectedCandidate.applications.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No applications yet</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {selectedCandidate.applications.map((app) => (
-                        <div key={app.id} className="flex items-center justify-between p-2 rounded-lg border border-border/50">
-                          <div className="flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm">{app.job.title}</span>
-                          </div>
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                            {app.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <Separator />
-
-                {/* Bio */}
-                {selectedCandidate.bio && (
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">About</h4>
-                    <p className="text-sm text-muted-foreground">{selectedCandidate.bio}</p>
+                {selected.bio && (
+                  <div>
+                    <p className="text-sm font-medium">Profile summary</p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                      {selected.bio}
+                    </p>
                   </div>
                 )}
-              </div>
 
-              {/* Actions */}
-              <div className="p-4 border-t flex gap-2">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" size="sm">
-                  <CheckCircle2 className="w-4 h-4 me-2" />
-                  {t.candidates.shortlist}
-                </Button>
-                <Button variant="outline" size="sm" className="text-destructive">
-                  <XCircle className="w-4 h-4 me-2" />
-                  {t.candidates.reject}
-                </Button>
+                <div>
+                  <p className="text-sm font-medium">Skills</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {parseSkills(selected.skills).map((skill) => (
+                      <Badge key={skill} variant="secondary">
+                        {skill}
+                      </Badge>
+                    ))}
+                    {parseSkills(selected.skills).length === 0 && (
+                      <span className="text-sm text-muted-foreground">
+                        No skills added.
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium">Applications</p>
+                  <div className="mt-2 space-y-2">
+                    {selected.applications.map((application) => (
+                      <div
+                        key={application.id}
+                        className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">
+                            {application.job.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Applied {new Date(application.appliedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Badge className={statusStyles[application.status] || ''}>
+                          {application.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </SheetContent>
       </Sheet>

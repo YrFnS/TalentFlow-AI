@@ -1,20 +1,24 @@
 'use client';
 
-import React from 'react';
-import { CheckCircle2, Circle } from 'lucide-react';
-import { useI18n } from '@/store/i18n-store';
+import { CheckCircle2, Circle, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 
 interface ProfileCompletenessCardProps {
   profileCompleteness: number;
-  personalInfo: { name: string; bio: string };
+  personalInfo: {
+    name: string;
+    phone: string;
+    location: string;
+    bio: string;
+  };
   experiencesLength: number;
   educationsLength: number;
   skillsLength: number;
   certificationsLength: number;
+  hasStoredResume: boolean;
   isPublic: boolean;
-  setIsPublic: (v: boolean) => void;
+  setIsPublic: (value: boolean) => void;
 }
 
 export default function ProfileCompletenessCard({
@@ -24,91 +28,96 @@ export default function ProfileCompletenessCard({
   educationsLength,
   skillsLength,
   certificationsLength,
+  hasStoredResume,
   isPublic,
   setIsPublic,
 }: ProfileCompletenessCardProps) {
-  const { t } = useI18n();
-
   const items = [
-    { key: 'photo', label: t.profileComplete.addPhoto, done: !!personalInfo.name },
-    { key: 'experience', label: t.profileComplete.addExperience, done: experiencesLength > 0 },
-    { key: 'education', label: t.profileComplete.addEducation, done: educationsLength > 0 },
-    { key: 'certifications', label: t.profileComplete.addCertifications, done: certificationsLength > 0 },
-    { key: 'skills', label: t.profileComplete.addSkills, done: skillsLength > 0 },
-    { key: 'summary', label: t.profileComplete.writeSummary, done: !!personalInfo.bio },
+    {
+      key: 'details',
+      label: 'Add contact and location details',
+      done: Boolean(personalInfo.name && personalInfo.phone && personalInfo.location),
+    },
+    {
+      key: 'summary',
+      label: 'Write a professional summary',
+      done: Boolean(personalInfo.bio),
+    },
+    {
+      key: 'skills',
+      label: 'Add skills',
+      done: skillsLength > 0,
+    },
+    {
+      key: 'experience',
+      label: 'Add work experience',
+      done: experiencesLength > 0,
+    },
+    {
+      key: 'education',
+      label: 'Add education',
+      done: educationsLength > 0,
+    },
+    {
+      key: 'certifications',
+      label: 'Add certifications',
+      done: certificationsLength > 0,
+    },
+    {
+      key: 'resume',
+      label: 'Attach a resume when private storage is enabled',
+      done: hasStoredResume,
+    },
   ];
 
-  const motivationText =
-    profileCompleteness === 100
-      ? t.profileComplete.motivationComplete
-      : profileCompleteness >= 75
-        ? t.profileComplete.motivationAlmost
-        : profileCompleteness >= 50
-          ? t.profileComplete.motivationHalf
-          : t.profileComplete.motivationStart;
-
   return (
-    <Card className="border-0 shadow-sm card-">
+    <Card>
       <CardContent className="p-5">
-        <div className="flex flex-col sm:flex-row items-start gap-6">
-          {/* Animated Progress Ring */}
-          <div className="flex flex-col items-center shrink-0">
-            <div className="relative h-28 w-28">
-              <svg className="h-28 w-28 -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="42" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted/20" />
-                <circle
-                  cx="50" cy="50" r="42"
-                  stroke="url(#profileGrad)"
-                  strokeWidth="8"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeDasharray={`${2 * Math.PI * 42}`}
-                  strokeDashoffset={`${2 * Math.PI * 42 * (1 - profileCompleteness / 100)}`}
-                  className="transition-all duration-1000 ease-out"
-                />
-                <defs>
-                  <linearGradient id="profileGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#14b8a6" />
-                    <stop offset="100%" stopColor="#059669" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold text-blue-600">{profileCompleteness}%</span>
-              </div>
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+          <div className="shrink-0 text-center">
+            <div className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-full border-8 border-muted">
+              <span className="text-2xl font-bold text-primary">
+                {profileCompleteness}%
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">{t.candidate.profileCompleteness}</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Profile completeness
+            </p>
           </div>
 
-          {/* Suggested Actions */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold mb-3">{t.profileComplete.completeProfile}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="mb-3 text-sm font-semibold">Profile checklist</h3>
+            <div className="grid gap-2 sm:grid-cols-2">
               {items.map((item) => (
-                <div key={item.key} className="flex items-center gap-2 text-sm">
+                <div key={item.key} className="flex items-start gap-2 text-sm">
                   {item.done ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                   ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                   )}
-                  <span className={item.done ? 'text-muted-foreground line-through' : ''}>{item.label}</span>
+                  <span className={item.done ? 'text-muted-foreground' : ''}>
+                    {item.label}
+                  </span>
                 </div>
               ))}
             </div>
-            <div className="mt-3 pt-3 border-t border-border/50">
-              <p className="text-xs text-muted-foreground">{motivationText}</p>
-            </div>
           </div>
 
-          {/* Public Profile Toggle */}
-          <div className="shrink-0 sm:self-center">
-            <div className="flex flex-col items-center gap-2">
+          <div className="shrink-0 rounded-xl border p-4 text-center">
+            <div className="flex items-center justify-center gap-2">
+              {isPublic ? (
+                <Eye className="h-4 w-4 text-primary" />
+              ) : (
+                <EyeOff className="h-4 w-4 text-muted-foreground" />
+              )}
               <Switch checked={isPublic} onCheckedChange={setIsPublic} />
-              <div className="text-center">
-                <p className="text-xs font-medium">{t.candidate.publicProfile}</p>
-                <p className="text-[10px] text-muted-foreground">{t.candidate.publicProfileDesc}</p>
-              </div>
             </div>
+            <p className="mt-2 text-xs font-medium">
+              {isPublic ? 'Public profile' : 'Private profile'}
+            </p>
+            <p className="mt-1 max-w-36 text-[11px] text-muted-foreground">
+              Controls whether your profile can appear in public candidate views.
+            </p>
           </div>
         </div>
       </CardContent>

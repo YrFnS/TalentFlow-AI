@@ -9,84 +9,56 @@ import {
   getCORSHeadersForRequest,
   createCORSPreflightResponse,
 } from '@/lib/security/headers';
-import { validateCsrfTokenValues, isCsrfExemptPath, CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/lib/security/csrf-edge';
+import {
+  validateCsrfTokenValues,
+  isCsrfExemptPath,
+  CSRF_COOKIE_NAME,
+  CSRF_HEADER_NAME,
+} from '@/lib/security/csrf-edge';
 
-/**
- * Simple hash function for Edge Runtime (no crypto module available).
- * Produces a stable 32-bit hash from a string.
- */
 function simpleHash(str: string): string {
   let hash = 0;
-  for (let i = 0; i < str.length; i++) {
+  for (let i = 0; i < str.length; i += 1) {
     const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash &= hash;
   }
   return Math.abs(hash).toString(36);
 }
 
-/**
- * Get a rate limit key from a NextRequest.
- * Priority: User ID (from JWT) > IP address > User-Agent fingerprint > fallback
- * Never returns a single shared 'unknown' bucket.
- */
 function getRateLimitKeyFromRequest(req: NextRequest, userId?: string): string {
-  // Priority 1: Authenticated user ID
-  if (userId) {
-    return `user:${userId}`;
-  }
+  if (userId) return `user:${userId}`;
 
-  // Priority 2: IP address from headers
   const forwarded = req.headers.get('x-forwarded-for');
   const realIp = req.headers.get('x-real-ip');
   const ip = forwarded?.split(',')[0]?.trim() || realIp?.trim();
+  if (ip) return `ip:${ip}`;
 
-  if (ip) {
-    return `ip:${ip}`;
+  const userAgent = req.headers.get('user-agent') || '';
+  const language = req.headers.get('accept-language') || '';
+  if (userAgent || language) {
+    return `anon:${simpleHash(`${userAgent}:${language}`)}`;
   }
 
-  // Priority 3: User-Agent + Accept-Language fingerprint
-  const ua = req.headers.get('user-agent') || '';
-  const lang = req.headers.get('accept-language') || '';
-  if (ua || lang) {
-    const hash = simpleHash(`${ua}:${lang}`);
-    return `anon:${hash}`;
-  }
-
-  // Last resort: extremely rare (every browser sends a UA)
   return 'anon:no-headers';
 }
 
-/**
- * Apply security headers to a NextResponse, including nonce-based CSP
- */
 function withSecurityHeaders(response: NextResponse, nonce?: string): NextResponse {
-  // Remove X-Powered-By header (information leakage)
   response.headers.delete('X-Powered-By');
 
-  // Apply security headers with nonce for CSP
-  const securityHeaders = getSecurityHeaders(nonce);
-  for (const [key, value] of Object.entries(securityHeaders)) {
+  for (const [key, value] of Object.entries(getSecurityHeaders(nonce))) {
     response.headers.set(key, value);
-  }
-
-  // Expose nonce to client via custom header so layout/components can read it
-  if (nonce) {
-    response.headers.set('x-csp-nonce', nonce);
   }
 
   return response;
 }
 
-/**
- * Apply CORS headers to a NextResponse for API routes
- * Uses origin-aware CORS to reflect back the requesting origin if allowed
- */
 function withCORSHeaders(response: NextResponse, request?: NextRequest): NextResponse {
   const requestOrigin = request?.headers.get('origin') || null;
   const corsHeaders = requestOrigin
     ? getCORSHeadersForRequest(requestOrigin)
     : getCORSHeaders();
+
   for (const [key, value] of Object.entries(corsHeaders)) {
     response.headers.set(key, value);
   }
@@ -94,61 +66,62 @@ function withCORSHeaders(response: NextResponse, request?: NextRequest): NextRes
   return response;
 }
 
-/**
- * Main middleware function - handles security, rate limiting, CORS, auth, and nonce-based CSP
- */
+function isRouteAtOrBelow(path: string, root: string): boolean {
+  return path === root || path.startsWith(`${root}/`);
+}
+
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isApiRoute = path.startsWith('/api/');
-
-  // ============================================
-  // 1. Generate CSP nonce for all non-static requests
-  // ============================================
-  // API routes don't need a nonce (they return JSON, not HTML)
-  // Only page requests need nonce for inline script tags
   const nonce = isApiRoute ? undefined : generateNonce();
 
-  // ============================================
-  // 2. CORS preflight for API routes
-  // ============================================
   if (isApiRoute && req.method === 'OPTIONS') {
-    const response = createCORSPreflightResponse();
-    return response;
+    return withSecurityHeaders(
+      withCORSHeaders(createCORSPreflightResponse(), req),
+    );
   }
 
-  // ============================================
-  // 3. CSRF protection for state-changing API requests
-  // ============================================
-  const isStateChangingMethod = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase());
+  const isStateChangingMethod = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(
+    req.method.toUpperCase(),
+  );
 
   if (isApiRoute && isStateChangingMethod && !isCsrfExemptPath(path)) {
     const headerToken = req.headers.get(CSRF_HEADER_NAME);
     const cookieValue = req.cookies.get(CSRF_COOKIE_NAME)?.value;
 
-    if (!headerToken || !cookieValue || !(await validateCsrfTokenValues(headerToken, cookieValue))) {
+    if (
+      !headerToken ||
+      !cookieValue ||
+      !(await validateCsrfTokenValues(headerToken, cookieValue))
+    ) {
       const response = NextResponse.json(
         { error: 'CSRF token validation failed' },
-        { status: 403 }
+        { status: 403 },
       );
-      return withSecurityHeaders(response);
+      return withSecurityHeaders(withCORSHeaders(response, req));
     }
   }
 
-  // ============================================
-  // 3b. Request body size limit for state-changing API requests
-  // ============================================
-  const BODY_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB
-  const FILE_UPLOAD_BODY_SIZE_LIMIT = 50 * 1024 * 1024; // 50MB
+  const BODY_SIZE_LIMIT = 10 * 1024 * 1024;
+  const FILE_UPLOAD_BODY_SIZE_LIMIT = 50 * 1024 * 1024;
   const FILE_UPLOAD_PATHS = ['/api/resume/upload'];
 
   if (
     isApiRoute &&
     ['POST', 'PUT', 'PATCH'].includes(req.method.toUpperCase())
   ) {
-    const contentLength = parseInt(req.headers.get('content-length') || '0', 10);
+    const contentLength = Number.parseInt(
+      req.headers.get('content-length') || '0',
+      10,
+    );
+
     if (contentLength > 0) {
-      const isFileUpload = FILE_UPLOAD_PATHS.some((p) => path.startsWith(p));
-      const limit = isFileUpload ? FILE_UPLOAD_BODY_SIZE_LIMIT : BODY_SIZE_LIMIT;
+      const isFileUpload = FILE_UPLOAD_PATHS.some((prefix) =>
+        path.startsWith(prefix),
+      );
+      const limit = isFileUpload
+        ? FILE_UPLOAD_BODY_SIZE_LIMIT
+        : BODY_SIZE_LIMIT;
 
       if (contentLength > limit) {
         const response = NextResponse.json(
@@ -158,40 +131,38 @@ export async function middleware(req: NextRequest) {
             limit,
             contentLength,
           },
-          { status: 413 }
+          { status: 413 },
         );
         return withSecurityHeaders(withCORSHeaders(response, req));
       }
     }
   }
 
-  // ============================================
-  // 4. Rate limiting for API routes
-  // ============================================
-  let rateLimitResult: { remaining: number; resetAt: number; limit: number } | null = null;
+  let rateLimitResult: {
+    remaining: number;
+    resetAt: number;
+    limit: number;
+  } | null = null;
 
   if (isApiRoute) {
     const limiter = getLimiterForPath(path);
-
-    // Try to get user ID for per-user rate limiting
     let userId: string | undefined;
+
     try {
       const token = await getToken({ req });
-      if (token?.sub) {
-        userId = token.sub as string;
-      }
+      if (token?.sub) userId = String(token.sub);
     } catch {
-      // Token check failed - use IP/fingerprint instead
+      // Anonymous rate-limit key will be used.
     }
 
-    // Use user-aware key for rate limiting (JWT user ID > IP > UA fingerprint)
     const rateLimitKey = getRateLimitKeyFromRequest(req, userId);
     const result = limiter.checkWithKey(rateLimitKey);
-    if (!result.allowed) {
-      const retryAfterSeconds = Math.ceil(
-        (result.resetAt - Date.now()) / 1000
-      );
 
+    if (!result.allowed) {
+      const retryAfterSeconds = Math.max(
+        1,
+        Math.ceil((result.resetAt - Date.now()) / 1000),
+      );
       const response = NextResponse.json(
         {
           error: 'Too many requests',
@@ -206,97 +177,100 @@ export async function middleware(req: NextRequest) {
             'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': String(Math.ceil(result.resetAt / 1000)),
           },
-        }
+        },
       );
-
       return withSecurityHeaders(withCORSHeaders(response, req));
     }
 
-    // Store result for adding headers to the response
-    rateLimitResult = { remaining: result.remaining, resetAt: result.resetAt, limit: limiter['maxRequests'] };
+    rateLimitResult = {
+      remaining: result.remaining,
+      resetAt: result.resetAt,
+      limit: limiter['maxRequests'],
+    };
   }
 
-  // ============================================
-  // 5. Auth checks for protected routes
-  // ============================================
-  const isProtectedRoute =
-    path.startsWith('/admin/') ||
-    path.startsWith('/company/') ||
-    path.startsWith('/candidate/');
+  const isAdminRoute = isRouteAtOrBelow(path, '/admin');
+  const isCompanyRoute = isRouteAtOrBelow(path, '/company');
+  const isCandidateRoute = isRouteAtOrBelow(path, '/candidate');
+  const isProtectedRoute = isAdminRoute || isCompanyRoute || isCandidateRoute;
 
   if (isProtectedRoute) {
     const token = await getToken({ req });
 
-    // Not authenticated - redirect to login
     if (!token) {
       const loginUrl = new URL('/auth/login', req.url);
-      loginUrl.searchParams.set('callbackUrl', req.url);
-      const redirectResponse = NextResponse.redirect(loginUrl);
-      return withSecurityHeaders(redirectResponse);
+      loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname + req.nextUrl.search);
+      return withSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
     }
 
-    const role = token.role as string;
+    const role = String(token.role || '');
 
-    // Admin routes require admin roles
-    if (
-      path.startsWith('/admin/') &&
-      !['SUPER_ADMIN', 'ADMIN', 'MODERATOR'].includes(role)
-    ) {
-      const rewriteResponse = NextResponse.rewrite(
-        new URL('/not-found', req.url)
+    if (isAdminRoute && !['SUPER_ADMIN', 'ADMIN', 'MODERATOR'].includes(role)) {
+      return withSecurityHeaders(
+        NextResponse.rewrite(new URL('/not-found', req.url)),
+        nonce,
       );
-      return withSecurityHeaders(rewriteResponse);
     }
 
-    // Company routes require company roles
     if (
-      path.startsWith('/company/') &&
-      !['COMPANY_ADMIN', 'HR_MANAGER', 'RECRUITER', 'REVIEWER'].includes(role)
+      isCompanyRoute &&
+      ![
+        'SUPER_ADMIN',
+        'ADMIN',
+        'MODERATOR',
+        'COMPANY_ADMIN',
+        'HR_MANAGER',
+        'RECRUITER',
+        'REVIEWER',
+      ].includes(role)
     ) {
-      const rewriteResponse = NextResponse.rewrite(
-        new URL('/not-found', req.url)
+      return withSecurityHeaders(
+        NextResponse.rewrite(new URL('/not-found', req.url)),
+        nonce,
       );
-      return withSecurityHeaders(rewriteResponse);
     }
 
-    // Candidate routes require candidate role or admin
     if (
-      path.startsWith('/candidate/') &&
+      isCandidateRoute &&
       role !== 'CANDIDATE' &&
       !['SUPER_ADMIN', 'ADMIN'].includes(role)
     ) {
-      const rewriteResponse = NextResponse.rewrite(
-        new URL('/not-found', req.url)
+      return withSecurityHeaders(
+        NextResponse.rewrite(new URL('/not-found', req.url)),
+        nonce,
       );
-      return withSecurityHeaders(rewriteResponse);
     }
   }
 
-  // ============================================
-  // 6. Continue and apply security headers with nonce
-  // ============================================
-  const response = NextResponse.next();
+  // Forward the nonce as a request header so the root layout receives the same
+  // nonce that is present in the response Content-Security-Policy header.
+  const requestHeaders = new Headers(req.headers);
+  if (nonce) {
+    requestHeaders.set('x-csp-nonce', nonce);
+    requestHeaders.set(
+      'Content-Security-Policy',
+      getSecurityHeaders(nonce)['Content-Security-Policy'],
+    );
+  }
 
-  // Apply security headers to all responses (with nonce for page requests)
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+
   withSecurityHeaders(response, nonce);
 
-  // Apply CORS headers to API routes
   if (isApiRoute) {
     withCORSHeaders(response, req);
 
-    // Add rate limit headers
     if (rateLimitResult) {
-      response.headers.set(
-        'X-RateLimit-Limit',
-        String(rateLimitResult.limit)
-      );
+      response.headers.set('X-RateLimit-Limit', String(rateLimitResult.limit));
       response.headers.set(
         'X-RateLimit-Remaining',
-        String(rateLimitResult.remaining)
+        String(rateLimitResult.remaining),
       );
       response.headers.set(
         'X-RateLimit-Reset',
-        String(Math.ceil(rateLimitResult.resetAt / 1000))
+        String(Math.ceil(rateLimitResult.resetAt / 1000)),
       );
     }
   }
@@ -305,14 +279,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * This ensures security headers are applied to ALL responses
-     */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

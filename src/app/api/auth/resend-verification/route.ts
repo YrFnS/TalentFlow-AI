@@ -1,105 +1,131 @@
-// @ts-nocheck
+import crypto from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { db } from '@/lib/db';
-import { sanitizeEmail, checkRateLimit, RATE_LIMITS, getClientIp } from '@/lib/security';
+import {
+  checkRateLimit,
+  getClientIp,
+  RATE_LIMITS,
+  sanitizeEmail,
+} from '@/lib/security';
 import { logAuthEvent } from '@/lib/security/auth-logger';
 import { createSafeErrorResponse } from '@/lib/security/error-handler';
+import {
+  BUILTIN_EMAIL_TEMPLATES,
+  sendEmail,
+} from '@/lib/email-service';
+
+const GENERIC_MESSAGE =
+  'If an unverified account exists for this email, a verification message has been sent.';
+
+function applicationUrl(): string {
+  const configured =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || '';
+  if (configured) return configured.replace(/\/$/, '');
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Application URL is not configured');
+  }
+  return 'http://localhost:3000';
+}
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
 
   try {
-    const body = await request.json();
-    const { email } = body;
-
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      );
-    }
-
-    // Sanitize email
-    const sanitizedEmail = sanitizeEmail(email);
+    const body = (await request.json()) as { email?: unknown };
+    const sanitizedEmail =
+      typeof body.email === 'string' ? sanitizeEmail(body.email) : '';
 
     if (!sanitizedEmail) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
+        { error: 'A valid email address is required' },
+        { status: 400 },
       );
     }
 
-    // Rate limiting
     const rateResult = checkRateLimit(
       `resend-verification:${sanitizedEmail}`,
-      RATE_LIMITS.STRICT
+      RATE_LIMITS.STRICT,
     );
-
     if (!rateResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         {
           status: 429,
           headers: {
-            'Retry-After': String(Math.ceil((rateResult.resetTime - Date.now()) / 1000)),
+            'Retry-After': String(
+              Math.max(
+                1,
+                Math.ceil((rateResult.resetTime - Date.now()) / 1000),
+              ),
+            ),
           },
-        }
+        },
       );
     }
 
-    // Check if user exists and email is not already verified
     const user = await db.user.findUnique({
       where: { email: sanitizedEmail },
-    });
-
-    if (!user) {
-      // Return success to prevent email enumeration
-      return NextResponse.json({
-        message: 'If an account exists with this email and is not verified, a verification email has been sent.',
-      });
-    }
-
-    if (user.emailVerified) {
-      return NextResponse.json(
-        { error: 'Email is already verified' },
-        { status: 400 }
-      );
-    }
-
-    // Generate new verification token
-    const rawToken = crypto.randomBytes(32).toString('hex');
-
-    // Delete any existing verification tokens for this email
-    await db.verificationToken.deleteMany({
-      where: { identifier: sanitizedEmail },
-    });
-
-    // Store in VerificationToken model (expires = 24 hours)
-    await db.verificationToken.create({
-      data: {
-        identifier: sanitizedEmail,
-        token: rawToken,
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailVerified: true,
+        isActive: true,
       },
     });
 
-    // Log the event
+    if (!user || user.emailVerified || !user.isActive) {
+      return NextResponse.json({ message: GENERIC_MESSAGE });
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenDigest = crypto
+      .createHash('sha256')
+      .update(rawToken)
+      .digest('hex');
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await db.$transaction(async (transaction) => {
+      await transaction.verificationToken.deleteMany({
+        where: { identifier: sanitizedEmail },
+      });
+      await transaction.verificationToken.create({
+        data: {
+          identifier: sanitizedEmail,
+          token: tokenDigest,
+          expires,
+        },
+      });
+    });
+
+    const verificationUrl = `${applicationUrl()}/auth/verify-email?token=${encodeURIComponent(
+      rawToken,
+    )}`;
+    const email = await sendEmail({
+      to: user.email,
+      subject: 'Verify Your Email — TalentFlow AI',
+      body: BUILTIN_EMAIL_TEMPLATES.emailVerification(
+        user.name,
+        verificationUrl,
+      ),
+      userId: user.id,
+    });
+
     await logAuthEvent({
       eventType: 'TOKEN_REFRESH',
       email: sanitizedEmail,
       userId: user.id,
       ipAddress: clientIp,
-      details: 'Verification email resent',
+      details: email.success
+        ? 'Verification email resent'
+        : 'Verification email delivery failed',
     });
 
-    // In production, send email. For now, log the token
-    console.log(`[ResendVerification] Token for ${sanitizedEmail}: ${rawToken}`);
-    console.log(`[ResendVerification] Verify URL: ${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/verify-email?token=${rawToken}`);
+    if (!email.success) {
+      console.error('[ResendVerification] Verification email delivery failed');
+    }
 
-    return NextResponse.json({
-      message: 'If an account exists with this email and is not verified, a verification email has been sent.',
-    });
+    return NextResponse.json({ message: GENERIC_MESSAGE });
   } catch (error) {
     return createSafeErrorResponse(error, {
       status: 500,

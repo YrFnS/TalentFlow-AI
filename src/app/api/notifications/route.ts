@@ -1,6 +1,6 @@
-// @ts-nocheck
-import { db } from '@/lib/db';
+// @ts-nocheck - Prisma result types are shaped for portal notification menus.
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET(request: NextRequest) {
@@ -8,22 +8,17 @@ export async function GET(request: NextRequest) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = auth.userId;
-    const type = searchParams.get('type');
-    const unreadOnly = searchParams.get('unread') === 'true';
-
-    if (!userId) {
-      return NextResponse.json([]);
-    }
-
-    const where: Record<string, unknown> = { userId };
-    if (type) where.type = type;
-    if (unreadOnly) where.isRead = false;
+    const type = request.nextUrl.searchParams.get('type');
+    const unreadOnly = request.nextUrl.searchParams.get('unread') === 'true';
 
     const notifications = await db.notification.findMany({
-      where,
+      where: {
+        userId: auth.userId,
+        ...(type ? { type } : {}),
+        ...(unreadOnly ? { isRead: false } : {}),
+      },
       orderBy: { createdAt: 'desc' },
+      take: 50,
     });
 
     return NextResponse.json(notifications);
@@ -31,7 +26,7 @@ export async function GET(request: NextRequest) {
     console.error('Notifications GET error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch notifications' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -42,29 +37,48 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { id, markAll } = body;
-    const userId = auth.userId;
+    const { id, markAll } = body as { id?: string; markAll?: boolean };
 
-    if (markAll && userId) {
+    if (markAll) {
       await db.notification.updateMany({
-        where: { userId, isRead: false },
+        where: { userId: auth.userId, isRead: false },
         data: { isRead: true },
       });
-      return NextResponse.json({ success: true, message: 'All notifications marked as read' });
-    }
-
-    if (id) {
-      const notification = await db.notification.update({
-        where: { id },
-        data: { isRead: true },
+      return NextResponse.json({
+        success: true,
+        message: 'All notifications marked as read',
       });
-      return NextResponse.json(notification);
     }
 
-    return NextResponse.json({ error: 'Missing notification id or markAll flag' }, { status: 400 });
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Missing notification id or markAll flag' },
+        { status: 400 },
+      );
+    }
+
+    const notification = await db.notification.findFirst({
+      where: { id, userId: auth.userId },
+      select: { id: true },
+    });
+    if (!notification) {
+      return NextResponse.json(
+        { error: 'Notification not found' },
+        { status: 404 },
+      );
+    }
+
+    const updated = await db.notification.update({
+      where: { id },
+      data: { isRead: true },
+    });
+    return NextResponse.json(updated);
   } catch (error) {
     console.error('Notifications PUT error:', error);
-    return NextResponse.json({ error: 'Failed to update notification' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to update notification' },
+      { status: 500 },
+    );
   }
 }
 
@@ -73,20 +87,30 @@ export async function DELETE(request: NextRequest) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-
+    const id = request.nextUrl.searchParams.get('id');
     if (!id) {
-      return NextResponse.json({ error: 'Missing notification id' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing notification id' },
+        { status: 400 },
+      );
     }
 
-    await db.notification.delete({
-      where: { id },
+    const deleted = await db.notification.deleteMany({
+      where: { id, userId: auth.userId },
     });
+    if (deleted.count === 0) {
+      return NextResponse.json(
+        { error: 'Notification not found' },
+        { status: 404 },
+      );
+    }
 
     return NextResponse.json({ success: true, message: 'Notification deleted' });
   } catch (error) {
     console.error('Notifications DELETE error:', error);
-    return NextResponse.json({ error: 'Failed to delete notification' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete notification' },
+      { status: 500 },
+    );
   }
 }
