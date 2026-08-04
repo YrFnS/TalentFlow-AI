@@ -33,13 +33,16 @@ export function CsrfFetchProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const previousFetch = window.fetch;
 
-    const protectedFetch: typeof window.fetch = async (input, init) => {
-      const method = requestMethod(input, init);
-      if (STATE_CHANGING_METHODS.has(method) && isSameOrigin(input)) {
-        return apiFetch(input, init);
-      }
-      return previousFetch.call(window, input, init);
-    };
+    const protectedFetch: typeof window.fetch = Object.assign(
+      async (input: RequestInfo | URL, init?: RequestInit) => {
+        const method = requestMethod(input, init);
+        if (STATE_CHANGING_METHODS.has(method) && isSameOrigin(input)) {
+          return apiFetch(input, init);
+        }
+        return previousFetch.call(window, input, init);
+      },
+      previousFetch,
+    );
 
     window.fetch = protectedFetch;
     return () => {

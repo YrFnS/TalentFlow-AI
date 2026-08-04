@@ -13,6 +13,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
 	output: "standalone",
 	poweredByHeader: false,
+	turbopack: { root: process.cwd() },
 	typescript: {
 		ignoreBuildErrors: false,
 	},
