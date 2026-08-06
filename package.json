@@ -6,6 +6,7 @@
     "dev": "NODE_OPTIONS='--max-old-space-size=768' next dev -p 3000 2>&1 | tee dev.log",
     "build": "next build && node -e \"const fs=require('fs');fs.mkdirSync('.next/standalone/.next',{recursive:true});fs.cpSync('.next/static','.next/standalone/.next/static',{recursive:true});fs.cpSync('public','.next/standalone/public',{recursive:true})\"",
     "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
+    "test": "node --test scripts/*.test.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:changed": "node scripts/lint-changed.mjs",

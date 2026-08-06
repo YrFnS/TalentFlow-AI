@@ -440,11 +440,9 @@ export function getLimiterForPath(path: string): RateLimiter {
     return strictLimiter;
   }
 
-  // Login endpoint - auth limiter
-  if (
-    path.includes('/api/auth/') ||
-    path.includes('/auth/login')
-  ) {
+  // Only credential submissions consume the tight login budget. NextAuth's
+  // providers, CSRF, session, and client-log requests are ordinary API traffic.
+  if (path.includes('/api/auth/callback/credentials')) {
     return authLimiter;
   }
 
