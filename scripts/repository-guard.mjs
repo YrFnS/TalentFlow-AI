@@ -1,9 +1,10 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { extname, join, relative } from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = new URL('../', import.meta.url);
-const SOURCE_ROOT = new URL('../src/', import.meta.url);
+const ROOT = fileURLToPath(new URL('../', import.meta.url));
+const SOURCE_ROOT = fileURLToPath(new URL('../src/', import.meta.url));
 const TEXT_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
 
 const FORBIDDEN = [
@@ -63,7 +64,7 @@ function lineMatches(line, pattern) {
   return pattern instanceof RegExp ? pattern.test(line) : line.includes(pattern);
 }
 
-const files = await walk(SOURCE_ROOT.pathname);
+const files = await walk(SOURCE_ROOT);
 const violations = [];
 
 for (const file of files) {
@@ -74,7 +75,7 @@ for (const file of files) {
     lines.forEach((line, index) => {
       if (lineMatches(line, rule.pattern)) {
         violations.push({
-          file: relative(ROOT.pathname, file),
+          file: relative(ROOT, file),
           line: index + 1,
           pattern: rule.display || String(rule.pattern),
           reason: rule.reason,

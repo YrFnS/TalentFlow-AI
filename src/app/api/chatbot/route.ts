@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Load or create conversation
-    let conversation = await prisma.chatConversation.findUnique({
+    const conversation = await prisma.chatConversation.findUnique({
       where: { sessionId },
     });
 

@@ -1,7 +1,8 @@
 // @ts-nocheck - Prisma seed: runtime-safe with valid data types
-import { db } from "@/lib/db";
+import { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
-import crypto from "crypto";
+
+const db = new PrismaClient();
 
 // Temporary type augmentation for seed script
 
@@ -22,10 +23,10 @@ import crypto from "crypto";
  * Reset:  npx prisma migrate reset (triggers re-seed)
  */
 
-// Generate a random password hash so no two users share the same hash,
-// then log credentials to console for dev testing.
-async function randomPassword(): Promise<string> {
-	return hash(crypto.randomBytes(4).toString("hex") + "!A1", 12);
+const DEMO_PASSWORD = "TalentFlowDemo!2026";
+
+async function demoPassword(): Promise<string> {
+	return hash(DEMO_PASSWORD, 12);
 }
 
 async function seed() {
@@ -36,7 +37,7 @@ async function seed() {
 	// =====================================================
 	console.log("Creating users...");
 
-	const adminPassword = await randomPassword();
+	const adminPassword = await demoPassword();
 	const adminUser = await db.user.upsert({
 		where: { email: "admin@talentflow.ai" },
 		update: {},
@@ -110,7 +111,7 @@ async function seed() {
 	];
 
 	for (const [index, u] of sampleUsers.entries()) {
-		const pw = await randomPassword();
+		const pw = await demoPassword();
 		await db.user.upsert({
 			where: { email: u.email },
 			update: { image: portraitUrls[index % portraitUrls.length] },
@@ -992,5 +993,8 @@ async function seed() {
 }
 
 seed()
-	.catch(console.error)
+	.catch((error) => {
+		console.error(error);
+		process.exitCode = 1;
+	})
 	.finally(() => db.$disconnect());

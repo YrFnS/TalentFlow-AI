@@ -1,6 +1,7 @@
 // @ts-nocheck
 'use client';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useI18n } from '@/store/i18n-store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -83,7 +84,7 @@ export default function InterviewPrepPage() {
               <p className="mt-3 text-sm text-muted-foreground">No upcoming interviews scheduled.</p>
               <p className="mt-1 text-xs text-muted-foreground">Keep applying to jobs and your interviews will appear here.</p>
               <Button variant="outline" className="mt-3" asChild>
-                <a href="/candidate/jobs">{t.candidate.searchJobs}</a>
+                <Link href="/candidate/jobs">{t.candidate.searchJobs}</Link>
               </Button>
             </CardContent>
           </Card>

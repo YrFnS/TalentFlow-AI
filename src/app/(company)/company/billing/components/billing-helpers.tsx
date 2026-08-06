@@ -27,7 +27,7 @@ export function getPlanGradient(type: string) {
 export function useInvoiceStatusBadge() {
   const { t } = useI18n();
 
-  return (status: string) => {
+  return function InvoiceStatusBadge(status: string) {
     const map: Record<string, { class: string; icon: React.ReactNode }> = {
       PAID: { class: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950', icon: <CheckCircle2 className="w-3 h-3 me-1" /> },
       PENDING: { class: 'bg-amber-50 text-amber-700 dark:bg-amber-950', icon: <Calendar className="w-3 h-3 me-1" /> },

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react';
 import { useI18n } from '@/store/i18n-store';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {

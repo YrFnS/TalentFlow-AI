@@ -1,6 +1,7 @@
 // @ts-nocheck
 'use client';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useI18n } from '@/store/i18n-store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -319,7 +320,7 @@ export default function CandidateSkillsPage() {
                 <Target className="h-12 w-12 mx-auto text-muted-foreground/40" />
                 <p className="mt-3 text-sm text-muted-foreground">Apply to jobs to see your skill match scores</p>
                 <Button variant="outline" className="mt-3" asChild>
-                  <a href="/candidate/jobs">Browse Jobs</a>
+                  <Link href="/candidate/jobs">Browse Jobs</Link>
                 </Button>
               </div>
 
@@ -333,7 +334,7 @@ export default function CandidateSkillsPage() {
                   <Sparkles className="h-8 w-8 mx-auto text-muted-foreground/40" />
                   <p className="mt-2 text-sm text-muted-foreground">Configure your AI provider to generate personalized skill recommendations</p>
                   <Button variant="outline" size="sm" className="mt-3" asChild>
-                    <a href="/candidate/ai-tools">Go to AI Tools</a>
+                    <Link href="/candidate/ai-tools">Go to AI Tools</Link>
                   </Button>
                 </div>
               </div>
