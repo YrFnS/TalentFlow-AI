@@ -1,210 +1,185 @@
-// @ts-nocheck - Complex Prisma types, validated at runtime
+// @ts-nocheck - Prisma provider payloads are normalized before persistence.
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 import { encryptApiKey, decryptApiKey } from '@/lib/security/api-key-protect';
+import { assertSafeAIProviderBaseUrl } from '@/lib/security/ai-provider-url';
 
-// GET /api/ai/providers - List user's providers
-export async function GET(request: NextRequest) {
+const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1';
+
+function maskKey(value: string): string {
+  try {
+    const decrypted = decryptApiKey(value);
+    return `••••••••${decrypted.slice(-4)}`;
+  } catch {
+    return '••••••••';
+  }
+}
+
+function normalizeName(value: unknown): string {
+  return typeof value === 'string' ? value.trim().slice(0, 100) : '';
+}
+
+export async function GET() {
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const userId = auth.userId;
-
-    if (!userId) {
-      return NextResponse.json({ error: 'userId is required' }, { status: 400 });
-    }
-
     const providers = await db.aIProvider.findMany({
-      where: { userId },
+      where: { userId: auth.userId },
       include: {
-        models: {
-          orderBy: { isDefault: 'desc' },
-        },
+        models: { orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }] },
       },
-      orderBy: { isDefault: 'desc' },
+      orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
     });
 
-    // Mask API keys for security - decrypt then mask
-    const maskedProviders = providers.map((p) => ({
-      ...p,
-      apiKey: p.apiKey
-        ? '••••••••' + decryptApiKey(p.apiKey).slice(-4)
-        : '',
-    }));
-
-    return NextResponse.json({ providers: maskedProviders });
+    return NextResponse.json({
+      providers: providers.map((provider) => ({
+        ...provider,
+        apiKey: maskKey(provider.apiKey),
+      })),
+    });
   } catch (error) {
-    console.error('Error fetching providers:', error);
+    console.error('Error fetching AI providers:', error);
     return NextResponse.json(
       { error: 'Failed to fetch providers' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// POST /api/ai/providers - Add new provider
 export async function POST(request: NextRequest) {
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
 
   try {
     const body = await request.json();
-    const userId = auth.userId;
-    const { name, apiKey, baseUrl, isActive, isDefault } = body;
+    const name = normalizeName(body.name);
+    const apiKey = typeof body.apiKey === 'string' ? body.apiKey.trim() : '';
+    const baseUrl = await assertSafeAIProviderBaseUrl(
+      typeof body.baseUrl === 'string' && body.baseUrl.trim()
+        ? body.baseUrl.trim()
+        : DEFAULT_BASE_URL,
+    );
 
-    if (!userId || !name || !apiKey) {
+    if (!name || !apiKey || apiKey.length > 10_000) {
       return NextResponse.json(
-        { error: 'userId, name, and apiKey are required' },
-        { status: 400 }
+        { error: 'A provider name and API key are required' },
+        { status: 400 },
       );
     }
 
-    // If this is set as default, unset other defaults
-    if (isDefault) {
-      await db.aIProvider.updateMany({
-        where: { userId, isDefault: true },
-        data: { isDefault: false },
+    const provider = await db.$transaction(async (transaction) => {
+      if (body.isDefault) {
+        await transaction.aIProvider.updateMany({
+          where: { userId: auth.userId, isDefault: true },
+          data: { isDefault: false },
+        });
+      }
+
+      return transaction.aIProvider.create({
+        data: {
+          userId: auth.userId,
+          name,
+          apiKey: encryptApiKey(apiKey),
+          baseUrl,
+          isActive: body.isActive !== false,
+          isDefault: body.isDefault === true,
+        },
       });
-    }
-
-    // Encrypt API key before storing
-    const encryptedApiKey = encryptApiKey(apiKey);
-
-    const provider = await db.aIProvider.create({
-      data: {
-        userId,
-        name,
-        apiKey: encryptedApiKey,
-        baseUrl: baseUrl || 'https://openrouter.ai/api/v1',
-        isActive: isActive !== undefined ? isActive : true,
-        isDefault: isDefault || false,
-      },
     });
 
-    // Return with masked API key
-    const maskedProvider = {
-      ...provider,
-      apiKey: '••••••••' + apiKey.slice(-4),
-    };
-
-    return NextResponse.json({ provider: maskedProvider }, { status: 201 });
-  } catch (error) {
-    console.error('Error creating provider:', error);
     return NextResponse.json(
-      { error: 'Failed to create provider' },
-      { status: 500 }
+      { provider: { ...provider, apiKey: `••••••••${apiKey.slice(-4)}` } },
+      { status: 201 },
     );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to create provider';
+    console.error('Error creating AI provider:', error);
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
 
-// PUT /api/ai/providers - Update provider
 export async function PUT(request: NextRequest) {
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
 
   try {
     const body = await request.json();
-    const userId = auth.userId;
-    const { id, name, apiKey, baseUrl, isActive, isDefault } = body;
-
-    if (!id || !userId) {
-      return NextResponse.json(
-        { error: 'id and userId are required' },
-        { status: 400 }
-      );
+    const id = typeof body.id === 'string' ? body.id : '';
+    if (!id) {
+      return NextResponse.json({ error: 'Provider id is required' }, { status: 400 });
     }
 
-    // Verify ownership
     const existing = await db.aIProvider.findFirst({
-      where: { id, userId },
+      where: { id, userId: auth.userId },
     });
-
     if (!existing) {
-      return NextResponse.json(
-        { error: 'Provider not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Provider not found' }, { status: 404 });
     }
 
-    // If setting as default, unset others
-    if (isDefault) {
-      await db.aIProvider.updateMany({
-        where: { userId, isDefault: true },
-        data: { isDefault: false },
-      });
+    const data: Record<string, unknown> = {};
+    if (body.name !== undefined) {
+      const name = normalizeName(body.name);
+      if (!name) return NextResponse.json({ error: 'Provider name is required' }, { status: 400 });
+      data.name = name;
     }
+    if (body.apiKey !== undefined) {
+      const apiKey = typeof body.apiKey === 'string' ? body.apiKey.trim() : '';
+      if (!apiKey || apiKey.length > 10_000) {
+        return NextResponse.json({ error: 'API key is invalid' }, { status: 400 });
+      }
+      data.apiKey = encryptApiKey(apiKey);
+    }
+    if (body.baseUrl !== undefined) {
+      data.baseUrl = await assertSafeAIProviderBaseUrl(String(body.baseUrl));
+    }
+    if (body.isActive !== undefined) data.isActive = Boolean(body.isActive);
+    if (body.isDefault !== undefined) data.isDefault = Boolean(body.isDefault);
 
-    const updateData: Record<string, unknown> = {};
-    if (name !== undefined) updateData.name = name;
-    if (apiKey !== undefined) updateData.apiKey = encryptApiKey(apiKey);
-    if (baseUrl !== undefined) updateData.baseUrl = baseUrl;
-    if (isActive !== undefined) updateData.isActive = isActive;
-    if (isDefault !== undefined) updateData.isDefault = isDefault;
-
-    const provider = await db.aIProvider.update({
-      where: { id },
-      data: updateData,
+    const provider = await db.$transaction(async (transaction) => {
+      if (body.isDefault === true) {
+        await transaction.aIProvider.updateMany({
+          where: { userId: auth.userId, isDefault: true, id: { not: id } },
+          data: { isDefault: false },
+        });
+      }
+      return transaction.aIProvider.update({ where: { id }, data });
     });
 
-    // Return with masked API key
-    const maskedProvider = {
-      ...provider,
-      apiKey: provider.apiKey
-        ? '••••••••' + decryptApiKey(provider.apiKey).slice(-4)
-        : '',
-    };
-
-    return NextResponse.json({ provider: maskedProvider });
+    return NextResponse.json({
+      provider: { ...provider, apiKey: maskKey(provider.apiKey) },
+    });
   } catch (error) {
-    console.error('Error updating provider:', error);
-    return NextResponse.json(
-      { error: 'Failed to update provider' },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : 'Failed to update provider';
+    console.error('Error updating AI provider:', error);
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
 
-// DELETE /api/ai/providers - Delete provider
 export async function DELETE(request: NextRequest) {
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    const userId = auth.userId;
-
-    if (!id || !userId) {
-      return NextResponse.json(
-        { error: 'id and userId are required' },
-        { status: 400 }
-      );
+    const id = request.nextUrl.searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ error: 'Provider id is required' }, { status: 400 });
     }
 
-    // Verify ownership
-    const existing = await db.aIProvider.findFirst({
-      where: { id, userId },
+    const deleted = await db.aIProvider.deleteMany({
+      where: { id, userId: auth.userId },
     });
-
-    if (!existing) {
-      return NextResponse.json(
-        { error: 'Provider not found' },
-        { status: 404 }
-      );
+    if (!deleted.count) {
+      return NextResponse.json({ error: 'Provider not found' }, { status: 404 });
     }
-
-    await db.aIProvider.delete({
-      where: { id },
-    });
 
     return NextResponse.json({ message: 'Provider deleted successfully' });
   } catch (error) {
-    console.error('Error deleting provider:', error);
+    console.error('Error deleting AI provider:', error);
     return NextResponse.json(
       { error: 'Failed to delete provider' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

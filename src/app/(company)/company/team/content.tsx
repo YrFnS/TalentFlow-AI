@@ -1,37 +1,28 @@
-// @ts-nocheck
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { useI18n } from '@/store/i18n-store';
-import { cn } from '@/lib/utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import {
-  Users,
-  Search,
-  Plus,
+  AlertTriangle,
+  ClipboardCheck,
+  Loader2,
   Mail,
+  Plus,
+  RefreshCw,
+  Search,
   Shield,
+  Trash2,
   UserCog,
   UserPlus,
-  ClipboardCheck,
-  Trash2,
-  MoreHorizontal,
-  X,
-  ChevronDown,
+  Users,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
+import { useAuth } from '@/store/auth-store';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,12 +34,16 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -56,13 +51,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 
-interface TeamMember {
+type TeamRole =
+  | 'COMPANY_ADMIN'
+  | 'HR_MANAGER'
+  | 'RECRUITER'
+  | 'REVIEWER';
+
+type TeamMember = {
   id: string;
   userId: string;
   companyId: string;
-  role: string;
+  role: TeamRole;
   title: string | null;
   joinedAt: string;
   user: {
@@ -70,274 +71,413 @@ interface TeamMember {
     name: string;
     email: string;
     image: string | null;
+    isActive: boolean;
   };
-}
+};
 
-const roleConfig: Record<string, { color: string; bgColor: string; borderColor: string; icon: React.ElementType }> = {
+type RoleConfig = {
+  label: string;
+  description: string;
+  icon: LucideIcon;
+  className: string;
+};
+
+const roleOrder: TeamRole[] = [
+  'COMPANY_ADMIN',
+  'HR_MANAGER',
+  'RECRUITER',
+  'REVIEWER',
+];
+
+const roleConfig: Record<TeamRole, RoleConfig> = {
   COMPANY_ADMIN: {
-    color: 'text-blue-700',
-    bgColor: 'bg-teal-100',
-    borderColor: 'border-slate-200/30',
+    label: 'Company admin',
+    description: 'Company settings, billing, team access, and recruiting controls.',
     icon: Shield,
+    className: 'bg-primary/10 text-primary',
   },
   HR_MANAGER: {
-    color: 'text-cyan-700',
-    bgColor: 'bg-cyan-100 dark:bg-cyan-900/30',
-    borderColor: 'border-cyan-200 dark:border-cyan-800/30',
+    label: 'HR manager',
+    description: 'Full recruiting operations without company administration.',
     icon: UserCog,
+    className: 'bg-cyan-500/10 text-cyan-700',
   },
   RECRUITER: {
-    color: 'text-amber-700',
-    bgColor: 'bg-amber-100 dark:bg-amber-900/30',
-    borderColor: 'border-amber-200 dark:border-amber-800/30',
+    label: 'Recruiter',
+    description: 'Jobs, candidates, applications, interviews, and offers.',
     icon: UserPlus,
+    className: 'bg-amber-500/10 text-amber-700',
   },
   REVIEWER: {
-    color: 'text-purple-700 dark:text-purple-400',
-    bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-    borderColor: 'border-purple-200 dark:border-purple-800/30',
+    label: 'Reviewer',
+    description: 'Read-only hiring review and interview collaboration.',
     icon: ClipboardCheck,
+    className: 'bg-violet-500/10 text-violet-700',
   },
 };
 
-const roles = ['COMPANY_ADMIN', 'HR_MANAGER', 'RECRUITER', 'REVIEWER'];
+function initials(name: string): string {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
-export default function TeamPage() {
-  const { t } = useI18n();
+export default function TeamContent() {
+  const { user, validateSession } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+  const [query, setQuery] = useState('');
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
-  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('RECRUITER');
   const [inviteName, setInviteName] = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteTitle, setInviteTitle] = useState('');
+  const [inviteRole, setInviteRole] = useState<TeamRole>('RECRUITER');
   const [submitting, setSubmitting] = useState(false);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<TeamMember | null>(null);
+  const [removing, setRemoving] = useState(false);
 
-  const fetchMembers = useCallback(async () => {
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
+
     try {
-      const res = await fetch('/api/team');
-      if (res.ok) {
-        const data = await res.json();
-        setMembers(data);
+      const response = await fetch('/api/team', { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to load team members'),
+        );
       }
-    } catch (error) {
-      console.error('Failed to fetch team members:', error);
+      const data = await response.json();
+      setMembers(Array.isArray(data) ? data : []);
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : 'Unable to load team members',
+      );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
+    void validateSession();
+    void load();
+  }, [load, validateSession]);
 
-  const filteredMembers = members.filter((m) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      !searchQuery ||
-      m.user.name.toLowerCase().includes(query) ||
-      m.user.email.toLowerCase().includes(query) ||
-      m.role.toLowerCase().includes(query)
-    );
-  });
+  const filteredMembers = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return members;
 
-  const handleInvite = async () => {
-    if (!inviteEmail) return;
+    return members.filter((member) => {
+      const config = roleConfig[member.role];
+      return (
+        member.user.name.toLowerCase().includes(term) ||
+        member.user.email.toLowerCase().includes(term) ||
+        member.title?.toLowerCase().includes(term) ||
+        config.label.toLowerCase().includes(term)
+      );
+    });
+  }, [members, query]);
+
+  const roleCounts = useMemo(
+    () =>
+      Object.fromEntries(
+        roleOrder.map((role) => [
+          role,
+          members.filter((member) => member.role === role).length,
+        ]),
+      ) as Record<TeamRole, number>,
+    [members],
+  );
+
+  async function inviteMember() {
+    const email = inviteEmail.trim().toLowerCase();
+    if (!email) {
+      toast.error('Email is required');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const res = await fetch('/api/team', {
+      const response = await apiFetch('/api/team', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: inviteEmail,
+          email,
+          name: inviteName.trim() || undefined,
+          title: inviteTitle.trim() || undefined,
           role: inviteRole,
-          name: inviteName || undefined,
-          companyId: 'demo-company',
         }),
       });
-      if (res.ok) {
-        const newMember = await res.json();
-        setMembers((prev) => [...prev, newMember]);
-        setInviteEmail('');
-        setInviteRole('RECRUITER');
-        setInviteName('');
-        setInviteOpen(false);
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to add team member'),
+        );
       }
-    } catch (error) {
-      console.error('Failed to invite member:', error);
+
+      const result = (await response.json()) as {
+        member: TeamMember;
+        setupRequired: boolean;
+        emailSent: boolean;
+        emailError?: string | null;
+      };
+
+      setMembers((current) => [...current, result.member]);
+      setInviteName('');
+      setInviteEmail('');
+      setInviteTitle('');
+      setInviteRole('RECRUITER');
+      setInviteOpen(false);
+
+      if (!result.emailSent) {
+        toast.warning(
+          result.emailError ||
+            'The member was added, but the invitation email could not be sent.',
+        );
+      } else {
+        toast.success(
+          result.setupRequired
+            ? 'Member added and password setup email sent'
+            : 'Member added and notification email sent',
+        );
+      }
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error ? reason.message : 'Unable to add team member',
+      );
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
-  const handleUpdateRole = async (memberId: string, newRole: string) => {
+  async function updateRole(member: TeamMember, role: TeamRole) {
+    if (role === member.role) return;
+
+    setUpdatingId(member.id);
     try {
-      const res = await fetch('/api/team', {
+      const response = await apiFetch('/api/team', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ memberId, role: newRole }),
+        body: JSON.stringify({ memberId: member.id, role }),
       });
-      if (res.ok) {
-        const updated = await res.json();
-        setMembers((prev) =>
-          prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m))
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to update member role'),
         );
       }
-    } catch (error) {
-      console.error('Failed to update role:', error);
-    }
-  };
 
-  const handleRemoveMember = async () => {
-    if (!memberToRemove) return;
+      const updated = (await response.json()) as TeamMember;
+      setMembers((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      toast.success('Member role updated');
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error ? reason.message : 'Unable to update member role',
+      );
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  async function removeMember() {
+    if (!removeTarget) return;
+
+    setRemoving(true);
     try {
-      const res = await fetch(`/api/team?memberId=${memberToRemove.id}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        setMembers((prev) => prev.filter((m) => m.id !== memberToRemove.id));
-        setRemoveDialogOpen(false);
-        setMemberToRemove(null);
+      const response = await apiFetch(
+        `/api/team?memberId=${encodeURIComponent(removeTarget.id)}`,
+        { method: 'DELETE' },
+      );
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(response, 'Unable to remove team member'),
+        );
       }
-    } catch (error) {
-      console.error('Failed to remove member:', error);
+
+      setMembers((current) =>
+        current.filter((member) => member.id !== removeTarget.id),
+      );
+      setRemoveTarget(null);
+      toast.success('Company access removed');
+    } catch (reason) {
+      toast.error(
+        reason instanceof Error ? reason.message : 'Unable to remove team member',
+      );
+    } finally {
+      setRemoving(false);
     }
-  };
+  }
 
-  const getRoleLabel = (role: string): string => {
-    const labels: Record<string, string> = {
-      COMPANY_ADMIN: t.company.companyAdmin,
-      HR_MANAGER: t.company.hrManager,
-      RECRUITER: t.company.recruiter,
-      REVIEWER: t.company.reviewer,
-    };
-    return labels[role] || role;
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
-  };
-
-  const roleStats = roles.map((role) => ({
-    role,
-    count: members.filter((m) => m.role === role).length,
-  }));
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-20" />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {roleOrder.map((role) => (
+            <Skeleton key={role} className="h-28" />
+          ))}
+        </div>
+        <Skeleton className="h-96" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.company.teamManagement}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {members.length} {t.company.members.toLowerCase()}
+          <h1 className="text-2xl font-bold">Team management</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Control company access and recruiting permissions for {members.length}{' '}
+            member{members.length === 1 ? '' : 's'}.
           </p>
         </div>
-        <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Plus className="w-4 h-4 me-2" />
-              {t.company.inviteMember}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>{t.company.inviteMember}</DialogTitle>
-              <DialogDescription>
-                {t.company.selectRole}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t.company.email}</label>
-                <div className="relative">
-                  <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void load(true)}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="me-2 h-4 w-4" />
+            )}
+            Refresh
+          </Button>
+
+          <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="me-2 h-4 w-4" />
+                Add member
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Add a team member</DialogTitle>
+                <DialogDescription>
+                  New accounts receive a secure password-setup link. Existing staff
+                  accounts receive a sign-in notification.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="grid gap-4 py-2 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="invite-name">Name</Label>
                   <Input
-                    placeholder="name@company.com"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    className="ps-9"
-                    type="email"
+                    id="invite-name"
+                    value={inviteName}
+                    onChange={(event) => setInviteName(event.target.value)}
+                    placeholder="Full name"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="invite-title">Job title</Label>
+                  <Input
+                    id="invite-title"
+                    value={inviteTitle}
+                    onChange={(event) => setInviteTitle(event.target.value)}
+                    placeholder="Talent acquisition lead"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="invite-email">Email *</Label>
+                  <div className="relative">
+                    <Mail className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="invite-email"
+                      className="ps-9"
+                      type="email"
+                      value={inviteEmail}
+                      onChange={(event) => setInviteEmail(event.target.value)}
+                      placeholder="name@company.com"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Role *</Label>
+                  <Select
+                    value={inviteRole}
+                    onValueChange={(value) => setInviteRole(value as TeamRole)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roleOrder.map((role) => {
+                        const config = roleConfig[role];
+                        const Icon = config.icon;
+                        return (
+                          <SelectItem key={role} value={role}>
+                            <span className="flex items-center gap-2">
+                              <Icon className="h-4 w-4" />
+                              {config.label}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {roleConfig[inviteRole].description}
+                  </p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t.auth.name}</label>
-                <Input
-                  placeholder="Full Name"
-                  value={inviteName}
-                  onChange={(e) => setInviteName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t.company.role}</label>
-                <Select value={inviteRole} onValueChange={setInviteRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roles.map((role) => {
-                      const config = roleConfig[role];
-                      const Icon = config.icon;
-                      return (
-                        <SelectItem key={role} value={role}>
-                          <div className="flex items-center gap-2">
-                            <Icon className={cn('w-4 h-4', config.color)} />
-                            {getRoleLabel(role)}
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setInviteOpen(false)}>
-                {t.common.cancel}
-              </Button>
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={handleInvite}
-                disabled={!inviteEmail || submitting}
-              >
-                {submitting ? t.common.loading : t.company.inviteMember}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setInviteOpen(false)}
+                  disabled={submitting}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={() => void inviteMember()} disabled={submitting}>
+                  {submitting && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+                  Add member
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      {/* Role Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {roleStats.map((stat) => {
-          const config = roleConfig[stat.role];
+      {error && (
+        <Card className="border-destructive/40">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button size="sm" variant="outline" onClick={() => void load()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {roleOrder.map((role) => {
+          const config = roleConfig[role];
           const Icon = config.icon;
           return (
-            <Card key={stat.role} className={cn('border', config.borderColor)}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className={cn('p-2 rounded-lg', config.bgColor)}>
-                    <Icon className={cn('w-4 h-4', config.color)} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">{getRoleLabel(stat.role)}</p>
-                    <p className="text-xl font-bold">{stat.count}</p>
-                  </div>
+            <Card key={role}>
+              <CardContent className="flex items-center justify-between p-5">
+                <div>
+                  <p className="text-sm text-muted-foreground">{config.label}s</p>
+                  <p className="mt-2 text-3xl font-bold">{roleCounts[role]}</p>
+                </div>
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${config.className}`}
+                >
+                  <Icon className="h-5 w-5" />
                 </div>
               </CardContent>
             </Card>
@@ -345,167 +485,169 @@ export default function TeamPage() {
         })}
       </div>
 
-      {/* Search */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t.company.searchMembers}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-9 h-9"
-          />
-        </div>
+      <div className="relative max-w-xl">
+        <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          className="ps-9"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search name, email, title, or role"
+        />
       </div>
 
-      {/* Team Members */}
-      <Card>
-        {loading ? (
-          <div className="p-6 space-y-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="flex items-center gap-4 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-muted" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded w-1/4" />
-                  <div className="h-3 bg-muted rounded w-1/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filteredMembers.length === 0 ? (
-          <CardContent className="py-12 text-center">
-            <Users className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-medium">{t.company.noMembers}</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              {searchQuery ? t.common.noResults : t.company.inviteMember}
+      {filteredMembers.length === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <Users className="mx-auto h-10 w-10 text-muted-foreground" />
+            <p className="mt-3 font-medium">No team members found</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {query ? 'Change the search terms.' : 'Add the first company member.'}
             </p>
           </CardContent>
-        ) : (
-          <div className="divide-y divide-border/50">
-            {filteredMembers.map((member) => {
-              const config = roleConfig[member.role] || roleConfig.REVIEWER;
-              const Icon = config.icon;
-              return (
-                <div
-                  key={member.id}
-                  className="flex items-center gap-4 p-4 hover:bg-accent/30 transition-colors"
-                >
-                  {/* Avatar */}
-                  <Avatar className="w-10 h-10 flex-shrink-0">
-                    <AvatarImage src={member.user.image || undefined} />
-                    <AvatarFallback className={cn('text-xs', config.bgColor, config.color)}>
-                      {getInitials(member.user.name)}
-                    </AvatarFallback>
-                  </Avatar>
+        </Card>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {filteredMembers.map((member) => {
+            const config = roleConfig[member.role];
+            const Icon = config.icon;
+            const isCurrentUser = member.userId === user?.id;
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium truncate">{member.user.name}</p>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'text-[10px] px-1.5 py-0 font-medium',
-                          config.color,
-                          config.bgColor,
-                          config.borderColor
-                        )}
-                      >
-                        <Icon className="w-3 h-3 me-1" />
-                        {getRoleLabel(member.role)}
-                      </Badge>
+            return (
+              <Card key={member.id}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar className="h-11 w-11">
+                        <AvatarImage src={member.user.image || undefined} />
+                        <AvatarFallback>{initials(member.user.name)}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <CardTitle className="truncate text-base">
+                          {member.user.name}
+                          {isCurrentUser && (
+                            <span className="ms-2 text-xs font-normal text-muted-foreground">
+                              You
+                            </span>
+                          )}
+                        </CardTitle>
+                        <p className="truncate text-sm text-muted-foreground">
+                          {member.title || member.user.email}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 mt-0.5">
-                      <span className="text-xs text-muted-foreground truncate">{member.user.email}</span>
-                      {member.title && (
-                        <>
-                          <span className="text-xs text-muted-foreground">·</span>
-                          <span className="text-xs text-muted-foreground truncate">{member.title}</span>
-                        </>
-                      )}
-                    </div>
+                    {!member.user.isActive && (
+                      <Badge variant="destructive">Inactive</Badge>
+                    )}
                   </div>
+                </CardHeader>
 
-                  {/* Join Date (hidden on mobile) */}
-                  <div className="hidden sm:flex flex-col items-end flex-shrink-0">
-                    <span className="text-xs text-muted-foreground">{t.company.joinDate}</span>
-                    <span className="text-xs font-medium">{formatDate(member.joinedAt)}</span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    {/* Edit Role Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs">
-                          <UserCog className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">{t.company.updateRole}</span>
-                          <ChevronDown className="w-3 h-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {roles.map((role) => {
-                          const roleCfg = roleConfig[role];
-                          const RIcon = roleCfg.icon;
-                          return (
-                            <DropdownMenuItem
-                              key={role}
-                              onClick={() => handleUpdateRole(member.id, role)}
-                              disabled={member.role === role}
-                              className={cn(member.role === role && 'bg-accent/50')}
-                            >
-                              <RIcon className={cn('w-4 h-4 me-2', roleCfg.color)} />
-                              {getRoleLabel(role)}
-                              {member.role === role && (
-                                <span className="ms-auto text-blue-600 text-xs">✓</span>
-                              )}
-                            </DropdownMenuItem>
-                          );
-                        })}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Remove Button */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => {
-                        setMemberToRemove(member);
-                        setRemoveDialogOpen(true);
-                      }}
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <a
+                      className="truncate hover:text-foreground hover:underline"
+                      href={`mailto:${member.user.email}`}
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      {member.user.email}
+                    </a>
+                    <span>·</span>
+                    <span>
+                      Joined {new Date(member.joinedAt).toLocaleDateString()}
+                    </span>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </Card>
 
-      {/* Remove Member Confirmation */}
-      <AlertDialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+                  <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`flex h-8 w-8 items-center justify-center rounded-lg ${config.className}`}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{config.label}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {config.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Select
+                        value={member.role}
+                        onValueChange={(value) =>
+                          void updateRole(member, value as TeamRole)
+                        }
+                        disabled={isCurrentUser || updatingId === member.id}
+                      >
+                        <SelectTrigger className="w-44">
+                          {updatingId === member.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <SelectValue />
+                          )}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roleOrder.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {roleConfig[role].label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-destructive"
+                        disabled={isCurrentUser}
+                        onClick={() => setRemoveTarget(member)}
+                        aria-label={`Remove ${member.user.name}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {isCurrentUser && (
+                    <div className="flex gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-muted-foreground">
+                      <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+                      Your own administrator role and membership cannot be changed
+                      from this page.
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      <AlertDialog
+        open={Boolean(removeTarget)}
+        onOpenChange={(open) => {
+          if (!open && !removing) setRemoveTarget(null);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t.company.confirmRemove}</AlertDialogTitle>
+            <AlertDialogTitle>Remove company access?</AlertDialogTitle>
             <AlertDialogDescription>
-              {t.company.confirmRemoveMessage}
-              {memberToRemove && (
-                <span className="block mt-2 font-medium text-foreground">
-                  {memberToRemove.user.name} ({memberToRemove.user.email})
-                </span>
-              )}
+              {removeTarget?.user.name} will immediately lose access to this
+              company workspace. Their user account and historical activity are
+              preserved.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+            <AlertDialogCancel disabled={removing}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleRemoveMember}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={removing}
+              onClick={(event) => {
+                event.preventDefault();
+                void removeMember();
+              }}
             >
-              {t.company.removeMember}
+              {removing && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+              Remove access
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

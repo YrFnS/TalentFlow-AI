@@ -1,9 +1,6 @@
 import { db } from '@/lib/db';
 import { decryptApiKey } from '@/lib/security/api-key-protect';
-
-// ============================================
-// Types
-// ============================================
+import { assertSafeAIProviderBaseUrl } from '@/lib/security/ai-provider-url';
 
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
@@ -12,12 +9,12 @@ interface OpenRouterMessage {
 
 interface OpenRouterResponse {
   id: string;
-  choices: {
+  choices: Array<{
     index: number;
     message: { role: string; content: string };
     finish_reason: string;
-  }[];
-  usage: {
+  }>;
+  usage?: {
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
@@ -30,13 +27,8 @@ interface OpenRouterModel {
   name: string;
   description?: string;
   context_length: number;
-  pricing: {
-    prompt: string;
-    completion: string;
-  };
-  top_provider?: {
-    max_completion_tokens?: number;
-  };
+  pricing: { prompt: string; completion: string };
+  top_provider?: { max_completion_tokens?: number };
   architecture?: {
     modality: string;
     tokenizer: string;
@@ -51,109 +43,96 @@ interface AIChatOptions {
   feature: string;
 }
 
-// ============================================
-// Get User's Default Provider and Model
-// ============================================
+const REQUEST_TIMEOUT_MS = 45_000;
 
 export async function getUserDefaultProvider(userId: string) {
-  const provider = await db.aIProvider.findFirst({
-    where: {
-      userId,
-      isActive: true,
-      isDefault: true,
-    },
+  const providers = await db.aIProvider.findMany({
+    where: { userId, isActive: true },
     include: {
       models: {
         where: { isActive: true },
-        orderBy: { isDefault: 'desc' },
+        orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
       },
     },
+    orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
   });
-
-  if (!provider) {
-    // Fallback: get any active provider
-    const fallbackProvider = await db.aIProvider.findFirst({
-      where: {
-        userId,
-        isActive: true,
-      },
-      include: {
-        models: {
-          where: { isActive: true },
-          orderBy: { isDefault: 'desc' },
-        },
-      },
-    });
-    return fallbackProvider;
-  }
-
-  return provider;
+  return providers[0] || null;
 }
 
 export async function getUserDefaultModel(userId: string) {
   const provider = await getUserDefaultProvider(userId);
-  if (!provider) return null;
-
-  const defaultModel = provider.models.find((m) => m.isDefault);
-  return defaultModel || provider.models[0] || null;
+  return provider?.models.find((model) => model.isDefault) || provider?.models[0] || null;
 }
 
-// ============================================
-// Call OpenRouter API
-// ============================================
+function buildCompletionUrl(baseUrl: string): string {
+  const url = new URL(baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`);
+  url.pathname = `${url.pathname.replace(/\/+$/, '')}/chat/completions`;
+  return url.toString();
+}
+
+async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+      redirect: 'error',
+      cache: 'no-store',
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 export async function callOpenRouterAPI(
   apiKey: string,
   baseUrl: string,
   modelId: string,
-  messages: OpenRouterMessage[]
+  messages: OpenRouterMessage[],
 ): Promise<OpenRouterResponse> {
-  const url = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
-
-  const response = await fetch(url, {
+  const safeBaseUrl = await assertSafeAIProviderBaseUrl(baseUrl);
+  const response = await fetchWithTimeout(buildCompletionUrl(safeBaseUrl), {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://talentflow.invalid',
       'X-Title': 'TalentFlow AI',
     },
-    body: JSON.stringify({
-      model: modelId,
-      messages,
-    }),
+    body: JSON.stringify({ model: modelId, messages }),
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
+    const errorText = (await response.text()).slice(0, 2000);
+    throw new Error(`AI provider request failed (${response.status}): ${errorText}`);
   }
 
-  return response.json() as Promise<OpenRouterResponse>;
-}
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error('AI provider returned an unexpected response type');
+  }
 
-// ============================================
-// Test AI Connection
-// ============================================
+  const payload = (await response.json()) as OpenRouterResponse;
+  if (!Array.isArray(payload.choices)) {
+    throw new Error('AI provider returned an invalid completion response');
+  }
+  return payload;
+}
 
 export async function testAIConnection(
   apiKey: string,
   baseUrl: string,
-  modelId: string
+  modelId: string,
 ): Promise<{ success: boolean; message: string; response?: string }> {
   try {
     const result = await callOpenRouterAPI(apiKey, baseUrl, modelId, [
-      {
-        role: 'user',
-        content: 'Say "Hello" in one word.',
-      },
+      { role: 'user', content: 'Reply with the single word: Hello' },
     ]);
-
-    const content = result.choices?.[0]?.message?.content;
     return {
       success: true,
-      message: 'Connection successful!',
-      response: content,
+      message: 'Connection successful',
+      response: result.choices[0]?.message?.content,
     };
   } catch (error) {
     return {
@@ -162,10 +141,6 @@ export async function testAIConnection(
     };
   }
 }
-
-// ============================================
-// Log AI Usage
-// ============================================
 
 export async function logAIUsage(params: {
   userId: string;
@@ -186,107 +161,81 @@ export async function logAIUsage(params: {
       outputTokens: params.outputTokens,
       duration: params.duration,
       success: params.success,
-      error: params.error,
+      error: params.error?.slice(0, 2000),
     },
   });
 }
-
-// ============================================
-// Fetch Models from OpenRouter
-// ============================================
 
 export async function fetchOpenRouterModels(apiKey: string): Promise<OpenRouterModel[]> {
-  const response = await fetch('https://openrouter.ai/api/v1/models', {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
+  const response = await fetchWithTimeout('https://openrouter.ai/api/v1/models', {
+    headers: { Authorization: `Bearer ${apiKey}` },
   });
-
   if (!response.ok) {
-    throw new Error(`Failed to fetch models: ${response.status}`);
+    throw new Error(`Failed to fetch models (${response.status})`);
   }
-
-  const data = (await response.json()) as { data: OpenRouterModel[] };
-  return data.data || [];
+  const payload = (await response.json()) as { data?: OpenRouterModel[] };
+  return payload.data || [];
 }
 
-// ============================================
-// AI Chat (Full Pipeline)
-// ============================================
-
 export async function aiChat(options: AIChatOptions) {
-  const { userId, messages, modelId: specificModelId, feature } = options;
+  const provider = await getUserDefaultProvider(options.userId);
+  if (!provider) throw new Error('No active AI provider configured');
 
-  // Get user's provider
-  const provider = await getUserDefaultProvider(userId);
-  if (!provider) {
-    throw new Error('No active AI provider configured');
-  }
+  const model = options.modelId
+    ? await db.aIModel.findFirst({
+        where: {
+          id: options.modelId,
+          providerId: provider.id,
+          isActive: true,
+        },
+      })
+    : provider.models.find((item) => item.isDefault) || provider.models[0];
 
-  // Determine which model to use
-  let model;
-  if (specificModelId) {
-    model = await db.aIModel.findUnique({
-      where: { id: specificModelId },
-    });
-    if (!model || model.providerId !== provider.id) {
-      throw new Error('Model not found or does not belong to provider');
-    }
-  } else {
-    model = provider.models.find((m) => m.isDefault) || provider.models[0];
-  }
+  if (!model) throw new Error('No active model configured');
 
-  if (!model) {
-    throw new Error('No active model configured');
-  }
-
-  const startTime = Date.now();
+  const startedAt = Date.now();
   try {
     const result = await callOpenRouterAPI(
       decryptApiKey(provider.apiKey),
       provider.baseUrl || 'https://openrouter.ai/api/v1',
       model.modelId,
-      messages
+      options.messages,
     );
+    const usage = result.usage || {
+      prompt_tokens: 0,
+      completion_tokens: 0,
+      total_tokens: 0,
+    };
 
-    const duration = Date.now() - startTime;
-    const usage = result.usage || { prompt_tokens: 0, completion_tokens: 0 };
-
-    // Log usage
     await logAIUsage({
-      userId,
+      userId: options.userId,
       modelId: model.id,
-      feature,
+      feature: options.feature,
       inputTokens: usage.prompt_tokens,
       outputTokens: usage.completion_tokens,
-      duration,
+      duration: Date.now() - startedAt,
       success: true,
     });
 
     return {
-      content: result.choices?.[0]?.message?.content || '',
+      content: result.choices[0]?.message?.content || '',
       usage,
       model: result.model,
     };
   } catch (error) {
-    const duration = Date.now() - startTime;
     await logAIUsage({
-      userId,
+      userId: options.userId,
       modelId: model.id,
-      feature,
+      feature: options.feature,
       inputTokens: 0,
       outputTokens: 0,
-      duration,
+      duration: Date.now() - startedAt,
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
     throw error;
   }
 }
-
-// ============================================
-// Get AI Usage Statistics
-// ============================================
 
 export async function getAIUsageStats(userId: string) {
   const logs = await db.aIUsageLog.findMany({
@@ -295,45 +244,33 @@ export async function getAIUsageStats(userId: string) {
     take: 1000,
   });
 
-  const totalRequests = logs.length;
-  const successRequests = logs.filter((l) => l.success).length;
-  const totalInputTokens = logs.reduce((sum, l) => sum + l.inputTokens, 0);
-  const totalOutputTokens = logs.reduce((sum, l) => sum + l.outputTokens, 0);
+  const successful = logs.filter((log) => log.success).length;
+  const totalInputTokens = logs.reduce((sum, log) => sum + log.inputTokens, 0);
+  const totalOutputTokens = logs.reduce((sum, log) => sum + log.outputTokens, 0);
   const totalTokens = totalInputTokens + totalOutputTokens;
+  const features = new Map<string, { count: number; tokens: number }>();
 
-  // Feature breakdown
-  const featureMap = new Map<string, { count: number; tokens: number }>();
   for (const log of logs) {
-    const existing = featureMap.get(log.feature) || { count: 0, tokens: 0 };
-    existing.count += 1;
-    existing.tokens += log.inputTokens + log.outputTokens;
-    featureMap.set(log.feature, existing);
+    const current = features.get(log.feature) || { count: 0, tokens: 0 };
+    current.count += 1;
+    current.tokens += log.inputTokens + log.outputTokens;
+    features.set(log.feature, current);
   }
 
-  const featureBreakdown = Array.from(featureMap.entries()).map(
-    ([feature, data]) => ({
-      feature,
-      count: data.count,
-      tokens: data.tokens,
-    })
-  );
-
   return {
-    totalRequests,
-    successRate: totalRequests > 0 ? (successRequests / totalRequests) * 100 : 0,
+    totalRequests: logs.length,
+    successRate: logs.length ? (successful / logs.length) * 100 : 0,
     totalTokens,
     totalInputTokens,
     totalOutputTokens,
-    featureBreakdown,
-    avgTokensPerRequest:
-      totalRequests > 0 ? Math.round(totalTokens / totalRequests) : 0,
+    featureBreakdown: Array.from(features, ([feature, values]) => ({
+      feature,
+      ...values,
+    })),
+    avgTokensPerRequest: logs.length ? Math.round(totalTokens / logs.length) : 0,
     lastUsed: logs[0]?.createdAt || null,
   };
 }
-
-// ============================================
-// Type Exports
-// ============================================
 
 export type {
   OpenRouterMessage,

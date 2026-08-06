@@ -1,107 +1,225 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import {
+  requireCompanyEditor,
+  requireCompanyMember,
+  resolveCompanyId,
+} from '@/lib/auth-guard';
+import {
+  findCompanyTalent,
+  normalizeTalentCriteria,
+  type TalentCriteria,
+} from '@/lib/talent-matching';
+import { getClientIp } from '@/lib/security';
 
-// GET /api/sourcing-campaigns — List campaigns for a company
-export async function GET(request: NextRequest) {
+function safeArray(value: string): Array<Record<string, unknown>> {
   try {
-    const { searchParams } = new URL(request.url);
-    const companyId = searchParams.get('companyId');
-
-    if (!companyId) {
-      // Return mock data if no companyId
-      const mockCampaigns = [
-        {
-          id: 'c1', name: 'Senior Frontend Engineer Search', jobId: 'j1', jobTitle: 'Senior Frontend Engineer',
-          criteria: JSON.stringify({ skills: ['React', 'TypeScript', 'Next.js'], experience: 5, location: 'Remote' }),
-          matchedCount: 24, contactedCount: 18, respondedCount: 9, status: 'ACTIVE', createdAt: '2025-02-20T00:00:00Z',
-        },
-        {
-          id: 'c2', name: 'Product Designer Pipeline', jobId: 'j2', jobTitle: 'Product Designer',
-          criteria: JSON.stringify({ skills: ['Figma', 'User Research', 'Design Systems'], experience: 3, location: 'San Francisco' }),
-          matchedCount: 15, contactedCount: 12, respondedCount: 6, status: 'ACTIVE', createdAt: '2025-02-15T00:00:00Z',
-        },
-        {
-          id: 'c3', name: 'DevOps Talent Pool', jobId: null, jobTitle: null,
-          criteria: JSON.stringify({ skills: ['Kubernetes', 'Docker', 'CI/CD', 'AWS'], experience: 4 }),
-          matchedCount: 32, contactedCount: 20, respondedCount: 11, status: 'PAUSED', createdAt: '2025-01-10T00:00:00Z',
-        },
-        {
-          id: 'c4', name: 'Data Science Interns 2025', jobId: 'j3', jobTitle: 'Data Science Intern',
-          criteria: JSON.stringify({ skills: ['Python', 'Machine Learning', 'SQL'], experience: 0, location: 'New York' }),
-          matchedCount: 45, contactedCount: 30, respondedCount: 22, status: 'COMPLETED', createdAt: '2024-11-01T00:00:00Z',
-        },
-      ];
-      return NextResponse.json({ campaigns: mockCampaigns });
-    }
-
-    const campaigns = await db.sourcingCampaign.findMany({
-      where: { companyId },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return NextResponse.json({ campaigns });
-  } catch (error) {
-    console.error('Error fetching sourcing campaigns:', error);
-    return NextResponse.json({ error: 'Failed to fetch campaigns' }, { status: 500 });
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter(
+          (item): item is Record<string, unknown> =>
+            Boolean(item) && typeof item === 'object',
+        )
+      : [];
+  } catch {
+    return [];
   }
 }
 
-// POST /api/sourcing-campaigns — Create a new sourcing campaign
-export async function POST(request: NextRequest) {
+function safeCriteria(value: string): TalentCriteria {
   try {
-    const body = await request.json();
-    const { name, jobId, criteria, companyId } = body;
+    return normalizeTalentCriteria(JSON.parse(value));
+  } catch {
+    return normalizeTalentCriteria({});
+  }
+}
 
-    if (!name || !companyId) {
-      return NextResponse.json({ error: 'name and companyId are required' }, { status: 400 });
+function serializeCampaign(
+  campaign: {
+    id: string;
+    name: string;
+    jobId: string | null;
+    criteria: string;
+    status: string;
+    matchedCandidates: string;
+    contactedCount: number;
+    respondedCount: number;
+    createdAt: Date;
+    updatedAt: Date;
+  },
+  jobTitle: string | null,
+) {
+  const matchedCandidates = safeArray(campaign.matchedCandidates);
+  return {
+    id: campaign.id,
+    name: campaign.name,
+    jobId: campaign.jobId,
+    jobTitle,
+    criteria: safeCriteria(campaign.criteria),
+    matchedCount: matchedCandidates.length,
+    matchedCandidates,
+    contactedCount: campaign.contactedCount,
+    respondedCount: campaign.respondedCount,
+    status: campaign.status,
+    createdAt: campaign.createdAt,
+    updatedAt: campaign.updatedAt,
+  };
+}
+
+export async function GET(request: NextRequest) {
+  const auth = await requireCompanyMember();
+  if (auth instanceof NextResponse) return auth;
+
+  try {
+    const companyId = resolveCompanyId(
+      auth,
+      request.nextUrl.searchParams.get('companyId'),
+    );
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'A valid company context is required' },
+        { status: 403 },
+      );
     }
 
-    try {
-      const campaign = await db.sourcingCampaign.create({
+    const [campaigns, jobs] = await Promise.all([
+      db.sourcingCampaign.findMany({
+        where: { companyId },
+        orderBy: { createdAt: 'desc' },
+        take: 200,
+      }),
+      db.job.findMany({
+        where: {
+          companyId,
+          status: { in: ['OPEN', 'DRAFT', 'PAUSED'] },
+        },
+        select: { id: true, title: true, status: true },
+        orderBy: { updatedAt: 'desc' },
+        take: 200,
+      }),
+    ]);
+
+    const jobTitles = new Map(jobs.map((job) => [job.id, job.title]));
+
+    return NextResponse.json({
+      campaigns: campaigns.map((campaign) =>
+        serializeCampaign(
+          campaign,
+          campaign.jobId ? jobTitles.get(campaign.jobId) || null : null,
+        ),
+      ),
+      jobs,
+    });
+  } catch (error) {
+    console.error('Error fetching sourcing campaigns:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch campaigns' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const auth = await requireCompanyEditor();
+  if (auth instanceof NextResponse) return auth;
+
+  try {
+    const body = (await request.json()) as Record<string, unknown>;
+    const companyId = resolveCompanyId(
+      auth,
+      typeof body.companyId === 'string' ? body.companyId : null,
+    );
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'A valid company context is required' },
+        { status: 403 },
+      );
+    }
+
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    const jobId =
+      typeof body.jobId === 'string' && body.jobId.trim()
+        ? body.jobId.trim()
+        : null;
+    const criteria = normalizeTalentCriteria(body.criteria);
+
+    if (!name || name.length > 160) {
+      return NextResponse.json(
+        { error: 'Campaign name is required and must be 160 characters or fewer' },
+        { status: 400 },
+      );
+    }
+
+    let jobTitle: string | null = null;
+    if (jobId) {
+      const job = await db.job.findFirst({
+        where: { id: jobId, companyId, status: { not: 'ARCHIVED' } },
+        select: { id: true, title: true },
+      });
+      if (!job) {
+        return NextResponse.json(
+          { error: 'Job not found for this company' },
+          { status: 404 },
+        );
+      }
+      jobTitle = job.title;
+    }
+
+    const matches = await findCompanyTalent({
+      companyId,
+      criteria,
+      excludeJobId: jobId || undefined,
+      limit: 200,
+    });
+
+    const campaign = await db.$transaction(async (transaction) => {
+      const created = await transaction.sourcingCampaign.create({
         data: {
+          companyId,
           name,
-          jobId: jobId || null,
-          criteria: JSON.stringify(criteria || {}),
-          matchedCandidates: JSON.stringify([]),
+          jobId,
+          criteria: JSON.stringify(criteria),
+          matchedCandidates: JSON.stringify(
+            matches.map((candidate) => ({
+              candidateId: candidate.id,
+              matchScore: candidate.matchScore,
+              matchReasons: candidate.matchReasons,
+            })),
+          ),
           contactedCount: 0,
           respondedCount: 0,
-          companyId,
+          status: 'ACTIVE',
         },
       });
 
-      // Auto-match candidates (mock)
-      const matchCount = Math.floor(Math.random() * 30) + 5;
+      await transaction.auditLog.create({
+        data: {
+          userId: auth.userId,
+          action: 'sourcing_campaign.create',
+          resource: 'sourcing_campaign',
+          resourceId: created.id,
+          ipAddress: getClientIp(request.headers),
+          details: JSON.stringify({
+            companyId,
+            jobId,
+            matchedCount: matches.length,
+            criteria,
+          }),
+        },
+      });
 
-      return NextResponse.json({
-        id: campaign.id,
-        name: campaign.name,
-        jobId: campaign.jobId,
-        criteria: JSON.parse(campaign.criteria),
-        matchedCount: matchCount,
-        contactedCount: 0,
-        respondedCount: 0,
-        status: campaign.status,
-        createdAt: campaign.createdAt,
-      });
-    } catch (dbError) {
-      console.error('DB error creating campaign:', dbError);
-      // Return mock response if DB fails
-      const matchCount = Math.floor(Math.random() * 30) + 5;
-      return NextResponse.json({
-        id: `c${Date.now()}`,
-        name,
-        jobId: jobId || null,
-        criteria: criteria || {},
-        matchedCount: matchCount,
-        contactedCount: 0,
-        respondedCount: 0,
-        status: 'ACTIVE',
-        createdAt: new Date().toISOString(),
-      });
-    }
+      return created;
+    });
+
+    return NextResponse.json(
+      { campaign: serializeCampaign(campaign, jobTitle) },
+      { status: 201 },
+    );
   } catch (error) {
     console.error('Error creating sourcing campaign:', error);
-    return NextResponse.json({ error: 'Failed to create campaign' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create campaign' },
+      { status: 500 },
+    );
   }
 }

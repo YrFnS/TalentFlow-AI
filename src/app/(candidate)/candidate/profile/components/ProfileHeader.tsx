@@ -1,42 +1,55 @@
-// @ts-nocheck
-"use client";
+'use client';
 
-import React from "react";
-import { Sparkles } from "lucide-react";
-import { useI18n } from "@/store/i18n-store";
-import { Button } from "@/components/ui/button";
+import { Check, Loader2, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ProfileHeaderProps {
-	onAiAnalyze?: () => void;
-	onSave?: () => void;
+  onSave: () => void;
+  saving: boolean;
+  dirty: boolean;
+  lastSavedAt?: Date | null;
 }
 
 export default function ProfileHeader({
-	onAiAnalyze,
-	onSave,
+  onSave,
+  saving,
+  dirty,
+  lastSavedAt,
 }: ProfileHeaderProps) {
-	const { t } = useI18n();
-
-	return (
-		<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-			<div>
-				<h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-					{t.candidate.myProfile}
-				</h1>
-				<p className="text-muted-foreground mt-1">{t.resume.subtitle}</p>
-			</div>
-			<div className="flex items-center gap-2">
-				<Button variant="outline" className="gap-2" onClick={onAiAnalyze}>
-					<Sparkles className="h-4 w-4 text-blue-600" />
-					{t.candidate.aiAnalyzeResume}
-				</Button>
-				<Button
-					className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
-					onClick={onSave}
-				>
-					{t.common.save}
-				</Button>
-			</div>
-		</div>
-	);
+  return (
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+          My profile
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Keep your candidate information accurate for applications and recruiter
+          review.
+        </p>
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+          {dirty ? (
+            <>
+              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              Unsaved changes
+            </>
+          ) : (
+            <>
+              <Check className="h-3.5 w-3.5 text-emerald-600" />
+              {lastSavedAt
+                ? `Saved ${lastSavedAt.toLocaleTimeString()}`
+                : 'Profile loaded'}
+            </>
+          )}
+        </p>
+      </div>
+      <Button onClick={onSave} disabled={saving || !dirty}>
+        {saving ? (
+          <Loader2 className="me-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Save className="me-2 h-4 w-4" />
+        )}
+        Save profile
+      </Button>
+    </div>
+  );
 }

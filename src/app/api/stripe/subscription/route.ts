@@ -1,31 +1,35 @@
-import { NextResponse } from 'next/server';
+// @ts-nocheck - Legacy read-only subscription response.
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireCompanyMember } from '@/lib/auth-guard';
+import { requireCompanyMember, resolveCompanyId } from '@/lib/auth-guard';
 
-// Get current subscription details with plan info
-export async function GET() {
+export async function GET(request: NextRequest) {
   const auth = await requireCompanyMember();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const companyId = auth.companyId;
+    const companyId = resolveCompanyId(
+      auth,
+      request.nextUrl.searchParams.get('companyId'),
+    );
     if (!companyId) {
-      return NextResponse.json({ error: 'companyId is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'A valid company context is required' },
+        { status: 403 },
+      );
     }
 
     const subscription = await db.subscription.findUnique({
       where: { companyId },
       include: {
         plan: true,
-        invoices: {
-          orderBy: { createdAt: 'desc' },
-          take: 12,
-        },
+        invoices: { orderBy: { createdAt: 'desc' }, take: 12 },
       },
     });
 
     if (!subscription) {
       return NextResponse.json({
+        billingEnabled: false,
         subscription: null,
         plan: null,
         invoices: [],
@@ -35,33 +39,24 @@ export async function GET() {
 
     const limits = subscription.plan.limits
       ? JSON.parse(subscription.plan.limits)
-      : { jobs: 10, applications: 100, aiCredits: 50 };
+      : {};
+    const memberIds = (
+      await db.companyMember.findMany({
+        where: { companyId },
+        select: { userId: true },
+      })
+    ).map((member) => member.userId);
 
-    // Real usage counts from DB
-    const [jobCount, applicationCount, aiUsageCount] = await Promise.all([
-      db.job.count({ where: { companyId } }),
-      db.application.count({
-        where: { job: { companyId } },
-      }),
-      db.aIUsageLog.count({
-        where: {
-          userId: {
-            in: (await db.companyMember.findMany({
-              where: { companyId },
-              select: { userId: true },
-            })).map((m) => m.userId),
-          },
-        },
-      }),
+    const [jobs, applications, aiRequests] = await Promise.all([
+      db.job.count({ where: { companyId, status: { not: 'ARCHIVED' } } }),
+      db.application.count({ where: { job: { companyId } } }),
+      memberIds.length
+        ? db.aIUsageLog.count({ where: { userId: { in: memberIds } } })
+        : Promise.resolve(0),
     ]);
 
-    const usage = {
-      jobs: { current: jobCount, limit: limits.jobs || 10 },
-      applications: { current: applicationCount, limit: limits.applications || 100 },
-      aiCredits: { current: aiUsageCount, limit: limits.aiCredits || 50 },
-    };
-
     return NextResponse.json({
+      billingEnabled: false,
       subscription: {
         id: subscription.id,
         planId: subscription.planId,
@@ -77,8 +72,14 @@ export async function GET() {
         currentPeriodStart: subscription.currentPeriodStart,
         currentPeriodEnd: subscription.currentPeriodEnd,
         cancelledAt: subscription.cancelledAt,
-        stripeSubscriptionId: subscription.stripeSubscriptionId,
-        usage,
+        usage: {
+          jobs: { current: jobs, limit: limits.jobs ?? null },
+          applications: {
+            current: applications,
+            limit: limits.applications ?? null,
+          },
+          aiCredits: { current: aiRequests, limit: limits.aiCredits ?? null },
+        },
       },
       plan: {
         id: subscription.plan.id,
@@ -88,25 +89,23 @@ export async function GET() {
         features: subscription.plan.features,
         limits: subscription.plan.limits,
       },
-      invoices: subscription.invoices.map((inv) => ({
-        id: inv.id,
-        invoiceNumber: inv.invoiceNumber,
-        amount: inv.amount,
-        currency: inv.currency,
-        status: inv.status,
-        date: inv.paidAt || inv.createdAt,
-        pdfUrl: inv.pdfUrl || inv.invoicePdf,
-        hostedInvoiceUrl: inv.hostedInvoiceUrl,
+      invoices: subscription.invoices.map((invoice) => ({
+        id: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.amount,
+        currency: invoice.currency,
+        status: invoice.status,
+        date: invoice.paidAt || invoice.createdAt,
+        pdfUrl: invoice.invoicePdf || invoice.pdfUrl,
+        hostedInvoiceUrl: invoice.hostedInvoiceUrl,
       })),
-      paymentMethod: subscription.stripeSubscriptionId ? {
-        brand: 'visa',
-        last4: '4242',
-        expMonth: 12,
-        expYear: 2027,
-      } : null,
+      paymentMethod: null,
     });
   } catch (error) {
     console.error('Error fetching subscription:', error);
-    return NextResponse.json({ error: 'Failed to fetch subscription' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch subscription' },
+      { status: 500 },
+    );
   }
 }

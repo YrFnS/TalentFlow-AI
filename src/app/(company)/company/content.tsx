@@ -1,480 +1,136 @@
-// @ts-nocheck
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useI18n } from '@/store/i18n-store';
-import { cn } from '@/lib/utils';
 import {
-  Briefcase,
-  FileText,
-  Video,
-  UserCheck,
-  TrendingUp,
-  Plus,
-  Calendar,
-  GitBranch,
   ArrowUpRight,
-  Sparkles,
-  Clock,
+  Briefcase,
+  Calendar,
+  FileText,
+  Loader2,
+  Plus,
+  RefreshCw,
+  UserCheck,
   Users,
+  Video,
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useAuth } from '@/store/auth-store';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 
-
-interface DashboardData {
+type Dashboard = {
+  company: { name: string } | null;
   stats: {
     activeJobs: number;
     totalApplications: number;
     interviewsToday: number;
     hiredThisMonth: number;
   };
-  trend: { date: string; applications: number }[];
-  funnel: { stage: string; count: number }[];
+  trend: Array<{ date: string; applications: number }>;
+  funnel: Array<{ stage: string; count: number }>;
   recentApplications: Array<{
     id: string;
     status: string;
     matchScore: number | null;
-    appliedAt: string;
-    candidate: {
-      user: { name: string; email: string };
-    };
+    candidate: { user: { name: string; image?: string | null } };
     job: { title: string };
   }>;
-  jobsByStatus: Array<{ status: string; _count: number }>;
-}
+  upcomingInterviews: Array<{
+    id: string;
+    type: string;
+    scheduledAt: string;
+    candidate: { name: string; image?: string | null };
+    jobTitle: string;
+    interviewers: string[];
+  }>;
+};
 
-const emptyData: DashboardData = {
+const empty: Dashboard = {
+  company: null,
   stats: { activeJobs: 0, totalApplications: 0, interviewsToday: 0, hiredThisMonth: 0 },
   trend: [],
   funnel: [],
   recentApplications: [],
-  jobsByStatus: [],
+  upcomingInterviews: [],
 };
 
-const funnelColors = ['#2563eb', '#3b82f6', '#f59e0b', '#8b5cf6', '#10b981'];
-
-const statusColors: Record<string, string> = {
-  APPLIED: 'bg-slate-100 text-slate-700',
-  SCREENING: 'bg-blue-100 text-blue-700',
-  INTERVIEW: 'bg-amber-100 text-amber-700',
-  OFFERED: 'bg-violet-100 text-violet-700',
-  HIRED: 'bg-emerald-100 text-emerald-700',
-  REJECTED: 'bg-red-100 text-red-700',
-};
-
-const hiringTimelineData: { week: string; hired: number; interviews: number }[] = [];
-
-function SimpleAreaChart({ data, height = 260, gradientId = 'areaGrad' }: { data: number[]; height?: number; gradientId?: string }) {
-  const width = 100;
-  const padding = { top: 10, right: 5, bottom: 25, left: 5 };
-  const chartW = width - padding.left - padding.right;
-  const chartH = height - padding.top - padding.bottom;
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const range = max - min || 1;
-  const points = data.map((v, i) => {
-    const x = padding.left + (i / (data.length - 1)) * chartW;
-    const y = padding.top + chartH - ((v - min) / range) * chartH;
-    return `${x},${y}`;
-  }).join(' ');
-  const areaPoints = `${padding.left},${padding.top + chartH} ${points} ${padding.left + chartW},${padding.top + chartH}`;
-
-  return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgb(37, 99, 235)" stopOpacity={0.15} />
-          <stop offset="100%" stopColor="rgb(37, 99, 235)" stopOpacity={0.02} />
-        </linearGradient>
-      </defs>
-      {/* Grid lines */}
-      {[0, 0.25, 0.5, 0.75, 1].map((frac, i) => {
-        const y = padding.top + chartH * (1 - frac);
-        return <line key={i} x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="currentColor" strokeOpacity={0.08} strokeWidth={0.3} />;
-      })}
-      <polygon points={areaPoints} fill={`url(#${gradientId})`} />
-      <polyline points={points} fill="none" stroke="rgb(37, 99, 235)" strokeWidth={0.8} />
-    </svg>
-  );
+function initials(name: string) {
+  return name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
 }
 
-function SimpleGroupedBarChart({ data, labels, series, height = 220 }: { data: Record<string, number>[]; labels: string[]; series: { key: string; color: string }[]; height?: number }) {
-  const width = 100;
-  const padding = { top: 10, right: 5, bottom: 20, left: 5 };
-  const chartW = width - padding.left - padding.right;
-  const chartH = height - padding.top - padding.bottom;
-  const allValues = data.flatMap(d => series.map(s => d[s.key]));
-  const max = Math.max(...allValues, 1);
-  const groupWidth = chartW / data.length;
-  const barWidth = groupWidth * 0.6 / series.length;
-
-  return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full" preserveAspectRatio="none">
-      {/* Grid lines */}
-      {[0, 0.25, 0.5, 0.75, 1].map((frac, i) => {
-        const y = padding.top + chartH * (1 - frac);
-        return <line key={i} x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="currentColor" strokeOpacity={0.08} strokeWidth={0.3} />;
-      })}
-      {data.map((d, i) => {
-        const groupX = padding.left + i * groupWidth;
-        return series.map((s, si) => {
-          const barH = (d[s.key] / max) * chartH;
-          const x = groupX + groupWidth * 0.2 + si * barWidth;
-          return (
-            <rect key={`${i}-${si}`} x={x} y={padding.top + chartH - barH} width={barWidth} height={barH}
-              rx="0.5" fill={s.color} opacity="0.85" />
-          );
-        });
-      })}
-      {/* X-axis labels */}
-      {labels.map((label, i) => {
-        const x = padding.left + (i + 0.5) * groupWidth;
-        return (
-          <text key={i} x={x} y={height - 5} textAnchor="middle" fontSize="3" fill="currentColor" opacity={0.5}>{label}</text>
-        );
-      })}
-    </svg>
-  );
-}
-
-const statCardConfigs = [
-  { icon: Briefcase, bgColor: 'bg-blue-50', iconColor: 'text-blue-600' },
-  { icon: FileText, bgColor: 'bg-blue-50', iconColor: 'text-blue-600' },
-  { icon: Video, bgColor: 'bg-amber-50', iconColor: 'text-amber-600' },
-  { icon: UserCheck, bgColor: 'bg-emerald-50', iconColor: 'text-emerald-600' },
-];
-
-export default function DashboardPage() {
-  const { t } = useI18n();
-  const [data, setData] = useState<DashboardData>(emptyData);
+export default function CompanyDashboard() {
+  const { user, validateSession } = useAuth();
+  const [data, setData] = useState<Dashboard>(empty);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
 
-  const fetchDashboard = useCallback(async () => {
+  const load = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
     try {
-      const seedRes = await fetch('/api/seed', { method: 'POST' });
-      const seedData = await seedRes.json();
-      const companyId = seedData.companyId;
-
-      if (companyId) {
-        const res = await fetch(`/api/dashboard?companyId=${companyId}`);
-        if (res.ok) {
-          const dashboardData = await res.json();
-          setData(dashboardData);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch dashboard data:', error);
+      const response = await fetch('/api/dashboard', { cache: 'no-store' });
+      if (!response.ok) throw new Error('Unable to load dashboard');
+      setData(await response.json());
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to load dashboard');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchDashboard();
-  }, [fetchDashboard]);
+    void validateSession();
+    void load();
+  }, [load, validateSession]);
 
-  const statCards = [
-    {
-      title: t.dashboard.activeJobs,
-      value: data.stats.activeJobs,
-      icon: Briefcase,
-      trend: '',
-      trendLabel: '',
-      config: statCardConfigs[0],
-    },
-    {
-      title: t.dashboard.totalApplications,
-      value: data.stats.totalApplications,
-      icon: FileText,
-      trend: '',
-      trendLabel: '',
-      config: statCardConfigs[1],
-    },
-    {
-      title: t.dashboard.interviewsToday,
-      value: data.stats.interviewsToday,
-      icon: Video,
-      trend: '',
-      trendLabel: '',
-      config: statCardConfigs[2],
-    },
-    {
-      title: t.dashboard.hiredThisMonth,
-      value: data.stats.hiredThisMonth,
-      icon: UserCheck,
-      trend: '',
-      trendLabel: '',
-      config: statCardConfigs[3],
-    },
-  ];
+  const maxTrend = Math.max(1, ...data.trend.map((item) => item.applications));
+  const maxFunnel = Math.max(1, ...data.funnel.map((item) => item.count));
+  const canCreate = ['SUPER_ADMIN', 'ADMIN', 'COMPANY_ADMIN', 'HR_MANAGER', 'RECRUITER'].includes(user?.role || '');
+  const cards = useMemo(
+    () => [
+      { label: 'Active jobs', value: data.stats.activeJobs, icon: Briefcase },
+      { label: 'Applications', value: data.stats.totalApplications, icon: FileText },
+      { label: 'Interviews today', value: data.stats.interviewsToday, icon: Video },
+      { label: 'Hired this month', value: data.stats.hiredThisMonth, icon: UserCheck },
+    ],
+    [data.stats],
+  );
 
-  const maxFunnel = Math.max(...data.funnel.map(f => f.count), 1);
+  if (loading) {
+    return <div className="space-y-5"><Skeleton className="h-16" /><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-28" />)}</div><Skeleton className="h-80" /></div>;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t.dashboard.welcome}</h1>
-          <p className="text-slate-500 text-sm mt-1">{t.dashboard.overview}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/company/jobs/create">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6">
-              <Plus className="w-4 h-4 me-2" />
-              {t.dashboard.postJob}
-            </Button>
-          </Link>
-        </div>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div><h1 className="text-2xl font-bold">Welcome{user?.name ? `, ${user.name.split(' ')[0]}` : ''}</h1><p className="mt-1 text-sm text-muted-foreground">Live hiring activity for {data.company?.name || user?.companyName || 'your company'}.</p></div>
+        <div className="flex gap-2"><Button variant="outline" size="sm" onClick={() => void load(true)} disabled={refreshing}>{refreshing ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <RefreshCw className="me-2 h-4 w-4" />}Refresh</Button>{canCreate && <Button asChild size="sm"><Link href="/company/jobs/create"><Plus className="me-2 h-4 w-4" />Post job</Link></Button>}</div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((card, i) => {
-          const Icon = card.icon;
-          return (
-            <Card key={i} className="border-slate-200 shadow-sm">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{card.title}</p>
-                    <p className="text-3xl font-bold tracking-tight text-slate-900">{card.value}</p>
-                    {card.trend && (
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3 text-emerald-500" />
-                        <span className="text-xs text-emerald-600 font-medium">{card.trend}</span>
-                        <span className="text-xs text-slate-500">{card.trendLabel}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', card.config.bgColor)}>
-                    <Icon className={cn('w-5 h-5', card.config.iconColor)} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+      {error && <Card className="border-destructive/40"><CardContent className="flex items-center justify-between gap-3 p-4"><p className="text-sm text-destructive">{error}</p><Button variant="outline" size="sm" onClick={() => void load()}>Retry</Button></CardContent></Card>}
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {cards.map(({ label, value, icon: Icon }) => <Card key={label}><CardContent className="flex items-center justify-between p-5"><div><p className="text-sm text-muted-foreground">{label}</p><p className="mt-2 text-3xl font-bold">{value}</p></div><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5" /></div></CardContent></Card>)}
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Application Trend */}
-        <Card className="lg:col-span-2 border-slate-200">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-semibold text-slate-900">{t.dashboard.applicationTrend}</CardTitle>
-                <CardDescription className="text-xs text-slate-500">Last 7 days</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="h-[260px] w-full">
-              <SimpleAreaChart
-                data={data.trend.map(d => d.applications)}
-                height={260}
-                gradientId="companyAppsGrad"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Hiring Funnel */}
-        <Card className="border-slate-200">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold text-slate-900">{t.dashboard.hiringFunnel}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              {data.funnel.map((item, index) => {
-                const percentage = maxFunnel > 0 ? (item.count / maxFunnel) * 100 : 0;
-                const conversionFromPrev = index > 0 && data.funnel[index - 1].count > 0
-                  ? Math.round((item.count / data.funnel[index - 1].count) * 100)
-                  : 100;
-                const stageLabels: Record<string, string> = {
-                  APPLIED: t.applications.applied,
-                  SCREENING: t.applications.screening,
-                  INTERVIEW: t.applications.interview,
-                  OFFERED: t.applications.offered,
-                  HIRED: t.applications.hired,
-                };
-                return (
-                  <div key={item.stage} className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-slate-700">{stageLabels[item.stage] || item.stage}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-400">{conversionFromPrev}%</span>
-                        <span className="text-xs font-semibold text-slate-900">{item.count}</span>
-                      </div>
-                    </div>
-                    <div className="relative h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="absolute inset-y-0 start-0 rounded-full transition-all duration-700 ease-out"
-                        style={{
-                          width: `${percentage}%`,
-                          backgroundColor: funnelColors[index] || '#2563eb',
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-              {data.funnel.length >= 2 && (
-                <div className="pt-2 border-t border-slate-200">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Conversion Rate</span>
-                    <span className="text-xs font-semibold text-blue-600">
-                      {data.funnel[0]?.count > 0
-                        ? Math.round((data.funnel[data.funnel.length - 1]?.count / data.funnel[0].count) * 100)
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-5 xl:grid-cols-3">
+        <Card className="xl:col-span-2"><CardHeader><CardTitle className="text-base">Applications · last 7 days</CardTitle></CardHeader><CardContent>{data.trend.length === 0 ? <p className="py-12 text-center text-sm text-muted-foreground">No application activity yet.</p> : <div className="flex h-48 items-end gap-2">{data.trend.map((item) => <div key={item.date} className="flex flex-1 flex-col items-center gap-2"><span className="text-xs font-medium">{item.applications}</span><div className="w-full rounded-t-md bg-primary" style={{ height: `${Math.max(4, (item.applications / maxTrend) * 140)}px` }} /><span className="text-[10px] text-muted-foreground">{new Date(`${item.date}T00:00:00`).toLocaleDateString(undefined, { weekday: 'short' })}</span></div>)}</div>}</CardContent></Card>
+        <Card><CardHeader><CardTitle className="text-base">Hiring funnel</CardTitle></CardHeader><CardContent className="space-y-4">{data.funnel.map((item) => <div key={item.stage}><div className="mb-1 flex items-center justify-between text-sm"><span>{item.stage.replaceAll('_', ' ')}</span><span className="font-medium">{item.count}</span></div><Progress value={(item.count / maxFunnel) * 100} /></div>)}{data.funnel.every((item) => item.count === 0) && <p className="py-6 text-center text-sm text-muted-foreground">No candidates in the funnel.</p>}</CardContent></Card>
       </div>
 
-      {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Recent Applications */}
-        <Card className="lg:col-span-2 border-slate-200">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold text-slate-900">{t.dashboard.recentActivity}</CardTitle>
-              <Link href="/company/applications">
-                <Button variant="ghost" size="sm" className="text-xs text-blue-600 hover:text-blue-700">
-                  {t.common.viewAll}
-                  <ArrowUpRight className="w-3 h-3 ms-1" />
-                </Button>
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3 max-h-80 overflow-y-auto">
-              {data.recentApplications.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 mx-auto text-slate-300" />
-                  <p className="mt-4 text-slate-500">No recent applications</p>
-                  <p className="text-sm text-slate-400 mt-1">Applications will appear here when candidates apply</p>
-                </div>
-              ) : (
-                data.recentApplications.map((app) => (
-                  <div
-                    key={app.id}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
-                  >
-                    <Avatar className="w-10 h-10">
-                      <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                        {app.candidate.user.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900 truncate">{app.candidate.user.name}</p>
-                      <p className="text-xs text-slate-500 truncate">{app.job.title}</p>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {app.matchScore && (
-                        <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-full">
-                          <span className="text-xs font-medium text-blue-700">{app.matchScore}%</span>
-                        </div>
-                      )}
-                      <Badge variant="outline" className={cn('text-[10px] px-1.5 py-0', statusColors[app.status])}>
-                        {app.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Hiring Timeline */}
-        <Card className="border-slate-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-slate-900">Hiring Timeline</CardTitle>
-            <CardDescription className="text-xs text-slate-500">Weekly hiring & interview activity</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="h-[220px]">
-              <SimpleGroupedBarChart
-                data={hiringTimelineData}
-                labels={hiringTimelineData.map(d => d.week)}
-                series={[
-                  { key: 'interviews', color: '#2563eb' },
-                  { key: 'hired', color: '#10b981' },
-                ]}
-                height={220}
-              />
-            </div>
-            <div className="flex justify-center gap-4 mt-2">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded bg-blue-600" />
-                <span className="text-xs text-slate-500">Interviews</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded bg-emerald-500" />
-                <span className="text-xs text-slate-500">Hired</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Card><CardHeader className="flex-row items-center justify-between"><CardTitle className="text-base">Recent applications</CardTitle><Button asChild variant="ghost" size="sm"><Link href="/company/applications">View all<ArrowUpRight className="ms-1 h-3 w-3" /></Link></Button></CardHeader><CardContent>{data.recentApplications.length === 0 ? <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">Applications will appear here.</p> : <div className="space-y-3">{data.recentApplications.map((application) => <div key={application.id} className="flex items-center gap-3 rounded-lg border p-3"><Avatar><AvatarImage src={application.candidate.user.image || undefined} /><AvatarFallback>{initials(application.candidate.user.name)}</AvatarFallback></Avatar><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{application.candidate.user.name}</p><p className="truncate text-xs text-muted-foreground">{application.job.title}</p></div><Badge variant="outline">{application.status}</Badge></div>)}</div>}</CardContent></Card>
+        <Card><CardHeader className="flex-row items-center justify-between"><CardTitle className="text-base">Upcoming interviews</CardTitle><Button asChild variant="ghost" size="sm"><Link href="/company/interviews">View all<ArrowUpRight className="ms-1 h-3 w-3" /></Link></Button></CardHeader><CardContent>{data.upcomingInterviews.length === 0 ? <div className="rounded-lg border border-dashed p-8 text-center"><Calendar className="mx-auto h-8 w-8 text-muted-foreground" /><p className="mt-2 text-sm text-muted-foreground">No interviews scheduled this week.</p></div> : <div className="space-y-3">{data.upcomingInterviews.map((interview) => <div key={interview.id} className="flex items-center gap-3 rounded-lg border p-3"><Avatar><AvatarImage src={interview.candidate.image || undefined} /><AvatarFallback>{initials(interview.candidate.name)}</AvatarFallback></Avatar><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{interview.candidate.name}</p><p className="truncate text-xs text-muted-foreground">{interview.jobTitle} · {new Date(interview.scheduledAt).toLocaleString()}</p></div><Badge variant="secondary">{interview.type}</Badge></div>)}</div>}</CardContent></Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Link href="/company/jobs/create" className="block">
-          <Card className="h-full hover:shadow-md transition-colors cursor-pointer border-dashed border-slate-300">
-            <CardContent className="p-4 flex flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                <Plus className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-medium text-slate-700">{t.dashboard.postJob}</span>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/company/pipeline" className="block">
-          <Card className="h-full hover:shadow-md transition-colors cursor-pointer border-dashed border-slate-300">
-            <CardContent className="p-4 flex flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                <GitBranch className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-medium text-slate-700">{t.dashboard.viewPipeline}</span>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/company/interviews" className="block">
-          <Card className="h-full hover:shadow-md transition-colors cursor-pointer border-dashed border-slate-300">
-            <CardContent className="p-4 flex flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                <Calendar className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-medium text-slate-700">{t.dashboard.scheduleInterview}</span>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/company/team" className="block">
-          <Card className="h-full hover:shadow-md transition-colors cursor-pointer border-dashed border-slate-300">
-            <CardContent className="p-4 flex flex-col items-center gap-2 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                <Users className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-medium text-slate-700">{t.dashboard.inviteTeam}</span>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
+      <Card><CardContent className="flex flex-wrap items-center justify-between gap-4 p-5"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Users className="h-5 w-5" /></div><div><p className="font-medium">Recruiting workspace</p><p className="text-sm text-muted-foreground">Manage jobs, candidates, interviews, and offers from one place.</p></div></div><Button asChild variant="outline"><Link href="/company/pipeline">Open pipeline</Link></Button></CardContent></Card>
     </div>
   );
 }

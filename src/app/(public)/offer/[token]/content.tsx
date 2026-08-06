@@ -1,193 +1,181 @@
-// @ts-nocheck
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import {
+  AlertTriangle,
+  Briefcase,
+  Building2,
+  Calendar,
+  CheckCircle2,
+  DollarSign,
+  Gift,
+  Loader2,
+  PenTool,
+  Printer,
+  ShieldCheck,
+  Type,
+  XCircle,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
 import { useI18n } from '@/store/i18n-store';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import SignaturePad from '@/components/shared/signature-pad';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  FileCheck,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  Building2,
-  Briefcase,
-  DollarSign,
-  Calendar,
-  Gift,
-  Download,
-  PenTool,
-  Type,
-  Loader2,
-  Shield,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
-import SignaturePad from '@/components/shared/signature-pad';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
-interface OfferData {
+type OfferData = {
   id: string;
-  signingStatus: string;
-  signingTokenExpiry: string;
-  candidateSignedAt: string;
-  candidateSignature: string;
   status: string;
-  salary: number;
+  signingStatus: string;
+  salary: number | null;
   salaryCurrency: string;
-  equity: string;
-  startDate: string;
-  benefits: string;
-  conditions: string;
-  letterText: string;
-  responseDeadline: string;
-  candidate: { name: string; email: string };
-  job: { title: string; department: string; location: string };
-  company: { name: string; logo: string | null };
-}
-
-const signingStatusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  PENDING: { label: 'Pending', color: 'bg-amber-100 text-amber-700 dark:bg-amber-950', icon: Clock },
-  SENT: { label: 'Sent for Signature', color: 'bg-teal-100 text-blue-700 dark:bg-teal-950', icon: FileCheck },
-  CANDIDATE_SIGNED: { label: 'Candidate Signed', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950', icon: CheckCircle2 },
-  COMPLETED: { label: 'Completed', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950', icon: CheckCircle2 },
-  EXPIRED: { label: 'Expired', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400', icon: AlertTriangle },
-  DECLINED: { label: 'Declined', color: 'bg-red-100 text-red-700 dark:bg-red-950', icon: XCircle },
+  equity: string | null;
+  startDate: string | null;
+  benefits: string[];
+  conditions: string[];
+  letterText: string | null;
+  responseDeadline: string | null;
+  signingTokenExpiry: string | null;
+  candidateSignedAt: string | null;
+  candidate: { id: string; name: string } | null;
+  job: { id: string; title: string; location: string | null } | null;
+  company: { id: string; name: string; logo: string | null } | null;
 };
 
-export default function OfferSignContent() {
-  const { t } = useI18n();
-  const est = t.eSignature as Record<string, string>;
-  const params = useParams();
-  const token = params?.token as string;
+const statusClass: Record<string, string> = {
+  SENT: 'bg-primary/10 text-primary',
+  ACCEPTED: 'bg-emerald-500/10 text-emerald-700',
+  DECLINED: 'bg-destructive/10 text-destructive',
+  EXPIRED: 'bg-amber-500/10 text-amber-700',
+};
 
+function money(value: number | null, currency: string) {
+  if (!value) return 'Not specified';
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+export default function OfferSignContent() {
+  const { dir } = useI18n();
+  const params = useParams<{ token: string }>();
+  const token = params.token;
   const [offer, setOffer] = useState<OfferData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Signature state
-  const [signatureMode, setSignatureMode] = useState<'draw' | 'type'>('type');
+  const [error, setError] = useState('');
+  const [mode, setMode] = useState<'type' | 'draw'>('type');
   const [typedSignature, setTypedSignature] = useState('');
   const [drawnSignature, setDrawnSignature] = useState('');
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [declineOpen, setDeclineOpen] = useState(false);
-  const [signed, setSigned] = useState(false);
-  const [declined, setDeclined] = useState(false);
+  const [declineReason, setDeclineReason] = useState('');
 
   useEffect(() => {
-    if (!token) return;
-    fetchOffer();
+    let active = true;
+    async function load() {
+      try {
+        const response = await fetch(`/api/offers/${encodeURIComponent(token)}/view`, {
+          cache: 'no-store',
+        });
+        if (!response.ok) {
+          throw new Error(await getApiErrorMessage(response, 'Unable to load offer'));
+        }
+        if (active) setOffer(await response.json());
+      } catch (reason) {
+        if (active) {
+          setError(reason instanceof Error ? reason.message : 'Unable to load offer');
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    if (token) void load();
+    return () => {
+      active = false;
+    };
   }, [token]);
 
-  const fetchOffer = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/offers/${token}/view?XTransformPort=3000`);
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Failed to load offer');
-      } else {
-        setOffer(data);
-        if (data.signingStatus === 'COMPLETED' || data.signingStatus === 'CANDIDATE_SIGNED') {
-          setSigned(true);
-        }
-        if (data.signingStatus === 'DECLINED') {
-          setDeclined(true);
-        }
-      }
-    } catch {
-      setError('Failed to load offer');
-    } finally {
-      setLoading(false);
-    }
-  };
+  async function respond(signatureType: 'TYPED' | 'DRAWN' | 'DECLINE') {
+    if (!offer) return;
 
-  const handleSign = async () => {
-    if (!agreedToTerms) {
-      toast.error(est.agreeTermsRequired);
+    if (signatureType !== 'DECLINE' && !agreed) {
+      toast.error('You must agree to the offer terms before signing');
       return;
     }
 
-    const signature = signatureMode === 'type' ? typedSignature : drawnSignature;
-    if (!signature || (signatureMode === 'type' && !typedSignature.trim())) {
-      toast.error(est.signatureRequired);
+    const signature =
+      signatureType === 'TYPED'
+        ? typedSignature.trim()
+        : signatureType === 'DRAWN'
+          ? drawnSignature
+          : '';
+
+    if (signatureType !== 'DECLINE' && !signature) {
+      toast.error('Add your signature before continuing');
       return;
     }
 
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/offers/${offer?.id}/sign?XTransformPort=3000`, {
+      const response = await apiFetch(`/api/offers/${offer.id}/sign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          signature: signatureMode === 'type' ? typedSignature : drawnSignature,
-          signatureType: signatureMode === 'type' ? 'TYPED' : 'DRAWN',
           signingToken: token,
+          signatureType,
+          signature,
+          declineReason: signatureType === 'DECLINE' ? declineReason : undefined,
         }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error || 'Failed to sign offer');
-      } else {
-        toast.success(est.offerSigned);
-        setSigned(true);
-        setOffer(prev => prev ? { ...prev, signingStatus: 'COMPLETED', status: 'ACCEPTED', candidateSignedAt: new Date().toISOString(), candidateSignature: signature } : prev);
+      if (!response.ok) {
+        throw new Error(await getApiErrorMessage(response, 'Unable to respond to offer'));
       }
-    } catch {
-      toast.error('Failed to sign offer');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
-  const handleDecline = async () => {
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/api/offers/${offer?.id}/sign?XTransformPort=3000`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          signature: 'DECLINED',
-          signatureType: 'DECLINE',
-          signingToken: token,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error || 'Failed to decline offer');
-      } else {
-        toast.success(est.offerDeclined);
-        setDeclined(true);
-        setOffer(prev => prev ? { ...prev, signingStatus: 'DECLINED', status: 'DECLINED' } : prev);
-      }
-    } catch {
-      toast.error('Failed to decline offer');
-    } finally {
-      setSubmitting(false);
+      const payload = await response.json();
+      setOffer((current) =>
+        current
+          ? {
+              ...current,
+              status: payload.status,
+              signingStatus: payload.signingStatus,
+              candidateSignedAt:
+                signatureType === 'DECLINE' ? current.candidateSignedAt : new Date().toISOString(),
+            }
+          : current,
+      );
       setDeclineOpen(false);
+      toast.success(signatureType === 'DECLINE' ? 'Offer declined' : 'Offer accepted');
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : 'Unable to respond to offer');
+    } finally {
+      setSubmitting(false);
     }
-  };
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-sm text-muted-foreground">{t.common.loading}</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+          <p className="mt-3 text-sm text-muted-foreground">Loading secure offer…</p>
         </div>
       </div>
     );
@@ -195,348 +183,291 @@ export default function OfferSignContent() {
 
   if (error || !offer) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-        <Card className="max-w-md w-full mx-4">
-          <CardContent className="p-8 text-center">
-            <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-3" />
-            <h2 className="text-lg font-semibold mb-2">Error</h2>
-            <p className="text-sm text-muted-foreground">{error || 'Offer not found'}</p>
+      <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="py-12 text-center">
+            <AlertTriangle className="mx-auto h-10 w-10 text-amber-600" />
+            <h1 className="mt-4 text-lg font-semibold">Offer unavailable</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {error || 'The signing link is invalid or has expired.'}
+            </p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  const statusConfig = signingStatusConfig[offer.signingStatus] || signingStatusConfig.PENDING;
-  const StatusIcon = statusConfig.icon;
-  const canSign = offer.signingStatus === 'SENT' && !signed && !declined;
+  const canRespond = offer.status === 'SENT' && offer.signingStatus === 'SENT';
+  const accepted = offer.status === 'ACCEPTED';
+  const declined = offer.status === 'DECLINED';
+  const expired = offer.status === 'EXPIRED';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8 px-4">
-      <div className="max-w-3xl mx-auto space-y-6 animate-fade-in-up">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-muted/30 px-4 py-8" dir={dir}>
+      <main className="mx-auto max-w-3xl space-y-6">
+        <header className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <Building2 className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">{offer.company.name}</h1>
-              <p className="text-sm text-muted-foreground">{est.offerLetter}</p>
+              <h1 className="text-xl font-bold">{offer.company?.name || 'Company offer'}</h1>
+              <p className="text-sm text-muted-foreground">Secure employment offer</p>
             </div>
           </div>
-          <Badge className={cn('text-xs gap-1', statusConfig.color)}>
-            <StatusIcon className="h-3 w-3" />
-            {statusConfig.label}
-          </Badge>
-        </div>
+          <div className="flex items-center gap-2">
+            <Badge className={statusClass[offer.status] || 'bg-muted text-muted-foreground'}>
+              {offer.status}
+            </Badge>
+            <Button variant="outline" size="sm" onClick={() => window.print()}>
+              <Printer className="me-2 h-4 w-4" />
+              Print
+            </Button>
+          </div>
+        </header>
 
-        {/* Expired Message */}
-        {offer.signingStatus === 'EXPIRED' && (
-          <Card className="border-amber-200 dark:border-amber-800">
-            <CardContent className="p-4 flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-700">{est.expiredMessage}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Declined Message */}
-        {declined && (
-          <Card className="border-red-200 dark:border-red-800">
-            <CardContent className="p-4 flex items-start gap-3">
-              <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700">{est.declinedMessage}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Signed Message */}
-        {signed && (
-          <Card className="border-emerald-200 dark:border-emerald-800">
-            <CardContent className="p-4 flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+        {(accepted || declined || expired) && (
+          <Card
+            className={
+              accepted
+                ? 'border-emerald-500/40 bg-emerald-500/5'
+                : declined
+                  ? 'border-destructive/40 bg-destructive/5'
+                  : 'border-amber-500/40 bg-amber-500/5'
+            }
+          >
+            <CardContent className="flex gap-3 p-4">
+              {accepted ? (
+                <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" />
+              ) : declined ? (
+                <XCircle className="mt-0.5 h-5 w-5 text-destructive" />
+              ) : (
+                <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-600" />
+              )}
               <div>
-                <p className="text-sm font-medium text-emerald-700">{est.offerSigned}</p>
-                {offer.candidateSignedAt && (
-                  <p className="text-xs text-emerald-600 dark:text-emerald-500 mt-1">
-                    {est.signedOn}: {new Date(offer.candidateSignedAt).toLocaleDateString()}
-                  </p>
-                )}
+                <p className="font-medium">
+                  {accepted
+                    ? 'Offer accepted'
+                    : declined
+                      ? 'Offer declined'
+                      : 'Signing link expired'}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {accepted
+                    ? 'Your response has been recorded. The company has been notified.'
+                    : declined
+                      ? 'Your response has been recorded. The company has been notified.'
+                      : 'Contact the company if you need a new signing link.'}
+                </p>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Offer Details Card */}
-        <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-blue-600" />
-              {est.position}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Briefcase className="h-4 w-4 text-primary" />
+              Position details
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">{est.position}</p>
-                <p className="font-medium text-sm">{offer.job.title}</p>
+          <CardContent className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-xs text-muted-foreground">Candidate</p>
+              <p className="mt-1 font-medium">{offer.candidate?.name}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Position</p>
+              <p className="mt-1 font-medium">{offer.job?.title}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Annual salary</p>
+              <p className="mt-1 flex items-center gap-1 font-medium">
+                <DollarSign className="h-4 w-4" />
+                {money(offer.salary, offer.salaryCurrency)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Proposed start date</p>
+              <p className="mt-1 flex items-center gap-1 font-medium">
+                <Calendar className="h-4 w-4" />
+                {offer.startDate || 'To be agreed'}
+              </p>
+            </div>
+            {offer.equity && (
+              <div>
+                <p className="text-xs text-muted-foreground">Equity</p>
+                <p className="mt-1 font-medium">{offer.equity}</p>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">{est.company}</p>
-                <p className="font-medium text-sm">{offer.company.name}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">{est.salary}</p>
-                <div className="flex items-center gap-1">
-                  <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                  <p className="font-medium text-sm">{offer.salaryCurrency} {offer.salary?.toLocaleString()}/yr</p>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">{est.startDate}</p>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                  <p className="font-medium text-sm">{offer.startDate || 'TBD'}</p>
-                </div>
-              </div>
-              {offer.equity && (
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Equity</p>
-                  <p className="font-medium text-sm">{offer.equity}</p>
-                </div>
-              )}
+            )}
+            <div>
+              <p className="text-xs text-muted-foreground">Response deadline</p>
+              <p className="mt-1 font-medium">
+                {offer.responseDeadline
+                  ? new Date(offer.responseDeadline).toLocaleDateString()
+                  : offer.signingTokenExpiry
+                    ? new Date(offer.signingTokenExpiry).toLocaleDateString()
+                    : 'Not specified'}
+              </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Benefits Card */}
-        {offer.benefits && (
-          <Card className="border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Gift className="h-4 w-4 text-blue-600" />
-                {est.benefits}
+        {offer.benefits.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Gift className="h-4 w-4 text-primary" />
+                Benefits
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="text-sm text-muted-foreground max-w-none">
-                {offer.benefits.startsWith('[') ? (
-                  <ul className="space-y-1">
-                    {(JSON.parse(offer.benefits) as string[]).map((benefit, idx) => (
-                      <li key={idx} className="flex items-center gap-2 py-1">
-                        <span className="text-emerald-500 shrink-0">✓</span>
-                        <span>{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  offer.benefits.split('\n').map((line, idx) => (
-                    <p key={idx}>{line}</p>
-                  ))
-                )}
-              </div>
+            <CardContent>
+              <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
+                {offer.benefits.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
         )}
 
-        {/* Offer Letter */}
-        {offer.letterText && (
-          <Card className="border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <FileCheck className="h-4 w-4 text-blue-600" />
-                {est.offerLetter}
+        {offer.conditions.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                Conditions
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="text-sm whitespace-pre-wrap font-mono bg-muted/30 p-4 rounded-lg border border-border/30">
-                {offer.letterText}
-              </div>
+            <CardContent>
+              <ul className="list-disc space-y-2 ps-5 text-sm text-muted-foreground">
+                {offer.conditions.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
         )}
 
-        {/* Signature Section */}
-        {canSign && (
-          <Card className="border-slate-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <PenTool className="h-4 w-4 text-blue-600" />
-                {est.signOffer}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Offer letter</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="whitespace-pre-wrap rounded-lg border bg-muted/20 p-5 text-sm leading-7">
+              {offer.letterText || 'No letter text was provided.'}
+            </div>
+          </CardContent>
+        </Card>
+
+        {canRespond && (
+          <Card className="print:hidden">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <PenTool className="h-4 w-4 text-primary" />
+                Accept and sign
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0 space-y-4">
-              {/* Signature Mode Toggle */}
-              <div className="flex items-center gap-2">
+            <CardContent className="space-y-5">
+              <div className="flex gap-2">
                 <Button
-                  variant={signatureMode === 'type' ? 'default' : 'outline'}
+                  variant={mode === 'type' ? 'default' : 'outline'}
                   size="sm"
-                  className={cn(
-                    'text-xs',
-                    signatureMode === 'type' && 'bg-gradient-to-r bg-blue-600 text-white'
-                  )}
-                  onClick={() => setSignatureMode('type')}
+                  onClick={() => setMode('type')}
                 >
-                  <Type className="h-3 w-3 me-1" />
-                  {est.typed}
+                  <Type className="me-2 h-4 w-4" />
+                  Type signature
                 </Button>
                 <Button
-                  variant={signatureMode === 'draw' ? 'default' : 'outline'}
+                  variant={mode === 'draw' ? 'default' : 'outline'}
                   size="sm"
-                  className={cn(
-                    'text-xs',
-                    signatureMode === 'draw' && 'bg-gradient-to-r bg-blue-600 text-white'
-                  )}
-                  onClick={() => setSignatureMode('draw')}
+                  onClick={() => setMode('draw')}
                 >
-                  <PenTool className="h-3 w-3 me-1" />
-                  {est.drawn}
+                  <PenTool className="me-2 h-4 w-4" />
+                  Draw signature
                 </Button>
               </div>
 
-              {/* Typed Signature Input */}
-              {signatureMode === 'type' && (
+              {mode === 'type' ? (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">{est.typeSignature}</label>
+                  <Label htmlFor="typed-signature">Full legal name</Label>
                   <Input
+                    id="typed-signature"
                     value={typedSignature}
-                    onChange={(e) => setTypedSignature(e.target.value)}
-                    placeholder={est.typeSignature}
-                    className="text-lg font-serif h-12"
-                  />
-                  {typedSignature && (
-                    <div className="p-4 bg-white  rounded-lg border border-border/30">
-                      <p className="font-serif text-2xl text-gray-800 dark:text-gray-200 italic">
-                        {typedSignature}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Drawn Signature */}
-              {signatureMode === 'draw' && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{est.drawSignature}</label>
-                  <SignaturePad
-                    value={drawnSignature}
-                    onChange={setDrawnSignature}
-                    width={500}
-                    height={160}
+                    onChange={(event) => setTypedSignature(event.target.value)}
+                    placeholder={offer.candidate?.name || 'Your full name'}
                   />
                 </div>
+              ) : (
+                <SignaturePad value={drawnSignature} onChange={setDrawnSignature} />
               )}
 
-              {/* Agree to Terms */}
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+              <div className="flex items-start gap-3 rounded-lg border p-4">
                 <Checkbox
-                  id="agree-terms"
-                  checked={agreedToTerms}
-                  onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
-                  className="mt-0.5"
+                  id="agree"
+                  checked={agreed}
+                  onCheckedChange={(value) => setAgreed(value === true)}
                 />
-                <label htmlFor="agree-terms" className="text-sm leading-relaxed cursor-pointer">
-                  {est.agreeTerms}
-                </label>
+                <Label htmlFor="agree" className="text-sm leading-5">
+                  I have reviewed the offer and agree that my electronic signature is
+                  legally equivalent to my handwritten signature.
+                </Label>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3 pt-2">
-                <Button
-                  className="flex-1 bg-gradient-to-r bg-blue-600 text-white hover:from-teal-600 hover:to-emerald-700"
-                  onClick={handleSign}
-                  disabled={submitting || !agreedToTerms || (signatureMode === 'type' ? !typedSignature.trim() : !drawnSignature)}
-                >
-                  {submitting ? (
-                    <Loader2 className="h-4 w-4 me-2 animate-spin" />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4 me-2" />
-                  )}
-                  {est.signOffer}
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <Button variant="outline" onClick={() => setDeclineOpen(true)}>
+                  <XCircle className="me-2 h-4 w-4" />
+                  Decline offer
                 </Button>
                 <Button
-                  variant="outline"
-                  className="text-red-600 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950"
-                  onClick={() => setDeclineOpen(true)}
+                  onClick={() => void respond(mode === 'type' ? 'TYPED' : 'DRAWN')}
                   disabled={submitting}
                 >
-                  <XCircle className="h-4 w-4 me-2" />
-                  {est.declineOffer}
+                  {submitting ? (
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="me-2 h-4 w-4" />
+                  )}
+                  Accept and sign
                 </Button>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Signed State */}
-        {signed && offer.candidateSignature && (
-          <Card className="border-emerald-200 dark:border-emerald-800">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2 text-emerald-700">
-                <Shield className="h-4 w-4" />
-                {est.offerSigned}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0 space-y-3">
-              <div className="p-4 bg-white  rounded-lg border border-border/30">
-                {offer.candidateSignature.startsWith('data:image') ? (
-                  <img
-                    src={offer.candidateSignature}
-                    alt="Signature"
-                    className="max-h-20"
-                  />
-                ) : (
-                  <p className="font-serif text-2xl text-gray-800 dark:text-gray-200 italic">
-                    {offer.candidateSignature}
-                  </p>
-                )}
-              </div>
-              {offer.candidateSignedAt && (
-                <p className="text-xs text-muted-foreground">
-                  {est.signedOn}: {new Date(offer.candidateSignedAt).toLocaleDateString()} at {new Date(offer.candidateSignedAt).toLocaleTimeString()}
-                </p>
-              )}
-              <Button
-                variant="outline"
-                className="w-full border-slate-200 text-blue-700"
-                onClick={() => {
-                  toast.success('PDF download simulated');
-                }}
-              >
-                <Download className="h-4 w-4 me-2" />
-                {est.downloadPdf}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        <p className="text-center text-xs text-muted-foreground print:hidden">
+          This link is private. Do not forward it to anyone else.
+        </p>
+      </main>
 
-        {/* Footer */}
-        <div className="text-center text-xs text-muted-foreground py-4">
-          <div className="flex items-center justify-center gap-1.5">
-            <Shield className="h-3 w-3 text-blue-500" />
-            <span>Secured by TalentFlow AI E-Signatures</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Decline Confirmation Dialog */}
       <Dialog open={declineOpen} onOpenChange={setDeclineOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
-              <XCircle className="h-5 w-5" />
-              {est.declineOffer}
-            </DialogTitle>
+            <DialogTitle>Decline this offer?</DialogTitle>
+            <DialogDescription>
+              This response is final for the current signing link. You may add an
+              optional note for the hiring team.
+            </DialogDescription>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground py-2">{est.declineConfirm}</p>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <div className="space-y-2">
+            <Label>Optional reason</Label>
+            <Textarea
+              rows={4}
+              value={declineReason}
+              onChange={(event) => setDeclineReason(event.target.value)}
+            />
+          </div>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDeclineOpen(false)}>
-              {t.common.cancel}
+              Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDecline} disabled={submitting}>
-              {submitting ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : null}
-              {est.declineOffer}
+            <Button
+              variant="destructive"
+              onClick={() => void respond('DECLINE')}
+              disabled={submitting}
+            >
+              {submitting && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+              Confirm decline
             </Button>
           </DialogFooter>
         </DialogContent>
