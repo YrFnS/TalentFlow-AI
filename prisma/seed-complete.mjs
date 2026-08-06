@@ -82,8 +82,23 @@ async function seedCoverage() {
   await db.user.create({ data: { email: "inactive@demo.talentflow.ai", name: "Inactive Demo User", password, role: "CANDIDATE", isActive: false } }).catch(() => {});
 
   const company = await db.company.findFirst({ where: { isActive: true } });
-  const creator = await db.user.findFirst({ where: { role: "COMPANY_ADMIN" } });
-  if (!company || !creator) throw new Error("Base company/user seed missing");
+  const creator = await db.user.findFirst({ where: { email: "company.admin@demo.talentflow.ai" } });
+  const demoCandidate = await db.user.findUnique({ where: { email: "candidate@demo.talentflow.ai" } });
+  if (!company || !creator || !demoCandidate) throw new Error("Base company/users seed missing");
+
+  await db.candidateProfile.upsert({
+    where: { userId: demoCandidate.id },
+    update: {},
+    create: { userId: demoCandidate.id, currentTitle: "Demo Candidate", skills: "[\"TypeScript\",\"React\"]", experienceYears: 3, availability: "open", isPublic: true, publicSlug: "demo-candidate" },
+  });
+  for (const role of ["COMPANY_ADMIN", "HR_MANAGER", "RECRUITER", "REVIEWER"]) {
+    const user = await db.user.findUnique({ where: { email: `${role.toLowerCase().replaceAll("_", ".")}@demo.talentflow.ai` } });
+    if (user) await db.companyMember.upsert({
+      where: { userId_companyId: { userId: user.id, companyId: company.id } },
+      update: { role },
+      create: { userId: user.id, companyId: company.id, role, title: `Demo ${role.replaceAll("_", " ")}` },
+    });
+  }
 
   for (const [index, status] of ["DRAFT", "OPEN", "PAUSED", "CLOSED", "ARCHIVED"].entries()) {
     await db.job.upsert({
