@@ -16,36 +16,45 @@ const totp = new TOTP({
 	base32: new ScureBase32Plugin(),
 });
 
+const useSecureCookies = process.env.NEXTAUTH_URL?.startsWith("https://") ??
+	process.env.NODE_ENV === "production";
+
 export const authOptions: NextAuthOptions = {
 	adapter: PrismaAdapter(db),
 
-	// Secure cookie configuration
+	// Secure cookie prefixes are rejected by browsers over local HTTP.
 	cookies: {
 		sessionToken: {
-			name: `__Secure-next-auth.session-token`,
+			name: useSecureCookies
+				? "__Secure-next-auth.session-token"
+				: "next-auth.session-token",
 			options: {
 				httpOnly: true,
 				sameSite: "lax",
 				path: "/",
-				secure: process.env.NODE_ENV === "production",
+				secure: useSecureCookies,
 			},
 		},
 		callbackUrl: {
-			name: `__Host-next-auth.callback-url`,
+			name: useSecureCookies
+				? "__Host-next-auth.callback-url"
+				: "next-auth.callback-url",
 			options: {
 				httpOnly: true,
 				sameSite: "lax",
 				path: "/",
-				secure: process.env.NODE_ENV === "production",
+				secure: useSecureCookies,
 			},
 		},
 		csrfToken: {
-			name: `__Host-next-auth.csrf-token`,
+			name: useSecureCookies
+				? "__Host-next-auth.csrf-token"
+				: "next-auth.csrf-token",
 			options: {
 				httpOnly: true,
 				sameSite: "lax",
 				path: "/",
-				secure: process.env.NODE_ENV === "production",
+				secure: useSecureCookies,
 			},
 		},
 	},
