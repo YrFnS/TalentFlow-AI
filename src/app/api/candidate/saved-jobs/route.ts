@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
             ? '$'
             : savedJob.job?.salaryCurrency || '$',
         savedDate: savedJob.createdAt,
+        postedDate: savedJob.job?.createdAt,
         status: savedJob.job?.status,
         matchScore: 0,
       })),

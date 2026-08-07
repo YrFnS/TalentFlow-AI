@@ -1,8 +1,9 @@
 // @ts-nocheck
 'use client';
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useI18n } from '@/store/i18n-store';
+import { apiFetch } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +47,7 @@ interface SavedJob {
   salaryMax: number;
   salaryCurrency: string;
   savedDate: string;
+  postedDate: string;
   savedDaysAgo: number;
   postedDaysAgo: number;
   matchScore: number;
@@ -56,6 +58,30 @@ export default function SavedJobsPage() {
   const { t, locale } = useI18n();
   const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/candidate/saved-jobs', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Unable to load saved jobs');
+        return response.json();
+      })
+      .then((jobs: Array<Omit<SavedJob, 'gradient' | 'saved' | 'savedDaysAgo' | 'postedDaysAgo'>>) => {
+        if (!active) return;
+        const daysAgo = (date: string) => Math.max(0, Math.floor((Date.now() - new Date(date).getTime()) / 86400000));
+        setSavedJobs(jobs.map((job) => ({
+          ...job,
+          gradient: 'from-teal-500 to-emerald-500',
+          saved: true,
+          savedDaysAgo: daysAgo(job.savedDate),
+          postedDaysAgo: daysAgo(job.postedDate),
+        })));
+      })
+      .catch(() => {
+        if (active) setSavedJobs([]);
+      });
+    return () => { active = false; };
+  }, []);
   const [sortBy, setSortBy] = useState<SortOption>('dateSaved');
 
   const isAr = locale === 'ar';
@@ -95,12 +121,19 @@ export default function SavedJobsPage() {
 
   const savedCount = savedJobs.filter((j) => j.saved).length;
 
-  const handleRemoveJob = (id: string) => {
-    setSavedJobs((prev) => prev.map((j) => (j.id === id ? { ...j, saved: false } : j)));
+  const handleRemoveJob = async (id: string) => {
+    const job = savedJobs.find((item) => item.id === id);
+    if (!job) return;
+    const response = await apiFetch('/api/candidate/saved-jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobId: job.jobId, action: 'remove' }),
+    });
+    if (response.ok) setSavedJobs((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleRemoveAll = () => {
-    setSavedJobs((prev) => prev.map((j) => ({ ...j, saved: false })));
+  const handleRemoveAll = async () => {
+    await Promise.all(savedJobs.map((job) => handleRemoveJob(job.id)));
   };
 
   const handleApplyAll = () => {
