@@ -520,7 +520,7 @@ export default function CareerPageSettingsContent() {
                   >
                     {config.heroImageUrl ? (
                       <div className="relative w-full h-full">
-                        <img src={config.heroImageUrl} alt="Hero" className="w-full h-full object-cover rounded-lg" />
+                        <img src={config.heroImageUrl} alt="Career page hero preview" width={1200} height={400} className="w-full h-full object-cover rounded-lg" />
                         <button
                           onClick={(e) => { e.stopPropagation(); setConfig({ ...config, heroImageUrl: null }); }}
                           className="absolute top-2 end-2 h-6 w-6 rounded-full bg-background/80 flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"

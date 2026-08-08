@@ -72,7 +72,7 @@ export default function ProfileUploadZone({ name, initials, role }: ProfileUploa
             <div className="relative">
               <Avatar className="w-16 h-16">
                 {preview ? (
-                  <img src={preview} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                  <img src={preview} alt={`${name} profile photo`} width={64} height={64} className="w-full h-full object-cover rounded-full" />
                 ) : (
                   <AvatarFallback className="bg-blue-600 text-white text-lg font-bold">
                     {initials}
@@ -128,7 +128,7 @@ export default function ProfileUploadZone({ name, initials, role }: ProfileUploa
               {preview ? (
                 <div className="flex flex-col items-center gap-3">
                   <Avatar className="w-24 h-24">
-                    <img src={preview} alt="Preview" className="w-full h-full object-cover rounded-full" />
+                    <img src={preview} alt={`${name} profile photo preview`} width={96} height={96} className="w-full h-full object-cover rounded-full" />
                   </Avatar>
                   <p className="text-xs text-muted-foreground">{t.profileUpload?.dragToReplace || 'Drag a new image or click to replace'}</p>
                 </div>

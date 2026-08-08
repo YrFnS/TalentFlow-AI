@@ -274,7 +274,7 @@ export default function TwoFactorSection() {
             {/* QR Code */}
             {setupData?.qrCode && (
               <div className="flex justify-center p-4 bg-white rounded-lg">
-                <img src={setupData.qrCode} alt="2FA QR Code" className="w-48 h-48" />
+                <img src={setupData.qrCode} alt="Two-factor authentication QR code" width={192} height={192} className="w-48 h-48" />
               </div>
             )}
 

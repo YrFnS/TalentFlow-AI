@@ -246,7 +246,7 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
               {company.logo ? (
-                <img src={company.logo} alt={company.name} className="h-9 w-9 rounded-lg object-cover" />
+                <img src={company.logo} alt={`${company.name} logo`} width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
               ) : (
                 <span className="text-sm font-bold">{getInitials(company.name)}</span>
               )}
@@ -278,7 +278,7 @@ export default function CareerPageContent({ slugPromise }: { slugPromise: Promis
           <div>
             <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-blue-600 text-white shadow-lg mb-6">
               {company.logo ? (
-                <img src={company.logo} alt={company.name} className="h-16 w-16 rounded-2xl object-cover" />
+                <img src={company.logo} alt={`${company.name} logo`} width={64} height={64} className="h-16 w-16 rounded-2xl object-cover" />
               ) : (
                 <Building2 className="h-8 w-8" />
               )}
