@@ -1,4 +1,4 @@
-name: Local E2E source snapshot
+name: Isolated E2E build artifacts
 
 on:
   push:
@@ -10,22 +10,29 @@ permissions:
   contents: read
 
 concurrency:
-  group: local-e2e-source-${{ github.ref }}
+  group: isolated-e2e-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  snapshot:
-    name: Package the exact branch for isolated E2E
+  build:
+    name: Build exact branch for isolated browser testing
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
+    env:
+      CI: true
+      DATABASE_URL: postgresql://build:build@127.0.0.1:5432/talentflow
+      NEXTAUTH_SECRET: local-build-only-nextauth-secret-not-used-at-runtime
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      EMAIL_PROVIDER: CONSOLE
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
       - name: Record source revision
-        run: |
-          printf '%s\n' "$GITHUB_SHA" > .e2e-source-commit
+        run: printf '%s\n' "$GITHUB_SHA" > .e2e-source-commit
 
       - name: Upload source snapshot
         uses: actions/upload-artifact@v4
@@ -37,6 +44,33 @@ jobs:
             !node_modules/**
             !.next/**
             !e2e-artifacts/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Build standalone application
+        run: npm run build
+
+      - name: Include revision marker in standalone bundle
+        run: cp .e2e-source-commit .next/standalone/.e2e-source-commit
+
+      - name: Upload standalone application
+        uses: actions/upload-artifact@v4
+        with:
+          name: talentflow-standalone-${{ github.sha }}
+          path: .next/standalone
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 2
