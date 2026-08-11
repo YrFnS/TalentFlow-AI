@@ -1,36 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
-// GET: Public jobs for a company slug
+function parseStringArray(value: string | null): string[] {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === 'string')
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function isCareerPagePublished(value: string | null): boolean {
+  if (!value) return true;
+
+  try {
+    const parsed = JSON.parse(value);
+    return !(
+      parsed &&
+      typeof parsed === 'object' &&
+      !Array.isArray(parsed) &&
+      parsed.isPublished === false
+    );
+  } catch {
+    // A malformed optional theme configuration should not hide valid jobs.
+    return true;
+  }
+}
+
+// GET: Public OPEN jobs for an active company slug or career-page slug.
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const slug = searchParams.get('slug');
+    const rawSlug = request.nextUrl.searchParams.get('slug') || '';
+    const slug = rawSlug.trim().toLowerCase();
 
-    if (!slug) {
+    if (!slug || slug.length > 120) {
       return NextResponse.json([]);
     }
 
-    // Find the company by slug or careerPageSlug
     const company = await db.company.findFirst({
       where: {
-        OR: [
-          { slug },
-          { careerPageSlug: slug },
-        ],
+        isActive: true,
+        OR: [{ slug }, { careerPageSlug: slug }],
       },
-      select: { id: true },
+      select: {
+        id: true,
+        careerPageConfig: true,
+      },
     });
 
-    if (!company) {
+    if (!company || !isCareerPagePublished(company.careerPageConfig)) {
       return NextResponse.json([]);
     }
 
-    // Fetch OPEN jobs for this company
     const jobs = await db.job.findMany({
       where: {
         companyId: company.id,
         status: 'OPEN',
+        publishedAt: { not: null },
+        OR: [{ deadline: null }, { deadline: { gte: new Date() } }],
       },
       select: {
         id: true,
@@ -47,21 +78,23 @@ export async function GET(request: NextRequest) {
         publishedAt: true,
         createdAt: true,
       },
-      orderBy: { publishedAt: 'desc' },
+      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
     });
 
-    // Transform jobs to include parsed JSON fields
-    const transformedJobs = jobs.map((job) => ({
-      ...job,
-      department: '', // Will be derived from job metadata if available
-      requirements: job.requirements ? JSON.parse(job.requirements) : [],
-      benefits: job.benefits ? JSON.parse(job.benefits) : [],
-      postedAt: job.publishedAt?.toISOString() || job.createdAt.toISOString(),
-    }));
-
-    return NextResponse.json(transformedJobs);
+    return NextResponse.json(
+      jobs.map((job) => ({
+        ...job,
+        department: '',
+        requirements: parseStringArray(job.requirements),
+        benefits: parseStringArray(job.benefits),
+        postedAt: (job.publishedAt || job.createdAt).toISOString(),
+      })),
+    );
   } catch (error) {
     console.error('Failed to fetch public jobs:', error);
-    return NextResponse.json([]);
+    return NextResponse.json(
+      { error: 'Failed to fetch public jobs' },
+      { status: 500 },
+    );
   }
 }
