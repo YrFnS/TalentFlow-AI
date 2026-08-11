@@ -20,6 +20,7 @@ jobs:
     timeout-minutes: 30
     env:
       E2E_BASE_URL: https://talent-flow-ai-git-agent-24ea89-yasserreyadh-gmailcoms-projects.vercel.app
+      E2E_EXPECTED_COMMIT: ${{ github.sha }}
       E2E_DEMO_PASSWORD: TalentFlowDemo!2026
       E2E_ARTIFACTS_DIR: e2e-artifacts
       E2E_NAVIGATION_TIMEOUT_MS: 35000
@@ -64,18 +65,32 @@ jobs:
           /tmp/talentflow-e2e/node_modules/.bin/playwright install --with-deps chromium
 
       - name: Run preview browser role matrix
+        id: role_matrix
+        continue-on-error: true
         env:
           NODE_PATH: /tmp/talentflow-e2e/node_modules
         run: node scripts/e2e-production.cjs
 
-      - name: Publish report to workflow summary
+      - name: Run critical public and candidate flows
+        id: critical_flows
+        continue-on-error: true
+        env:
+          NODE_PATH: /tmp/talentflow-e2e/node_modules
+        run: node scripts/e2e-critical-flows.cjs
+
+      - name: Publish reports to workflow summary
         if: always()
         run: |
           if [ -f e2e-artifacts/report.md ]; then
             cat e2e-artifacts/report.md >> "$GITHUB_STEP_SUMMARY"
           else
             echo "# TalentFlow AI preview E2E role audit" >> "$GITHUB_STEP_SUMMARY"
-            echo "The browser runner did not produce a report." >> "$GITHUB_STEP_SUMMARY"
+            echo "The role-matrix runner did not produce a report." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [ -f e2e-artifacts/critical-flows.md ]; then
+            printf '\n---\n\n' >> "$GITHUB_STEP_SUMMARY"
+            cat e2e-artifacts/critical-flows.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload browser evidence
@@ -86,3 +101,16 @@ jobs:
           path: e2e-artifacts
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Enforce browser audit results
+        if: always()
+        shell: bash
+        run: |
+          role_outcome='${{ steps.role_matrix.outcome }}'
+          critical_outcome='${{ steps.critical_flows.outcome }}'
+
+          if [[ "$role_outcome" != 'success' || "$critical_outcome" != 'success' ]]; then
+            echo "Role matrix outcome: $role_outcome" >&2
+            echo "Critical flows outcome: $critical_outcome" >&2
+            exit 1
+          fi
