@@ -1,9 +1,6 @@
 name: Isolated E2E build artifacts
 
 on:
-  push:
-    branches:
-      - agent/e2e-role-audit-fixes
   workflow_dispatch:
 
 permissions:
