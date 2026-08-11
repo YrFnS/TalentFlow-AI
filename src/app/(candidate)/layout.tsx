@@ -77,11 +77,6 @@ const candidateNavItems = [
 	{ titleKey: "applications", href: "/candidate/applications", icon: FileText },
 	{ titleKey: "skills", href: "/candidate/skills", icon: Radar },
 	{ titleKey: "assessments", href: "/candidate/assessments", icon: Brain },
-	{
-		titleKey: "takeAssessment",
-		href: "/candidate/take-assessment",
-		icon: Award,
-	},
 	{ titleKey: "interviewPrep", href: "/candidate/interview-prep", icon: Mic },
 	{ titleKey: "careerPath", href: "/candidate/career-path", icon: Route },
 	{ titleKey: "messages", href: "/candidate/messages", icon: Mail },

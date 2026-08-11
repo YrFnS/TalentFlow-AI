@@ -291,15 +291,31 @@ async function testRegistration(page, jobId) {
     .count();
   const loginHref = await page.locator('a[href^="/auth/login"]').last().getAttribute('href');
 
+  await page.locator('#name').fill('A');
+  await page.locator('#email').fill('not-an-email');
+  await page.locator('#password').fill('weak');
+  await page.locator('#confirm-password').fill('different');
+
   const submitButton = page.locator('button[type="submit"]');
   const submitButtonText = (await submitButton.innerText()).trim();
   await submitButton.click();
-  const invalidFields = {
-    name: await page.locator('#name').getAttribute('aria-invalid'),
-    email: await page.locator('#email').getAttribute('aria-invalid'),
-    password: await page.locator('#password').getAttribute('aria-invalid'),
-    confirmPassword: await page.locator('#confirm-password').getAttribute('aria-invalid'),
-  };
+  await page.waitForTimeout(250);
+
+  const invalidFields = await page.evaluate(() => {
+    const read = (id) => {
+      const element = document.getElementById(id);
+      return {
+        present: Boolean(element),
+        ariaInvalid: element?.getAttribute('aria-invalid') || null,
+      };
+    };
+    return {
+      name: read('name'),
+      email: read('email'),
+      password: read('password'),
+      confirmPassword: read('confirm-password'),
+    };
+  });
 
   let preservedCallback = null;
   if (loginHref) {
@@ -324,7 +340,9 @@ async function testRegistration(page, jobId) {
     report.registration,
   );
   assert(
-    Object.values(invalidFields).every((value) => value === 'true'),
+    Object.values(invalidFields).every(
+      (value) => value.present && value.ariaInvalid === 'true',
+    ),
     'high',
     'REGISTRATION',
     'Empty candidate registration did not mark every required field invalid',
