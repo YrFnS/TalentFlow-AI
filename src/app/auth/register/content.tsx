@@ -1,90 +1,179 @@
-// @ts-nocheck
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
-import { useI18n } from '@/store/i18n-store';
-import { useAuth } from '@/store/auth-store';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
 import {
+  ArrowRight,
   Brain,
+  Check,
+  CheckCircle2,
   Eye,
   EyeOff,
-  Sun,
-  Moon,
   Globe,
-  ArrowRight,
   Loader2,
-  User,
-  Building2,
+  LockKeyhole,
+  Moon,
   ShieldCheck,
-  Sparkles,
-  Check,
+  Sun,
+  UserRound,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useI18n } from '@/store/i18n-store';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-type RoleCategory = 'candidate' | 'company' | 'admin';
+type RegistrationResponse = {
+  error?: string;
+  message?: string;
+  verificationSent?: boolean;
+  user?: {
+    email?: string;
+  };
+};
 
-const companySubRoles = [
-  { value: 'COMPANY_ADMIN', key: 'companyAdmin' as const },
-  { value: 'HR_MANAGER', key: 'hrManager' as const },
-  { value: 'RECRUITER', key: 'recruiter' as const },
-  { value: 'REVIEWER', key: 'reviewer' as const },
-];
+type FieldErrors = Partial<
+  Record<'name' | 'email' | 'password' | 'confirmPassword', string>
+>;
 
-const adminSubRoles = [
-  { value: 'SUPER_ADMIN', key: 'superAdmin' as const },
-  { value: 'ADMIN', key: 'admin' as const },
-  { value: 'MODERATOR', key: 'moderator' as const },
-];
+function safeCallbackPath(rawValue: string | null): string {
+  if (!rawValue) return '/candidate';
 
-function PasswordStrength({ password, t }: { password: string; t: Record<string, string | undefined> }) {
-  const strength = useMemo(() => {
-    if (!password) return 0;
-    let s = 0;
-    if (password.length >= 6) s += 1;
-    if (password.length >= 8) s += 1;
-    if (/[A-Z]/.test(password)) s += 1;
-    if (/[0-9]/.test(password)) s += 1;
-    if (/[^A-Za-z0-9]/.test(password)) s += 1;
-    return s;
-  }, [password]);
+  try {
+    const value = decodeURIComponent(rawValue);
+    const url = new URL(value, 'https://talentflow.local');
+    if (
+      url.origin === 'https://talentflow.local' &&
+      url.pathname.startsWith('/') &&
+      !url.pathname.startsWith('//') &&
+      !url.pathname.startsWith('/api/') &&
+      url.pathname !== '/auth/register'
+    ) {
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+  } catch {
+    // Fall through to the candidate dashboard.
+  }
 
-  const labels = ['', t.strengthWeak, t.strengthFair, t.strengthGood, t.strengthStrong, t.strengthExcellent];
-  const colors = ['', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-blue-600'];
-  const textColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-500', 'text-blue-500', 'text-blue-600'];
+  return '/candidate';
+}
 
-  if (!password) return null;
-
-  return (
-    <div className="space-y-1.5">
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i <= strength ? colors[strength] : 'bg-muted'}`} />
-        ))}
-      </div>
-      <p className={`text-xs ${textColors[strength]}`}>{labels[strength]}</p>
-    </div>
-  );
+function passwordChecks(password: string) {
+  return [
+    { key: 'length', valid: password.length >= 8 },
+    { key: 'uppercase', valid: /[A-Z]/.test(password) },
+    { key: 'lowercase', valid: /[a-z]/.test(password) },
+    { key: 'number', valid: /[0-9]/.test(password) },
+  ] as const;
 }
 
 export default function RegisterPage() {
-  const { t, locale, setLocale, dir } = useI18n();
-  const { setUser } = useAuth();
+  const { locale, setLocale, dir } = useI18n();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isArabic = dir === 'rtl';
+  const copy = useMemo(
+    () =>
+      isArabic
+        ? {
+            title: 'إنشاء حساب مرشح',
+            subtitle: 'أنشئ ملفك الشخصي، تابع طلباتك، واستلم تحديثات المقابلات.',
+            candidateOnly: 'التسجيل العام متاح للمرشحين فقط',
+            managedAccounts:
+              'حسابات الشركات والإدارة يتم إنشاؤها أو دعوتها من مسؤول معتمد.',
+            name: 'الاسم الكامل',
+            email: 'البريد الإلكتروني',
+            password: 'كلمة المرور',
+            confirmPassword: 'تأكيد كلمة المرور',
+            create: 'إنشاء الحساب',
+            creating: 'جارٍ إنشاء الحساب…',
+            haveAccount: 'لديك حساب بالفعل؟',
+            signIn: 'تسجيل الدخول',
+            nameRequired: 'أدخل اسمك الكامل.',
+            nameShort: 'يجب أن يتكون الاسم من حرفين على الأقل.',
+            emailRequired: 'أدخل بريدك الإلكتروني.',
+            emailInvalid: 'أدخل بريداً إلكترونياً صالحاً.',
+            passwordInvalid: 'كلمة المرور لا تستوفي متطلبات الأمان.',
+            confirmRequired: 'أعد كتابة كلمة المرور.',
+            passwordMismatch: 'كلمتا المرور غير متطابقتين.',
+            created: 'تم إنشاء حسابك',
+            createdBody:
+              'تحقق من بريدك الإلكتروني لتأكيد الحساب، ثم سجّل الدخول للعودة إلى الوظيفة أو لوحة المرشح.',
+            continueSignIn: 'المتابعة إلى تسجيل الدخول',
+            useAnother: 'إنشاء حساب آخر',
+            verificationSent: 'تم إرسال رسالة التحقق إلى',
+            rules: {
+              length: '8 أحرف على الأقل',
+              uppercase: 'حرف إنجليزي كبير',
+              lowercase: 'حرف إنجليزي صغير',
+              number: 'رقم واحد على الأقل',
+            },
+            benefitOne: 'متابعة حالة كل طلب',
+            benefitTwo: 'إدارة السيرة الذاتية والملف المهني',
+            benefitThree: 'استلام مواعيد المقابلات والإشعارات',
+            genericError: 'تعذر إنشاء الحساب. حاول مرة أخرى.',
+          }
+        : {
+            title: 'Create a candidate account',
+            subtitle:
+              'Build your profile, track applications, and receive interview updates.',
+            candidateOnly: 'Public registration is for candidates only',
+            managedAccounts:
+              'Company and administration accounts are created or invited by an authorized administrator.',
+            name: 'Full name',
+            email: 'Email address',
+            password: 'Password',
+            confirmPassword: 'Confirm password',
+            create: 'Create account',
+            creating: 'Creating account…',
+            haveAccount: 'Already have an account?',
+            signIn: 'Sign in',
+            nameRequired: 'Enter your full name.',
+            nameShort: 'Your name must contain at least two characters.',
+            emailRequired: 'Enter your email address.',
+            emailInvalid: 'Enter a valid email address.',
+            passwordInvalid: 'Your password does not meet the security requirements.',
+            confirmRequired: 'Repeat your password.',
+            passwordMismatch: 'The passwords do not match.',
+            created: 'Your account was created',
+            createdBody:
+              'Verify your email, then sign in to return to the selected job or your candidate dashboard.',
+            continueSignIn: 'Continue to sign in',
+            useAnother: 'Create another account',
+            verificationSent: 'Verification instructions were sent to',
+            rules: {
+              length: 'At least 8 characters',
+              uppercase: 'One uppercase letter',
+              lowercase: 'One lowercase letter',
+              number: 'One number',
+            },
+            benefitOne: 'Track every application status',
+            benefitTwo: 'Manage your resume and professional profile',
+            benefitThree: 'Receive interview schedules and notifications',
+            genericError: 'The account could not be created. Please try again.',
+          },
+    [isArabic],
+  );
+
+  const callbackPath = safeCallbackPath(searchParams.get('callbackUrl'));
+  const loginHref = `/auth/login?callbackUrl=${encodeURIComponent(callbackPath)}`;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -92,462 +181,321 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [roleCategory, setRoleCategory] = useState<RoleCategory>('candidate');
-  const [subRole, setSubRole] = useState('COMPANY_ADMIN');
-  const [companyName, setCompanyName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<'google' | 'linkedin' | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [createdEmail, setCreatedEmail] = useState('');
 
-  const handleRoleCategoryChange = (cat: RoleCategory) => {
-    setRoleCategory(cat);
-    if (cat === 'candidate') {
-      setSubRole('CANDIDATE');
-    } else if (cat === 'company') {
-      setSubRole('COMPANY_ADMIN');
-    } else {
-      setSubRole('SUPER_ADMIN');
-    }
-  };
+  const checks = passwordChecks(password);
 
-  const handleSocialLogin = async (provider: 'google' | 'linkedin') => {
-    setSocialLoading(provider);
-    try {
-      const result = await signIn(provider, {
-        callbackUrl: '/',
-        redirect: false,
-      });
+  function validate(): boolean {
+    const nextErrors: FieldErrors = {};
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim();
 
-      if (result?.error) {
-        toast.error(t.socialLogin.socialLoginError);
-      } else if (result?.ok) {
-        const sessionRes = await fetch('/api/auth/session');
-        const session = await sessionRes.json();
+    if (!normalizedName) nextErrors.name = copy.nameRequired;
+    else if (normalizedName.length < 2) nextErrors.name = copy.nameShort;
 
-        if (session?.user) {
-          setUser({
-            id: (session.user as Record<string, unknown>).id as string || '',
-            email: session.user.email || '',
-            name: session.user.name || '',
-            role: (session.user as Record<string, unknown>).role as string as any || 'CANDIDATE',
-            image: session.user.image || undefined,
-            companyId: (session.user as Record<string, unknown>).companyId as string || undefined,
-            companyName: (session.user as Record<string, unknown>).companyName as string || undefined,
-            locale: (session.user as Record<string, unknown>).locale as string || 'en',
-          });
-          toast.success(t.socialLogin.socialLoginSuccess);
-          router.push('/');
-        }
-      }
-    } catch {
-      toast.error(t.socialLogin.socialLoginError);
-    } finally {
-      setSocialLoading(null);
-    }
-  };
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!name.trim()) {
-      newErrors.name = t.auth.nameRequired;
-    } else if (name.trim().length < 2) {
-      newErrors.name = t.auth.nameTooShort;
+    if (!normalizedEmail) nextErrors.email = copy.emailRequired;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      nextErrors.email = copy.emailInvalid;
     }
 
-    if (!email.trim()) {
-      newErrors.email = t.auth.emailRequired;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = t.auth.invalidEmail;
+    if (!checks.every((check) => check.valid)) {
+      nextErrors.password = copy.passwordInvalid;
     }
 
-    if (!password.trim()) {
-      newErrors.password = t.auth.passwordRequired;
-    } else if (password.length < 6) {
-      newErrors.password = t.auth.passwordMinLength;
+    if (!confirmPassword) nextErrors.confirmPassword = copy.confirmRequired;
+    else if (password !== confirmPassword) {
+      nextErrors.confirmPassword = copy.passwordMismatch;
     }
 
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = t.auth.passwordsNoMatch;
-    }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
 
-    if (roleCategory === 'company' && !companyName.trim()) {
-      newErrors.companyName = t.auth.companyNameRequired;
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (!validate()) return;
 
-    setIsLoading(true);
+    setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim().toLowerCase(),
           password,
-          role: roleCategory === 'candidate' ? 'CANDIDATE' : subRole,
-          companyName: roleCategory === 'company' ? companyName.trim() : undefined,
+          role: 'CANDIDATE',
         }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success(t.auth.accountCreated);
-        const signInRes = await fetch('/api/auth/callback/credentials', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
-        });
-
-        if (signInRes.ok) {
-          const sessionRes = await fetch('/api/auth/session');
-          const session = await sessionRes.json();
-          if (session?.user) {
-            setUser({
-              id: (session.user as Record<string, unknown>).id as string || '',
-              email: session.user.email || email,
-              name: session.user.name || name,
-              role: (session.user as Record<string, unknown>).role as string as any || 'CANDIDATE',
-              image: session.user.image || undefined,
-              companyId: (session.user as Record<string, unknown>).companyId as string || undefined,
-              companyName: (session.user as Record<string, unknown>).companyName as string || undefined,
-              locale: (session.user as Record<string, unknown>).locale as string || 'en',
-            });
-          }
-        }
-        router.push('/');
-      } else {
-        toast.error(data.error || t.auth.registrationFailed);
+      const payload = (await response.json().catch(() => ({}))) as RegistrationResponse;
+      if (!response.ok) {
+        throw new Error(payload.error || payload.message || copy.genericError);
       }
-    } catch {
-      toast.error(t.auth.registrationError);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const roleCategories: { key: RoleCategory; icon: typeof User; label: string; desc: string }[] = [
-    { key: 'candidate', icon: User, label: t.auth.candidateAccount, desc: t.auth.candidateDesc },
-    { key: 'company', icon: Building2, label: t.auth.companyAccount, desc: t.auth.companyDesc },
-    { key: 'admin', icon: ShieldCheck, label: t.auth.adminAccount, desc: t.auth.adminDesc },
-  ];
+      const registeredEmail = payload.user?.email || email.trim().toLowerCase();
+      setCreatedEmail(registeredEmail);
+      toast.success(payload.message || copy.created);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : copy.genericError);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function resetForm() {
+    setName('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setErrors({});
+    setCreatedEmail('');
+  }
 
   return (
-    <div dir={dir} className="min-h-screen flex">
-      {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-900">
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white">
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-                <Brain className="w-6 h-6" />
+    <div className="flex min-h-screen bg-background" dir={dir}>
+      <aside className="relative hidden w-1/2 overflow-hidden bg-slate-950 lg:flex">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.25),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.2),transparent_40%)]" />
+        <div className="relative z-10 flex flex-col justify-center px-12 text-white xl:px-20">
+          <Link href="/" className="mb-10 flex items-center gap-3">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+              <Brain className="h-6 w-6" />
+            </span>
+            <span className="text-2xl font-bold">TalentFlow AI</span>
+          </Link>
+          <h1 className="max-w-xl text-4xl font-bold leading-tight xl:text-5xl">
+            {copy.title}
+          </h1>
+          <p className="mt-5 max-w-lg text-lg leading-8 text-white/60">
+            {copy.subtitle}
+          </p>
+          <div className="mt-10 space-y-3">
+            {[copy.benefitOne, copy.benefitTwo, copy.benefitThree].map((benefit) => (
+              <div
+                key={benefit}
+                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                  <Check className="h-4 w-4" />
+                </span>
+                <span className="text-sm text-white/80">{benefit}</span>
               </div>
-              <span className="text-2xl font-bold">TalentFlow AI</span>
-            </div>
-            <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
-              {t.auth.startYour}<br />
-              <span className="text-white/70">{t.auth.journeyToday}</span>
-            </h1>
-            <p className="text-lg text-white/60 max-w-md">
-              {t.auth.registerLandingDesc}
-            </p>
+            ))}
           </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Right side - Register Form */}
-      <div className="flex-1 flex flex-col">
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-              <Brain className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-lg font-bold text-slate-900 lg:hidden">
-              {t.common.appName}
+      <main className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between px-4 py-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-2 lg:hidden">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <Brain className="h-4 w-4" />
             </span>
+            <span className="font-bold">TalentFlow AI</span>
           </Link>
+          <span className="hidden lg:block" />
           <div className="flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Button variant="ghost" size="icon" aria-label="Change language">
                   <Globe className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setLocale('en')}>
-                  <span className={locale === 'en' ? 'font-bold' : ''}>English</span>
+                  <span className={locale === 'en' ? 'font-semibold' : ''}>English</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setLocale('ar')}>
-                  <span className={locale === 'ar' ? 'font-bold' : ''}>العربية</span>
+                  <span className={locale === 'ar' ? 'font-semibold' : ''}>العربية</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Toggle theme"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
           </div>
-        </div>
+        </header>
 
-        {/* Main content */}
-        <div className="flex-1 flex items-center justify-center px-4 py-6">
-          <div className="w-full max-w-lg">
-            <Card className="relative border-border/50 shadow-lg">
-              <CardHeader className="text-center pb-2">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600">
-                  <Brain className="h-7 w-7 text-white" />
-                </div>
-                <CardTitle className="text-2xl font-bold text-slate-900">{t.auth.signUp}</CardTitle>
-                <CardDescription>{t.auth.signUpSubtitle}</CardDescription>
-              </CardHeader>
-
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Social Signup Buttons */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      type="button"
-                      className="h-11 gap-2 bg-[#4285F4] hover:bg-[#3574d4] text-white font-medium"
-                      onClick={() => handleSocialLogin('google')}
-                      disabled={socialLoading !== null}
-                    >
-                      {socialLoading === 'google' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#fff"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff"/></svg>
-                      )}
-                      {socialLoading === 'google' ? t.socialLogin.connecting : t.socialLogin.signUpWithGoogle}
-                    </Button>
-                    <Button
-                      type="button"
-                      className="h-11 gap-2 bg-[#0A66C2] hover:bg-[#0856a5] text-white font-medium"
-                      onClick={() => handleSocialLogin('linkedin')}
-                      disabled={socialLoading !== null}
-                    >
-                      {socialLoading === 'linkedin' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#fff"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                      )}
-                      {socialLoading === 'linkedin' ? t.socialLogin.connecting : t.socialLogin.signUpWithLinkedIn}
-                    </Button>
+        <div className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
+          <Card className="w-full max-w-lg border-border/60 shadow-xl shadow-black/5">
+            {createdEmail ? (
+              <>
+                <CardHeader className="text-center">
+                  <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                    <CheckCircle2 className="h-7 w-7" />
+                  </span>
+                  <CardTitle className="text-2xl">{copy.created}</CardTitle>
+                  <CardDescription className="leading-6">{copy.createdBody}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-xl border bg-muted/35 p-4 text-center">
+                    <p className="text-sm text-muted-foreground">{copy.verificationSent}</p>
+                    <p className="mt-1 break-all font-medium">{createdEmail}</p>
                   </div>
-
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground/70">{t.socialLogin.orSignUpWith}</span></div>
-                  </div>
-
-                  {/* Role Selection */}
-                  <div className="space-y-2">
-                    <Label>{t.auth.selectRole}</Label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {roleCategories.map((cat) => {
-                        const Icon = cat.icon;
-                        return (
-                          <button
-                            key={cat.key}
-                            type="button"
-                            onClick={() => handleRoleCategoryChange(cat.key)}
-                            className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
-                              roleCategory === cat.key
-                                ? 'border-blue-500 bg-blue-50 shadow-sm'
-                                : 'border-border hover:border-slate-300'
-                            }`}
-                          >
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${roleCategory === cat.key ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                              <Icon className="h-5 w-5" />
-                            </div>
-                            <span className={`text-xs font-medium whitespace-nowrap ${roleCategory === cat.key ? 'text-blue-700' : 'text-muted-foreground'}`}>
-                              {cat.label}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground leading-tight line-clamp-2">{cat.desc}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Sub-role selection for company/admin */}
-                  {roleCategory === 'company' && (
-                    <div className="space-y-2">
-                      <Label>{t.auth.signUpAs}</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {companySubRoles.map((role) => (
-                          <button
-                            key={role.value}
-                            type="button"
-                            onClick={() => setSubRole(role.value)}
-                            className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all ${
-                              subRole === role.value
-                                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                : 'border-border text-muted-foreground hover:border-slate-300'
-                            }`}
-                          >
-                            {t.auth[role.key]}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {roleCategory === 'admin' && (
-                    <div className="space-y-2">
-                      <Label>{t.auth.signUpAs}</Label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {adminSubRoles.map((role) => (
-                          <button
-                            key={role.value}
-                            type="button"
-                            onClick={() => setSubRole(role.value)}
-                            className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all ${
-                              subRole === role.value
-                                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                : 'border-border text-muted-foreground hover:border-slate-300'
-                            }`}
-                          >
-                            {t.auth[role.key]}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Company name field */}
-                  {roleCategory === 'company' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="companyName">{t.company.name}</Label>
-                      <Input
-                        id="companyName"
-                        placeholder={t.auth.enterCompanyName}
-                        value={companyName}
-                        onChange={(e) => { setCompanyName(e.target.value); setErrors((p) => ({ ...p, companyName: undefined })); }}
-                        className={`transition-colors ${errors.companyName ? 'border-destructive' : ''}`}
-                      />
-                      {errors.companyName && <p className="text-sm text-destructive">{errors.companyName}</p>}
-                    </div>
-                  )}
-
-                  {/* Name */}
-                  <div className="space-y-2">
-                    <Label htmlFor="name">{t.auth.name}</Label>
-                    <Input
-                      id="name"
-                      placeholder={t.auth.enterFullName}
-                      value={name}
-                      onChange={(e) => { setName(e.target.value); setErrors((p) => ({ ...p, name: undefined })); }}
-                      className={`transition-colors ${errors.name ? 'border-destructive' : ''}`}
-                      autoComplete="name"
-                    />
-                    {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-                  </div>
-
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="email">{t.auth.email}</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: undefined })); }}
-                      className={`transition-colors ${errors.email ? 'border-destructive' : ''}`}
-                      autoComplete="email"
-                    />
-                    {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                  </div>
-
-                  {/* Password with strength indicator */}
-                  <div className="space-y-2">
-                    <Label htmlFor="password">{t.auth.password}</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: undefined })); }}
-                        className={`transition-colors ${errors.password ? 'border-destructive pe-10' : 'pe-10'}`}
-                        autoComplete="new-password"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute end-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    <PasswordStrength password={password} t={t.auth} />
-                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                  </div>
-
-                  {/* Confirm Password */}
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">{t.auth.confirmPassword}</Label>
-                    <div className="relative">
-                      <Input
-                        id="confirmPassword"
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        value={confirmPassword}
-                        onChange={(e) => { setConfirmPassword(e.target.value); setErrors((p) => ({ ...p, confirmPassword: undefined })); }}
-                        className={`transition-colors ${errors.confirmPassword ? 'border-destructive pe-10' : 'pe-10'}`}
-                        autoComplete="new-password"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute end-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    {confirmPassword && password === confirmPassword && (
-                      <p className="text-xs text-blue-600 flex items-center gap-1">
-                        <Check className="w-3 h-3" /> {t.auth.passwordsMatch}
-                      </p>
-                    )}
-                    {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
-                  </div>
-
-                  {/* Submit */}
-                  <Button
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    size="lg"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin me-2" />
-                    ) : (
-                      <ArrowRight className="h-4 w-4 me-2" />
-                    )}
-                    {t.auth.signUp}
+                </CardContent>
+                <CardFooter className="flex flex-col gap-3">
+                  <Button className="w-full" onClick={() => router.push(loginHref)}>
+                    {copy.continueSignIn}
+                    <ArrowRight className="ms-2 h-4 w-4" />
                   </Button>
-                </form>
-              </CardContent>
+                  <Button variant="ghost" className="w-full" onClick={resetForm}>
+                    {copy.useAnother}
+                  </Button>
+                </CardFooter>
+              </>
+            ) : (
+              <>
+                <CardHeader className="text-center">
+                  <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                    <UserRound className="h-7 w-7" />
+                  </span>
+                  <CardTitle className="text-2xl">{copy.title}</CardTitle>
+                  <CardDescription>{copy.subtitle}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                    <div className="flex items-start gap-3">
+                      <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">{copy.candidateOnly}</p>
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                          {copy.managedAccounts}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-              <CardFooter className="flex flex-col gap-4">
-                <div className="text-sm text-muted-foreground text-center">
-                  {t.auth.hasAccount}{' '}
-                  <Link href="/auth/login" className="font-semibold text-blue-600 hover:text-blue-700">
-                    {t.auth.signIn}
+                  <form onSubmit={submit} className="space-y-4" noValidate>
+                    <div className="space-y-2">
+                      <Label htmlFor="name">{copy.name}</Label>
+                      <Input
+                        id="name"
+                        autoComplete="name"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        aria-invalid={Boolean(errors.name)}
+                        maxLength={100}
+                      />
+                      {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">{copy.email}</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        aria-invalid={Boolean(errors.email)}
+                        maxLength={255}
+                      />
+                      {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password">{copy.password}</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? 'text' : 'password'}
+                          autoComplete="new-password"
+                          value={password}
+                          onChange={(event) => setPassword(event.target.value)}
+                          aria-invalid={Boolean(errors.password)}
+                          maxLength={128}
+                          className="pe-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute end-0 top-0 h-full w-10"
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          onClick={() => setShowPassword((value) => !value)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      <div className="grid gap-1.5 sm:grid-cols-2">
+                        {checks.map((check) => (
+                          <p
+                            key={check.key}
+                            className={`flex items-center gap-1.5 text-xs ${
+                              check.valid ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
+                            }`}
+                          >
+                            {check.valid ? <Check className="h-3.5 w-3.5" /> : <LockKeyhole className="h-3.5 w-3.5" />}
+                            {copy.rules[check.key]}
+                          </p>
+                        ))}
+                      </div>
+                      {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">{copy.confirmPassword}</Label>
+                      <div className="relative">
+                        <Input
+                          id="confirm-password"
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          autoComplete="new-password"
+                          value={confirmPassword}
+                          onChange={(event) => setConfirmPassword(event.target.value)}
+                          aria-invalid={Boolean(errors.confirmPassword)}
+                          maxLength={128}
+                          className="pe-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute end-0 top-0 h-full w-10"
+                          aria-label={showConfirmPassword ? 'Hide confirmation password' : 'Show confirmation password'}
+                          onClick={() => setShowConfirmPassword((value) => !value)}
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      {errors.confirmPassword && (
+                        <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+                      )}
+                    </div>
+
+                    <Button type="submit" className="w-full" disabled={submitting}>
+                      {submitting ? (
+                        <>
+                          <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                          {copy.creating}
+                        </>
+                      ) : (
+                        <>
+                          {copy.create}
+                          <ArrowRight className="ms-2 h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+                <CardFooter className="justify-center text-sm text-muted-foreground">
+                  {copy.haveAccount}{' '}
+                  <Link href={loginHref} className="ms-1 font-medium text-primary hover:underline">
+                    {copy.signIn}
                   </Link>
-                </div>
-              </CardFooter>
-            </Card>
-          </div>
+                </CardFooter>
+              </>
+            )}
+          </Card>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
