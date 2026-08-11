@@ -1,0 +1,186 @@
+name: Isolated role and critical-flow E2E
+
+on:
+  push:
+    branches:
+      - agent/e2e-role-audit-fixes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-role-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-audit:
+    name: Seed PostgreSQL and test every user type
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: talentflow_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d talentflow_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      CI: true
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/talentflow_e2e?schema=public
+      NEXTAUTH_SECRET: isolated-e2e-nextauth-secret-2026
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      EMAIL_PROVIDER: CONSOLE
+      VERCEL_GIT_COMMIT_SHA: ${{ github.sha }}
+      E2E_BASE_URL: http://127.0.0.1:3000
+      E2E_EXPECTED_COMMIT: ${{ github.sha }}
+      E2E_DEMO_PASSWORD: TalentFlowDemo!2026
+      E2E_ARTIFACTS_DIR: e2e-artifacts
+      E2E_NAVIGATION_TIMEOUT_MS: 35000
+      E2E_SETTLE_DELAY_MS: 900
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate Prisma client and schema
+        run: |
+          npx prisma generate
+          npx prisma db push --skip-generate
+
+      - name: Seed realistic application fixtures
+        run: |
+          mkdir -p e2e-artifacts
+          npm run db:seed 2>&1 | tee e2e-artifacts/seed.log
+          npm run db:seed:complete 2>&1 | tee -a e2e-artifacts/seed.log
+
+      - name: Record seeded database coverage
+        run: |
+          node --input-type=module <<'NODE' > e2e-artifacts/db-summary.json
+          import { PrismaClient } from '@prisma/client';
+          const db = new PrismaClient();
+          const [users, companies, profiles, jobs, applications, interviews, offers, conversations] = await Promise.all([
+            db.user.count(),
+            db.company.count(),
+            db.candidateProfile.count(),
+            db.job.count(),
+            db.application.count(),
+            db.interview.count(),
+            db.offer.count(),
+            db.chatConversation.count(),
+          ]);
+          const roles = await db.user.groupBy({ by: ['role'], _count: { _all: true } });
+          console.log(JSON.stringify({ users, companies, candidateProfiles: profiles, jobs, applications, interviews, offers, chatConversations: conversations, roles }, null, 2));
+          await db.$disconnect();
+          NODE
+          cat e2e-artifacts/db-summary.json
+
+      - name: Build production application
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.57.0
+          npx playwright install --with-deps chromium
+
+      - name: Start production server
+        run: |
+          npm run start > e2e-artifacts/server.log 2>&1 &
+          echo $! > e2e-artifacts/server.pid
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3000/ > /dev/null; then
+              echo "TalentFlow server is ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat e2e-artifacts/server.log
+          exit 1
+
+      - name: Run complete role matrix
+        id: role_matrix
+        continue-on-error: true
+        run: node scripts/e2e-production.cjs
+
+      - name: Run critical public and candidate flows
+        id: critical_flows
+        continue-on-error: true
+        run: node scripts/e2e-critical-flows.cjs
+
+      - name: Capture post-test database state
+        if: always()
+        run: |
+          node --input-type=module <<'NODE' > e2e-artifacts/db-after.json
+          import { PrismaClient } from '@prisma/client';
+          const db = new PrismaClient();
+          const testConversations = await db.chatConversation.findMany({
+            where: { sessionId: { startsWith: 'e2e-role-audit-' } },
+            select: { id: true, sessionId: true, userId: true, source: true, createdAt: true, updatedAt: true },
+          });
+          const retiredQuickApplyUsers = await db.user.count({
+            where: { email: { contains: 'e2e-retired-quick-apply' } },
+          });
+          console.log(JSON.stringify({ testConversations, retiredQuickApplyUsers }, null, 2));
+          await db.$disconnect();
+          NODE
+          cat e2e-artifacts/db-after.json
+
+      - name: Publish reports to workflow summary
+        if: always()
+        run: |
+          if [ -f e2e-artifacts/report.md ]; then
+            cat e2e-artifacts/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f e2e-artifacts/critical-flows.md ]; then
+            printf '\n---\n\n' >> "$GITHUB_STEP_SUMMARY"
+            cat e2e-artifacts/critical-flows.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload browser, database, and server evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: talentflow-isolated-e2e-${{ github.sha }}
+          path: e2e-artifacts
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Stop production server
+        if: always()
+        run: |
+          if [ -f e2e-artifacts/server.pid ]; then
+            kill "$(cat e2e-artifacts/server.pid)" 2>/dev/null || true
+          fi
+
+      - name: Enforce E2E results
+        if: always()
+        shell: bash
+        run: |
+          role_outcome='${{ steps.role_matrix.outcome }}'
+          critical_outcome='${{ steps.critical_flows.outcome }}'
+          if [[ "$role_outcome" != 'success' || "$critical_outcome" != 'success' ]]; then
+            echo "Role matrix outcome: $role_outcome" >&2
+            echo "Critical flows outcome: $critical_outcome" >&2
+            exit 1
+          fi
