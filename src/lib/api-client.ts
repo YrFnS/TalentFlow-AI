@@ -79,7 +79,14 @@ export async function apiFetch(
     }
 
     if (needsCsrf) {
-      const token = await getCsrfToken(forceRefresh);
+      // Respect a token supplied by the caller on the first attempt. Fetching a
+      // new token rotates the CSRF cookie, so replacing that explicit token
+      // with an older cached value would guarantee an avoidable 403 and retry.
+      const providedToken = headers.get('x-csrf-token');
+      const token =
+        !forceRefresh && providedToken
+          ? providedToken
+          : await getCsrfToken(forceRefresh);
       if (!token) {
         throw new ApiError('Unable to initialize request security token', 0);
       }
