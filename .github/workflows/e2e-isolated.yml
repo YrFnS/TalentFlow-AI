@@ -105,12 +105,11 @@ jobs:
           npm install --no-save --no-audit --no-fund playwright@1.57.0
           npx playwright install --with-deps chromium
 
-      - name: Start production server
+      - name: Start production server through the declared package script
         shell: bash
         run: |
           set -euo pipefail
-          NODE_ENV=production HOSTNAME=127.0.0.1 PORT=3000 \
-            node .next/standalone/server.js > e2e-artifacts/server.log 2>&1 &
+          HOSTNAME=127.0.0.1 PORT=3000 npm run start > e2e-artifacts/server.log 2>&1 &
           echo $! > e2e-artifacts/server.pid
 
           for attempt in $(seq 1 60); do
