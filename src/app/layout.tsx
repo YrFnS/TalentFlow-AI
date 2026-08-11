@@ -28,11 +28,10 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const headersList = await headers();
-  const nonce = headersList.get('x-csp-nonce') || '';
+  const nonce = headersList.get('x-csp-nonce') || undefined;
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>{nonce && <meta name="csp-nonce" content={nonce} />}</head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
@@ -41,6 +40,7 @@ export default async function RootLayout({
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
+          nonce={nonce}
         >
           <CsrfFetchProvider>
             <I18nDirectionHandler />
