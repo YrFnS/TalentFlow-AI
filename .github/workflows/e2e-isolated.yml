@@ -1,3 +1,5 @@
+# Builds TalentFlow in production mode against a disposable PostgreSQL service,
+# then exercises every seeded role and the critical public/candidate workflows.
 name: Isolated role and critical-flow E2E
 
 on:
