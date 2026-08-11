@@ -280,6 +280,7 @@ async function testCareerFlow(page, jobs) {
 async function testRegistration(page, jobId) {
   const callbackPath = `/candidate/jobs/${jobId}`;
   await goto(page, `/auth/register?callbackUrl=${encodeURIComponent(callbackPath)}`);
+  await page.locator('#name').waitFor({ state: 'visible', timeout: 15_000 });
 
   const candidateOnlyVisible = await page
     .getByText('Public registration is for candidates only', { exact: true })
@@ -290,7 +291,9 @@ async function testRegistration(page, jobId) {
     .count();
   const loginHref = await page.locator('a[href^="/auth/login"]').last().getAttribute('href');
 
-  await page.getByRole('button', { name: 'Create account', exact: true }).click();
+  const submitButton = page.locator('button[type="submit"]');
+  const submitButtonText = (await submitButton.innerText()).trim();
+  await submitButton.click();
   const invalidFields = {
     name: await page.locator('#name').getAttribute('aria-invalid'),
     email: await page.locator('#email').getAttribute('aria-invalid'),
@@ -305,6 +308,7 @@ async function testRegistration(page, jobId) {
 
   report.registration = {
     candidateOnlyVisible,
+    submitButtonText,
     forbiddenRoleChoices,
     loginHref,
     preservedCallback,

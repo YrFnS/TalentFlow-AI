@@ -119,6 +119,11 @@ function isNotFoundBody(text) {
     || /we (?:could not|couldn't) find (?:that|this|the) page/i.test(text);
 }
 
+function isAccessDeniedBody(text) {
+  return /403\s*-\s*access denied/i.test(text)
+    || /you (?:do not|don't) have permission to access this page/i.test(text);
+}
+
 function isErrorBoundaryBody(text) {
   return /application error: a client-side exception/i.test(text)
     || /internal server error/i.test(text)
@@ -145,16 +150,26 @@ function attachDiagnostics(page) {
     if (message.type() !== 'error') return;
     const text = message.text();
     if (/favicon\.ico/i.test(text)) return;
-    entries.push({ type: 'console-error', message: text, url: page.url() });
+    if (/failed to load resource: the server responded with a status of [45]\d\d/i.test(text)) return;
+    const location = message.location();
+    entries.push({
+      type: 'console-error',
+      message: text,
+      pageUrl: page.url(),
+      url: location.url || page.url(),
+      lineNumber: location.lineNumber,
+      columnNumber: location.columnNumber,
+    });
   });
 
   page.on('response', (response) => {
     if (!sameOrigin(response.url())) return;
-    if (response.status() < 500) return;
+    if (response.status() < 400) return;
     entries.push({
-      type: 'http-5xx',
+      type: response.status() >= 500 ? 'http-5xx' : 'http-4xx',
       status: response.status(),
       method: response.request().method(),
+      resourceType: response.request().resourceType(),
       url: response.url(),
     });
   });
@@ -229,6 +244,7 @@ async function getPageState(page, navigationResponse) {
     bodyLength: bodyText.trim().length,
     bodySample: bodyText.trim().slice(0, 500),
     notFound: isNotFoundBody(bodyText),
+    accessDeniedBody: isAccessDeniedBody(bodyText),
     errorBoundary: isErrorBoundaryBody(bodyText),
     horizontalOverflow: metrics.scrollWidth > metrics.clientWidth + 3,
     metrics,
@@ -279,14 +295,32 @@ async function navigate(page, route, diagnostics, scope, options = {}) {
     });
   }
 
-  if (state.horizontalOverflow) {
+  const denied = Boolean(
+    options.expectDenied && (
+      state.accessDeniedBody
+      || state.notFound
+      || state.status === 401
+      || state.status === 403
+      || state.status === 404
+      || state.finalPath.startsWith('/auth/login')
+      || state.finalPath === '/not-found'
+    )
+  );
+
+  if (state.horizontalOverflow && !denied) {
     addIssue('warning', scope, `Horizontal overflow detected for ${route}`, state.metrics);
   }
 
   for (const entry of diagnosticEntries) {
+    const expectedDeniedDocument = denied
+      && entry.type === 'http-4xx'
+      && [401, 403, 404].includes(entry.status)
+      && entry.resourceType === 'document';
+    if (expectedDeniedDocument) continue;
+
     if (entry.type === 'pageerror' || entry.type === 'http-5xx') {
       addIssue('high', scope, `${entry.type} while loading ${route}`, entry);
-    } else if (entry.type === 'console-error' || entry.type === 'request-failed') {
+    } else if (entry.type === 'http-4xx' || entry.type === 'console-error' || entry.type === 'request-failed') {
       addIssue('warning', scope, `${entry.type} while loading ${route}`, entry);
     }
   }
@@ -309,11 +343,6 @@ async function navigate(page, route, diagnostics, scope, options = {}) {
   }
 
   if (options.expectDenied) {
-    const denied = state.notFound
-      || state.status === 401
-      || state.status === 403
-      || state.finalPath.startsWith('/auth/login')
-      || state.finalPath === '/not-found';
     result.accessDenied = denied;
     if (!denied) {
       addIssue('critical', scope, `Role could access a forbidden portal route: ${route}`, {

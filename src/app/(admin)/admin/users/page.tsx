@@ -239,7 +239,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 max-w-full space-y-6">
       {/* Page Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -283,7 +283,7 @@ export default function UsersPage() {
       </Card>
 
       {/* Users Table */}
-      <Card>
+      <Card className="min-w-0 max-w-full overflow-hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-emerald-600" />
@@ -291,9 +291,9 @@ export default function UsersPage() {
             <Badge variant="secondary" className="ml-2">{users.length}</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
+        <CardContent className="min-w-0 max-w-full">
+          <div className="min-w-0 max-w-full overflow-x-auto">
+            <Table className="min-w-[1024px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10">
