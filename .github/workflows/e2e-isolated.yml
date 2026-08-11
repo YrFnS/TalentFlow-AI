@@ -70,10 +70,11 @@ jobs:
           npx prisma db push --skip-generate
 
       - name: Seed realistic application fixtures
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p e2e-artifacts
           npm run db:seed 2>&1 | tee e2e-artifacts/seed.log
-          npm run db:seed:complete 2>&1 | tee -a e2e-artifacts/seed.log
 
       - name: Record seeded database coverage
         run: |
@@ -105,16 +106,26 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Start production server
+        shell: bash
         run: |
-          npm run start > e2e-artifacts/server.log 2>&1 &
+          set -euo pipefail
+          NODE_ENV=production HOSTNAME=127.0.0.1 PORT=3000 \
+            node .next/standalone/server.js > e2e-artifacts/server.log 2>&1 &
           echo $! > e2e-artifacts/server.pid
+
           for attempt in $(seq 1 60); do
             if curl -fsS http://127.0.0.1:3000/ > /dev/null; then
               echo "TalentFlow server is ready"
               exit 0
             fi
+            if ! kill -0 "$(cat e2e-artifacts/server.pid)" 2>/dev/null; then
+              echo "TalentFlow server exited before becoming ready" >&2
+              cat e2e-artifacts/server.log
+              exit 1
+            fi
             sleep 1
           done
+
           cat e2e-artifacts/server.log
           exit 1
 
