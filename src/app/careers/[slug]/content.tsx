@@ -1,33 +1,38 @@
-// @ts-nocheck
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useI18n } from '@/store/i18n-store';
-import { cn, getInitials } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
+  ArrowUp,
+  Briefcase,
   Building2,
-  MapPin,
   Clock,
   DollarSign,
-  Briefcase,
-  Users,
-  Globe,
-  TrendingUp,
-  Lightbulb,
-  Heart,
-  Share2,
-  Upload,
-  X,
-  ChevronDown,
-  ArrowUp,
   ExternalLink,
+  Globe2,
+  Loader2,
+  LogIn,
+  MapPin,
+  Search,
+  Share2,
+  ShieldCheck,
+  UserPlus,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { useI18n } from '@/store/i18n-store';
+import { getInitials } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -35,25 +40,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
 
 interface JobItem {
   id: string;
   title: string;
   department: string;
-  location: string;
+  location: string | null;
   jobType: string;
   salaryMin: number | null;
   salaryMax: number | null;
+  salaryCurrency: string;
   description: string;
   requirements: string[];
   benefits: string[];
@@ -61,37 +58,39 @@ interface JobItem {
   isRemote: boolean;
 }
 
-interface CompanyConfig {
+interface CompanyInfo {
+  id: string;
   name: string;
   slug: string;
-  tagline: string;
   logo: string | null;
-  primaryColor: string;
+  description: string | null;
+  website: string | null;
+  industry: string | null;
+  location: string | null;
+  tagline: string;
   values: string[];
   benefits: string[];
   cultureText: string;
-  socialLinks: { linkedin: string; twitter: string; github: string };
-  isPublished: boolean;
-  metaTitle: string;
-  metaDescription: string;
+  socialLinks: {
+    linkedin: string;
+    twitter: string;
+    github: string;
+  };
 }
 
-const emptyCompanyConfig: CompanyConfig = {
-  name: '',
-  slug: '',
-  tagline: '',
-  logo: null,
-  primaryColor: 'blue',
-  values: [],
-  benefits: [],
-  cultureText: '',
-  socialLinks: { linkedin: '', twitter: '', github: '' },
-  isPublished: false,
-  metaTitle: '',
-  metaDescription: '',
+type CompanyPayload = {
+  id?: string;
+  name?: string;
+  slug?: string;
+  logo?: string | null;
+  description?: string | null;
+  website?: string | null;
+  industry?: string | null;
+  location?: string | null;
+  config?: Record<string, unknown> | null;
 };
 
-const jobTypeLabels: Record<string, string> = {
+const JOB_TYPE_LABELS: Record<string, string> = {
   FULL_TIME: 'Full-time',
   PART_TIME: 'Part-time',
   CONTRACT: 'Contract',
@@ -100,659 +99,660 @@ const jobTypeLabels: Record<string, string> = {
   HYBRID: 'Hybrid',
 };
 
-export default function CareerPageContent({ slugPromise }: { slugPromise: Promise<{ slug: string }> }) {
-  const { t, dir } = useI18n();
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : [];
+}
+
+function stringValue(value: unknown): string {
+  return typeof value === 'string' ? value : '';
+}
+
+function normalizeCompany(payload: CompanyPayload, fallbackSlug: string): CompanyInfo {
+  const config = payload.config && typeof payload.config === 'object'
+    ? payload.config
+    : {};
+  const social = config.socialLinks && typeof config.socialLinks === 'object'
+    ? (config.socialLinks as Record<string, unknown>)
+    : {};
+
+  return {
+    id: payload.id || '',
+    name: payload.name || fallbackSlug,
+    slug: payload.slug || fallbackSlug,
+    logo: payload.logo || stringValue(config.logo) || null,
+    description: payload.description || null,
+    website: payload.website || null,
+    industry: payload.industry || null,
+    location: payload.location || null,
+    tagline:
+      stringValue(config.tagline) ||
+      payload.description ||
+      'Build your next chapter with our team.',
+    values: stringArray(config.values),
+    benefits: stringArray(config.benefits),
+    cultureText: stringValue(config.cultureText),
+    socialLinks: {
+      linkedin: stringValue(social.linkedin),
+      twitter: stringValue(social.twitter),
+      github: stringValue(social.github),
+    },
+  };
+}
+
+function formatSalary(job: JobItem): string | null {
+  if (job.salaryMin === null && job.salaryMax === null) return null;
+
+  const formatter = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: job.salaryCurrency || 'USD',
+    maximumFractionDigits: 0,
+  });
+
+  if (job.salaryMin !== null && job.salaryMax !== null) {
+    return `${formatter.format(job.salaryMin)} – ${formatter.format(job.salaryMax)}`;
+  }
+  if (job.salaryMin !== null) return `From ${formatter.format(job.salaryMin)}`;
+  return `Up to ${formatter.format(job.salaryMax || 0)}`;
+}
+
+function formatPostedDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const days = Math.round((date.getTime() - Date.now()) / 86_400_000);
+  const formatter = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+  if (Math.abs(days) < 30) return formatter.format(days, 'day');
+  return date.toLocaleDateString();
+}
+
+export default function CareerPageContent({
+  slugPromise,
+}: {
+  slugPromise: Promise<{ slug: string }>;
+}) {
+  const { dir } = useI18n();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isArabic = dir === 'rtl';
+  const copy = useMemo(
+    () =>
+      isArabic
+        ? {
+            openRoles: 'الوظائف المتاحة',
+            joinTeam: 'انضم إلى فريقنا',
+            search: 'ابحث عن وظيفة',
+            allLocations: 'كل المواقع',
+            allTypes: 'كل أنواع الوظائف',
+            noJobs: 'لا توجد وظائف مطابقة حالياً.',
+            viewDetails: 'عرض التفاصيل',
+            requirements: 'المتطلبات',
+            benefits: 'المزايا',
+            apply: 'التقديم على الوظيفة',
+            applyTitle: 'أكمل التقديم من حساب المرشح',
+            applyBody:
+              'يتم إرسال طلبات التوظيف من خلال حساب مرشح حتى تتمكن من متابعة الحالة واستلام تحديثات المقابلات بأمان.',
+            signIn: 'تسجيل الدخول والتقديم',
+            createAccount: 'إنشاء حساب مرشح',
+            profileNote:
+              'سيتم إرفاق ملفك الشخصي وسيرتك الذاتية فقط بعد تسجيل الدخول. هذه الصفحة العامة لا ترسل طلباً وهمياً.',
+            loading: 'جارٍ تحميل صفحة الوظائف…',
+            loadError: 'تعذر تحميل صفحة الوظائف. حاول مرة أخرى.',
+            notFound: 'صفحة الوظائف غير موجودة أو غير منشورة.',
+            shareCopied: 'تم نسخ رابط الوظيفة.',
+            shareError: 'تعذر مشاركة رابط الوظيفة.',
+            poweredBy: 'التقديم الآمن عبر TalentFlow AI',
+            backHome: 'العودة إلى الرئيسية',
+          }
+        : {
+            openRoles: 'Open positions',
+            joinTeam: 'Join our team',
+            search: 'Search roles',
+            allLocations: 'All locations',
+            allTypes: 'All job types',
+            noJobs: 'No matching positions are open right now.',
+            viewDetails: 'View details',
+            requirements: 'Requirements',
+            benefits: 'Benefits',
+            apply: 'Apply for this role',
+            applyTitle: 'Finish your application in a candidate account',
+            applyBody:
+              'Applications are submitted through a candidate account so you can securely track status and receive interview updates.',
+            signIn: 'Sign in and apply',
+            createAccount: 'Create candidate account',
+            profileNote:
+              'Your profile and resume are attached only after you sign in. This public page never pretends an application was submitted.',
+            loading: 'Loading career page…',
+            loadError: 'The career page could not be loaded. Please try again.',
+            notFound: 'This career page does not exist or is not published.',
+            shareCopied: 'Job link copied.',
+            shareError: 'The job link could not be shared.',
+            poweredBy: 'Secure applications powered by TalentFlow AI',
+            backHome: 'Back to home',
+          },
+    [isArabic],
+  );
+
   const [slug, setSlug] = useState('');
-  const [company, setCompany] = useState<CompanyConfig>(emptyCompanyConfig);
+  const [company, setCompany] = useState<CompanyInfo | null>(null);
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [companyNotFound, setCompanyNotFound] = useState(false);
-
-  const [deptFilter, setDeptFilter] = useState('all');
-  const [locFilter, setLocFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-
+  const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [search, setSearch] = useState('');
+  const [location, setLocation] = useState('all');
+  const [jobType, setJobType] = useState('all');
   const [selectedJob, setSelectedJob] = useState<JobItem | null>(null);
-  const [showJobDialog, setShowJobDialog] = useState(false);
-  const [showApplyDialog, setShowApplyDialog] = useState(false);
-
-  const [appForm, setAppForm] = useState({ name: '', email: '', phone: '', coverLetter: '', resumeFile: null as File | null });
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [applyOpen, setApplyOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    slugPromise.then((p) => setSlug(p.slug));
+    let active = true;
+    void slugPromise
+      .then(({ slug: resolvedSlug }) => {
+        if (active) setSlug(resolvedSlug.trim().toLowerCase());
+      })
+      .catch(() => {
+        if (active) {
+          setNotFound(true);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, [slugPromise]);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setCompanyNotFound(false);
-    try {
-      const compRes = await fetch(`/api/public/companies/${slug}`);
-      if (compRes.ok) {
-        const compData = await compRes.json();
-        if (compData.config) {
-          setCompany((prev) => ({ ...prev, ...compData.config, name: compData.name || prev.name, slug: compData.slug || prev.slug }));
-        } else {
-          setCompany((prev) => ({ ...prev, name: compData.name || prev.name, slug: compData.slug || slug }));
-        }
-      } else {
-        setCompanyNotFound(true);
-      }
+  useEffect(() => {
+    if (!slug) return;
+    let active = true;
 
-      const jobsRes = await fetch(`/api/public/jobs?slug=${slug}`);
-      if (jobsRes.ok) {
-        const jobsData = await jobsRes.json();
-        if (Array.isArray(jobsData)) {
-          setJobs(jobsData);
+    async function load() {
+      setLoading(true);
+      setLoadError('');
+      setNotFound(false);
+
+      try {
+        const companyResponse = await fetch(`/api/public/companies/${encodeURIComponent(slug)}`, {
+          cache: 'no-store',
+        });
+
+        if (companyResponse.status === 404) {
+          if (active) setNotFound(true);
+          return;
         }
+        if (!companyResponse.ok) throw new Error('Company request failed');
+
+        const companyPayload = (await companyResponse.json()) as CompanyPayload;
+        const jobsResponse = await fetch(
+          `/api/public/jobs?slug=${encodeURIComponent(slug)}`,
+          { cache: 'no-store' },
+        );
+        if (!jobsResponse.ok) throw new Error('Jobs request failed');
+
+        const jobsPayload = await jobsResponse.json();
+        if (!Array.isArray(jobsPayload)) throw new Error('Invalid jobs response');
+
+        if (active) {
+          setCompany(normalizeCompany(companyPayload, slug));
+          setJobs(jobsPayload as JobItem[]);
+        }
+      } catch {
+        if (active) setLoadError(copy.loadError);
+      } finally {
+        if (active) setLoading(false);
       }
-    } catch {
-      // Show empty states on error
-    } finally {
-      setLoading(false);
     }
-  }, [slug]);
+
+    void load();
+    return () => {
+      active = false;
+    };
+  }, [copy.loadError, slug]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    const requestedJob = searchParams.get('job');
+    if (!requestedJob || jobs.length === 0) return;
+
+    const match = jobs.find((job) => job.id === requestedJob);
+    if (match) {
+      setSelectedJob(match);
+      setDetailsOpen(true);
+    }
+  }, [jobs, searchParams]);
 
   useEffect(() => {
-    const onScroll = () => setShowScrollTop(window.scrollY > 400);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    const handleScroll = () => setShowScrollTop(window.scrollY > 500);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const departments = [...new Set(jobs.map((j) => j.department).filter(Boolean))];
-  const locations = [...new Set(jobs.map((j) => j.location).filter(Boolean))];
-  const jobTypes = [...new Set(jobs.map((j) => j.jobType).filter(Boolean))];
+  const locations = useMemo(
+    () =>
+      Array.from(
+        new Set(jobs.map((job) => job.location).filter((value): value is string => Boolean(value))),
+      ).sort(),
+    [jobs],
+  );
+  const jobTypes = useMemo(
+    () => Array.from(new Set(jobs.map((job) => job.jobType))).sort(),
+    [jobs],
+  );
+  const filteredJobs = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return jobs.filter((job) => {
+      const matchesSearch =
+        !query ||
+        job.title.toLowerCase().includes(query) ||
+        job.description.toLowerCase().includes(query);
+      const matchesLocation = location === 'all' || job.location === location;
+      const matchesType = jobType === 'all' || job.jobType === jobType;
+      return matchesSearch && matchesLocation && matchesType;
+    });
+  }, [jobType, jobs, location, search]);
 
-  const filteredJobs = jobs.filter((job) => {
-    const matchDept = deptFilter === 'all' || job.department === deptFilter;
-    const matchLoc = locFilter === 'all' || job.location === locFilter;
-    const matchType = typeFilter === 'all' || job.jobType === typeFilter;
-    return matchDept && matchLoc && matchType;
-  });
+  function openDetails(job: JobItem) {
+    setSelectedJob(job);
+    setDetailsOpen(true);
+    const url = new URL(window.location.href);
+    url.searchParams.set('job', job.id);
+    window.history.replaceState({}, '', url);
+  }
 
-  const formatSalary = (job: JobItem) => {
-    if (!job.salaryMin && !job.salaryMax) return null;
-    const isHourly = job.jobType === 'INTERNSHIP' || job.jobType === 'CONTRACT';
-    const fmt = (n: number) => (isHourly ? `$${n}/hr` : `$${(n / 1000).toFixed(0)}k`);
-    if (job.salaryMin && job.salaryMax) return `${fmt(job.salaryMin)} - ${fmt(job.salaryMax)}`;
-    if (job.salaryMin) return `From ${fmt(job.salaryMin)}`;
-    return `Up to ${fmt(job.salaryMax!)}`;
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    if (diff === 0) return t.careerPage.postedDate + ' today';
-    if (diff === 1) return t.careerPage.postedDate + ' 1 day ago';
-    return `${t.careerPage.postedDate} ${diff} days ago`;
-  };
-
-  const handleApply = async () => {
-    if (!appForm.name || !appForm.email) {
-      toast.error('Please fill in your name and email');
-      return;
+  function closeDetails(open: boolean) {
+    setDetailsOpen(open);
+    if (!open) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('job');
+      window.history.replaceState({}, '', url);
     }
-    setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setSubmitting(false);
-    setShowApplyDialog(false);
-    setShowJobDialog(false);
-    setAppForm({ name: '', email: '', phone: '', coverLetter: '', resumeFile: null });
-    toast.success(t.careerPage.applicationSuccess);
-  };
+  }
 
-  const handleShare = (job: JobItem) => {
-    const url = `${window.location.origin}/careers/${slug}?job=${job.id}`;
-    if (navigator.share) {
-      navigator.share({ title: job.title, url });
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard!');
+  async function shareJob(job: JobItem) {
+    const url = new URL(`/careers/${slug}`, window.location.origin);
+    url.searchParams.set('job', job.id);
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: job.title, url: url.toString() });
+      } else {
+        await navigator.clipboard.writeText(url.toString());
+        toast.success(copy.shareCopied);
+      }
+    } catch (error) {
+      if ((error as DOMException).name !== 'AbortError') {
+        toast.error(copy.shareError);
+      }
     }
-  };
+  }
 
-  const scrollToJobs = () => {
-    document.getElementById('positions')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  function applyDestination(path: '/auth/login' | '/auth/register') {
+    const callbackUrl = selectedJob
+      ? `/candidate/jobs/${selectedJob.id}`
+      : '/candidate/jobs';
+    router.push(`${path}?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+  }
 
-  // Show company not found state
-  if (!loading && companyNotFound) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background" dir={dir}>
-        <Building2 className="w-16 h-16 text-muted-foreground/30 mb-6" />
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">{t.careerPage.companyNotFound || 'Company Not Found'}</h1>
-        <p className="text-muted-foreground mb-6">{t.careerPage.companyNotFoundDesc || 'The company you are looking for does not exist or has not published a career page.'}</p>
-        <Button onClick={() => router.push('/')} className="bg-blue-600 text-white">
-          {t.common.backToHome || 'Back to Home'}
-        </Button>
-      </div>
+      <main className="flex min-h-screen items-center justify-center bg-background" dir={dir}>
+        <div className="flex items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>{copy.loading}</span>
+        </div>
+      </main>
+    );
+  }
+
+  if (notFound || !company) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-4" dir={dir}>
+        <Card className="w-full max-w-lg text-center">
+          <CardContent className="p-10">
+            <Building2 className="mx-auto h-12 w-12 text-muted-foreground/40" />
+            <h1 className="mt-5 text-2xl font-bold">{copy.notFound}</h1>
+            <Button className="mt-6" onClick={() => router.push('/')}>
+              {copy.backHome}
+            </Button>
+          </CardContent>
+        </Card>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background" dir={dir}>
-      {/* Fixed Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95">
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
+    <div className="min-h-screen bg-background text-foreground" dir={dir}>
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+          <button
+            className="flex items-center gap-3 text-start"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-primary text-primary-foreground">
               {company.logo ? (
-                <img src={company.logo} alt={`${company.name} logo`} width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
+                <img src={company.logo} alt="" className="h-full w-full object-cover" />
               ) : (
                 <span className="text-sm font-bold">{getInitials(company.name)}</span>
               )}
-            </div>
-            <div>
-              <span className="font-bold text-sm text-slate-900">{company.name}</span>
-              <span className="text-xs text-muted-foreground ms-2 hidden sm:inline">{company.tagline}</span>
-            </div>
-          </div>
-          <nav className="flex items-center gap-2 sm:gap-4">
-            <button onClick={scrollToJobs} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {t.careerPage.openPositions}
-            </button>
-            <a href="#culture" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
-              {t.careerPage.companyCulture}
-            </a>
-            {company.socialLinks.linkedin && (
-              <a href={company.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="LinkedIn">
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-          </nav>
+            </span>
+            <span>
+              <span className="block font-semibold">{company.name}</span>
+              <span className="block text-xs text-muted-foreground">{copy.openRoles}</span>
+            </span>
+          </button>
+          <Button
+            size="sm"
+            onClick={() => document.getElementById('positions')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <Briefcase className="me-2 h-4 w-4" />
+            {copy.openRoles}
+          </Button>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 sm:py-24 bg-slate-50">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <div>
-            <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-blue-600 text-white shadow-lg mb-6">
+      <main>
+        <section className="border-b bg-muted/25">
+          <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 sm:py-24">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-primary text-primary-foreground shadow-lg">
               {company.logo ? (
-                <img src={company.logo} alt={`${company.name} logo`} width={64} height={64} className="h-16 w-16 rounded-2xl object-cover" />
+                <img src={company.logo} alt="" className="h-full w-full object-cover" />
               ) : (
                 <Building2 className="h-8 w-8" />
               )}
             </div>
-            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4 text-slate-900">
-              {t.careerPage.joinTeam}
+            <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
+              {copy.joinTeam}
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-2">{company.name}</p>
-            <p className="text-muted-foreground max-w-xl mx-auto">{company.tagline}</p>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+              {company.tagline}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
+              {company.industry && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Briefcase className="h-4 w-4" />
+                  {company.industry}
+                </span>
+              )}
+              {company.location && (
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" />
+                  {company.location}
+                </span>
+              )}
+              {company.website && (
+                <a
+                  href={company.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 hover:text-foreground"
+                >
+                  <Globe2 className="h-4 w-4" />
+                  Website
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section id="positions" className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-3xl font-bold">{copy.openRoles}</h2>
+              <p className="mt-1 text-muted-foreground">
+                {filteredJobs.length} / {jobs.length}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              {copy.poweredBy}
+            </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 gap-4 mt-10 max-w-sm mx-auto">
-            <Card className="bg-white border-slate-200">
-              <CardContent className="p-4 text-center">
-                <Briefcase className="w-5 h-5 mx-auto mb-2 text-blue-600" />
-                <p className="text-2xl font-bold text-slate-900">{filteredJobs.length}</p>
-                <p className="text-xs text-muted-foreground">{t.careerPage.openPositions}</p>
+          <div className="mt-8 grid gap-3 md:grid-cols-[1fr_220px_200px]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={copy.search}
+                className="ps-10"
+              />
+            </div>
+            <Select value={location} onValueChange={setLocation}>
+              <SelectTrigger>
+                <SelectValue placeholder={copy.allLocations} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{copy.allLocations}</SelectItem>
+                {locations.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={jobType} onValueChange={setJobType}>
+              <SelectTrigger>
+                <SelectValue placeholder={copy.allTypes} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{copy.allTypes}</SelectItem>
+                {jobTypes.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {JOB_TYPE_LABELS[item] || item.replaceAll('_', ' ')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {loadError && (
+            <Card className="mt-6 border-destructive/30">
+              <CardContent className="p-5 text-sm text-destructive">{loadError}</CardContent>
+            </Card>
+          )}
+
+          {filteredJobs.length === 0 ? (
+            <Card className="mt-8">
+              <CardContent className="p-12 text-center text-muted-foreground">
+                <Briefcase className="mx-auto h-10 w-10 opacity-40" />
+                <p className="mt-4">{copy.noJobs}</p>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Join Us */}
-      <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-10">
-            {t.careerPage.whyJoinUs}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: TrendingUp, titleKey: 'growth' as const, descKey: 'growthDesc' as const },
-              { icon: Lightbulb, titleKey: 'innovation' as const, descKey: 'innovationDesc' as const },
-              { icon: Heart, titleKey: 'impact' as const, descKey: 'impactDesc' as const },
-              { icon: Users, titleKey: 'culture' as const, descKey: 'cultureDesc' as const },
-            ].map((item, i) => (
-              <Card key={i} className="border-slate-200 text-center">
-                <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-blue-600 text-white mb-4">
-                    <item.icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-semibold text-slate-900 mb-2">{t.careerPage[item.titleKey]}</h3>
-                  <p className="text-sm text-muted-foreground">{t.careerPage[item.descKey]}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Open Positions */}
-      <section id="positions" className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-3">
-            {t.careerPage.openPositions}
-          </h2>
-          <p className="text-muted-foreground text-center mb-8">
-            {filteredJobs.length} {t.careerPage.openPositions.toLowerCase()}
-          </p>
-
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-8 items-center justify-center">
-            <span className="text-sm text-muted-foreground">{t.careerPage.filterBy}:</span>
-            <Select value={deptFilter} onValueChange={setDeptFilter}>
-              <SelectTrigger className="w-[180px] h-9 text-sm">
-                <SelectValue placeholder={t.careerPage.department} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t.careerPage.allDepartments}</SelectItem>
-                {departments.map((d) => (
-                  <SelectItem key={d} value={d}>{d}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={locFilter} onValueChange={setLocFilter}>
-              <SelectTrigger className="w-[180px] h-9 text-sm">
-                <SelectValue placeholder={t.careerPage.location} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t.careerPage.allLocations}</SelectItem>
-                {locations.map((l) => (
-                  <SelectItem key={l} value={l}>{l}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[180px] h-9 text-sm">
-                <SelectValue placeholder={t.careerPage.jobType} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t.careerPage.allTypes}</SelectItem>
-                {jobTypes.map((jt) => (
-                  <SelectItem key={jt} value={jt}>{jobTypeLabels[jt] || jt}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {(deptFilter !== 'all' || locFilter !== 'all' || typeFilter !== 'all') && (
-              <Button variant="ghost" size="sm" onClick={() => { setDeptFilter('all'); setLocFilter('all'); setTypeFilter('all'); }} className="text-xs">
-                {t.common.clearFilters}
-              </Button>
-            )}
-          </div>
-
-          {/* Job Cards */}
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardContent className="p-5 space-y-3">
-                    <div className="h-5 bg-muted rounded w-3/4" />
-                    <div className="flex gap-2">
-                      <div className="h-5 bg-muted rounded w-20" />
-                      <div className="h-5 bg-muted rounded w-16" />
-                    </div>
-                    <div className="h-4 bg-muted rounded w-1/2" />
-                    <div className="h-4 bg-muted rounded w-2/3" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : filteredJobs.length === 0 ? (
-            <div className="text-center py-12">
-              <Briefcase className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-slate-900">{t.careerPage.noOpenPositions}</h3>
-            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredJobs.map((job) => (
-                <Card
-                  key={job.id}
-                  className="border-slate-200 group cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => { setSelectedJob(job); setShowJobDialog(true); }}
-                >
-                  <CardContent className="p-5">
-                    <h3 className="font-semibold text-base text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{job.title}</h3>
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200">
-                        {job.department}
-                      </Badge>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-slate-200">
-                        {jobTypeLabels[job.jobType] || job.jobType}
-                      </Badge>
-                      {job.isRemote && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-blue-600 border-blue-200">
-                          Remote
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="space-y-1.5 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="w-3 h-3 flex-shrink-0" />
-                        <span>{job.location}</span>
-                      </div>
-                      {formatSalary(job) && (
-                        <div className="flex items-center gap-1.5">
-                          <DollarSign className="w-3 h-3 flex-shrink-0" />
-                          <span>{formatSalary(job)}</span>
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {filteredJobs.map((job) => {
+                const salary = formatSalary(job);
+                return (
+                  <Card
+                    key={job.id}
+                    className="cursor-pointer transition hover:-translate-y-0.5 hover:shadow-md"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => openDetails(job)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openDetails(job);
+                      }
+                    }}
+                  >
+                    <CardContent className="flex h-full flex-col p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg font-semibold">{job.title}</h3>
+                          <p className="mt-1 text-sm text-muted-foreground">{company.name}</p>
                         </div>
-                      )}
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3 h-3 flex-shrink-0" />
-                        <span>{formatDate(job.postedAt)}</span>
+                        <Badge variant="secondary">
+                          {JOB_TYPE_LABELS[job.jobType] || job.jobType.replaceAll('_', ' ')}
+                        </Badge>
                       </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="mt-3 w-full text-xs h-8 text-blue-600 hover:bg-blue-50"
-                      onClick={(e) => { e.stopPropagation(); setSelectedJob(job); setShowJobDialog(true); }}
-                    >
-                      {t.careerPage.viewDetails}
-                      <ChevronDown className="w-3 h-3 ms-1" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">
+                        {job.description}
+                      </p>
+                      <div className="mt-5 space-y-2 text-sm text-muted-foreground">
+                        <p className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          {job.location || (job.isRemote ? 'Remote' : 'Flexible location')}
+                        </p>
+                        {salary && (
+                          <p className="flex items-center gap-2">
+                            <DollarSign className="h-4 w-4" />
+                            {salary}
+                          </p>
+                        )}
+                        <p className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          {formatPostedDate(job.postedAt)}
+                        </p>
+                      </div>
+                      <Button className="mt-6 w-full" variant="outline" tabIndex={-1}>
+                        {copy.viewDetails}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
-        </div>
-      </section>
+        </section>
 
-      {/* Culture Section */}
-      <section id="culture" className="py-16 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-10">
-            {t.careerPage.companyCulture}
-          </h2>
-
-          {/* Values */}
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-xl font-semibold text-slate-900 mb-4">{t.careerPage.companyValues}</h3>
-            <div className="flex flex-wrap justify-center gap-2 mb-6">
-              {company.values.map((val, i) => (
-                <Badge key={i} className="px-3 py-1 text-sm bg-blue-600 text-white border-0">
-                  {val}
-                </Badge>
-              ))}
+        {(company.values.length > 0 || company.cultureText) && (
+          <section className="border-t bg-muted/25">
+            <div className="mx-auto max-w-4xl px-4 py-14 text-center sm:px-6">
+              <h2 className="text-2xl font-bold">Culture & values</h2>
+              {company.values.length > 0 && (
+                <div className="mt-5 flex flex-wrap justify-center gap-2">
+                  {company.values.map((value) => (
+                    <Badge key={value} className="px-3 py-1">
+                      {value}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              {company.cultureText && (
+                <p className="mx-auto mt-6 max-w-2xl leading-7 text-muted-foreground">
+                  {company.cultureText}
+                </p>
+              )}
             </div>
-            <p className="text-muted-foreground text-sm leading-relaxed">{company.cultureText}</p>
-          </div>
-        </div>
-      </section>
+          </section>
+        )}
+      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-background py-8 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-3">
-            <span>{t.careerPage.poweredBy}</span>
-          </div>
-          <div className="flex items-center justify-center gap-4">
-            {company.socialLinks.linkedin && (
-              <a href={company.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors text-xs">
-                LinkedIn
-              </a>
-            )}
-            {company.socialLinks.twitter && (
-              <a href={company.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors text-xs">
-                Twitter
-              </a>
-            )}
-            {company.socialLinks.github && (
-              <a href={company.socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors text-xs">
-                GitHub
-              </a>
-            )}
-          </div>
-        </div>
+      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
+        {copy.poweredBy}
       </footer>
 
-      {/* Scroll to Top */}
       {showScrollTop && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 end-6 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-colors"
+        <Button
+          size="icon"
+          className="fixed bottom-6 end-6 z-30 rounded-full shadow-lg"
           aria-label="Scroll to top"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
-          <ArrowUp className="w-4 h-4" />
-        </button>
+          <ArrowUp className="h-4 w-4" />
+        </Button>
       )}
 
-      {/* Job Detail Dialog */}
-      <Dialog open={showJobDialog} onOpenChange={setShowJobDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl text-slate-900">{selectedJob?.title}</DialogTitle>
-            <DialogDescription className="flex flex-wrap gap-2 mt-2">
-              <Badge variant="outline" className="text-xs px-2 border-slate-200">
-                {selectedJob?.department}
-              </Badge>
-              <Badge variant="outline" className="text-xs px-2 border-slate-200">
-                {selectedJob ? jobTypeLabels[selectedJob.jobType] || selectedJob.jobType : ''}
-              </Badge>
-              {selectedJob?.isRemote && (
-                <Badge variant="outline" className="text-xs px-2 text-blue-600 border-blue-200">
-                  Remote
-                </Badge>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-
+      <Dialog open={detailsOpen} onOpenChange={closeDetails}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           {selectedJob && (
-            <div className="space-y-5">
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{selectedJob.location}</div>
-                {formatSalary(selectedJob) && (
-                  <div className="flex items-center gap-1.5"><DollarSign className="w-4 h-4" />{formatSalary(selectedJob)}</div>
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedJob.title}</DialogTitle>
+                <DialogDescription>
+                  {company.name} · {selectedJob.location || 'Flexible location'}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-5">
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">
+                    {JOB_TYPE_LABELS[selectedJob.jobType] || selectedJob.jobType.replaceAll('_', ' ')}
+                  </Badge>
+                  {selectedJob.isRemote && <Badge variant="outline">Remote</Badge>}
+                  {formatSalary(selectedJob) && (
+                    <Badge variant="outline">{formatSalary(selectedJob)}</Badge>
+                  )}
+                </div>
+
+                <p className="whitespace-pre-wrap leading-7 text-muted-foreground">
+                  {selectedJob.description}
+                </p>
+
+                {selectedJob.requirements.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold">{copy.requirements}</h3>
+                    <ul className="mt-3 list-disc space-y-2 ps-5 text-sm text-muted-foreground">
+                      {selectedJob.requirements.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-                <div className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{formatDate(selectedJob.postedAt)}</div>
+
+                {selectedJob.benefits.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold">{copy.benefits}</h3>
+                    <ul className="mt-3 list-disc space-y-2 ps-5 text-sm text-muted-foreground">
+                      {selectedJob.benefits.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <Separator />
-
-              <div>
-                <h4 className="font-semibold text-slate-900 mb-2">Description</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">{selectedJob.description}</p>
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-slate-900 mb-2">{t.careerPage.requirements}</h4>
-                <ul className="space-y-1.5">
-                  {selectedJob.requirements.map((req, i) => (
-                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 flex-shrink-0" />
-                      {req}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-slate-900 mb-2">{t.careerPage.benefits}</h4>
-                <ul className="space-y-1.5">
-                  {selectedJob.benefits.map((ben, i) => (
-                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 flex-shrink-0" />
-                      {ben}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <Separator />
-
-              <div className="flex flex-col sm:flex-row gap-3">
+              <DialogFooter className="gap-2 sm:justify-between">
+                <Button variant="outline" onClick={() => void shareJob(selectedJob)}>
+                  <Share2 className="me-2 h-4 w-4" />
+                  Share
+                </Button>
                 <Button
-                  onClick={() => { setShowJobDialog(false); setShowApplyDialog(true); }}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => {
+                    setDetailsOpen(false);
+                    setApplyOpen(true);
+                  }}
                 >
-                  {t.careerPage.applyNow}
+                  {copy.apply}
                 </Button>
-                <Button variant="outline" onClick={() => handleShare(selectedJob)} className="flex-1">
-                  <Share2 className="w-4 h-4 me-2" />
-                  {t.careerPage.shareJob}
-                </Button>
-              </div>
-            </div>
+              </DialogFooter>
+            </>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Apply Dialog */}
-      <Dialog open={showApplyDialog} onOpenChange={setShowApplyDialog}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <Dialog open={applyOpen} onOpenChange={setApplyOpen}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-slate-900">{t.careerPage.applicationForm}</DialogTitle>
+            <DialogTitle>{copy.applyTitle}</DialogTitle>
             <DialogDescription>
-              {selectedJob?.title} — {company.name}
+              {selectedJob ? `${selectedJob.title} — ${company.name}` : company.name}
             </DialogDescription>
           </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="app-name" className="text-sm font-medium">{t.careerPage.fullName} *</Label>
-              <Input
-                id="app-name"
-                value={appForm.name}
-                onChange={(e) => setAppForm({ ...appForm, name: e.target.value })}
-                placeholder={t.careerPage.fullName}
-              />
+          <div className="space-y-4 py-2">
+            <p className="leading-7 text-muted-foreground">{copy.applyBody}</p>
+            <div className="rounded-lg border bg-muted/35 p-4 text-sm text-muted-foreground">
+              <ShieldCheck className="mb-2 h-5 w-5 text-primary" />
+              {copy.profileNote}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="app-email" className="text-sm font-medium">{t.careerPage.emailAddress} *</Label>
-              <Input
-                id="app-email"
-                type="email"
-                value={appForm.email}
-                onChange={(e) => setAppForm({ ...appForm, email: e.target.value })}
-                placeholder={t.careerPage.emailAddress}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="app-phone" className="text-sm font-medium">{t.careerPage.phoneNumber}</Label>
-              <Input
-                id="app-phone"
-                value={appForm.phone}
-                onChange={(e) => setAppForm({ ...appForm, phone: e.target.value })}
-                placeholder={t.careerPage.phoneNumber}
-              />
-            </div>
-
-            {/* Resume Upload */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">{t.careerPage.resumeUpload}</Label>
-              <div
-                onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-                onDragLeave={() => setIsDragOver(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setIsDragOver(false);
-                  const file = e.dataTransfer.files[0];
-                  if (file) setAppForm({ ...appForm, resumeFile: file });
-                }}
-                className={cn(
-                  'relative flex flex-col items-center justify-center w-full h-28 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer',
-                  isDragOver
-                    ? 'border-blue-500 bg-blue-50/50'
-                    : 'border-muted-foreground/25 hover:border-blue-400 hover:bg-muted/30'
-                )}
-                onClick={() => {
-                  const input = document.createElement('input');
-                  input.type = 'file';
-                  input.accept = '.pdf,.doc,.docx';
-                  input.onchange = (e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-                    if (file) setAppForm({ ...appForm, resumeFile: file });
-                  };
-                  input.click();
-                }}
-              >
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <Upload className="w-6 h-6 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">
-                    {appForm.resumeFile ? (
-                      <span className="text-blue-600">{appForm.resumeFile.name}</span>
-                    ) : (
-                      <>
-                        <span className="text-blue-600">Click to upload</span> or drag and drop
-                      </>
-                    )}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">PDF, DOC, DOCX (max 5MB)</p>
-                </div>
-                {appForm.resumeFile && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setAppForm({ ...appForm, resumeFile: null }); }}
-                    className="absolute top-2 end-2 h-5 w-5 rounded-full bg-muted flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="app-cover" className="text-sm font-medium">{t.careerPage.coverLetter}</Label>
-              <Textarea
-                id="app-cover"
-                value={appForm.coverLetter}
-                onChange={(e) => setAppForm({ ...appForm, coverLetter: e.target.value })}
-                placeholder={t.jobs.coverLetterPlaceholder}
-                rows={3}
-                className="resize-y min-h-[80px]"
-              />
-            </div>
-
-            {/* Compact EEO Survey */}
-            <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
-              <p className="text-xs text-muted-foreground mb-2">Voluntary Self-Identification (Optional)</p>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <Label className="text-[10px] text-muted-foreground">Gender</Label>
-                  <Select>
-                    <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Prefer not to say" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="prefer_not">Prefer not to say</SelectItem>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="non_binary">Non-binary</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-[10px] text-muted-foreground">Ethnicity</Label>
-                  <Select>
-                    <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Prefer not to say" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="prefer_not">Prefer not to say</SelectItem>
-                      <SelectItem value="asian">Asian</SelectItem>
-                      <SelectItem value="black">Black/African American</SelectItem>
-                      <SelectItem value="hispanic">Hispanic/Latino</SelectItem>
-                      <SelectItem value="white">White</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            <Button
-              onClick={handleApply}
-              disabled={submitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              {submitting ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  {t.common.loading}
-                </span>
-              ) : (
-                t.careerPage.submitApplication
-              )}
-            </Button>
           </div>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={() => applyDestination('/auth/register')}>
+              <UserPlus className="me-2 h-4 w-4" />
+              {copy.createAccount}
+            </Button>
+            <Button onClick={() => applyDestination('/auth/login')}>
+              <LogIn className="me-2 h-4 w-4" />
+              {copy.signIn}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
