@@ -73,18 +73,31 @@ function attachDiagnostics(page) {
     if (message.type() !== 'error') return;
     const text = message.text();
     if (/favicon\.ico/i.test(text)) return;
-    entries.push({ type: 'console-error', url: page.url(), message: text });
+    // Chromium emits a generic message for failed resources. The response
+    // listener below records the actionable URL, status, and resource type.
+    if (/failed to load resource: the server responded with a status of [45]\d\d/i.test(text)) return;
+    const location = message.location();
+    entries.push({
+      type: 'console-error',
+      pageUrl: page.url(),
+      url: location.url || page.url(),
+      lineNumber: location.lineNumber,
+      columnNumber: location.columnNumber,
+      message: text,
+    });
   });
 
   page.on('response', (response) => {
     try {
       if (new URL(response.url()).origin !== new URL(BASE_URL).origin) return;
-      if (response.status() < 500) return;
+      if (response.status() < 400) return;
       entries.push({
-        type: 'http-5xx',
+        type: response.status() >= 500 ? 'http-5xx' : 'http-4xx',
         url: response.url(),
         status: response.status(),
         method: response.request().method(),
+        resourceType: response.request().resourceType(),
+        pageUrl: page.url(),
       });
     } catch {
       // Ignore malformed URLs from browser internals.
