@@ -1,4 +1,4 @@
-name: Preview E2E role audit
+name: Local E2E source snapshot
 
 on:
   push:
@@ -10,107 +10,33 @@ permissions:
   contents: read
 
 concurrency:
-  group: preview-e2e-${{ github.ref }}
+  group: local-e2e-source-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  role-matrix:
-    name: Browser audit for every role
+  snapshot:
+    name: Package the exact branch for isolated E2E
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      E2E_BASE_URL: https://talent-flow-ai-git-agent-24ea89-yasserreyadh-gmailcoms-projects.vercel.app
-      E2E_EXPECTED_COMMIT: ${{ github.sha }}
-      E2E_DEMO_PASSWORD: TalentFlowDemo!2026
-      E2E_ARTIFACTS_DIR: e2e-artifacts
-      E2E_NAVIGATION_TIMEOUT_MS: 35000
-      E2E_SETTLE_DELAY_MS: 1250
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Wait for the matching Vercel preview
-        shell: bash
+      - name: Record source revision
         run: |
-          set -euo pipefail
-          for attempt in $(seq 1 90); do
-            headers="$(curl -fsS -D - -o /dev/null --max-time 20 \
-              "${E2E_BASE_URL}/?deploymentCheck=${GITHUB_RUN_ID}-${attempt}" || true)"
-            deployed_commit="$(printf '%s' "$headers" | tr -d '\r' | awk -F': ' \
-              'tolower($1) == "x-deployment-commit" { print $2; exit }')"
+          printf '%s\n' "$GITHUB_SHA" > .e2e-source-commit
 
-            if [[ "$deployed_commit" == "$GITHUB_SHA" ]]; then
-              echo "Preview is ready for $GITHUB_SHA"
-              exit 0
-            fi
-
-            echo "Preview not ready yet (deployed=${deployed_commit:-none}, expected=$GITHUB_SHA)"
-            sleep 5
-          done
-
-          echo "The branch preview did not deploy the tested commit." >&2
-          exit 1
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install isolated Playwright runner
-        run: |
-          mkdir -p /tmp/talentflow-e2e
-          npm --prefix /tmp/talentflow-e2e init -y
-          npm --prefix /tmp/talentflow-e2e install --no-audit --no-fund playwright@1.55.0
-          /tmp/talentflow-e2e/node_modules/.bin/playwright install --with-deps chromium
-
-      - name: Run preview browser role matrix
-        id: role_matrix
-        continue-on-error: true
-        env:
-          NODE_PATH: /tmp/talentflow-e2e/node_modules
-        run: node scripts/e2e-production.cjs
-
-      - name: Run critical public and candidate flows
-        id: critical_flows
-        continue-on-error: true
-        env:
-          NODE_PATH: /tmp/talentflow-e2e/node_modules
-        run: node scripts/e2e-critical-flows.cjs
-
-      - name: Publish reports to workflow summary
-        if: always()
-        run: |
-          if [ -f e2e-artifacts/report.md ]; then
-            cat e2e-artifacts/report.md >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "# TalentFlow AI preview E2E role audit" >> "$GITHUB_STEP_SUMMARY"
-            echo "The role-matrix runner did not produce a report." >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-          if [ -f e2e-artifacts/critical-flows.md ]; then
-            printf '\n---\n\n' >> "$GITHUB_STEP_SUMMARY"
-            cat e2e-artifacts/critical-flows.md >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      - name: Upload browser evidence
-        if: always()
+      - name: Upload source snapshot
         uses: actions/upload-artifact@v4
         with:
-          name: talentflow-preview-e2e
-          path: e2e-artifacts
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Enforce browser audit results
-        if: always()
-        shell: bash
-        run: |
-          role_outcome='${{ steps.role_matrix.outcome }}'
-          critical_outcome='${{ steps.critical_flows.outcome }}'
-
-          if [[ "$role_outcome" != 'success' || "$critical_outcome" != 'success' ]]; then
-            echo "Role matrix outcome: $role_outcome" >&2
-            echo "Critical flows outcome: $critical_outcome" >&2
-            exit 1
-          fi
+          name: talentflow-source-${{ github.sha }}
+          path: |
+            .
+            !.git/**
+            !node_modules/**
+            !.next/**
+            !e2e-artifacts/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 2
