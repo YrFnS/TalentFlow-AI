@@ -1,200 +1,325 @@
-// @ts-nocheck - Complex Prisma types, validated at runtime
-import ZAI from 'z-ai-web-dev-sdk';
+// @ts-nocheck - Prisma result types are shaped for the candidate assistant.
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { db } from '@/lib/db';
+import { aiChat } from '@/lib/ai-service';
 import { handleApiError } from '@/lib/security/error-handler';
 import { requireCandidate } from '@/lib/auth-guard';
 import { validateInput, chatbotMessageSchema } from '@/lib/validation/schemas';
 
-const prisma = new PrismaClient();
+const MAX_HISTORY_MESSAGES = 20;
+const MAX_STORED_MESSAGES = 100;
+const MAX_CONTEXT_LENGTH = 2_000;
 
-// Simple in-memory rate limiter
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_MAX = 30;
-const RATE_LIMIT_WINDOW_MS = 60_000;
+const CANDIDATE_SYSTEM_PROMPT = `You are TalentFlow AI's candidate assistant. You help job seekers with their own application status, upcoming interviews, hiring-process questions, interview preparation, resume guidance, and career development.
 
-function isRateLimited(sessionId: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(sessionId);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(sessionId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return true;
-  entry.count++;
-  return false;
-}
+Use only the candidate context supplied by TalentFlow for candidate-specific claims. Never invent an application, interview, status, date, company, or response time. When data is unavailable, say so and direct the candidate to the relevant TalentFlow page. Be friendly and supportive, use bullets for lists, and keep routine answers concise.`;
 
-// Clean up expired entries periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitMap.entries()) {
-    if (now > entry.resetAt) rateLimitMap.delete(key);
-  }
-}, 120_000);
-
-const CANDIDATE_SYSTEM_PROMPT = `You are TalentFlow AI's candidate assistant. You help job seekers with:
-- Checking their application status and progress
-- Providing interview tips and preparation advice
-- Answering questions about the hiring process
-- Showing upcoming interviews and schedules
-- Resume and cover letter guidance
-- Career development suggestions
-
-Be friendly, encouraging, and supportive. Use bullet points for lists. Keep responses under 4 sentences unless detailed advice is requested. Always be positive and motivate the candidate. When mentioning specific application statuses, use general terms since you may not have real-time data.`;
-
-// Mock fallback responses for when AI is unavailable
-const MOCK_RESPONSES: Record<string, string> = {
-  status: `Here's how to check your application status:\n\n• Go to your **Applications** page to see all submitted applications\n• Each application shows its current stage: Applied → Screening → Interview → Offer\n• You'll receive notifications when your status changes\n• The average response time is 3-5 business days\n\nKeep your profile updated to improve your chances!`,
-  interview: `Here are some top interview tips:\n\n🎯 **Before the Interview:**\n• Research the company and role thoroughly\n• Prepare STAR-method answers (Situation, Task, Action, Result)\n• Practice with our AI Interview Prep tool\n• Prepare 3-5 questions to ask the interviewer\n\n💡 **During the Interview:**\n• Arrive 5-10 minutes early\n• Maintain good eye contact and posture\n• Listen carefully and answer concisely\n• Show enthusiasm for the role\n\nWould you like more specific tips for your interview type?`,
-  process: `Here's how our hiring process typically works:\n\n1️⃣ **Application** — Submit your application online\n2️⃣ **Screening** — AI reviews your resume for match score\n3️⃣ **Interview** — Phone screen → Technical/Behavioral interview\n4️⃣ **Assessment** — Skills test or work sample (if required)\n5️⃣ **Offer** — If selected, you'll receive an offer letter\n\n💡 Tips: Keep your profile complete, respond promptly to messages, and prepare well for each stage!`,
-  upcoming: `Here are your upcoming interview events:\n\n📅 **No upcoming interviews scheduled**\n\nWhen you have interviews scheduled, they'll appear here with:\n• Date and time\n• Interview type (phone, video, on-site)\n• Interviewer information\n• Meeting link or location\n\nMake sure to check your Applications page regularly for updates!`,
-  default: `I'm your career assistant! I can help you with:\n\n📋 **Application Status** — Track your applications\n🎯 **Interview Tips** — Ace your interviews\n❓ **Process Questions** — Understand the hiring flow\n📅 **Upcoming Interviews** — View your schedule\n\nWhat would you like to know?`,
+type ChatMessage = {
+  role: 'user' | 'assistant';
+  content: string;
 };
 
-function getMockResponse(message: string): string {
+function parseStoredMessages(value: string | null): ChatMessage[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (item): item is ChatMessage =>
+          item &&
+          (item.role === 'user' || item.role === 'assistant') &&
+          typeof item.content === 'string',
+      )
+      .map((item) => ({
+        role: item.role,
+        content: item.content.slice(0, 4_000),
+      }))
+      .slice(-MAX_STORED_MESSAGES);
+  } catch {
+    return [];
+  }
+}
+
+function sanitizeConversationHistory(value: unknown): ChatMessage[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter(
+      (item): item is ChatMessage =>
+        item &&
+        typeof item === 'object' &&
+        ('role' in item) &&
+        ('content' in item) &&
+        (item.role === 'user' || item.role === 'assistant') &&
+        typeof item.content === 'string',
+    )
+    .map((item) => ({
+      role: item.role,
+      content: item.content.trim().slice(0, 2_000),
+    }))
+    .filter((item) => item.content.length > 0)
+    .slice(-MAX_HISTORY_MESSAGES);
+}
+
+function serializePageContext(value: unknown): string | null {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? trimmed.slice(0, MAX_CONTEXT_LENGTH) : null;
+  }
+
+  if (value && typeof value === 'object') {
+    try {
+      return JSON.stringify(value).slice(0, MAX_CONTEXT_LENGTH);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+function buildCandidateContext(candidate: any, upcomingInterviews: any[]): string {
+  const applications = candidate?.applications || [];
+  const recentApplications = applications.length
+    ? applications
+        .map(
+          (application: any) =>
+            `${application.job.title} at ${application.job.company.name}: ${application.status}`,
+        )
+        .join('; ')
+    : 'None';
+  const upcoming = upcomingInterviews.length
+    ? upcomingInterviews
+        .map(
+          (interview: any) =>
+            `${interview.application.job.title} at ${interview.application.job.company.name} on ${interview.scheduledAt.toISOString()} (${interview.type})`,
+        )
+        .join('; ')
+    : 'None';
+
+  return [
+    'Candidate data from TalentFlow:',
+    `- Name: ${candidate?.user?.name || 'Not provided'}`,
+    `- Current title: ${candidate?.currentTitle || 'Not provided'}`,
+    `- Skills: ${candidate?.skills || 'Not provided'}`,
+    `- Experience: ${candidate?.experienceYears ?? 'Not provided'} years`,
+    `- Recent applications: ${recentApplications}`,
+    `- Upcoming interviews: ${upcoming}`,
+  ].join('\n');
+}
+
+function buildDegradedResponse(
+  message: string,
+  candidate: any,
+  upcomingInterviews: any[],
+): string {
   const lower = message.toLowerCase();
-  if (lower.includes('status') || lower.includes('application') || lower.includes('track') || lower.includes('progress')) return MOCK_RESPONSES.status;
-  if (lower.includes('interview') || lower.includes('tip') || lower.includes('prepare') || lower.includes('advice')) return MOCK_RESPONSES.interview;
-  if (lower.includes('process') || lower.includes('how') || lower.includes('what') || lower.includes('step') || lower.includes('flow')) return MOCK_RESPONSES.process;
-  if (lower.includes('upcoming') || lower.includes('schedule') || lower.includes('calendar') || lower.includes('next interview')) return MOCK_RESPONSES.upcoming;
-  return MOCK_RESPONSES.default;
+  const applications = candidate?.applications || [];
+
+  if (
+    lower.includes('status') ||
+    lower.includes('application') ||
+    lower.includes('progress')
+  ) {
+    if (applications.length === 0) {
+      return 'I could not find any applications on your TalentFlow profile. Open the Jobs page to explore current roles, or check Applications after you submit one.';
+    }
+
+    const latest = applications[0];
+    return `Your latest application is for ${latest.job.title} at ${latest.job.company.name}, and its current status is ${latest.status}. Open Applications for the complete timeline and your other submissions.`;
+  }
+
+  if (
+    lower.includes('upcoming') ||
+    lower.includes('schedule') ||
+    lower.includes('next interview')
+  ) {
+    if (upcomingInterviews.length === 0) {
+      return 'You do not currently have an upcoming interview recorded in TalentFlow. Check Applications and Notifications for any new scheduling updates.';
+    }
+
+    const next = upcomingInterviews[0];
+    return `Your next interview is for ${next.application.job.title} at ${next.application.job.company.name} on ${next.scheduledAt.toISOString()}. Open your application details for the meeting link or location.`;
+  }
+
+  if (
+    lower.includes('interview') ||
+    lower.includes('prepare') ||
+    lower.includes('tip')
+  ) {
+    return 'For interview preparation: review the role requirements, prepare two or three STAR examples, research the company, and write down thoughtful questions. Your application details can help you tailor those examples to the role.';
+  }
+
+  return 'The AI provider is temporarily unavailable, but your TalentFlow data is still safe. I can still help you check application status, review upcoming interviews, or explain where to find information in the candidate portal.';
 }
 
 // POST /api/chatbot/candidate
 export async function POST(request: NextRequest) {
   try {
-    // Authentication check - require CANDIDATE role
     const auth = await requireCandidate();
     if (auth instanceof NextResponse) return auth;
 
     const body = await request.json();
-
-    // Zod schema validation
     const validation = validateInput(chatbotMessageSchema, body);
     if (!validation.success) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
+
     const { message, sessionId } = validation.data;
-    const { context, source, candidateId, conversationHistory } = body;
-
-    // sessionId is required for this route (business logic)
     if (!sessionId) {
-      return NextResponse.json({ error: 'sessionId is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'sessionId is required' },
+        { status: 400 },
+      );
     }
 
-    if (isRateLimited(sessionId)) {
-      return NextResponse.json({ error: 'Too many messages. Please wait a moment.' }, { status: 429 });
-    }
-
-    // Gather candidate context
-    let candidateContext = '';
-    try {
-      if (candidateId && candidateId !== 'current') {
-        const candidate = await prisma.candidateProfile.findUnique({
-          where: { id: candidateId },
-          include: {
-            applications: {
-              take: 5,
-              orderBy: { appliedAt: 'desc' },
-              include: { job: { select: { title: true } } },
+    // The profile is always derived from the authenticated user. A client may
+    // not select another candidate by sending a candidateId in the request.
+    const candidate = await db.candidateProfile.findUnique({
+      where: { userId: auth.userId },
+      include: {
+        user: { select: { name: true } },
+        applications: {
+          take: 5,
+          orderBy: { appliedAt: 'desc' },
+          select: {
+            status: true,
+            appliedAt: true,
+            job: {
+              select: {
+                title: true,
+                company: { select: { name: true } },
+              },
             },
           },
-        });
+        },
+      },
+    });
 
-        if (candidate) {
-          const upcomingInterviews = await prisma.interview.count({
-            where: {
-              application: { candidateId: candidate.id },
-              status: 'SCHEDULED',
-              scheduledAt: { gte: new Date() },
-            },
-          });
-
-          candidateContext = `\n\nCandidate context:\n- Name: ${candidate.user?.name || 'Unknown'}\n- Current title: ${candidate.currentTitle || 'Not specified'}\n- Skills: ${candidate.skills || 'Not specified'}\n- Experience: ${candidate.experienceYears || 0} years\n- Applications submitted: ${candidate.applications.length}\n- Upcoming interviews: ${upcomingInterviews}\n- Recent applications: ${candidate.applications.map(a => `${a.job.title} (${a.status})`).join(', ') || 'None'}`;
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching candidate context:', err);
+    if (!candidate) {
+      return NextResponse.json(
+        { error: 'Candidate profile not found' },
+        { status: 404 },
+      );
     }
 
-    // Build messages for AI
-    const aiMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+    const upcomingInterviews = await db.interview.findMany({
+      where: {
+        application: { candidateId: candidate.id },
+        status: 'SCHEDULED',
+        scheduledAt: { gte: new Date() },
+      },
+      orderBy: { scheduledAt: 'asc' },
+      take: 5,
+      select: {
+        scheduledAt: true,
+        type: true,
+        application: {
+          select: {
+            job: {
+              select: {
+                title: true,
+                company: { select: { name: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const pageContext = serializePageContext(body.context);
+    const conversationHistory = sanitizeConversationHistory(
+      body.conversationHistory,
+    );
+    const messages: Array<{
+      role: 'system' | 'user' | 'assistant';
+      content: string;
+    }> = [
       { role: 'system', content: CANDIDATE_SYSTEM_PROMPT },
+      {
+        role: 'system',
+        content: buildCandidateContext(candidate, upcomingInterviews),
+      },
     ];
 
-    if (candidateContext) {
-      aiMessages.push({ role: 'system', content: candidateContext });
-    }
-
-    if (context) {
-      const contextStr = typeof context === 'string' ? context : JSON.stringify(context);
-      aiMessages.push({ role: 'system', content: `The user is currently on: ${contextStr}` });
-    }
-
-    // Add conversation history (last 20)
-    if (Array.isArray(conversationHistory)) {
-      const recent = conversationHistory.slice(-20);
-      for (const msg of recent) {
-        if (msg.role === 'user' || msg.role === 'assistant') {
-          aiMessages.push({ role: msg.role, content: msg.content });
-        }
-      }
-    }
-
-    aiMessages.push({ role: 'user', content: message });
-
-    // Call AI
-    let aiResponse: string;
-    try {
-      const zai = await ZAI.create();
-      const response = await zai.chat.completions.create({
-        model: 'openai/gpt-4o-mini',
-        messages: aiMessages,
+    if (pageContext) {
+      messages.push({
+        role: 'system',
+        content: `Current candidate-portal context: ${pageContext}`,
       });
-      aiResponse = response.choices[0]?.message?.content || '';
-      if (!aiResponse) {
-        aiResponse = getMockResponse(message);
-      }
-    } catch (error) {
-      console.error('Candidate chatbot AI error:', error);
-      aiResponse = getMockResponse(message);
     }
 
-    // Save conversation
+    messages.push(...conversationHistory, { role: 'user', content: message });
+
+    let responseText = '';
+    let degraded = false;
+    let model: string | null = null;
+
     try {
-      const existing = await prisma.chatConversation.findUnique({ where: { sessionId } });
-      const updatedMessages = [
-        ...(existing ? JSON.parse(existing.messages) : []),
-        { role: 'user', content: message },
-        { role: 'assistant', content: aiResponse },
-      ];
-
-      if (existing) {
-        await prisma.chatConversation.update({
-          where: { sessionId },
-          data: {
-            messages: JSON.stringify(updatedMessages),
-            context: context ? (typeof context === 'string' ? context : JSON.stringify(context)) : undefined,
-            updatedAt: new Date(),
-          },
-        });
-      } else {
-        await prisma.chatConversation.create({
-          data: {
-            sessionId,
-            userId: null,
-            messages: JSON.stringify(updatedMessages),
-            context: context ? (typeof context === 'string' ? context : JSON.stringify(context)) : undefined,
-            source: source || 'candidate',
-          },
-        });
-      }
-    } catch (err) {
-      console.error('Error saving conversation:', err);
+      const completion = await aiChat({
+        userId: auth.userId,
+        messages,
+        feature: 'candidate_chatbot',
+      });
+      responseText = completion.content.trim();
+      model = completion.model || null;
+      if (!responseText) throw new Error('AI provider returned an empty response');
+    } catch (error) {
+      degraded = true;
+      console.warn(
+        'Candidate chatbot provider unavailable; using grounded fallback:',
+        error instanceof Error ? error.message : 'Unknown provider error',
+      );
+      responseText = buildDegradedResponse(
+        message,
+        candidate,
+        upcomingInterviews,
+      );
     }
 
-    return NextResponse.json({ response: aiResponse, sessionId });
+    const existing = await db.chatConversation.findFirst({
+      where: {
+        userId: auth.userId,
+        sessionId,
+        source: 'candidate',
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+    const storedMessages = parseStoredMessages(existing?.messages || null);
+    const updatedMessages = [
+      ...storedMessages,
+      { role: 'user' as const, content: message },
+      { role: 'assistant' as const, content: responseText },
+    ].slice(-MAX_STORED_MESSAGES);
+
+    if (existing) {
+      await db.chatConversation.update({
+        where: { id: existing.id },
+        data: {
+          messages: JSON.stringify(updatedMessages),
+          context: pageContext,
+        },
+      });
+    } else {
+      await db.chatConversation.create({
+        data: {
+          sessionId,
+          userId: auth.userId,
+          messages: JSON.stringify(updatedMessages),
+          context: pageContext,
+          source: 'candidate',
+        },
+      });
+    }
+
+    return NextResponse.json({
+      response: responseText,
+      sessionId,
+      degraded,
+      model,
+      persisted: true,
+    });
   } catch (error) {
     return handleApiError(error, 'ChatbotCandidate');
   }
