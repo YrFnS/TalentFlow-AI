@@ -1,0 +1,66 @@
+name: Production E2E role audit
+
+on:
+  push:
+    branches:
+      - agent/e2e-role-audit-fixes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  role-matrix:
+    name: Browser audit for every role
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      E2E_BASE_URL: https://talent-flow-ai-six.vercel.app
+      E2E_DEMO_PASSWORD: TalentFlowDemo!2026
+      E2E_ARTIFACTS_DIR: e2e-artifacts
+      E2E_NAVIGATION_TIMEOUT_MS: 35000
+      E2E_SETTLE_DELAY_MS: 1250
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install isolated Playwright runner
+        run: |
+          mkdir -p /tmp/talentflow-e2e
+          npm --prefix /tmp/talentflow-e2e init -y
+          npm --prefix /tmp/talentflow-e2e install --no-audit --no-fund playwright@1.55.0
+          /tmp/talentflow-e2e/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Run production browser role matrix
+        env:
+          NODE_PATH: /tmp/talentflow-e2e/node_modules
+        run: node scripts/e2e-production.cjs
+
+      - name: Publish report to workflow summary
+        if: always()
+        run: |
+          if [ -f e2e-artifacts/report.md ]; then
+            cat e2e-artifacts/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "# TalentFlow AI production E2E role audit" >> "$GITHUB_STEP_SUMMARY"
+            echo "The browser runner did not produce a report." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: talentflow-production-e2e
+          path: e2e-artifacts
+          if-no-files-found: error
+          retention-days: 14
