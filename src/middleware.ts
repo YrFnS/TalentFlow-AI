@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { getLimiterForPath } from '@/lib/security/rate-limiter';
+import {
+  authSprayLimiter,
+  getLimiterForPath,
+  type RateLimitResult,
+  type RateLimiter,
+} from '@/lib/security/rate-limiter';
 import { generateNonce } from '@/lib/security/nonce';
 import {
   getSecurityHeaders,
@@ -26,7 +31,10 @@ function simpleHash(str: string): string {
   return Math.abs(hash).toString(36);
 }
 
-function getRateLimitKeyFromRequest(req: NextRequest, userId?: string): string {
+function getRateLimitKeyFromRequest(
+  req: NextRequest,
+  userId?: string,
+): string {
   if (userId) return `user:${userId}`;
 
   const forwarded = req.headers.get('x-forwarded-for');
@@ -43,17 +51,46 @@ function getRateLimitKeyFromRequest(req: NextRequest, userId?: string): string {
   return 'anon:no-headers';
 }
 
-function withSecurityHeaders(response: NextResponse, nonce?: string): NextResponse {
+async function getCredentialAttemptKey(
+  req: NextRequest,
+  clientKey: string,
+): Promise<string> {
+  try {
+    const formData = await req.clone().formData();
+    const rawEmail = formData.get('email');
+    const email =
+      typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : '';
+
+    if (email) {
+      return `${clientKey}:account:${simpleHash(email)}`;
+    }
+  } catch {
+    // Fall back to the client key if the callback payload cannot be parsed.
+  }
+
+  return `${clientKey}:account:unknown`;
+}
+
+function withSecurityHeaders(
+  response: NextResponse,
+  nonce?: string,
+): NextResponse {
   response.headers.delete('X-Powered-By');
 
   for (const [key, value] of Object.entries(getSecurityHeaders(nonce))) {
     response.headers.set(key, value);
   }
 
+  const commit = process.env.VERCEL_GIT_COMMIT_SHA;
+  if (commit) response.headers.set('x-deployment-commit', commit);
+
   return response;
 }
 
-function withCORSHeaders(response: NextResponse, request?: NextRequest): NextResponse {
+function withCORSHeaders(
+  response: NextResponse,
+  request?: NextRequest,
+): NextResponse {
   const requestOrigin = request?.headers.get('origin') || null;
   const corsHeaders = requestOrigin
     ? getCORSHeadersForRequest(requestOrigin)
@@ -64,6 +101,35 @@ function withCORSHeaders(response: NextResponse, request?: NextRequest): NextRes
   }
 
   return response;
+}
+
+function createRateLimitResponse(
+  req: NextRequest,
+  limiter: RateLimiter,
+  result: RateLimitResult,
+): NextResponse {
+  const retryAfterSeconds = Math.max(
+    1,
+    Math.ceil((result.resetAt - Date.now()) / 1000),
+  );
+  const response = NextResponse.json(
+    {
+      error: 'Too many requests',
+      message: 'Rate limit exceeded. Please try again later.',
+      retryAfter: retryAfterSeconds,
+    },
+    {
+      status: 429,
+      headers: {
+        'Retry-After': String(retryAfterSeconds),
+        'X-RateLimit-Limit': String(limiter['maxRequests']),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': String(Math.ceil(result.resetAt / 1000)),
+      },
+    },
+  );
+
+  return withSecurityHeaders(withCORSHeaders(response, req));
 }
 
 function isRouteAtOrBelow(path: string, root: string): boolean {
@@ -155,31 +221,28 @@ export async function middleware(req: NextRequest) {
       // Anonymous rate-limit key will be used.
     }
 
-    const rateLimitKey = getRateLimitKeyFromRequest(req, userId);
+    const clientKey = getRateLimitKeyFromRequest(req, userId);
+
+    if (path.includes('/api/auth/callback/credentials')) {
+      // Keep a broad per-client ceiling for password spraying while assigning
+      // the tight five-attempt budget to the specific account being targeted.
+      const sprayResult = authSprayLimiter.checkWithKey(clientKey);
+      if (!sprayResult.allowed) {
+        return createRateLimitResponse(
+          req,
+          authSprayLimiter,
+          sprayResult,
+        );
+      }
+    }
+
+    const rateLimitKey = path.includes('/api/auth/callback/credentials')
+      ? await getCredentialAttemptKey(req, clientKey)
+      : clientKey;
     const result = limiter.checkWithKey(rateLimitKey);
 
     if (!result.allowed) {
-      const retryAfterSeconds = Math.max(
-        1,
-        Math.ceil((result.resetAt - Date.now()) / 1000),
-      );
-      const response = NextResponse.json(
-        {
-          error: 'Too many requests',
-          message: 'Rate limit exceeded. Please try again later.',
-          retryAfter: retryAfterSeconds,
-        },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': String(retryAfterSeconds),
-            'X-RateLimit-Limit': String(limiter['maxRequests']),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': String(Math.ceil(result.resetAt / 1000)),
-          },
-        },
-      );
-      return withSecurityHeaders(withCORSHeaders(response, req));
+      return createRateLimitResponse(req, limiter, result);
     }
 
     rateLimitResult = {
@@ -199,13 +262,19 @@ export async function middleware(req: NextRequest) {
 
     if (!token) {
       const loginUrl = new URL('/auth/login', req.url);
-      loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname + req.nextUrl.search);
+      loginUrl.searchParams.set(
+        'callbackUrl',
+        req.nextUrl.pathname + req.nextUrl.search,
+      );
       return withSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
     }
 
     const role = String(token.role || '');
 
-    if (isAdminRoute && !['SUPER_ADMIN', 'ADMIN', 'MODERATOR'].includes(role)) {
+    if (
+      isAdminRoute &&
+      !['SUPER_ADMIN', 'ADMIN', 'MODERATOR'].includes(role)
+    ) {
       return withSecurityHeaders(
         NextResponse.rewrite(new URL('/not-found', req.url)),
         nonce,
@@ -242,8 +311,6 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Forward the nonce as a request header so the root layout receives the same
-  // nonce that is present in the response Content-Security-Policy header.
   const requestHeaders = new Headers(req.headers);
   if (nonce) {
     requestHeaders.set('x-csp-nonce', nonce);
@@ -263,7 +330,10 @@ export async function middleware(req: NextRequest) {
     withCORSHeaders(response, req);
 
     if (rateLimitResult) {
-      response.headers.set('X-RateLimit-Limit', String(rateLimitResult.limit));
+      response.headers.set(
+        'X-RateLimit-Limit',
+        String(rateLimitResult.limit),
+      );
       response.headers.set(
         'X-RateLimit-Remaining',
         String(rateLimitResult.remaining),
